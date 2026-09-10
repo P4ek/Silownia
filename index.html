@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dziennik treningowy</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    max-width: 640px;
+    margin: 24px auto;
+    padding: 0 16px;
+    color: #1a1a1a;
+    background: #f6f6f6;
+  }
+  h1 { font-size: 1.4rem; }
+  form {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  label { display: block; font-weight: 600; margin: 12px 0 4px; }
+  select, input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font: inherit;
+  }
+  fieldset { border: 1px solid #ddd; border-radius: 6px; margin-top: 12px; }
+  legend { font-weight: 600; padding: 0 6px; }
+  .set-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: end;
+  }
+  .set-row label { margin: 0 0 4px; font-weight: 500; font-size: .85rem; }
+  .set-row .field-weight, .set-row .field-reps { min-width: 0; }
+  button {
+    padding: 8px 14px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    background: #eee;
+    font: inherit;
+    cursor: pointer;
+  }
+  button:hover { background: #e0e0e0; }
+  .btn-remove {
+    background: #fbe9e9;
+    border-color: #e0b4b4;
+    padding: 8px 12px;
+  }
+  .btn-submit {
+    margin-top: 16px;
+    width: 100%;
+    background: #2b7a2b;
+    border-color: #246824;
+    color: #fff;
+    font-weight: 600;
+  }
+  .btn-submit:hover { background: #246824; }
+  #lista { margin-top: 24px; }
+  .wpis {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-left: 4px solid #2b7a2b;
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .wpis-naglowek { font-weight: 600; margin-bottom: 2px; }
+  .wpis-data { color: #666; font-size: .85rem; margin-bottom: 8px; }
+  .wpis ul { margin: 0; padding-left: 20px; }
+  .pusto { color: #888; }
+</style>
+</head>
+<body>
+<h1>Dziennik treningowy</h1>
+
+<form id="form-treningu">
+  <label for="partia">Partia mięśniowa</label>
+  <select id="partia" name="partia" required>
+    <option value="">-- wybierz partię --</option>
+  </select>
+
+  <label for="cwiczenie">Ćwiczenie</label>
+  <select id="cwiczenie" name="cwiczenie" required disabled>
+    <option value="">-- najpierw wybierz partię --</option>
+  </select>
+
+  <label for="data">Data</label>
+  <input type="date" id="data" name="data" required>
+
+  <fieldset>
+    <legend>Podejścia</legend>
+    <div id="podejscia"></div>
+    <button type="button" id="dodaj-podejscie">+ dodaj podejście</button>
+  </fieldset>
+
+  <button type="submit" class="btn-submit">Dodaj ćwiczenie</button>
+</form>
+
+<div id="lista">
+  <p class="pusto">Brak zapisanych treningów.</p>
+</div>
+
+<script>
+  const CWICZENIA = {
+    "Klata": [
+      "wyciskanie na maszynie",
+      "wyciskanie hantli ławka skośna",
+      "rozpiętki hantlami",
+      "rozpiętki na bramie góra",
+      "rozpiętki na bramie dół"
+    ],
+    "Plecy": [
+      "podciąganie",
+      "wiosłowanie na wyciągu",
+      "lat pulldown",
+      "wiosłowanie na maszynie szerokim chwytem",
+      "narciarz łamanym gryfem"
+    ],
+    "Biceps": [
+      "spider curls",
+      "uginanie ramion hantlami",
+      "młotki na wyciągu",
+      "młotki hantlami",
+      "biceps gryfem łamanym",
+      "uginanie ramion na maszynie"
+    ],
+    "Triceps": [
+      "dipy",
+      "prostowanie ramion na wyciągu metalowym gryfem",
+      "triceps z nad głowy warkoczem",
+      "triceps na wyciągu sznurem"
+    ],
+    "Barki": [
+      "wznosy bokiem w oparciu o ławkę",
+      "wznosy bokiem na maszynie",
+      "wznosy bokiem na wyciągu",
+      "wznosy bokiem brama",
+      "wznosy bokiem hantlami na stojąco",
+      "tył barku linką"
+    ],
+    "Brzuch": [
+      "brzuch na drążku"
+    ],
+    "Nogi": [
+      "bułgary",
+      "przysiady",
+      "prostowanie na maszynie",
+      "uginanie na maszynie",
+      "maszyna na łydki"
+    ]
+  };
+
+  const form = document.getElementById("form-treningu");
+  const selPartia = document.getElementById("partia");
+  const selCwiczenie = document.getElementById("cwiczenie");
+  const inputData = document.getElementById("data");
+  const podejsciaBox = document.getElementById("podejscia");
+  const btnDodaj = document.getElementById("dodaj-podejscie");
+  const lista = document.getElementById("lista");
+
+  // Wypełnienie selecta partii
+  Object.keys(CWICZENIA).forEach(function (partia) {
+    const opt = document.createElement("option");
+    opt.value = partia;
+    opt.textContent = partia;
+    selPartia.appendChild(opt);
+  });
+
+  // Ustawienie dzisiejszej daty
+  function dzisiaj() {
+    const d = new Date();
+    const off = d.getTimezoneOffset();
+    return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
+  }
+  inputData.value = dzisiaj();
+
+  // Aktualizacja listy ćwiczeń po wyborze partii
+  selPartia.addEventListener("change", function () {
+    const partia = selPartia.value;
+    selCwiczenie.innerHTML = "";
+
+    if (!partia) {
+      selCwiczenie.disabled = true;
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "-- najpierw wybierz partię --";
+      selCwiczenie.appendChild(opt);
+      return;
+    }
+
+    selCwiczenie.disabled = false;
+    const opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "-- wybierz ćwiczenie --";
+    selCwiczenie.appendChild(opt0);
+
+    CWICZENIA[partia].forEach(function (cw) {
+      const opt = document.createElement("option");
+      opt.value = cw;
+      opt.textContent = cw;
+      selCwiczenie.appendChild(opt);
+    });
+  });
+
+  // Wiersz podejścia
+  function stworzWiersz() {
+    const row = document.createElement("div");
+    row.className = "set-row";
+
+    const wrapW = document.createElement("div");
+    wrapW.className = "field-weight";
+    const labW = document.createElement("label");
+    labW.textContent = "Ciężar (kg)";
+    const inpW = document.createElement("input");
+    inpW.type = "number";
+    inpW.name = "ciezar";
+    inpW.min = "0";
+    inpW.step = "0.5";
+    inpW.required = true;
+    wrapW.appendChild(labW);
+    wrapW.appendChild(inpW);
+
+    const wrapR = document.createElement("div");
+    wrapR.className = "field-reps";
+    const labR = document.createElement("label");
+    labR.textContent = "Powtórzenia";
+    const inpR = document.createElement("input");
+    inpR.type = "number";
+    inpR.name = "powtorzenia";
+    inpR.min = "1";
+    inpR.step = "1";
+    inpR.required = true;
+    wrapR.appendChild(labR);
+    wrapR.appendChild(inpR);
+
+    const btnDel = document.createElement("button");
+    btnDel.type = "button";
+    btnDel.className = "btn-remove";
+    btnDel.textContent = "usuń";
+    btnDel.addEventListener("click", function () {
+      row.remove();
+      if (podejsciaBox.children.length === 0) {
+        podejsciaBox.appendChild(stworzWiersz());
+      }
+    });
+
+    row.appendChild(wrapW);
+    row.appendChild(wrapR);
+    row.appendChild(btnDel);
+    return row;
+  }
+
+  function resetPodejscia() {
+    podejsciaBox.innerHTML = "";
+    podejsciaBox.appendChild(stworzWiersz());
+  }
+  resetPodejscia();
+
+  btnDodaj.addEventListener("click", function () {
+    podejsciaBox.appendChild(stworzWiersz());
+  });
+
+  // Submit
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const partia = selPartia.value;
+    const cwiczenie = selCwiczenie.value;
+    const data = inputData.value;
+
+    const podejscia = [];
+    podejsciaBox.querySelectorAll(".set-row").forEach(function (row) {
+      const ciezar = row.querySelector('input[name="ciezar"]').value;
+      const powt = row.querySelector('input[name="powtorzenia"]').value;
+      podejscia.push({ ciezar: ciezar, powtorzenia: powt });
+    });
+
+    // Usunięcie komunikatu "brak wpisów"
+    const pusto = lista.querySelector(".pusto");
+    if (pusto) pusto.remove();
+
+    const wpis = document.createElement("div");
+    wpis.className = "wpis";
+
+    const naglowek = document.createElement("div");
+    naglowek.className = "wpis-naglowek";
+    naglowek.textContent = partia + " — " + cwiczenie;
+
+    const dataEl = document.createElement("div");
+    dataEl.className = "wpis-data";
+    dataEl.textContent = data;
+
+    const ul = document.createElement("ul");
+    podejscia.forEach(function (p, i) {
+      const li = document.createElement("li");
+      li.textContent = "Podejście " + (i + 1) + ": " + p.ciezar + " kg × " + p.powtorzenia;
+      ul.appendChild(li);
+    });
+
+    wpis.appendChild(naglowek);
+    wpis.appendChild(dataEl);
+    wpis.appendChild(ul);
+    lista.prepend(wpis);
+
+    form.reset();
+    selCwiczenie.disabled = true;
+    selCwiczenie.innerHTML = '<option value="">-- najpierw wybierz partię --</option>';
+    inputData.value = dzisiaj();
+    resetPodejscia();
+  });
+</script>
+</body>
+</html>
