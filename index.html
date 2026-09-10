@@ -215,6 +215,7 @@
   <button class="nav-btn aktywny" data-widok="widok-dodaj">Dodaj ćwiczenie</button>
   <button class="nav-btn" data-widok="widok-rejestr">Rejestr ćwiczeń</button>
   <button class="nav-btn" data-widok="widok-wykres">Wykres postępu</button>
+  <button class="nav-btn" data-widok="widok-nowe">Dodaj nowe ćwiczenie</button>
 </nav>
 
 <div class="kontener">
@@ -273,6 +274,23 @@
       <p id="wykres-brak" hidden>Brak jeszcze danych dla tego ćwiczenia</p>
     </div>
   </section>
+
+  <!-- ===== Widok 4: Dodaj nowe ćwiczenie ===== -->
+  <section id="widok-nowe" class="widok">
+    <h2>Dodaj nowe ćwiczenie</h2>
+    <form id="form-nowe-cwiczenie">
+      <label for="nowe-partia">Partia mięśniowa</label>
+      <select id="nowe-partia" required>
+        <option value="">-- wybierz partię --</option>
+      </select>
+
+      <label for="nowe-nazwa">Nazwa ćwiczenia</label>
+      <input type="text" id="nowe-nazwa" autocomplete="off" required>
+
+      <button type="submit" class="btn-submit">Zapisz ćwiczenie</button>
+      <p id="nowe-status" hidden></p>
+    </form>
+  </section>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -282,54 +300,16 @@
   const SUPABASE_KEY = "sb_publishable_4nd418S2FdKpFmp5vGh1Ug_jltWAFrI";
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const CWICZENIA = {
-    "Klata": [
-      "wyciskanie na maszynie",
-      "wyciskanie hantli ławka skośna",
-      "rozpiętki hantlami",
-      "rozpiętki na bramie góra",
-      "rozpiętki na bramie dół"
-    ],
-    "Plecy": [
-      "podciąganie",
-      "wiosłowanie na wyciągu",
-      "lat pulldown",
-      "wiosłowanie na maszynie szerokim chwytem",
-      "narciarz łamanym gryfem"
-    ],
-    "Biceps": [
-      "spider curls",
-      "uginanie ramion hantlami",
-      "młotki na wyciągu",
-      "młotki hantlami",
-      "biceps gryfem łamanym",
-      "uginanie ramion na maszynie"
-    ],
-    "Triceps": [
-      "dipy",
-      "prostowanie ramion na wyciągu metalowym gryfem",
-      "triceps z nad głowy warkoczem",
-      "triceps na wyciągu sznurem"
-    ],
-    "Barki": [
-      "wznosy bokiem w oparciu o ławkę",
-      "wznosy bokiem na maszynie",
-      "wznosy bokiem na wyciągu",
-      "wznosy bokiem brama",
-      "wznosy bokiem hantlami na stojąco",
-      "tył barku linką"
-    ],
-    "Brzuch": [
-      "brzuch na drążku"
-    ],
-    "Nogi": [
-      "bułgary",
-      "przysiady",
-      "prostowanie na maszynie",
-      "uginanie na maszynie",
-      "maszyna na łydki"
-    ]
-  };
+  // Stała lista partii; ćwiczenia pobierane z tabeli "cwiczenia"
+  const PARTIE = ["Klata", "Plecy", "Biceps", "Triceps", "Barki", "Brzuch", "Nogi"];
+  let katalog = []; // wiersze z tabeli "cwiczenia": { partia, nazwa }
+
+  function cwiczeniaDlaPartii(partia) {
+    return katalog
+      .filter(function (c) { return c.partia === partia; })
+      .map(function (c) { return c.nazwa; })
+      .sort(function (a, b) { return a.localeCompare(b, "pl"); });
+  }
 
   const form = document.getElementById("form-treningu");
   const selPartia = document.getElementById("partia");
@@ -341,6 +321,10 @@
   const rejestrBox = document.getElementById("rejestr");
   const selWykres = document.getElementById("wykres-cwiczenie");
   const wykresBrak = document.getElementById("wykres-brak");
+  const formNowe = document.getElementById("form-nowe-cwiczenie");
+  const selNowePartia = document.getElementById("nowe-partia");
+  const inputNoweNazwa = document.getElementById("nowe-nazwa");
+  const noweStatus = document.getElementById("nowe-status");
 
   // Wszystkie pobrane wpisy z tabeli "treningi"
   const wpisy = [];
@@ -373,26 +357,72 @@
     });
   });
 
-  // Wypełnienie selecta partii
-  Object.keys(CWICZENIA).forEach(function (partia) {
-    const opt = document.createElement("option");
-    opt.value = partia;
-    opt.textContent = partia;
-    selPartia.appendChild(opt);
+  // Wypełnienie selectów partii (formularz treningu + dodawanie nowego ćwiczenia)
+  PARTIE.forEach(function (partia) {
+    selPartia.appendChild(new Option(partia, partia));
+    selNowePartia.appendChild(new Option(partia, partia));
   });
 
-  // Wypełnienie selecta wykresu wszystkimi ćwiczeniami ze wszystkich partii
-  Object.keys(CWICZENIA).forEach(function (partia) {
-    const grupa = document.createElement("optgroup");
-    grupa.label = partia;
-    CWICZENIA[partia].forEach(function (cw) {
-      const opt = document.createElement("option");
-      opt.value = cw;
-      opt.textContent = cw;
-      grupa.appendChild(opt);
+  // Odbudowa selecta ćwiczeń w formularzu treningu (zależny od wybranej partii)
+  function odbudujSelectCwiczenie() {
+    const partia = selPartia.value;
+    const poprzednie = selCwiczenie.value;
+    selCwiczenie.innerHTML = "";
+
+    if (!partia) {
+      selCwiczenie.disabled = true;
+      selCwiczenie.appendChild(new Option("-- najpierw wybierz partię --", ""));
+      return;
+    }
+
+    selCwiczenie.disabled = false;
+    selCwiczenie.appendChild(new Option("-- wybierz ćwiczenie --", ""));
+    cwiczeniaDlaPartii(partia).forEach(function (nazwa) {
+      selCwiczenie.appendChild(new Option(nazwa, nazwa));
     });
-    selWykres.appendChild(grupa);
-  });
+    if (poprzednie) selCwiczenie.value = poprzednie;
+  }
+
+  // Odbudowa selecta ćwiczeń na wykresie (wszystkie partie, pogrupowane)
+  function odbudujSelectWykres() {
+    const poprzednie = selWykres.value;
+    selWykres.innerHTML = "";
+    selWykres.appendChild(new Option("-- wybierz ćwiczenie --", ""));
+
+    PARTIE.forEach(function (partia) {
+      const nazwy = cwiczeniaDlaPartii(partia);
+      if (nazwy.length === 0) return;
+      const grupa = document.createElement("optgroup");
+      grupa.label = partia;
+      nazwy.forEach(function (nazwa) { grupa.appendChild(new Option(nazwa, nazwa)); });
+      selWykres.appendChild(grupa);
+    });
+    if (poprzednie) selWykres.value = poprzednie;
+  }
+
+  // Odświeżenie wszystkich list ćwiczeń na stronie
+  function odswiezSelectyCwiczen() {
+    odbudujSelectCwiczenie();
+    odbudujSelectWykres();
+  }
+
+  // Pobranie katalogu ćwiczeń z tabeli "cwiczenia"
+  async function wczytajKatalog() {
+    const { data, error } = await db
+      .from("cwiczenia")
+      .select("*")
+      .order("partia", { ascending: true })
+      .order("nazwa", { ascending: true });
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się pobrać listy ćwiczeń: " + error.message);
+      return;
+    }
+    katalog = data || [];
+    odswiezSelectyCwiczen();
+  }
+  wczytajKatalog();
 
   // Ustawienie dzisiejszej daty
   function dzisiaj() {
@@ -403,32 +433,7 @@
   inputData.value = dzisiaj();
 
   // Aktualizacja listy ćwiczeń po wyborze partii
-  selPartia.addEventListener("change", function () {
-    const partia = selPartia.value;
-    selCwiczenie.innerHTML = "";
-
-    if (!partia) {
-      selCwiczenie.disabled = true;
-      const opt = document.createElement("option");
-      opt.value = "";
-      opt.textContent = "-- najpierw wybierz partię --";
-      selCwiczenie.appendChild(opt);
-      return;
-    }
-
-    selCwiczenie.disabled = false;
-    const opt0 = document.createElement("option");
-    opt0.value = "";
-    opt0.textContent = "-- wybierz ćwiczenie --";
-    selCwiczenie.appendChild(opt0);
-
-    CWICZENIA[partia].forEach(function (cw) {
-      const opt = document.createElement("option");
-      opt.value = cw;
-      opt.textContent = cw;
-      selCwiczenie.appendChild(opt);
-    });
-  });
+  selPartia.addEventListener("change", odbudujSelectCwiczenie);
 
   // Wiersz podejścia
   function stworzWiersz() {
@@ -721,11 +726,54 @@
     if (selWykres.value === cwiczenie) odswiezWykres();
 
     form.reset();
-    selCwiczenie.disabled = true;
-    selCwiczenie.innerHTML = '<option value="">-- najpierw wybierz partię --</option>';
+    odbudujSelectCwiczenie();
     inputData.value = dzisiaj();
     resetPodejscia();
   });
+
+  // Submit: dodanie nowego ćwiczenia do tabeli "cwiczenia"
+  formNowe.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const partia = selNowePartia.value;
+    const nazwa = inputNoweNazwa.value.trim();
+    if (!partia || !nazwa) return;
+
+    const istnieje = katalog.some(function (c) {
+      return c.partia === partia && c.nazwa.toLowerCase() === nazwa.toLowerCase();
+    });
+    if (istnieje) {
+      pokazStatusNowe("To ćwiczenie już jest w bazie dla tej partii.", false);
+      return;
+    }
+
+    const btn = formNowe.querySelector(".btn-submit");
+    btn.disabled = true;
+
+    const { data: wstawione, error } = await db
+      .from("cwiczenia")
+      .insert({ partia: partia, nazwa: nazwa })
+      .select();
+
+    btn.disabled = false;
+
+    if (error) {
+      console.error(error);
+      pokazStatusNowe("Nie udało się zapisać: " + error.message, false);
+      return;
+    }
+
+    katalog.push(wstawione && wstawione[0] ? wstawione[0] : { partia: partia, nazwa: nazwa });
+    odswiezSelectyCwiczen();
+    formNowe.reset();
+    pokazStatusNowe('Dodano: „' + nazwa + '" (' + partia + ")", true);
+  });
+
+  function pokazStatusNowe(tekst, ok) {
+    noweStatus.textContent = tekst;
+    noweStatus.style.color = ok ? "#2b7a2b" : "#b00020";
+    noweStatus.hidden = false;
+  }
 </script>
 </body>
 </html>
