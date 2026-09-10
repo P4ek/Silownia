@@ -108,7 +108,12 @@
   <p class="pusto">Brak zapisanych treningów.</p>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  const SUPABASE_URL = "https://yrnubpuffivauxatvthr.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_4nd418S2FdKpFmp5vGh1Ug_jltWAFrI";
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
   const CWICZENIA = {
     "Klata": [
       "wyciskanie na maszynie",
@@ -268,8 +273,55 @@
     podejsciaBox.appendChild(stworzWiersz());
   });
 
+  // Render pojedynczego wpisu na liście
+  function renderWpis(row, gdzie) {
+    const pusto = lista.querySelector(".pusto");
+    if (pusto) pusto.remove();
+
+    const wpis = document.createElement("div");
+    wpis.className = "wpis";
+
+    const naglowek = document.createElement("div");
+    naglowek.className = "wpis-naglowek";
+    naglowek.textContent = row.partia + " — " + row.cwiczenie;
+
+    const dataEl = document.createElement("div");
+    dataEl.className = "wpis-data";
+    dataEl.textContent = row.data;
+
+    const ul = document.createElement("ul");
+    (row.podejscia || []).forEach(function (p, i) {
+      const li = document.createElement("li");
+      li.textContent = "Podejście " + (i + 1) + ": " + p["cieżar"] + " kg × " + p.powtorzenia;
+      ul.appendChild(li);
+    });
+
+    wpis.appendChild(naglowek);
+    wpis.appendChild(dataEl);
+    wpis.appendChild(ul);
+
+    if (gdzie === "prepend") lista.prepend(wpis);
+    else lista.appendChild(wpis);
+  }
+
+  // Pobranie wszystkich wpisów przy otwarciu strony
+  async function wczytajWpisy() {
+    const { data, error } = await db
+      .from("treningi")
+      .select("*")
+      .order("data", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się pobrać treningów: " + error.message);
+      return;
+    }
+    (data || []).forEach(function (row) { renderWpis(row, "append"); });
+  }
+  wczytajWpisy();
+
   // Submit
-  form.addEventListener("submit", function (e) {
+  form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const partia = selPartia.value;
@@ -280,35 +332,26 @@
     podejsciaBox.querySelectorAll(".set-row").forEach(function (row) {
       const ciezar = row.querySelector('input[name="ciezar"]').value;
       const powt = row.querySelector('input[name="powtorzenia"]').value;
-      podejscia.push({ ciezar: ciezar, powtorzenia: powt });
+      podejscia.push({ "cieżar": Number(ciezar), powtorzenia: Number(powt) });
     });
 
-    // Usunięcie komunikatu "brak wpisów"
-    const pusto = lista.querySelector(".pusto");
-    if (pusto) pusto.remove();
+    const btn = form.querySelector(".btn-submit");
+    btn.disabled = true;
 
-    const wpis = document.createElement("div");
-    wpis.className = "wpis";
+    const { data: wstawione, error } = await db
+      .from("treningi")
+      .insert({ partia: partia, cwiczenie: cwiczenie, data: data, podejscia: podejscia })
+      .select();
 
-    const naglowek = document.createElement("div");
-    naglowek.className = "wpis-naglowek";
-    naglowek.textContent = partia + " — " + cwiczenie;
+    btn.disabled = false;
 
-    const dataEl = document.createElement("div");
-    dataEl.className = "wpis-data";
-    dataEl.textContent = data;
+    if (error) {
+      console.error(error);
+      alert("Nie udało się zapisać: " + error.message);
+      return;
+    }
 
-    const ul = document.createElement("ul");
-    podejscia.forEach(function (p, i) {
-      const li = document.createElement("li");
-      li.textContent = "Podejście " + (i + 1) + ": " + p.ciezar + " kg × " + p.powtorzenia;
-      ul.appendChild(li);
-    });
-
-    wpis.appendChild(naglowek);
-    wpis.appendChild(dataEl);
-    wpis.appendChild(ul);
-    lista.prepend(wpis);
+    renderWpis(wstawione && wstawione[0] ? wstawione[0] : { partia, cwiczenie, data, podejscia }, "prepend");
 
     form.reset();
     selCwiczenie.disabled = true;
