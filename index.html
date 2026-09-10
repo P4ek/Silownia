@@ -4,202 +4,372 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dziennik treningowy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --cream: #FAF3E7;
+    --card: #FFFDF8;
+    --ink: #2A2320;
+    --muted: #8C8073;
+    --border: #ECE1CF;
+    --accent: #E2643F;
+    --accent-soft: #FCEAE2;
+    --shadow-warm: 0 14px 34px -16px rgba(226, 100, 63, 0.30), 0 2px 8px rgba(180, 150, 120, 0.12);
+  }
   * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     margin: 0;
-    color: #1a1a1a;
-    background: #f6f6f6;
+    color: var(--ink);
+    font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    background:
+      radial-gradient(1000px 620px at 100% -5%, rgba(226, 100, 63, 0.16), rgba(226, 100, 63, 0) 62%),
+      var(--cream);
+    background-attachment: fixed;
+    min-height: 100vh;
   }
-  .kontener {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 16px 16px 48px;
-  }
-  h1 { font-size: 1.4rem; padding-left: 44px; }
-  h2 { font-size: 1.15rem; margin: 0 0 12px; }
 
-  /* ----- Hamburger + panel boczny ----- */
+  h1, h2, legend, .rekord-baner {
+    font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+  h1 { font-size: 2.1rem; margin: 4px 0 20px; padding-left: 52px; line-height: 1.15; }
+  h2 { font-size: 1.5rem; margin: 0 0 14px; }
+
+  .kontener {
+    position: relative;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 16px 64px;
+  }
+  .kontener > h1,
+  .kontener > section { position: relative; z-index: 1; }
+  .blob {
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    right: -70px;
+    top: -60px;
+    background: radial-gradient(circle at 32% 30%, #E2643F, #F2A576);
+    border-radius: 46% 54% 62% 38% / 52% 44% 56% 48%;
+    filter: blur(64px);
+    opacity: 0.11;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ----- Hamburger ----- */
   .hamburger {
     position: fixed;
-    top: 12px;
-    left: 12px;
+    top: 14px;
+    left: 14px;
     z-index: 60;
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 4px;
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    box-shadow: var(--shadow-warm);
     cursor: pointer;
   }
   .hamburger span {
     display: block;
     width: 18px;
     height: 2px;
-    background: #1a1a1a;
+    border-radius: 2px;
+    background: var(--ink);
   }
+
+  /* ----- Panel boczny ----- */
   #overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.35);
-    z-index: 40;
+    background: rgba(42, 35, 32, 0.38);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    z-index: 50;
   }
   #sidebar {
     position: fixed;
     top: 0;
     left: 0;
     height: 100%;
-    width: 260px;
+    width: min(280px, 82vw);
     background: #fff;
-    border-right: 1px solid #ddd;
-    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.12);
+    border-right: 1px solid var(--border);
+    box-shadow: 6px 0 30px -10px rgba(150, 110, 90, 0.35);
     transform: translateX(-100%);
-    transition: transform 0.2s ease;
-    z-index: 50;
-    padding-top: 60px;
+    transition: transform 0.24s ease;
+    z-index: 55;
+    padding: 64px 12px 20px;
+    overflow-y: auto;
   }
   #sidebar.open { transform: translateX(0); }
   #sidebar h3 {
-    margin: 0;
-    padding: 12px 16px;
-    font-size: 0.8rem;
+    margin: 0 0 8px;
+    padding: 8px 12px;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #888;
+    letter-spacing: 0.12em;
+    color: var(--muted);
   }
   .nav-btn {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     width: 100%;
     text-align: left;
-    padding: 14px 16px;
+    padding: 13px 14px;
+    margin: 3px 0;
     background: none;
     border: none;
-    border-top: 1px solid #eee;
+    border-radius: 13px;
     font: inherit;
+    font-size: 0.95rem;
+    color: var(--ink);
     cursor: pointer;
+    transition: background 0.15s ease;
   }
-  .nav-btn:hover { background: #f0f0f0; }
+  .nav-btn svg {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    color: var(--muted);
+    transition: color 0.15s ease;
+  }
+  .nav-btn:hover { background: #F7F1E6; }
   .nav-btn.aktywny {
-    background: #eaf3ea;
-    font-weight: 600;
-    box-shadow: inset 3px 0 0 #2b7a2b;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 700;
   }
+  .nav-btn.aktywny svg { color: var(--accent); }
 
   /* ----- Widoki ----- */
   .widok { display: none; }
   .widok.aktywny { display: block; }
 
-  form {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 16px;
+  /* ----- Karty / formularze ----- */
+  form,
+  .karta,
+  .rejestr-tabela > tbody > tr > td,
+  .wpis {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-warm);
   }
-  label { display: block; font-weight: 600; margin: 12px 0 4px; }
+  form, .karta { padding: 20px; }
+
+  label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin: 14px 0 5px;
+    color: var(--ink);
+  }
+  form > label:first-of-type { margin-top: 0; }
   select, input {
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: 11px 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
     font: inherit;
+    color: var(--ink);
   }
-  fieldset { border: 1px solid #ddd; border-radius: 6px; margin-top: 12px; }
-  legend { font-weight: 600; padding: 0 6px; }
+  select:focus, input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(226, 100, 63, 0.16);
+  }
+  select:disabled { background: #F4EEE2; color: var(--muted); }
+
+  fieldset {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-top: 16px;
+    padding: 12px 14px 14px;
+  }
+  legend { padding: 0 8px; font-size: 1.05rem; }
+
   .set-row {
     display: grid;
     grid-template-columns: 1fr 1fr auto;
     gap: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     align-items: end;
   }
-  .set-row label { margin: 0 0 4px; font-weight: 500; font-size: .85rem; }
+  .set-row label { margin: 0 0 4px; font-weight: 500; font-size: 0.78rem; color: var(--muted); }
   .set-row .field-weight, .set-row .field-reps { min-width: 0; }
-  button {
-    padding: 8px 14px;
-    border: 1px solid #bbb;
-    border-radius: 6px;
-    background: #eee;
-    font: inherit;
-    cursor: pointer;
-  }
-  button:hover { background: #e0e0e0; }
-  .btn-remove {
-    background: #fbe9e9;
-    border-color: #e0b4b4;
-    padding: 8px 12px;
-  }
-  .btn-submit {
-    margin-top: 16px;
-    width: 100%;
-    background: #2b7a2b;
-    border-color: #246824;
-    color: #fff;
-    font-weight: 600;
-  }
-  .btn-submit:hover { background: #246824; }
 
-  #lista { margin-top: 12px; }
-  .wpis {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-left: 4px solid #2b7a2b;
-    border-radius: 6px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
+  button { font: inherit; cursor: pointer; }
+  #dodaj-podejscie {
+    padding: 9px 16px;
+    border: 1px dashed var(--accent);
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.85rem;
   }
-  .wpis-naglowek { font-weight: 600; margin-bottom: 2px; }
-  .wpis-data { color: #666; font-size: .85rem; margin-bottom: 8px; }
+  #dodaj-podejscie:hover { background: #FBDECF; }
+  .btn-remove {
+    padding: 10px 12px;
+    border: 1px solid #E7C3B4;
+    border-radius: 11px;
+    background: #F8E7E0;
+    color: #B4482C;
+    font-size: 0.82rem;
+  }
+  .btn-remove:hover { background: #F3D7CC; }
+
+  .btn-submit {
+    display: block;
+    width: 100%;
+    margin-top: 18px;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #EF7B50, #E2643F 55%, #CF5330);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.98rem;
+    letter-spacing: 0.01em;
+    box-shadow: 0 12px 26px -8px rgba(226, 100, 63, 0.55);
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .btn-submit:hover { filter: brightness(1.05); }
+  .btn-submit:active { transform: translateY(1px); }
+  .btn-submit:disabled { opacity: 0.55; box-shadow: none; cursor: default; }
+
+  /* ----- Baner rekordu ----- */
+  .rekord-baner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding: 12px 20px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #EF7B50, #E2643F 60%, #CF5330);
+    color: #fff;
+    font-size: 1.05rem;
+    box-shadow: 0 12px 26px -10px rgba(226, 100, 63, 0.5);
+  }
+  .rekord-baner svg { width: 20px; height: 20px; flex: none; }
+  .rekord-baner span { font-style: italic; }
+
+  /* ----- Kropki partii ----- */
+  .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+    flex: none;
+    vertical-align: 1px;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6);
+  }
+  .dot-Klata   { background: #E2643F; }
+  .dot-Plecy   { background: #3F7DE2; }
+  .dot-Biceps  { background: #8B5CF6; }
+  .dot-Triceps { background: #12A594; }
+  .dot-Barki   { background: #E0A82E; }
+  .dot-Brzuch  { background: #D6409F; }
+  .dot-Nogi    { background: #5B8C2A; }
+
+  /* ----- Ostatnio dodane ----- */
+  #lista { margin-top: 14px; }
+  .wpis {
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    border-left: 3px solid var(--accent);
+  }
+  .wpis-naglowek { font-weight: 700; margin-bottom: 3px; }
+  .wpis-data { color: var(--muted); font-size: 0.82rem; margin-bottom: 8px; }
   .wpis ul { margin: 0; padding-left: 20px; }
-  .pusto { color: #888; }
+  .wpis li { margin: 2px 0; }
+  .pusto {
+    color: var(--muted);
+    font-style: italic;
+    padding: 18px;
+    margin: 0;
+    background: var(--card);
+    border: 1px dashed var(--border);
+    border-radius: 16px;
+  }
 
   /* ----- Rejestr ćwiczeń ----- */
+  #rejestr { overflow-x: auto; }
   .rejestr-tabela {
     width: 100%;
-    border-collapse: collapse;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
+    border-collapse: separate;
+    border-spacing: 0 12px;
   }
   .rejestr-tabela > thead th {
     text-align: left;
-    padding: 10px 12px;
-    background: #f0f0f0;
-    border-bottom: 1px solid #ddd;
+    padding: 4px 16px;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.05rem;
+    color: var(--muted);
   }
-  .rejestr-tabela > tbody > tr + tr { border-top: 2px solid #ddd; }
   .rejestr-tabela > tbody > tr > td {
-    padding: 10px 12px;
+    padding: 14px 16px;
     vertical-align: top;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
   }
-  .rejestr-dzien { font-weight: 600; white-space: nowrap; }
-  .rejestr-cwiczenia {
-    width: 100%;
-    border-collapse: collapse;
+  .rejestr-tabela > tbody > tr > td:first-child {
+    border-left: 3px solid var(--accent);
+    border-radius: 18px 0 0 18px;
   }
+  .rejestr-tabela > tbody > tr > td:last-child {
+    border-right: 1px solid var(--border);
+    border-radius: 0 18px 18px 0;
+  }
+  .rejestr-dzien, .rejestr-partia { white-space: nowrap; }
+  .rejestr-dzien { font-weight: 700; }
+  .rejestr-cwiczenia { width: 100%; border-collapse: collapse; }
   .rejestr-cwiczenia th, .rejestr-cwiczenia td {
     text-align: left;
-    padding: 4px 8px;
-    border-bottom: 1px solid #eee;
-    font-size: 0.9rem;
+    padding: 6px 10px 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
   }
-  .rejestr-cwiczenia th { color: #666; font-weight: 600; }
+  .rejestr-cwiczenia th { color: var(--muted); font-weight: 600; }
   .rejestr-cwiczenia tr:last-child td { border-bottom: none; }
+  .rejestr-cwiczenia td:last-child { color: var(--muted); }
 
-  /* ----- Wykres ----- */
-  #widok-wykres .karta {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 16px;
+  /* ----- Wykres / status ----- */
+  #wykres { max-width: 100%; margin-top: 8px; }
+  #wykres-brak { color: var(--muted); font-style: italic; margin: 14px 0 0; }
+  #nowe-status { margin: 12px 0 0; font-size: 0.9rem; font-weight: 600; }
+
+  /* ----- Responsywność ----- */
+  @media (max-width: 560px) {
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.3rem; }
+    .kontener { padding: 16px 12px 56px; }
+    form, .karta { padding: 16px; }
+    .rekord-baner { font-size: 0.95rem; padding: 11px 16px; }
   }
-  #wykres-brak { color: #888; margin: 12px 0 0; }
+  @media (max-width: 380px) {
+    .set-row { grid-template-columns: 1fr 1fr; }
+    .set-row .btn-remove { grid-column: 1 / -1; }
+  }
 </style>
 </head>
 <body>
@@ -212,18 +382,37 @@
 
 <nav id="sidebar">
   <h3>Menu</h3>
-  <button class="nav-btn aktywny" data-widok="widok-dodaj">Dodaj ćwiczenie</button>
-  <button class="nav-btn" data-widok="widok-rejestr">Rejestr ćwiczeń</button>
-  <button class="nav-btn" data-widok="widok-wykres">Wykres postępu</button>
-  <button class="nav-btn" data-widok="widok-nowe">Dodaj nowe ćwiczenie</button>
+  <button class="nav-btn aktywny" data-widok="widok-dodaj">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+    <span>Dodaj ćwiczenie</span>
+  </button>
+  <button class="nav-btn" data-widok="widok-rejestr">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>
+    <span>Rejestr ćwiczeń</span>
+  </button>
+  <button class="nav-btn" data-widok="widok-wykres">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16"/><polyline points="7 14 11 10 14 13 20 7"/></svg>
+    <span>Wykres postępu</span>
+  </button>
+  <button class="nav-btn" data-widok="widok-nowe">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6M7 6v12M17 6v12M20 9v6M7 12h10"/></svg>
+    <span>Dodaj nowe ćwiczenie</span>
+  </button>
 </nav>
 
 <div class="kontener">
+  <div class="blob" aria-hidden="true"></div>
+
   <h1>Dziennik treningowy</h1>
 
   <!-- ===== Widok 1: Dodaj ćwiczenie ===== -->
   <section id="widok-dodaj" class="widok aktywny">
     <h2>Dodaj ćwiczenie</h2>
+
+    <div id="rekord-baner" class="rekord-baner" hidden>
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 1.5c.6 3.6-1.4 5.6-3 7.2-1.6 1.6-3 3.2-3 6.1a5.5 5.5 0 0 0 11 .3c.1-2.3-1-4.2-2-5.4-.6.9-1.4 1.2-2.2 1.2 1.3-2.8 1-7-.8-9.4z"/></svg>
+      <span id="rekord-tekst"></span>
+    </div>
 
     <form id="form-treningu">
       <label for="partia">Partia mięśniowa</label>
@@ -325,6 +514,8 @@
   const selNowePartia = document.getElementById("nowe-partia");
   const inputNoweNazwa = document.getElementById("nowe-nazwa");
   const noweStatus = document.getElementById("nowe-status");
+  const rekordBaner = document.getElementById("rekord-baner");
+  const rekordTekst = document.getElementById("rekord-tekst");
 
   // Wszystkie pobrane wpisy z tabeli "treningi"
   const wpisy = [];
@@ -493,6 +684,13 @@
     podejsciaBox.appendChild(stworzWiersz());
   });
 
+  // Kolorowa kropka danej partii
+  function kropkaPartii(partia) {
+    const s = document.createElement("span");
+    s.className = "dot dot-" + partia;
+    return s;
+  }
+
   // Budowa kafelka pojedynczego wpisu
   function budujWpis(row) {
     const wpis = document.createElement("div");
@@ -500,7 +698,8 @@
 
     const naglowek = document.createElement("div");
     naglowek.className = "wpis-naglowek";
-    naglowek.textContent = row.partia + " — " + row.cwiczenie;
+    naglowek.appendChild(kropkaPartii(row.partia));
+    naglowek.appendChild(document.createTextNode(row.partia + " — " + row.cwiczenie));
 
     const dataEl = document.createElement("div");
     dataEl.className = "wpis-data";
@@ -517,6 +716,24 @@
     wpis.appendChild(dataEl);
     wpis.appendChild(ul);
     return wpis;
+  }
+
+  // Baner z najcięższym zanotowanym podejściem
+  function renderRekord() {
+    let best = null;
+    wpisy.forEach(function (w) {
+      (w.podejscia || []).forEach(function (p) {
+        const c = Number(p["cieżar"]) || 0;
+        const r = Number(p.powtorzenia) || 0;
+        if (!best || c > best.c || (c === best.c && r > best.r)) {
+          best = { c: c, r: r, cw: w.cwiczenie };
+        }
+      });
+    });
+    if (!best || best.c <= 0) { rekordBaner.hidden = true; return; }
+    rekordTekst.textContent =
+      "Ostatni rekord: " + best.cw + " — " + best.c + " kg × " + best.r;
+    rekordBaner.hidden = false;
   }
 
   // Render listy "Ostatnio dodane" - tylko wpisy z dzisiejszą datą (reset o północy)
@@ -583,7 +800,9 @@
         const wr = document.createElement("tr");
 
         const c1 = document.createElement("td");
-        c1.textContent = w.partia;
+        c1.className = "rejestr-partia";
+        c1.appendChild(kropkaPartii(w.partia));
+        c1.appendChild(document.createTextNode(w.partia));
 
         const c2 = document.createElement("td");
         c2.textContent = w.cwiczenie;
@@ -623,6 +842,7 @@
     }
     (data || []).forEach(function (row) { wpisy.push(row); });
     renderOstatnio();
+    renderRekord();
     renderRejestr();
     odswiezWykres();
   }
@@ -671,8 +891,8 @@
         datasets: [{
           label: "Najwyższy ciężar (kg) — " + cwiczenie,
           data: wartosci,
-          borderColor: "#2b7a2b",
-          backgroundColor: "rgba(43, 122, 43, 0.15)",
+          borderColor: "#E2643F",
+          backgroundColor: "rgba(226, 100, 63, 0.15)",
           tension: 0.2,
           pointRadius: 4
         }]
@@ -722,6 +942,7 @@
     const nowyWpis = wstawione && wstawione[0] ? wstawione[0] : { partia, cwiczenie, data, podejscia };
     wpisy.push(nowyWpis);
     renderOstatnio();
+    renderRekord();
     renderRejestr();
     if (selWykres.value === cwiczenie) odswiezWykres();
 
