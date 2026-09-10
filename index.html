@@ -76,6 +76,15 @@
   .wpis-data { color: #666; font-size: .85rem; margin-bottom: 8px; }
   .wpis ul { margin: 0; padding-left: 20px; }
   .pusto { color: #888; }
+  #wykres-sekcja {
+    margin-top: 32px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  #wykres-sekcja h2 { font-size: 1.1rem; margin: 0 0 12px; }
+  #wykres-brak { color: #888; margin: 12px 0 0; }
 </style>
 </head>
 <body>
@@ -108,7 +117,18 @@
   <p class="pusto">Brak zapisanych treningów.</p>
 </div>
 
+<div id="wykres-sekcja">
+  <h2>Wykres postępu</h2>
+  <label for="wykres-cwiczenie">Ćwiczenie</label>
+  <select id="wykres-cwiczenie">
+    <option value="">-- wybierz ćwiczenie --</option>
+  </select>
+  <canvas id="wykres" height="240"></canvas>
+  <p id="wykres-brak" hidden>Brak jeszcze danych dla tego ćwiczenia</p>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   const SUPABASE_URL = "https://yrnubpuffivauxatvthr.supabase.co";
   const SUPABASE_KEY = "sb_publishable_4nd418S2FdKpFmp5vGh1Ug_jltWAFrI";
@@ -170,6 +190,11 @@
   const podejsciaBox = document.getElementById("podejscia");
   const btnDodaj = document.getElementById("dodaj-podejscie");
   const lista = document.getElementById("lista");
+  const selWykres = document.getElementById("wykres-cwiczenie");
+  const wykresBrak = document.getElementById("wykres-brak");
+
+  // Wszystkie pobrane wpisy z tabeli "treningi"
+  const wpisy = [];
 
   // Wypełnienie selecta partii
   Object.keys(CWICZENIA).forEach(function (partia) {
@@ -177,6 +202,19 @@
     opt.value = partia;
     opt.textContent = partia;
     selPartia.appendChild(opt);
+  });
+
+  // Wypełnienie selecta wykresu wszystkimi ćwiczeniami ze wszystkich partii
+  Object.keys(CWICZENIA).forEach(function (partia) {
+    const grupa = document.createElement("optgroup");
+    grupa.label = partia;
+    CWICZENIA[partia].forEach(function (cw) {
+      const opt = document.createElement("option");
+      opt.value = cw;
+      opt.textContent = cw;
+      grupa.appendChild(opt);
+    });
+    selWykres.appendChild(grupa);
   });
 
   // Ustawienie dzisiejszej daty
@@ -316,9 +354,73 @@
       alert("Nie udało się pobrać treningów: " + error.message);
       return;
     }
-    (data || []).forEach(function (row) { renderWpis(row, "append"); });
+    (data || []).forEach(function (row) {
+      wpisy.push(row);
+      renderWpis(row, "append");
+    });
+    odswiezWykres();
   }
   wczytajWpisy();
+
+  // ----- Wykres postępu (Chart.js) -----
+  let wykres = null;
+
+  function odswiezWykres() {
+    const cwiczenie = selWykres.value;
+    if (!cwiczenie) {
+      wykresBrak.hidden = true;
+      if (wykres) { wykres.destroy(); wykres = null; }
+      return;
+    }
+
+    // max ciężaru per data dla wybranego ćwiczenia
+    const perData = {};
+    wpisy
+      .filter(function (w) { return w.cwiczenie === cwiczenie; })
+      .forEach(function (w) {
+        const maxCiezar = (w.podejscia || []).reduce(function (m, p) {
+          return Math.max(m, Number(p["cieżar"]) || 0);
+        }, 0);
+        if (!(w.data in perData) || maxCiezar > perData[w.data]) {
+          perData[w.data] = maxCiezar;
+        }
+      });
+
+    const daty = Object.keys(perData).sort();
+
+    if (daty.length === 0) {
+      wykresBrak.hidden = false;
+      if (wykres) { wykres.destroy(); wykres = null; }
+      return;
+    }
+
+    wykresBrak.hidden = true;
+    const wartosci = daty.map(function (d) { return perData[d]; });
+
+    if (wykres) wykres.destroy();
+    wykres = new Chart(document.getElementById("wykres"), {
+      type: "line",
+      data: {
+        labels: daty,
+        datasets: [{
+          label: "Najwyższy ciężar (kg) — " + cwiczenie,
+          data: wartosci,
+          borderColor: "#2b7a2b",
+          backgroundColor: "rgba(43, 122, 43, 0.15)",
+          tension: 0.2,
+          pointRadius: 4
+        }]
+      },
+      options: {
+        scales: {
+          x: { title: { display: true, text: "Data treningu" } },
+          y: { title: { display: true, text: "Ciężar (kg)" }, beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  selWykres.addEventListener("change", odswiezWykres);
 
   // Submit
   form.addEventListener("submit", async function (e) {
@@ -351,7 +453,10 @@
       return;
     }
 
-    renderWpis(wstawione && wstawione[0] ? wstawione[0] : { partia, cwiczenie, data, podejscia }, "prepend");
+    const nowyWpis = wstawione && wstawione[0] ? wstawione[0] : { partia, cwiczenie, data, podejscia };
+    wpisy.push(nowyWpis);
+    renderWpis(nowyWpis, "prepend");
+    if (selWykres.value === cwiczenie) odswiezWykres();
 
     form.reset();
     selCwiczenie.disabled = true;
