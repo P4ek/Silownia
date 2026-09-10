@@ -8,13 +8,93 @@
   * { box-sizing: border-box; }
   body {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    max-width: 640px;
-    margin: 24px auto;
-    padding: 0 16px;
+    margin: 0;
     color: #1a1a1a;
     background: #f6f6f6;
   }
-  h1 { font-size: 1.4rem; }
+  .kontener {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 16px 16px 48px;
+  }
+  h1 { font-size: 1.4rem; padding-left: 44px; }
+  h2 { font-size: 1.15rem; margin: 0 0 12px; }
+
+  /* ----- Hamburger + panel boczny ----- */
+  .hamburger {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 60;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .hamburger span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: #1a1a1a;
+  }
+  #overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 40;
+  }
+  #sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 260px;
+    background: #fff;
+    border-right: 1px solid #ddd;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.12);
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    z-index: 50;
+    padding-top: 60px;
+  }
+  #sidebar.open { transform: translateX(0); }
+  #sidebar h3 {
+    margin: 0;
+    padding: 12px 16px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+  }
+  .nav-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 14px 16px;
+    background: none;
+    border: none;
+    border-top: 1px solid #eee;
+    font: inherit;
+    cursor: pointer;
+  }
+  .nav-btn:hover { background: #f0f0f0; }
+  .nav-btn.aktywny {
+    background: #eaf3ea;
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 #2b7a2b;
+  }
+
+  /* ----- Widoki ----- */
+  .widok { display: none; }
+  .widok.aktywny { display: block; }
+
   form {
     background: #fff;
     border: 1px solid #ddd;
@@ -63,7 +143,8 @@
     font-weight: 600;
   }
   .btn-submit:hover { background: #246824; }
-  #lista { margin-top: 24px; }
+
+  #lista { margin-top: 12px; }
   .wpis {
     background: #fff;
     border: 1px solid #ddd;
@@ -76,55 +157,122 @@
   .wpis-data { color: #666; font-size: .85rem; margin-bottom: 8px; }
   .wpis ul { margin: 0; padding-left: 20px; }
   .pusto { color: #888; }
-  #wykres-sekcja {
-    margin-top: 32px;
+
+  /* ----- Rejestr ćwiczeń ----- */
+  .rejestr-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .rejestr-tabela > thead th {
+    text-align: left;
+    padding: 10px 12px;
+    background: #f0f0f0;
+    border-bottom: 1px solid #ddd;
+  }
+  .rejestr-tabela > tbody > tr + tr { border-top: 2px solid #ddd; }
+  .rejestr-tabela > tbody > tr > td {
+    padding: 10px 12px;
+    vertical-align: top;
+  }
+  .rejestr-dzien { font-weight: 600; white-space: nowrap; }
+  .rejestr-cwiczenia {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .rejestr-cwiczenia th, .rejestr-cwiczenia td {
+    text-align: left;
+    padding: 4px 8px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+  }
+  .rejestr-cwiczenia th { color: #666; font-weight: 600; }
+  .rejestr-cwiczenia tr:last-child td { border-bottom: none; }
+
+  /* ----- Wykres ----- */
+  #widok-wykres .karta {
     background: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 16px;
   }
-  #wykres-sekcja h2 { font-size: 1.1rem; margin: 0 0 12px; }
   #wykres-brak { color: #888; margin: 12px 0 0; }
 </style>
 </head>
 <body>
-<h1>Dziennik treningowy</h1>
 
-<form id="form-treningu">
-  <label for="partia">Partia mięśniowa</label>
-  <select id="partia" name="partia" required>
-    <option value="">-- wybierz partię --</option>
-  </select>
+<button class="hamburger" id="hamburger" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
 
-  <label for="cwiczenie">Ćwiczenie</label>
-  <select id="cwiczenie" name="cwiczenie" required disabled>
-    <option value="">-- najpierw wybierz partię --</option>
-  </select>
+<div id="overlay" hidden></div>
 
-  <label for="data">Data</label>
-  <input type="date" id="data" name="data" required>
+<nav id="sidebar">
+  <h3>Menu</h3>
+  <button class="nav-btn aktywny" data-widok="widok-dodaj">Dodaj ćwiczenie</button>
+  <button class="nav-btn" data-widok="widok-rejestr">Rejestr ćwiczeń</button>
+  <button class="nav-btn" data-widok="widok-wykres">Wykres postępu</button>
+</nav>
 
-  <fieldset>
-    <legend>Podejścia</legend>
-    <div id="podejscia"></div>
-    <button type="button" id="dodaj-podejscie">+ dodaj podejście</button>
-  </fieldset>
+<div class="kontener">
+  <h1>Dziennik treningowy</h1>
 
-  <button type="submit" class="btn-submit">Dodaj ćwiczenie</button>
-</form>
+  <!-- ===== Widok 1: Dodaj ćwiczenie ===== -->
+  <section id="widok-dodaj" class="widok aktywny">
+    <h2>Dodaj ćwiczenie</h2>
 
-<div id="lista">
-  <p class="pusto">Brak zapisanych treningów.</p>
-</div>
+    <form id="form-treningu">
+      <label for="partia">Partia mięśniowa</label>
+      <select id="partia" name="partia" required>
+        <option value="">-- wybierz partię --</option>
+      </select>
 
-<div id="wykres-sekcja">
-  <h2>Wykres postępu</h2>
-  <label for="wykres-cwiczenie">Ćwiczenie</label>
-  <select id="wykres-cwiczenie">
-    <option value="">-- wybierz ćwiczenie --</option>
-  </select>
-  <canvas id="wykres" height="240"></canvas>
-  <p id="wykres-brak" hidden>Brak jeszcze danych dla tego ćwiczenia</p>
+      <label for="cwiczenie">Ćwiczenie</label>
+      <select id="cwiczenie" name="cwiczenie" required disabled>
+        <option value="">-- najpierw wybierz partię --</option>
+      </select>
+
+      <label for="data">Data</label>
+      <input type="date" id="data" name="data" required>
+
+      <fieldset>
+        <legend>Podejścia</legend>
+        <div id="podejscia"></div>
+        <button type="button" id="dodaj-podejscie">+ dodaj podejście</button>
+      </fieldset>
+
+      <button type="submit" class="btn-submit">Dodaj ćwiczenie</button>
+    </form>
+
+    <h2 style="margin-top:28px">Ostatnio dodane</h2>
+    <div id="lista">
+      <p class="pusto">Brak zapisanych treningów.</p>
+    </div>
+  </section>
+
+  <!-- ===== Widok 2: Rejestr ćwiczeń ===== -->
+  <section id="widok-rejestr" class="widok">
+    <h2>Rejestr ćwiczeń</h2>
+    <div id="rejestr">
+      <p class="pusto">Brak zapisanych treningów.</p>
+    </div>
+  </section>
+
+  <!-- ===== Widok 3: Wykres postępu ===== -->
+  <section id="widok-wykres" class="widok">
+    <h2>Wykres postępu</h2>
+    <div class="karta">
+      <label for="wykres-cwiczenie">Ćwiczenie</label>
+      <select id="wykres-cwiczenie">
+        <option value="">-- wybierz ćwiczenie --</option>
+      </select>
+      <canvas id="wykres" height="240"></canvas>
+      <p id="wykres-brak" hidden>Brak jeszcze danych dla tego ćwiczenia</p>
+    </div>
+  </section>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -190,11 +338,40 @@
   const podejsciaBox = document.getElementById("podejscia");
   const btnDodaj = document.getElementById("dodaj-podejscie");
   const lista = document.getElementById("lista");
+  const rejestrBox = document.getElementById("rejestr");
   const selWykres = document.getElementById("wykres-cwiczenie");
   const wykresBrak = document.getElementById("wykres-brak");
 
   // Wszystkie pobrane wpisy z tabeli "treningi"
   const wpisy = [];
+
+  // ----- Nawigacja: hamburger + panel boczny -----
+  const hamburger = document.getElementById("hamburger");
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
+  const widoki = document.querySelectorAll(".widok");
+  const navBtns = document.querySelectorAll(".nav-btn");
+
+  function otworzPanel() {
+    sidebar.classList.add("open");
+    overlay.hidden = false;
+  }
+  function zamknijPanel() {
+    sidebar.classList.remove("open");
+    overlay.hidden = true;
+  }
+  hamburger.addEventListener("click", otworzPanel);
+  overlay.addEventListener("click", zamknijPanel);
+
+  navBtns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const cel = btn.dataset.widok;
+      widoki.forEach(function (w) { w.classList.toggle("aktywny", w.id === cel); });
+      navBtns.forEach(function (b) { b.classList.toggle("aktywny", b === btn); });
+      if (cel === "widok-rejestr") renderRejestr();
+      zamknijPanel();
+    });
+  });
 
   // Wypełnienie selecta partii
   Object.keys(CWICZENIA).forEach(function (partia) {
@@ -311,7 +488,7 @@
     podejsciaBox.appendChild(stworzWiersz());
   });
 
-  // Render pojedynczego wpisu na liście
+  // Render pojedynczego wpisu na liście "Ostatnio dodane"
   function renderWpis(row, gdzie) {
     const pusto = lista.querySelector(".pusto");
     if (pusto) pusto.remove();
@@ -342,6 +519,68 @@
     else lista.appendChild(wpis);
   }
 
+  // Render widoku "Rejestr ćwiczeń" - tabela pogrupowana po dniach
+  function renderRejestr() {
+    const grupy = {};
+    wpisy.forEach(function (w) {
+      (grupy[w.data] = grupy[w.data] || []).push(w);
+    });
+    const daty = Object.keys(grupy).sort().reverse();
+
+    rejestrBox.innerHTML = "";
+    if (daty.length === 0) {
+      rejestrBox.innerHTML = '<p class="pusto">Brak zapisanych treningów.</p>';
+      return;
+    }
+
+    const tabela = document.createElement("table");
+    tabela.className = "rejestr-tabela";
+    tabela.innerHTML = "<thead><tr><th>Dzień treningowy</th><th>Ćwiczenia</th></tr></thead>";
+
+    const tbody = document.createElement("tbody");
+    daty.forEach(function (d) {
+      const tr = document.createElement("tr");
+
+      const tdDzien = document.createElement("td");
+      tdDzien.className = "rejestr-dzien";
+      tdDzien.textContent = d;
+
+      const tdCw = document.createElement("td");
+      const wewn = document.createElement("table");
+      wewn.className = "rejestr-cwiczenia";
+      wewn.innerHTML = "<thead><tr><th>Partia</th><th>Ćwiczenie</th><th>Podejścia</th></tr></thead>";
+
+      const wbody = document.createElement("tbody");
+      grupy[d].forEach(function (w) {
+        const wr = document.createElement("tr");
+
+        const c1 = document.createElement("td");
+        c1.textContent = w.partia;
+
+        const c2 = document.createElement("td");
+        c2.textContent = w.cwiczenie;
+
+        const c3 = document.createElement("td");
+        c3.textContent = (w.podejscia || []).map(function (p) {
+          return p["cieżar"] + " kg × " + p.powtorzenia;
+        }).join(", ");
+
+        wr.appendChild(c1);
+        wr.appendChild(c2);
+        wr.appendChild(c3);
+        wbody.appendChild(wr);
+      });
+      wewn.appendChild(wbody);
+      tdCw.appendChild(wewn);
+
+      tr.appendChild(tdDzien);
+      tr.appendChild(tdCw);
+      tbody.appendChild(tr);
+    });
+    tabela.appendChild(tbody);
+    rejestrBox.appendChild(tabela);
+  }
+
   // Pobranie wszystkich wpisów przy otwarciu strony
   async function wczytajWpisy() {
     const { data, error } = await db
@@ -358,6 +597,7 @@
       wpisy.push(row);
       renderWpis(row, "append");
     });
+    renderRejestr();
     odswiezWykres();
   }
   wczytajWpisy();
@@ -456,6 +696,7 @@
     const nowyWpis = wstawione && wstawione[0] ? wstawione[0] : { partia, cwiczenie, data, podejscia };
     wpisy.push(nowyWpis);
     renderWpis(nowyWpis, "prepend");
+    renderRejestr();
     if (selWykres.value === cwiczenie) odswiezWykres();
 
     form.reset();
