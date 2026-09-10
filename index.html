@@ -488,11 +488,8 @@
     podejsciaBox.appendChild(stworzWiersz());
   });
 
-  // Render pojedynczego wpisu na liście "Ostatnio dodane"
-  function renderWpis(row, gdzie) {
-    const pusto = lista.querySelector(".pusto");
-    if (pusto) pusto.remove();
-
+  // Budowa kafelka pojedynczego wpisu
+  function budujWpis(row) {
     const wpis = document.createElement("div");
     wpis.className = "wpis";
 
@@ -514,10 +511,36 @@
     wpis.appendChild(naglowek);
     wpis.appendChild(dataEl);
     wpis.appendChild(ul);
-
-    if (gdzie === "prepend") lista.prepend(wpis);
-    else lista.appendChild(wpis);
+    return wpis;
   }
+
+  // Render listy "Ostatnio dodane" - tylko wpisy z dzisiejszą datą (reset o północy)
+  function renderOstatnio() {
+    const dzis = dzisiaj();
+    const dzisiejsze = wpisy.filter(function (w) { return w.data === dzis; });
+
+    lista.innerHTML = "";
+    if (dzisiejsze.length === 0) {
+      lista.innerHTML = '<p class="pusto">Brak ćwiczeń dodanych dzisiaj.</p>';
+      return;
+    }
+    dzisiejsze.slice().reverse().forEach(function (row) {
+      lista.appendChild(budujWpis(row));
+    });
+  }
+
+  // Zaplanuj odświeżenie listy tuż po najbliższej północy (i tak co dobę)
+  function zaplanujResetOPolnocy() {
+    const teraz = new Date();
+    const polnoc = new Date(
+      teraz.getFullYear(), teraz.getMonth(), teraz.getDate() + 1, 0, 0, 2
+    );
+    setTimeout(function () {
+      renderOstatnio();
+      zaplanujResetOPolnocy();
+    }, polnoc - teraz);
+  }
+  zaplanujResetOPolnocy();
 
   // Render widoku "Rejestr ćwiczeń" - tabela pogrupowana po dniach
   function renderRejestr() {
@@ -593,10 +616,8 @@
       alert("Nie udało się pobrać treningów: " + error.message);
       return;
     }
-    (data || []).forEach(function (row) {
-      wpisy.push(row);
-      renderWpis(row, "append");
-    });
+    (data || []).forEach(function (row) { wpisy.push(row); });
+    renderOstatnio();
     renderRejestr();
     odswiezWykres();
   }
@@ -695,7 +716,7 @@
 
     const nowyWpis = wstawione && wstawione[0] ? wstawione[0] : { partia, cwiczenie, data, podejscia };
     wpisy.push(nowyWpis);
-    renderWpis(nowyWpis, "prepend");
+    renderOstatnio();
     renderRejestr();
     if (selWykres.value === cwiczenie) odswiezWykres();
 
