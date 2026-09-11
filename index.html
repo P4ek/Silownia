@@ -433,13 +433,33 @@
 
   #role-lista { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
   .rola-chip {
-    padding: 7px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 8px 7px 14px;
     border-radius: 999px;
     background: var(--accent-soft);
     color: var(--accent);
     font-weight: 600;
     font-size: 0.85rem;
   }
+  .rola-chip-usun {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: var(--accent);
+    font-size: 1rem;
+    line-height: 1;
+    font-weight: 700;
+    padding: 0;
+  }
+  .rola-chip-usun:hover { background: #FBDECF; }
+  .rola-chip-usun:disabled { opacity: 0.5; cursor: default; }
 
   .tydzien-nawigacja {
     display: flex;
@@ -1429,7 +1449,19 @@
     role.forEach(function (r) {
       const chip = document.createElement("span");
       chip.className = "rola-chip";
-      chip.textContent = r.nazwa;
+
+      const tekst = document.createElement("span");
+      tekst.textContent = r.nazwa;
+
+      const btnUsun = document.createElement("button");
+      btnUsun.type = "button";
+      btnUsun.className = "rola-chip-usun";
+      btnUsun.textContent = "×";
+      btnUsun.setAttribute("aria-label", "Usuń rolę " + r.nazwa);
+      btnUsun.addEventListener("click", function () { usunRole(r, btnUsun); });
+
+      chip.appendChild(tekst);
+      chip.appendChild(btnUsun);
       roleLista.appendChild(chip);
     });
   }
@@ -1478,8 +1510,19 @@
           const tekst = document.createElement("span");
           tekst.textContent = c.tresc;
 
+          const btnUsun = document.createElement("button");
+          btnUsun.type = "button";
+          btnUsun.className = "btn-usun";
+          btnUsun.textContent = "usuń";
+          btnUsun.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            usunCel(c, btnUsun);
+          });
+
           wiersz.appendChild(checkbox);
           wiersz.appendChild(tekst);
+          wiersz.appendChild(btnUsun);
           lista.appendChild(wiersz);
         });
       }
@@ -1532,6 +1575,56 @@
 
     cel.zrealizowane = nowaWartosc;
     wiersz.classList.toggle("zrealizowany", nowaWartosc);
+  }
+
+  // Usunięcie pojedynczego celu z tabeli "cele_tygodniowe"
+  async function usunCel(cel, btn) {
+    const potwierdzenie = window.confirm('Usunąć cel „' + cel.tresc + '"?');
+    if (!potwierdzenie) return;
+
+    btn.disabled = true;
+
+    const { error } = await db
+      .from("cele_tygodniowe")
+      .delete()
+      .eq("id", cel.id);
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się usunąć celu: " + error.message);
+      btn.disabled = false;
+      return;
+    }
+
+    cele = cele.filter(function (c) { return c.id !== cel.id; });
+    renderCeleWszystkie();
+  }
+
+  // Usunięcie roli z tabeli "role" (wraz z jej celami tygodniowymi, jeśli baza na to pozwala)
+  async function usunRole(rola, btn) {
+    const potwierdzenie = window.confirm(
+      'Usunąć rolę „' + rola.nazwa + '"? Jej cele tygodniowe (jeśli istnieją) również zostaną usunięte.'
+    );
+    if (!potwierdzenie) return;
+
+    btn.disabled = true;
+
+    const { error } = await db
+      .from("role")
+      .delete()
+      .eq("id", rola.id);
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się usunąć roli: " + error.message);
+      btn.disabled = false;
+      return;
+    }
+
+    role = role.filter(function (r) { return r.id !== rola.id; });
+    cele = cele.filter(function (c) { return c.rola_id !== rola.id; });
+    renderRoleListy();
+    renderCeleWszystkie();
   }
 
   // Dodanie nowego celu dla danej roli na aktualnie wybrany tydzień
