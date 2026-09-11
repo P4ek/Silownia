@@ -16,9 +16,14 @@
     --border: #ECE1CF;
     --accent: #E2643F;
     --accent-soft: #FCEAE2;
+    --accent-pink: #E3A9B4;
+    --accent-pink-soft: #FBEEF1;
     --shadow-warm: 0 14px 34px -16px rgba(226, 100, 63, 0.30), 0 2px 8px rgba(180, 150, 120, 0.12);
   }
   * { box-sizing: border-box; }
+  /* Gwarantuje, że atrybut [hidden] zawsze ukrywa element, nawet gdy jakaś
+     reguła w tym arkuszu ustawia mu display (np. .rekord-baner{display:flex}) */
+  [hidden] { display: none !important; }
   html { -webkit-text-size-adjust: 100%; }
   body {
     margin: 0;
@@ -62,6 +67,10 @@
     opacity: 0.11;
     pointer-events: none;
     z-index: 0;
+    transition: background 0.2s ease;
+  }
+  .kontener.motyw-rozwoj .blob {
+    background: radial-gradient(circle at 32% 30%, #E3A9B4, #F2CFD6);
   }
 
   /* ----- Hamburger ----- */
@@ -155,6 +164,11 @@
     font-weight: 700;
   }
   .nav-btn.aktywny svg { color: var(--accent); }
+  .nav-btn.aktywny.nav-rozwoj {
+    background: var(--accent-pink-soft);
+    color: var(--accent-pink);
+  }
+  .nav-btn.aktywny.nav-rozwoj svg { color: var(--accent-pink); }
 
   /* ----- Widoki ----- */
   .widok { display: none; }
@@ -412,10 +426,19 @@
   #wykres-brak { color: var(--muted); font-style: italic; margin: 14px 0 0; }
   #nowe-status { margin: 12px 0 0; font-size: 0.9rem; font-weight: 600; }
 
-  /* ----- Plan tygodnia ----- */
+  /* ----- Plan tygodnia (motyw różowy, skopowany na #widok-plan) ----- */
+  #widok-plan {
+    --accent: var(--accent-pink);
+    --accent-soft: var(--accent-pink-soft);
+  }
   #widok-plan .karta { margin-bottom: 18px; }
   #widok-plan form { margin-top: 16px; padding: 0; border: none; box-shadow: none; background: none; }
   #widok-plan form > label:first-of-type { margin-top: 0; }
+
+  .rekord-baner-rozowy {
+    background: linear-gradient(135deg, #F2C4CC, #E3A9B4 60%, #C98999);
+    box-shadow: 0 12px 26px -10px rgba(227, 169, 180, 0.55);
+  }
 
   .btn-pill {
     display: inline-block;
@@ -431,11 +454,21 @@
   .btn-pill:hover { background: #FBDECF; }
   .btn-pill:disabled { opacity: 0.55; cursor: default; }
 
-  #role-lista { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .btn-pill-rola {
+    border: none;
+    background: linear-gradient(135deg, #EDB8C2, var(--accent-pink) 55%, #C98999);
+    color: #fff;
+    box-shadow: 0 12px 24px -10px rgba(227, 169, 180, 0.6);
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .btn-pill-rola:hover { background: linear-gradient(135deg, #EDB8C2, var(--accent-pink) 55%, #C98999); filter: brightness(1.05); }
+  .btn-pill-rola:active { transform: translateY(1px); }
+
+  #role-lista { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
   .rola-chip {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     padding: 7px 14px;
     border-radius: 999px;
     background: var(--accent-soft);
@@ -444,11 +477,33 @@
     font-size: 0.85rem;
     cursor: pointer;
   }
+  /* Przełącznik (toggle) widoczności roli na dany tydzień */
   .rola-chip input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 34px;
+    height: 20px;
+    flex: none;
+    border-radius: 999px;
+    background: #E7DCD0;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .rola-chip input[type="checkbox"]::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
     width: 16px;
     height: 16px;
-    accent-color: var(--accent);
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease;
   }
+  .rola-chip input[type="checkbox"]:checked { background: var(--accent); }
+  .rola-chip input[type="checkbox"]:checked::before { transform: translateX(14px); }
 
   .tydzien-nawigacja {
     display: flex;
@@ -457,6 +512,9 @@
     gap: 12px;
   }
   .btn-tydzien {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex: none;
     width: 40px;
     height: 40px;
@@ -464,9 +522,8 @@
     border-radius: 12px;
     background: #fff;
     color: var(--accent);
-    font-size: 1.1rem;
-    font-weight: 700;
   }
+  .btn-tydzien svg { width: 18px; height: 18px; }
   .btn-tydzien:hover { background: var(--accent-soft); }
   .tydzien-etykieta { text-align: center; }
   .tydzien-podpis {
@@ -481,10 +538,43 @@
     font-family: "Instrument Serif", Georgia, serif;
     font-style: italic;
     font-size: 1.2rem;
+    color: var(--accent);
   }
 
+  /* Karta roli: pasek gradientowy na górze + ikonka obok nazwy */
+  .rola-blok {
+    position: relative;
+    overflow: hidden;
+  }
+  .rola-blok::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--accent), #F2C4CC);
+  }
+  .rola-naglowek {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .rola-ikona {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex: none;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .rola-ikona svg { width: 20px; height: 20px; }
   .rola-blok h3 {
-    margin: 0 0 12px;
+    margin: 0;
     font-family: "Instrument Serif", Georgia, serif;
     font-style: italic;
     font-weight: 400;
@@ -502,12 +592,32 @@
     background: #FCFAF4;
     cursor: pointer;
   }
+  /* Checkbox celu: kwadrat z zaokrąglonymi rogami, wypełniony po zaznaczeniu */
   .cel-wiersz input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
     flex: none;
-    accent-color: var(--accent);
+    border: 2px solid var(--accent);
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    display: grid;
+    place-content: center;
+    transition: background 0.15s ease;
   }
+  .cel-wiersz input[type="checkbox"]::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    transform: scale(0);
+    transition: transform 0.1s ease;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 45% 62%);
+  }
+  .cel-wiersz input[type="checkbox"]:checked { background: var(--accent); }
+  .cel-wiersz input[type="checkbox"]:checked::before { transform: scale(1); }
   .cel-tresc { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
   .cel-plan { font-size: 0.78rem; color: var(--muted); }
   .cel-wiersz.zrealizowany .cel-tresc-glowna,
@@ -515,6 +625,15 @@
     text-decoration: line-through;
   }
   .cel-wiersz.zrealizowany .cel-tresc-glowna { color: var(--muted); }
+  /* Przycisk usuwania celu: subtelny, pełna widoczność przy najechaniu/focusie */
+  .cel-wiersz .btn-usun {
+    opacity: 0.45;
+    transition: opacity 0.15s ease;
+  }
+  .cel-wiersz:hover .btn-usun,
+  .cel-wiersz .btn-usun:focus-visible {
+    opacity: 1;
+  }
   .form-dodaj-cel {
     display: flex;
     flex-direction: column;
@@ -530,10 +649,16 @@
     .kontener { padding: 16px 12px 56px; }
     form, .karta { padding: 16px; }
     .rekord-baner { font-size: 0.95rem; padding: 11px 16px; }
+    .tydzien-nawigacja { gap: 8px; }
+    .btn-tydzien { width: 36px; height: 36px; }
+    #tydzien-data { font-size: 1.05rem; }
+    .rola-ikona { width: 32px; height: 32px; }
+    .rola-ikona svg { width: 17px; height: 17px; }
   }
   @media (max-width: 380px) {
     .set-row { grid-template-columns: 1fr 1fr; }
     .set-row .btn-remove { grid-column: 1 / -1; }
+    .tydzien-podpis { font-size: 0.7rem; }
   }
 </style>
 </head>
@@ -565,8 +690,8 @@
   </button>
 
   <h3>Rozwój</h3>
-  <button class="nav-btn" data-widok="widok-plan">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="m9 15 2 2 4-4"/></svg>
+  <button class="nav-btn nav-rozwoj" data-widok="widok-plan">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.9 6.4.6-4.9 4.2 1.5 6.3L12 16.9l-5.5 3.1 1.5-6.3-4.9-4.2 6.4-.6L12 3Z"/></svg>
     <span>Plan tygodnia</span>
   </button>
 </nav>
@@ -668,6 +793,14 @@
   <section id="widok-plan" class="widok">
     <h2>Plan tygodnia</h2>
 
+    <div id="tydzien-podsumowanie" class="rekord-baner rekord-baner-rozowy" hidden>
+      <svg viewBox="0 0 36 36" aria-hidden="true">
+        <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="3"/>
+        <circle id="tydzien-progress-ring" cx="18" cy="18" r="15.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+      </svg>
+      <span id="tydzien-podsumowanie-tekst"></span>
+    </div>
+
     <div class="karta">
       <label>Twoje role</label>
       <div id="role-lista">
@@ -677,17 +810,21 @@
       <form id="form-rola">
         <label for="nowa-rola">Nowa rola</label>
         <input type="text" id="nowa-rola" autocomplete="off" placeholder="np. Pracownik, Rodzic, Sportowiec" required>
-        <button type="submit" class="btn-pill">+ dodaj rolę</button>
+        <button type="submit" class="btn-pill btn-pill-rola">+ dodaj rolę</button>
       </form>
     </div>
 
     <div class="karta tydzien-nawigacja">
-      <button type="button" id="tydzien-poprzedni" class="btn-tydzien" aria-label="Poprzedni tydzień">←</button>
+      <button type="button" id="tydzien-poprzedni" class="btn-tydzien" aria-label="Poprzedni tydzień">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
       <div class="tydzien-etykieta">
         <span class="tydzien-podpis">Tydzień od poniedziałku</span>
         <span id="tydzien-data">—</span>
       </div>
-      <button type="button" id="tydzien-nastepny" class="btn-tydzien" aria-label="Następny tydzień">→</button>
+      <button type="button" id="tydzien-nastepny" class="btn-tydzien" aria-label="Następny tydzień">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
     </div>
 
     <div id="cele-lista">
@@ -743,6 +880,7 @@
   const overlay = document.getElementById("overlay");
   const widoki = document.querySelectorAll(".widok");
   const navBtns = document.querySelectorAll(".nav-btn");
+  const kontener = document.querySelector(".kontener");
 
   function otworzPanel() {
     sidebar.classList.add("open");
@@ -760,6 +898,7 @@
       const cel = btn.dataset.widok;
       widoki.forEach(function (w) { w.classList.toggle("aktywny", w.id === cel); });
       navBtns.forEach(function (b) { b.classList.toggle("aktywny", b === btn); });
+      kontener.classList.toggle("motyw-rozwoj", cel === "widok-plan");
       if (cel === "widok-rejestr") renderRejestr();
       zamknijPanel();
     });
@@ -1398,6 +1537,10 @@
   const btnTydzienPoprzedni = document.getElementById("tydzien-poprzedni");
   const btnTydzienNastepny = document.getElementById("tydzien-nastepny");
   const celeLista = document.getElementById("cele-lista");
+  const tydzienPodsumowanie = document.getElementById("tydzien-podsumowanie");
+  const tydzienPodsumowanieTekst = document.getElementById("tydzien-podsumowanie-tekst");
+  const tydzienProgressRing = document.getElementById("tydzien-progress-ring");
+  const OBWOD_PIERSCIENIA_TYGODNIA = 2 * Math.PI * 15.5;
 
   let role = [];  // wiersze z tabeli "role": { id, nazwa }
   let cele = [];  // wiersze z tabeli "cele_tygodniowe" dla wybranego tygodnia
@@ -1426,6 +1569,30 @@
   }
 
   let wybranyPoniedzialek = poniedzialekTygodnia(new Date());
+
+  // Dobór ikonki (SVG) do roli na podstawie słów kluczowych w jej nazwie
+  function ikonaDlaRoli(nazwa) {
+    const n = (nazwa || "").toLowerCase();
+    const ikony = [
+      { slowa: ["stud", "szko", "nauk", "ucze"],
+        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>' },
+      { slowa: ["prac", "biur", "firm", "zawod", "kari"],
+        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' },
+      { slowa: ["rodzic", "dom", "dzieck", "rodzin"],
+        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>' },
+      { slowa: ["sport", "trening", "silow", "bieg", "zawodnik"],
+        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6M7 6v12M17 6v12M20 9v6M7 12h10"/></svg>' },
+      { slowa: ["warsztat", "majster", "mechanik", "napraw", "rzemie"],
+        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.6 5.6L3 18l3 3 6.1-6.1a4 4 0 0 0 5.6-5.6l-2.5 2.5-2-2 2.5-2.5Z"/></svg>' },
+      { slowa: ["finans", "pieni", "budz", "oszcz", "inwest"],
+        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 15c0 1.1 1.1 2 2.5 2s2.5-.9 2.5-2-1.1-1.6-2.5-2-2.5-.9-2.5-2 1.1-2 2.5-2 2.5.9 2.5 2"/></svg>' }
+    ];
+    for (let i = 0; i < ikony.length; i++) {
+      if (ikony[i].slowa.some(function (s) { return n.indexOf(s) !== -1; })) return ikony[i].svg;
+    }
+    // Domyślnie: gwiazda
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.7-6.2 3.7 1.6-7L1.9 9.2l7.1-.6L12 2Z"/></svg>';
+  }
 
   // Render listy ról (chipy) w karcie zarządzania rolami
   function renderRoleListy() {
@@ -1460,9 +1627,26 @@
     tydzienDataEl.textContent = formatDataPL(wybranyPoniedzialek);
   }
 
+  // Pigułka podsumowania: ile celów (ze wszystkich ról) zrealizowano w wybranym tygodniu
+  function renderPodsumowanieTygodnia() {
+    const wszystkie = cele.length;
+    if (wszystkie === 0) {
+      tydzienPodsumowanie.hidden = true;
+      return;
+    }
+    const zrealizowane = cele.filter(function (c) { return c.zrealizowane; }).length;
+    tydzienPodsumowanieTekst.textContent =
+      "Ten tydzień: " + zrealizowane + " z " + wszystkie + " celów zrealizowanych";
+    const udzial = zrealizowane / wszystkie;
+    tydzienProgressRing.style.strokeDasharray = String(OBWOD_PIERSCIENIA_TYGODNIA);
+    tydzienProgressRing.style.strokeDashoffset = String(OBWOD_PIERSCIENIA_TYGODNIA * (1 - udzial));
+    tydzienPodsumowanie.hidden = false;
+  }
+
   // Render bloków "cele wg roli" - checklisty na wybrany tydzień + formularz dodawania celu
   function renderCeleWszystkie() {
     renderTydzienEtykieta();
+    renderPodsumowanieTygodnia();
     celeLista.innerHTML = "";
 
     if (role.length === 0) {
@@ -1480,9 +1664,19 @@
       const blok = document.createElement("div");
       blok.className = "karta rola-blok";
 
+      const naglowekWrap = document.createElement("div");
+      naglowekWrap.className = "rola-naglowek";
+
+      const ikona = document.createElement("span");
+      ikona.className = "rola-ikona";
+      ikona.innerHTML = ikonaDlaRoli(r.nazwa);
+      naglowekWrap.appendChild(ikona);
+
       const naglowek = document.createElement("h3");
       naglowek.textContent = r.nazwa;
-      blok.appendChild(naglowek);
+      naglowekWrap.appendChild(naglowek);
+
+      blok.appendChild(naglowekWrap);
 
       const celeRoli = cele.filter(function (c) { return c.rola_id === r.id; });
 
