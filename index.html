@@ -353,6 +353,42 @@
   .rejestr-cwiczenia tr:last-child td { border-bottom: none; }
   .rejestr-cwiczenia td:last-child { color: var(--muted); }
 
+  /* ----- Katalog ćwiczeń (widok "Dodaj nowe ćwiczenie") ----- */
+  #katalog-lista { margin-top: 14px; }
+  .katalog-grupa { margin-bottom: 16px; }
+  .katalog-grupa h4 {
+    margin: 0 0 8px;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .katalog-wiersz {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+  .katalog-nazwa { display: flex; align-items: center; }
+  .btn-usun-cwiczenie {
+    flex: none;
+    padding: 8px 12px;
+    border: 1px solid #E7C3B4;
+    border-radius: 11px;
+    background: #F8E7E0;
+    color: #B4482C;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .btn-usun-cwiczenie:hover { background: #F3D7CC; }
+  .btn-usun-cwiczenie:disabled { opacity: 0.55; cursor: default; }
+
   /* ----- Wykres / status ----- */
   #wykres { max-width: 100%; margin-top: 8px; }
   #wykres-brak { color: var(--muted); font-style: italic; margin: 14px 0 0; }
@@ -479,6 +515,11 @@
       <button type="submit" class="btn-submit">Zapisz ćwiczenie</button>
       <p id="nowe-status" hidden></p>
     </form>
+
+    <h2 style="margin-top:28px">Katalog ćwiczeń</h2>
+    <div id="katalog-lista">
+      <p class="pusto">Brak zapisanych ćwiczeń.</p>
+    </div>
   </section>
 </div>
 
@@ -514,6 +555,7 @@
   const selNowePartia = document.getElementById("nowe-partia");
   const inputNoweNazwa = document.getElementById("nowe-nazwa");
   const noweStatus = document.getElementById("nowe-status");
+  const katalogLista = document.getElementById("katalog-lista");
   const rekordBaner = document.getElementById("rekord-baner");
   const rekordTekst = document.getElementById("rekord-tekst");
 
@@ -595,6 +637,7 @@
   function odswiezSelectyCwiczen() {
     odbudujSelectCwiczenie();
     odbudujSelectWykres();
+    renderKatalogListy();
   }
 
   // Pobranie katalogu ćwiczeń z tabeli "cwiczenia"
@@ -994,6 +1037,77 @@
     noweStatus.textContent = tekst;
     noweStatus.style.color = ok ? "#2b7a2b" : "#b00020";
     noweStatus.hidden = false;
+  }
+
+  // Render katalogu ćwiczeń (widok "Dodaj nowe ćwiczenie") z przyciskiem usuwania
+  function renderKatalogListy() {
+    katalogLista.innerHTML = "";
+
+    if (katalog.length === 0) {
+      katalogLista.innerHTML = '<p class="pusto">Brak zapisanych ćwiczeń.</p>';
+      return;
+    }
+
+    PARTIE.forEach(function (partia) {
+      const wpisyPartii = katalog
+        .filter(function (c) { return c.partia === partia; })
+        .sort(function (a, b) { return a.nazwa.localeCompare(b.nazwa, "pl"); });
+      if (wpisyPartii.length === 0) return;
+
+      const grupa = document.createElement("div");
+      grupa.className = "katalog-grupa";
+
+      const naglowek = document.createElement("h4");
+      naglowek.textContent = partia;
+      grupa.appendChild(naglowek);
+
+      wpisyPartii.forEach(function (c) {
+        const wiersz = document.createElement("div");
+        wiersz.className = "katalog-wiersz";
+
+        const nazwa = document.createElement("span");
+        nazwa.className = "katalog-nazwa";
+        nazwa.appendChild(kropkaPartii(c.partia));
+        nazwa.appendChild(document.createTextNode(c.nazwa));
+
+        const btnUsun = document.createElement("button");
+        btnUsun.type = "button";
+        btnUsun.className = "btn-usun-cwiczenie";
+        btnUsun.textContent = "usuń";
+        btnUsun.addEventListener("click", function () { usunCwiczenie(c, btnUsun); });
+
+        wiersz.appendChild(nazwa);
+        wiersz.appendChild(btnUsun);
+        grupa.appendChild(wiersz);
+      });
+
+      katalogLista.appendChild(grupa);
+    });
+  }
+
+  // Usunięcie ćwiczenia z tabeli "cwiczenia"
+  async function usunCwiczenie(cwicz, btn) {
+    const potwierdzenie = window.confirm(
+      'Usunąć ćwiczenie „' + cwicz.nazwa + '" (' + cwicz.partia + ") z katalogu?"
+    );
+    if (!potwierdzenie) return;
+
+    btn.disabled = true;
+
+    const { error } = await db
+      .from("cwiczenia")
+      .delete()
+      .eq("id", cwicz.id);
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się usunąć ćwiczenia: " + error.message);
+      btn.disabled = false;
+      return;
+    }
+
+    katalog = katalog.filter(function (c) { return c.id !== cwicz.id; });
+    odswiezSelectyCwiczen();
   }
 </script>
 </body>
