@@ -412,6 +412,109 @@
   #wykres-brak { color: var(--muted); font-style: italic; margin: 14px 0 0; }
   #nowe-status { margin: 12px 0 0; font-size: 0.9rem; font-weight: 600; }
 
+  /* ----- Plan tygodnia ----- */
+  #widok-plan .karta { margin-bottom: 18px; }
+  #widok-plan form { margin-top: 16px; padding: 0; border: none; box-shadow: none; background: none; }
+  #widok-plan form > label:first-of-type { margin-top: 0; }
+
+  .btn-pill {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 9px 18px;
+    border: 1px dashed var(--accent);
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .btn-pill:hover { background: #FBDECF; }
+  .btn-pill:disabled { opacity: 0.55; cursor: default; }
+
+  #role-lista { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .rola-chip {
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .tydzien-nawigacja {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .btn-tydzien {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--accent);
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .btn-tydzien:hover { background: var(--accent-soft); }
+  .tydzien-etykieta { text-align: center; }
+  .tydzien-podpis {
+    display: block;
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 2px;
+  }
+  #tydzien-data {
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-size: 1.2rem;
+  }
+
+  .rola-blok h3 {
+    margin: 0 0 12px;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.25rem;
+    color: var(--ink);
+  }
+  .cele-checklist { display: flex; flex-direction: column; gap: 8px; }
+  .cel-wiersz {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #FCFAF4;
+    cursor: pointer;
+  }
+  .cel-wiersz input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    accent-color: var(--accent);
+  }
+  .cel-wiersz span { flex: 1; }
+  .cel-wiersz.zrealizowany span {
+    color: var(--muted);
+    text-decoration: line-through;
+  }
+  .form-dodaj-cel {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    align-items: center;
+  }
+  .form-dodaj-cel input {
+    flex: 1;
+  }
+  .form-dodaj-cel .btn-pill { margin-top: 0; flex: none; }
+
   /* ----- Responsywność ----- */
   @media (max-width: 560px) {
     h1 { font-size: 1.8rem; }
@@ -423,6 +526,7 @@
   @media (max-width: 380px) {
     .set-row { grid-template-columns: 1fr 1fr; }
     .set-row .btn-remove { grid-column: 1 / -1; }
+    .form-dodaj-cel { flex-direction: column; align-items: stretch; }
   }
 </style>
 </head>
@@ -435,7 +539,7 @@
 <div id="overlay" hidden></div>
 
 <nav id="sidebar">
-  <h3>Menu</h3>
+  <h3>Siłownia</h3>
   <button class="nav-btn aktywny" data-widok="widok-dodaj">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
     <span>Zapisz trening</span>
@@ -451,6 +555,12 @@
   <button class="nav-btn" data-widok="widok-nowe">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6M7 6v12M17 6v12M20 9v6M7 12h10"/></svg>
     <span>Nowe ćwiczenie</span>
+  </button>
+
+  <h3>Rozwój</h3>
+  <button class="nav-btn" data-widok="widok-plan">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="m9 15 2 2 4-4"/></svg>
+    <span>Plan tygodnia</span>
   </button>
 </nav>
 
@@ -544,6 +654,37 @@
     <h2 style="margin-top:28px">Katalog ćwiczeń</h2>
     <div id="katalog-lista">
       <p class="pusto">Brak zapisanych ćwiczeń.</p>
+    </div>
+  </section>
+
+  <!-- ===== Widok 5: Plan tygodnia ===== -->
+  <section id="widok-plan" class="widok">
+    <h2>Plan tygodnia</h2>
+
+    <div class="karta">
+      <label>Twoje role</label>
+      <div id="role-lista">
+        <p class="pusto">Brak zapisanych ról.</p>
+      </div>
+
+      <form id="form-rola">
+        <label for="nowa-rola">Nowa rola</label>
+        <input type="text" id="nowa-rola" autocomplete="off" placeholder="np. Pracownik, Rodzic, Sportowiec" required>
+        <button type="submit" class="btn-pill">+ dodaj rolę</button>
+      </form>
+    </div>
+
+    <div class="karta tydzien-nawigacja">
+      <button type="button" id="tydzien-poprzedni" class="btn-tydzien" aria-label="Poprzedni tydzień">←</button>
+      <div class="tydzien-etykieta">
+        <span class="tydzien-podpis">Tydzień od poniedziałku</span>
+        <span id="tydzien-data">—</span>
+      </div>
+      <button type="button" id="tydzien-nastepny" class="btn-tydzien" aria-label="Następny tydzień">→</button>
+    </div>
+
+    <div id="cele-lista">
+      <p class="pusto">Dodaj pierwszą rolę, aby zacząć planować cele tygodniowe.</p>
     </div>
   </section>
 </div>
@@ -1240,6 +1381,270 @@
     katalog = katalog.filter(function (c) { return c.id !== cwicz.id; });
     odswiezSelectyCwiczen();
   }
+
+  // ===================== Widok 5: Plan tygodnia =====================
+
+  const roleLista = document.getElementById("role-lista");
+  const formRola = document.getElementById("form-rola");
+  const inputNowaRola = document.getElementById("nowa-rola");
+  const tydzienDataEl = document.getElementById("tydzien-data");
+  const btnTydzienPoprzedni = document.getElementById("tydzien-poprzedni");
+  const btnTydzienNastepny = document.getElementById("tydzien-nastepny");
+  const celeLista = document.getElementById("cele-lista");
+
+  let role = [];  // wiersze z tabeli "role": { id, nazwa }
+  let cele = [];  // wiersze z tabeli "cele_tygodniowe" dla wybranego tygodnia
+
+  // Poniedziałek tygodnia zawierającego podaną datę
+  function poniedzialekTygodnia(d) {
+    const dzienTyg = d.getDay(); // 0 = niedziela ... 6 = sobota
+    const offset = dzienTyg === 0 ? -6 : 1 - dzienTyg;
+    const wynik = new Date(d.getFullYear(), d.getMonth(), d.getDate() + offset);
+    wynik.setHours(0, 0, 0, 0);
+    return wynik;
+  }
+
+  // Data (obiekt Date) -> "RRRR-MM-DD" w lokalnej strefie
+  function isoZDaty(d) {
+    const off = d.getTimezoneOffset();
+    return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
+  }
+
+  // Data (obiekt Date) -> "DD.MM.RRRR"
+  function formatDataPL(d) {
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    return dd + "." + mm + "." + d.getFullYear();
+  }
+
+  let wybranyPoniedzialek = poniedzialekTygodnia(new Date());
+
+  // Render listy ról (chipy) w karcie zarządzania rolami
+  function renderRoleListy() {
+    roleLista.innerHTML = "";
+    if (role.length === 0) {
+      roleLista.innerHTML = '<p class="pusto">Brak zapisanych ról.</p>';
+      return;
+    }
+    role.forEach(function (r) {
+      const chip = document.createElement("span");
+      chip.className = "rola-chip";
+      chip.textContent = r.nazwa;
+      roleLista.appendChild(chip);
+    });
+  }
+
+  function renderTydzienEtykieta() {
+    tydzienDataEl.textContent = formatDataPL(wybranyPoniedzialek);
+  }
+
+  // Render bloków "cele wg roli" - checklisty na wybrany tydzień + formularz dodawania celu
+  function renderCeleWszystkie() {
+    renderTydzienEtykieta();
+    celeLista.innerHTML = "";
+
+    if (role.length === 0) {
+      celeLista.innerHTML = '<p class="pusto">Dodaj pierwszą rolę, aby zacząć planować cele tygodniowe.</p>';
+      return;
+    }
+
+    role.forEach(function (r) {
+      const blok = document.createElement("div");
+      blok.className = "karta rola-blok";
+
+      const naglowek = document.createElement("h3");
+      naglowek.textContent = r.nazwa;
+      blok.appendChild(naglowek);
+
+      const celeRoli = cele.filter(function (c) { return c.rola_id === r.id; });
+
+      const lista = document.createElement("div");
+      lista.className = "cele-checklist";
+
+      if (celeRoli.length === 0) {
+        lista.innerHTML = '<p class="pusto">Brak celów na ten tydzień.</p>';
+      } else {
+        celeRoli.forEach(function (c) {
+          const wiersz = document.createElement("label");
+          wiersz.className = "cel-wiersz" + (c.zrealizowane ? " zrealizowany" : "");
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = !!c.zrealizowane;
+          checkbox.addEventListener("change", function () {
+            przelaczCel(c, checkbox, wiersz);
+          });
+
+          const tekst = document.createElement("span");
+          tekst.textContent = c.tresc;
+
+          wiersz.appendChild(checkbox);
+          wiersz.appendChild(tekst);
+          lista.appendChild(wiersz);
+        });
+      }
+      blok.appendChild(lista);
+
+      const formularz = document.createElement("form");
+      formularz.className = "form-dodaj-cel";
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = "Nowy cel na ten tydzień";
+      input.autocomplete = "off";
+      input.required = true;
+
+      const btn = document.createElement("button");
+      btn.type = "submit";
+      btn.className = "btn-pill";
+      btn.textContent = "+ dodaj cel";
+
+      formularz.appendChild(input);
+      formularz.appendChild(btn);
+      formularz.addEventListener("submit", function (e) {
+        e.preventDefault();
+        dodajCel(r, input, btn);
+      });
+
+      blok.appendChild(formularz);
+      celeLista.appendChild(blok);
+    });
+  }
+
+  // Aktualizacja pola "zrealizowane" po kliknięciu checkboxa
+  async function przelaczCel(cel, checkbox, wiersz) {
+    const nowaWartosc = checkbox.checked;
+    checkbox.disabled = true;
+
+    const { error } = await db
+      .from("cele_tygodniowe")
+      .update({ zrealizowane: nowaWartosc })
+      .eq("id", cel.id);
+
+    checkbox.disabled = false;
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się zaktualizować celu: " + error.message);
+      checkbox.checked = !nowaWartosc;
+      return;
+    }
+
+    cel.zrealizowane = nowaWartosc;
+    wiersz.classList.toggle("zrealizowany", nowaWartosc);
+  }
+
+  // Dodanie nowego celu dla danej roli na aktualnie wybrany tydzień
+  async function dodajCel(rola, input, btn) {
+    const tresc = input.value.trim();
+    if (!tresc) return;
+
+    btn.disabled = true;
+
+    const { data, error } = await db
+      .from("cele_tygodniowe")
+      .insert({
+        rola_id: rola.id,
+        tydzien_start: isoZDaty(wybranyPoniedzialek),
+        tresc: tresc,
+        zrealizowane: false
+      })
+      .select();
+
+    btn.disabled = false;
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się zapisać celu: " + error.message);
+      return;
+    }
+
+    cele.push(data && data[0] ? data[0] : {
+      id: Date.now(), rola_id: rola.id,
+      tydzien_start: isoZDaty(wybranyPoniedzialek), tresc: tresc, zrealizowane: false
+    });
+    renderCeleWszystkie();
+  }
+
+  // Pobranie ról z tabeli "role"
+  async function wczytajRole() {
+    const { data, error } = await db
+      .from("role")
+      .select("*")
+      .order("nazwa", { ascending: true });
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się pobrać ról: " + error.message);
+      return;
+    }
+    role = data || [];
+    renderRoleListy();
+    renderCeleWszystkie();
+  }
+
+  // Pobranie celów tygodniowych dla wybranego tygodnia (wszystkie role naraz)
+  async function wczytajCeleDlaTygodnia() {
+    const { data, error } = await db
+      .from("cele_tygodniowe")
+      .select("*")
+      .eq("tydzien_start", isoZDaty(wybranyPoniedzialek));
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się pobrać celów tygodniowych: " + error.message);
+      return;
+    }
+    cele = data || [];
+    renderCeleWszystkie();
+  }
+
+  renderTydzienEtykieta();
+  wczytajRole();
+  wczytajCeleDlaTygodnia();
+
+  // Formularz dodawania nowej roli
+  formRola.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const nazwa = inputNowaRola.value.trim();
+    if (!nazwa) return;
+
+    const btn = formRola.querySelector(".btn-pill");
+    btn.disabled = true;
+
+    const { data, error } = await db
+      .from("role")
+      .insert({ nazwa: nazwa })
+      .select();
+
+    btn.disabled = false;
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się zapisać roli: " + error.message);
+      return;
+    }
+
+    role.push(data && data[0] ? data[0] : { id: Date.now(), nazwa: nazwa });
+    formRola.reset();
+    renderRoleListy();
+    renderCeleWszystkie();
+  });
+
+  // Nawigacja: poprzedni / następny tydzień
+  btnTydzienPoprzedni.addEventListener("click", function () {
+    wybranyPoniedzialek = new Date(
+      wybranyPoniedzialek.getFullYear(), wybranyPoniedzialek.getMonth(), wybranyPoniedzialek.getDate() - 7
+    );
+    wczytajCeleDlaTygodnia();
+  });
+  btnTydzienNastepny.addEventListener("click", function () {
+    wybranyPoniedzialek = new Date(
+      wybranyPoniedzialek.getFullYear(), wybranyPoniedzialek.getMonth(), wybranyPoniedzialek.getDate() + 7
+    );
+    wczytajCeleDlaTygodnia();
+  });
 </script>
 </body>
 </html>
