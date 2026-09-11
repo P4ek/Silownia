@@ -435,31 +435,20 @@
   .rola-chip {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 7px 8px 7px 14px;
+    gap: 8px;
+    padding: 7px 14px;
     border-radius: 999px;
     background: var(--accent-soft);
     color: var(--accent);
     font-weight: 600;
     font-size: 0.85rem;
+    cursor: pointer;
   }
-  .rola-chip-usun {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    border: none;
-    border-radius: 50%;
-    background: none;
-    color: var(--accent);
-    font-size: 1rem;
-    line-height: 1;
-    font-weight: 700;
-    padding: 0;
+  .rola-chip input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
   }
-  .rola-chip-usun:hover { background: #FBDECF; }
-  .rola-chip-usun:disabled { opacity: 0.5; cursor: default; }
 
   .tydzien-nawigacja {
     display: flex;
@@ -1414,6 +1403,7 @@
 
   let role = [];  // wiersze z tabeli "role": { id, nazwa }
   let cele = [];  // wiersze z tabeli "cele_tygodniowe" dla wybranego tygodnia
+  const roleWidoczne = new Set(); // id ról zaznaczonych do pokazania na dole (checkbox przy chipie)
 
   // Poniedziałek tygodnia zawierającego podaną datę
   function poniedzialekTygodnia(d) {
@@ -1447,21 +1437,23 @@
       return;
     }
     role.forEach(function (r) {
-      const chip = document.createElement("span");
+      const chip = document.createElement("label");
       chip.className = "rola-chip";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = roleWidoczne.has(r.id);
+      checkbox.addEventListener("change", function () {
+        if (checkbox.checked) roleWidoczne.add(r.id);
+        else roleWidoczne.delete(r.id);
+        renderCeleWszystkie();
+      });
 
       const tekst = document.createElement("span");
       tekst.textContent = r.nazwa;
 
-      const btnUsun = document.createElement("button");
-      btnUsun.type = "button";
-      btnUsun.className = "rola-chip-usun";
-      btnUsun.textContent = "×";
-      btnUsun.setAttribute("aria-label", "Usuń rolę " + r.nazwa);
-      btnUsun.addEventListener("click", function () { usunRole(r, btnUsun); });
-
+      chip.appendChild(checkbox);
       chip.appendChild(tekst);
-      chip.appendChild(btnUsun);
       roleLista.appendChild(chip);
     });
   }
@@ -1480,7 +1472,13 @@
       return;
     }
 
-    role.forEach(function (r) {
+    const roleDoPokazania = role.filter(function (r) { return roleWidoczne.has(r.id); });
+    if (roleDoPokazania.length === 0) {
+      celeLista.innerHTML = '<p class="pusto">Zaznacz rolę powyżej, aby zobaczyć tu jej cele na ten tydzień.</p>';
+      return;
+    }
+
+    roleDoPokazania.forEach(function (r) {
       const blok = document.createElement("div");
       blok.className = "karta rola-blok";
 
@@ -1600,33 +1598,6 @@
     renderCeleWszystkie();
   }
 
-  // Usunięcie roli z tabeli "role" (wraz z jej celami tygodniowymi, jeśli baza na to pozwala)
-  async function usunRole(rola, btn) {
-    const potwierdzenie = window.confirm(
-      'Usunąć rolę „' + rola.nazwa + '"? Jej cele tygodniowe (jeśli istnieją) również zostaną usunięte.'
-    );
-    if (!potwierdzenie) return;
-
-    btn.disabled = true;
-
-    const { error } = await db
-      .from("role")
-      .delete()
-      .eq("id", rola.id);
-
-    if (error) {
-      console.error(error);
-      alert("Nie udało się usunąć roli: " + error.message);
-      btn.disabled = false;
-      return;
-    }
-
-    role = role.filter(function (r) { return r.id !== rola.id; });
-    cele = cele.filter(function (c) { return c.rola_id !== rola.id; });
-    renderRoleListy();
-    renderCeleWszystkie();
-  }
-
   // Dodanie nowego celu dla danej roli na aktualnie wybrany tydzień
   async function dodajCel(rola, input, btn) {
     const tresc = input.value.trim();
@@ -1672,6 +1643,7 @@
       return;
     }
     role = data || [];
+    role.forEach(function (r) { roleWidoczne.add(r.id); });
     renderRoleListy();
     renderCeleWszystkie();
   }
@@ -1719,7 +1691,9 @@
       return;
     }
 
-    role.push(data && data[0] ? data[0] : { id: Date.now(), nazwa: nazwa });
+    const nowaRola = data && data[0] ? data[0] : { id: Date.now(), nazwa: nazwa };
+    role.push(nowaRola);
+    roleWidoczne.add(nowaRola.id);
     formRola.reset();
     renderRoleListy();
     renderCeleWszystkie();
