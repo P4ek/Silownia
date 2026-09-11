@@ -508,21 +508,20 @@
     flex: none;
     accent-color: var(--accent);
   }
-  .cel-wiersz span { flex: 1; }
-  .cel-wiersz.zrealizowany span {
-    color: var(--muted);
+  .cel-tresc { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+  .cel-plan { font-size: 0.78rem; color: var(--muted); }
+  .cel-wiersz.zrealizowany .cel-tresc-glowna,
+  .cel-wiersz.zrealizowany .cel-plan {
     text-decoration: line-through;
   }
+  .cel-wiersz.zrealizowany .cel-tresc-glowna { color: var(--muted); }
   .form-dodaj-cel {
     display: flex;
+    flex-direction: column;
     gap: 8px;
     margin-top: 14px;
-    align-items: center;
   }
-  .form-dodaj-cel input {
-    flex: 1;
-  }
-  .form-dodaj-cel .btn-pill { margin-top: 0; flex: none; }
+  .form-dodaj-cel .btn-pill { margin-top: 2px; align-self: flex-start; }
 
   /* ----- Responsywność ----- */
   @media (max-width: 560px) {
@@ -535,7 +534,6 @@
   @media (max-width: 380px) {
     .set-row { grid-template-columns: 1fr 1fr; }
     .set-row .btn-remove { grid-column: 1 / -1; }
-    .form-dodaj-cel { flex-direction: column; align-items: stretch; }
   }
 </style>
 </head>
@@ -1505,8 +1503,20 @@
             przelaczCel(c, checkbox, wiersz);
           });
 
+          const wrapTresc = document.createElement("div");
+          wrapTresc.className = "cel-tresc";
+
           const tekst = document.createElement("span");
+          tekst.className = "cel-tresc-glowna";
           tekst.textContent = c.tresc;
+          wrapTresc.appendChild(tekst);
+
+          if (c.plan) {
+            const planEl = document.createElement("span");
+            planEl.className = "cel-plan";
+            planEl.textContent = c.plan;
+            wrapTresc.appendChild(planEl);
+          }
 
           const btnUsun = document.createElement("button");
           btnUsun.type = "button";
@@ -1519,7 +1529,7 @@
           });
 
           wiersz.appendChild(checkbox);
-          wiersz.appendChild(tekst);
+          wiersz.appendChild(wrapTresc);
           wiersz.appendChild(btnUsun);
           lista.appendChild(wiersz);
         });
@@ -1535,16 +1545,22 @@
       input.autocomplete = "off";
       input.required = true;
 
+      const inputPlan = document.createElement("input");
+      inputPlan.type = "text";
+      inputPlan.placeholder = "Jak i kiedy to zrealizujesz?";
+      inputPlan.autocomplete = "off";
+
       const btn = document.createElement("button");
       btn.type = "submit";
       btn.className = "btn-pill";
       btn.textContent = "+ dodaj cel";
 
       formularz.appendChild(input);
+      formularz.appendChild(inputPlan);
       formularz.appendChild(btn);
       formularz.addEventListener("submit", function (e) {
         e.preventDefault();
-        dodajCel(r, input, btn);
+        dodajCel(r, input, inputPlan, btn);
       });
 
       blok.appendChild(formularz);
@@ -1599,9 +1615,10 @@
   }
 
   // Dodanie nowego celu dla danej roli na aktualnie wybrany tydzień
-  async function dodajCel(rola, input, btn) {
+  async function dodajCel(rola, input, inputPlan, btn) {
     const tresc = input.value.trim();
     if (!tresc) return;
+    const plan = inputPlan.value.trim();
 
     btn.disabled = true;
 
@@ -1611,6 +1628,7 @@
         rola_id: rola.id,
         tydzien_start: isoZDaty(wybranyPoniedzialek),
         tresc: tresc,
+        plan: plan || null,
         zrealizowane: false
       })
       .select();
@@ -1625,7 +1643,7 @@
 
     cele.push(data && data[0] ? data[0] : {
       id: Date.now(), rola_id: rola.id,
-      tydzien_start: isoZDaty(wybranyPoniedzialek), tresc: tresc, zrealizowane: false
+      tydzien_start: isoZDaty(wybranyPoniedzialek), tresc: tresc, plan: plan || null, zrealizowane: false
     });
     renderCeleWszystkie();
   }
