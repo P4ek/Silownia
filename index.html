@@ -350,6 +350,15 @@
   }
   .rejestr-dzien, .rejestr-partia { white-space: nowrap; }
   .rejestr-dzien { font-weight: 700; }
+  .rejestr-miesiac {
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.2rem;
+    color: var(--accent);
+    margin: 24px 4px 10px;
+  }
+  .rejestr-miesiac:first-child { margin-top: 0; }
   .rejestr-cwiczenia { width: 100%; border-collapse: collapse; }
   .rejestr-cwiczenia th, .rejestr-cwiczenia td {
     text-align: left;
@@ -491,6 +500,13 @@
   <!-- ===== Widok 2: Rejestr ćwiczeń ===== -->
   <section id="widok-rejestr" class="widok">
     <h2>Rejestr ćwiczeń</h2>
+
+    <div class="karta" style="margin-bottom:18px">
+      <label for="rejestr-szukaj">Szukaj ćwiczenia</label>
+      <input type="text" id="rejestr-szukaj" list="rejestr-cwiczenia-lista" placeholder="Wszystkie ćwiczenia" autocomplete="off">
+      <datalist id="rejestr-cwiczenia-lista"></datalist>
+    </div>
+
     <div id="rejestr">
       <p class="pusto">Brak zapisanych treningów.</p>
     </div>
@@ -558,6 +574,8 @@
   const btnDodaj = document.getElementById("dodaj-podejscie");
   const lista = document.getElementById("lista");
   const rejestrBox = document.getElementById("rejestr");
+  const rejestrSzukaj = document.getElementById("rejestr-szukaj");
+  const rejestrDatalist = document.getElementById("rejestr-cwiczenia-lista");
   const selWykres = document.getElementById("wykres-cwiczenie");
   const wykresBrak = document.getElementById("wykres-brak");
   const formNowe = document.getElementById("form-nowe-cwiczenie");
@@ -642,10 +660,20 @@
     if (poprzednie) selWykres.value = poprzednie;
   }
 
+  // Odbudowa listy podpowiedzi do wyszukiwarki w rejestrze (wszystkie ćwiczenia z katalogu)
+  function odbudujDatalistRejestr() {
+    rejestrDatalist.innerHTML = "";
+    katalog
+      .slice()
+      .sort(function (a, b) { return a.nazwa.localeCompare(b.nazwa, "pl"); })
+      .forEach(function (c) { rejestrDatalist.appendChild(new Option(c.nazwa)); });
+  }
+
   // Odświeżenie wszystkich list ćwiczeń na stronie
   function odswiezSelectyCwiczen() {
     odbudujSelectCwiczenie();
     odbudujSelectWykres();
+    odbudujDatalistRejestr();
     renderKatalogListy();
   }
 
@@ -827,20 +855,19 @@
   }
   zaplanujResetOPolnocy();
 
-  // Render widoku "Rejestr ćwiczeń" - tabela pogrupowana po dniach
-  function renderRejestr() {
-    const grupy = {};
-    wpisy.forEach(function (w) {
-      (grupy[w.data] = grupy[w.data] || []).push(w);
-    });
-    const daty = Object.keys(grupy).sort().reverse();
+  // Nazwy miesięcy do nagłówków grupujących rejestr
+  const NAZWY_MIESIECY = [
+    "Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec",
+    "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"
+  ];
+  function etykietaMiesiaca(dataStr) {
+    const czesci = dataStr.split("-");
+    const miesiac = parseInt(czesci[1], 10);
+    return NAZWY_MIESIECY[miesiac - 1] + " " + czesci[0];
+  }
 
-    rejestrBox.innerHTML = "";
-    if (daty.length === 0) {
-      rejestrBox.innerHTML = '<p class="pusto">Brak zapisanych treningów.</p>';
-      return;
-    }
-
+  // Budowa tabeli dni treningowych dla jednej grupy (miesiąca)
+  function budujTabeleDni(daty, grupy) {
     const tabela = document.createElement("table");
     tabela.className = "rejestr-tabela";
     tabela.innerHTML = "<thead><tr><th>Dzień treningowy</th><th>Ćwiczenia</th></tr></thead>";
@@ -899,8 +926,51 @@
       tbody.appendChild(tr);
     });
     tabela.appendChild(tbody);
-    rejestrBox.appendChild(tabela);
+    return tabela;
   }
+
+  // Render widoku "Rejestr ćwiczeń" - wpisy filtrowane wyszukiwarką, pogrupowane po miesiącach i dniach
+  function renderRejestr() {
+    const szukane = (rejestrSzukaj.value || "").trim().toLowerCase();
+    const wpisyFiltrowane = szukane
+      ? wpisy.filter(function (w) { return w.cwiczenie.toLowerCase().indexOf(szukane) !== -1; })
+      : wpisy;
+
+    const grupy = {};
+    wpisyFiltrowane.forEach(function (w) {
+      (grupy[w.data] = grupy[w.data] || []).push(w);
+    });
+    const daty = Object.keys(grupy).sort().reverse();
+
+    rejestrBox.innerHTML = "";
+    if (daty.length === 0) {
+      rejestrBox.innerHTML = szukane
+        ? '<p class="pusto">Brak wyników dla „' + rejestrSzukaj.value + '".</p>'
+        : '<p class="pusto">Brak zapisanych treningów.</p>';
+      return;
+    }
+
+    // Grupowanie dni na miesiące, z zachowaniem malejącej kolejności dat
+    const miesiace = [];
+    let biezacy = null;
+    daty.forEach(function (d) {
+      const klucz = d.slice(0, 7); // "RRRR-MM"
+      if (!biezacy || biezacy.klucz !== klucz) {
+        biezacy = { klucz: klucz, etykieta: etykietaMiesiaca(d), daty: [] };
+        miesiace.push(biezacy);
+      }
+      biezacy.daty.push(d);
+    });
+
+    miesiace.forEach(function (mies) {
+      const naglowek = document.createElement("h3");
+      naglowek.className = "rejestr-miesiac";
+      naglowek.textContent = mies.etykieta;
+      rejestrBox.appendChild(naglowek);
+      rejestrBox.appendChild(budujTabeleDni(mies.daty, grupy));
+    });
+  }
+  rejestrSzukaj.addEventListener("input", renderRejestr);
 
   // Pobranie wszystkich wpisów przy otwarciu strony
   async function wczytajWpisy() {
