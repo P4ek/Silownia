@@ -742,9 +742,37 @@
     .set-row .btn-remove { grid-column: 1 / -1; }
     .tydzien-podpis { font-size: 0.7rem; }
   }
+
+  /* ----- Ekran logowania ----- */
+  .ekran-logowania {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 16px;
+  }
+  .logowanie-karta { width: 100%; max-width: 380px; }
+  .logowanie-karta h1 { padding-left: 0; text-align: center; }
+  .logowanie-opis { color: var(--muted); margin: 0 0 4px; text-align: center; }
+  .logowanie-status { margin: 14px 0 0; font-size: 0.9rem; font-weight: 600; text-align: center; }
 </style>
 </head>
 <body>
+
+<div id="ekran-logowania" class="ekran-logowania">
+  <div class="karta logowanie-karta">
+    <h1>Dziennik treningowy</h1>
+    <p class="logowanie-opis">Zaloguj się linkiem wysłanym na e-mail.</p>
+    <form id="form-logowania">
+      <label for="logowanie-email">Adres e-mail</label>
+      <input type="email" id="logowanie-email" autocomplete="email" required placeholder="ty@przyklad.pl">
+      <button type="submit" class="btn-submit">Wyślij link logowania</button>
+      <p id="logowanie-status" class="logowanie-status" hidden></p>
+    </form>
+  </div>
+</div>
+
+<div id="aplikacja" hidden>
 
 <button class="hamburger" id="hamburger" aria-label="Menu">
   <span></span><span></span><span></span>
@@ -927,12 +955,94 @@
   </section>
 </div>
 
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   const SUPABASE_URL = "https://yrnubpuffivauxatvthr.supabase.co";
   const SUPABASE_KEY = "sb_publishable_4nd418S2FdKpFmp5vGh1Ug_jltWAFrI";
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ===================== Logowanie (Supabase Auth, magic link) =====================
+
+  let sesjaUzytkownika = null; // aktualna sesja Supabase, ustawiana przez onAuthStateChange
+  let aplikacjaZainicjowana = false;
+
+  const ekranLogowania = document.getElementById("ekran-logowania");
+  const aplikacja = document.getElementById("aplikacja");
+  const formLogowania = document.getElementById("form-logowania");
+  const inputEmailLogowania = document.getElementById("logowanie-email");
+  const logowanieStatus = document.getElementById("logowanie-status");
+
+  // Wywoływane raz, przy pierwszym pokazaniu aplikacji po zalogowaniu - wczytuje wszystkie dane
+  function inicjalizujDaneAplikacji() {
+    wczytajKatalog();
+    wczytajWpisy();
+    renderTydzienEtykieta();
+    wczytajRole();
+    wczytajCeleDlaTygodnia();
+  }
+
+  function pokazAplikacje() {
+    ekranLogowania.hidden = true;
+    aplikacja.hidden = false;
+    if (!aplikacjaZainicjowana) {
+      aplikacjaZainicjowana = true;
+      inicjalizujDaneAplikacji();
+    }
+  }
+
+  function pokazEkranLogowania() {
+    aplikacja.hidden = true;
+    ekranLogowania.hidden = false;
+  }
+
+  // Reakcja na zmianę stanu logowania (m.in. wejście z linku logowania z maila)
+  db.auth.onAuthStateChange(function (event, session) {
+    sesjaUzytkownika = session;
+    if (session) {
+      pokazAplikacje();
+    } else {
+      pokazEkranLogowania();
+    }
+  });
+
+  // Sprawdzenie aktywnej sesji przy pierwszym wejściu na stronę
+  db.auth.getSession().then(function (wynik) {
+    sesjaUzytkownika = wynik.data.session;
+    if (sesjaUzytkownika) {
+      pokazAplikacje();
+    } else {
+      pokazEkranLogowania();
+    }
+  });
+
+  formLogowania.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const email = inputEmailLogowania.value.trim();
+    if (!email) return;
+
+    const btn = formLogowania.querySelector(".btn-submit");
+    btn.disabled = true;
+    logowanieStatus.hidden = true;
+
+    const { error } = await db.auth.signInWithOtp({ email: email });
+
+    btn.disabled = false;
+
+    if (error) {
+      console.error(error);
+      logowanieStatus.textContent = "Nie udało się wysłać linku: " + error.message;
+      logowanieStatus.style.color = "#b00020";
+      logowanieStatus.hidden = false;
+      return;
+    }
+
+    logowanieStatus.textContent = "Sprawdź maila";
+    logowanieStatus.style.color = "#2b7a2b";
+    logowanieStatus.hidden = false;
+  });
 
   // Stała lista partii; ćwiczenia pobierane z tabeli "cwiczenia"
   const PARTIE = ["Klata", "Plecy", "Biceps", "Triceps", "Barki", "Brzuch", "Nogi"];
@@ -1074,7 +1184,6 @@
     katalog = data || [];
     odswiezSelectyCwiczen();
   }
-  wczytajKatalog();
 
   // Ustawienie dzisiejszej daty
   function dzisiaj() {
@@ -1399,7 +1508,6 @@
     renderRejestr();
     odswiezWykres();
   }
-  wczytajWpisy();
 
   // ----- Wykres postępu (Chart.js) -----
   let wykres = null;
@@ -1481,7 +1589,7 @@
 
     const { data: wstawione, error } = await db
       .from("treningi")
-      .insert({ partia: partia, cwiczenie: cwiczenie, data: data, podejscia: podejscia })
+      .insert({ partia: partia, cwiczenie: cwiczenie, data: data, podejscia: podejscia, user_id: sesjaUzytkownika.user.id })
       .select();
 
     btn.disabled = false;
@@ -2028,7 +2136,8 @@
             tresc: cel.tresc,
             plan: cel.plan || null,
             zrealizowane: false,
-            powod: null
+            powod: null,
+            user_id: sesjaUzytkownika.user.id
           });
 
         if (bladPrzeniesienia) {
@@ -2129,7 +2238,8 @@
         tydzien_start: isoZDaty(wybranyPoniedzialek),
         tresc: tresc,
         plan: plan || null,
-        zrealizowane: false
+        zrealizowane: false,
+        user_id: sesjaUzytkownika.user.id
       })
       .select();
 
@@ -2184,10 +2294,6 @@
     if (!podsumowanieSzczegoly.hidden) renderPodsumowanieSzczegoly();
   }
 
-  renderTydzienEtykieta();
-  wczytajRole();
-  wczytajCeleDlaTygodnia();
-
   // Formularz dodawania nowej roli
   formRola.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -2200,7 +2306,7 @@
 
     const { data, error } = await db
       .from("role")
-      .insert({ nazwa: nazwa })
+      .insert({ nazwa: nazwa, user_id: sesjaUzytkownika.user.id })
       .select();
 
     btn.disabled = false;
