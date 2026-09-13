@@ -674,9 +674,54 @@
   .przeszkoda-tytul { font-weight: 600; font-size: 0.88rem; margin-bottom: 8px; }
   .przeszkoda-form { display: flex; gap: 8px; }
   .przeszkoda-form input { flex: 1; }
-  .przeszkoda-form .btn-pill { margin-top: 0; flex: none; }
+  /* Przełącznik "Przenieś na następny tydzień" - ten sam wzorzec co .rola-chip */
+  .przeszkoda-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .przeszkoda-toggle input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 34px;
+    height: 20px;
+    flex: none;
+    border-radius: 999px;
+    background: #E7DCD0;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .przeszkoda-toggle input[type="checkbox"]::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease;
+  }
+  .przeszkoda-toggle input[type="checkbox"]:checked { background: var(--accent); }
+  .przeszkoda-toggle input[type="checkbox"]:checked::before { transform: translateX(14px); }
+  #btn-zapisz-podsumowanie { margin-top: 6px; }
   @media (max-width: 380px) {
     .przeszkoda-form { flex-direction: column; }
+  }
+
+  /* ----- Rejestr: znacznik nowego rekordu ----- */
+  .rekord-tag-rejestr {
+    margin-left: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
   }
 
   /* ----- Responsywność ----- */
@@ -877,6 +922,7 @@
       </div>
       <p id="wykres-tydzien-brak" class="pusto" hidden>Brak celów w tym tygodniu.</p>
       <div id="niezrealizowane-lista"></div>
+      <button type="button" id="btn-zapisz-podsumowanie" class="btn-zakoncz-tydzien" hidden>Zapisz podsumowanie</button>
     </div>
   </section>
 </div>
@@ -1202,7 +1248,28 @@
   }
 
   // Budowa tabeli dni treningowych dla jednej grupy (miesiąca)
-  function budujTabeleDni(daty, grupy) {
+  // Historycznie największy zapisany ciężar dla każdego ćwiczenia (po wszystkich podejściach, wszystkich wpisach)
+  function obliczMaksymalneCiezary() {
+    const maks = {};
+    wpisy.forEach(function (w) {
+      (w.podejscia || []).forEach(function (p) {
+        const c = Number(p["cieżar"]) || 0;
+        if (!(w.cwiczenie in maks) || c > maks[w.cwiczenie]) {
+          maks[w.cwiczenie] = c;
+        }
+      });
+    });
+    return maks;
+  }
+
+  // Czy dany wpis zawiera podejście z historycznie maksymalnym ciężarem dla swojego ćwiczenia
+  function czyWpisMaRekord(w, maksymalneCiezary) {
+    const maks = maksymalneCiezary[w.cwiczenie];
+    if (!maks || maks <= 0) return false;
+    return (w.podejscia || []).some(function (p) { return (Number(p["cieżar"]) || 0) === maks; });
+  }
+
+  function budujTabeleDni(daty, grupy, maksymalneCiezary) {
     const tabela = document.createElement("table");
     tabela.className = "rejestr-tabela";
     tabela.innerHTML = "<thead><tr><th>Dzień treningowy</th><th>Ćwiczenia</th></tr></thead>";
@@ -1231,6 +1298,12 @@
 
         const c2 = document.createElement("td");
         c2.textContent = w.cwiczenie;
+        if (czyWpisMaRekord(w, maksymalneCiezary)) {
+          const tagRekord = document.createElement("span");
+          tagRekord.className = "rekord-tag-rejestr";
+          tagRekord.textContent = "🎉 nowy rekord!";
+          c2.appendChild(tagRekord);
+        }
 
         const c3 = document.createElement("td");
         c3.className = "rejestr-podejscia";
@@ -1276,6 +1349,7 @@
       (grupy[w.data] = grupy[w.data] || []).push(w);
     });
     const daty = Object.keys(grupy).sort().reverse();
+    const maksymalneCiezary = obliczMaksymalneCiezary();
 
     rejestrBox.innerHTML = "";
     if (daty.length === 0) {
@@ -1302,7 +1376,7 @@
       naglowek.className = "rejestr-miesiac";
       naglowek.textContent = mies.etykieta;
       rejestrBox.appendChild(naglowek);
-      rejestrBox.appendChild(budujTabeleDni(mies.daty, grupy));
+      rejestrBox.appendChild(budujTabeleDni(mies.daty, grupy, maksymalneCiezary));
     });
   }
   rejestrSzukaj.addEventListener("input", renderRejestr);
@@ -1593,7 +1667,9 @@
   const podsumowanieSzczegoly = document.getElementById("podsumowanie-tydzien-szczegoly");
   const wykresTydzienBrak = document.getElementById("wykres-tydzien-brak");
   const niezrealizowaneLista = document.getElementById("niezrealizowane-lista");
+  const btnZapiszPodsumowanie = document.getElementById("btn-zapisz-podsumowanie");
   let wykresTydzienKolowy = null;
+  let wierszeNiezrealizowanychRoboczych = []; // { cel, input, checkbox } - stan roboczy formularza podsumowania
 
   let role = [];  // wiersze z tabeli "role": { id, nazwa }
   let cele = [];  // wiersze z tabeli "cele_tygodniowe" dla wybranego tygodnia
@@ -1848,19 +1924,23 @@
     });
   }
 
-  // Lista niezrealizowanych celów z polem "co mnie powstrzymało"
+  // Lista niezrealizowanych celów: pole "co Cię zatrzymało" + przełącznik przeniesienia na kolejny tydzień
   function renderNiezrealizowaneLista() {
     niezrealizowaneLista.innerHTML = "";
+    wierszeNiezrealizowanychRoboczych = [];
     const niezrealizowane = cele.filter(function (c) { return !c.zrealizowane; });
 
     if (niezrealizowane.length === 0) {
       niezrealizowaneLista.innerHTML = '<p class="pusto">Wszystkie cele w tym tygodniu zrealizowane!</p>';
+      btnZapiszPodsumowanie.hidden = true;
       return;
     }
+    btnZapiszPodsumowanie.hidden = false;
+    btnZapiszPodsumowanie.textContent = "Zapisz podsumowanie";
 
     const naglowek = document.createElement("h4");
     naglowek.className = "przeszkoda-naglowek";
-    naglowek.textContent = "Co mnie powstrzymało?";
+    naglowek.textContent = "Co Cię zatrzymało?";
     niezrealizowaneLista.appendChild(naglowek);
 
     niezrealizowane.forEach(function (c) {
@@ -1874,29 +1954,30 @@
       tytul.textContent = (rola ? rola.nazwa + " — " : "") + c.tresc;
       wiersz.appendChild(tytul);
 
-      const formularz = document.createElement("form");
+      const formularz = document.createElement("div");
       formularz.className = "przeszkoda-form";
 
       const input = document.createElement("input");
       input.type = "text";
-      input.placeholder = "Co mnie powstrzymało?";
+      input.placeholder = "Co Cię zatrzymało?";
       input.autocomplete = "off";
-      input.value = c.przeszkoda || "";
-
-      const btn = document.createElement("button");
-      btn.type = "submit";
-      btn.className = "btn-pill";
-      btn.textContent = "Zapisz";
-
+      input.value = c.powod || "";
       formularz.appendChild(input);
-      formularz.appendChild(btn);
-      formularz.addEventListener("submit", function (e) {
-        e.preventDefault();
-        zapiszPrzeszkode(c, input, btn);
-      });
 
       wiersz.appendChild(formularz);
+
+      const toggleLabel = document.createElement("label");
+      toggleLabel.className = "przeszkoda-toggle";
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      const toggleTekst = document.createElement("span");
+      toggleTekst.textContent = "Przenieś na następny tydzień";
+      toggleLabel.appendChild(checkbox);
+      toggleLabel.appendChild(toggleTekst);
+      wiersz.appendChild(toggleLabel);
+
       niezrealizowaneLista.appendChild(wiersz);
+      wierszeNiezrealizowanychRoboczych.push({ cel: c, input: input, checkbox: checkbox });
     });
   }
 
@@ -1905,29 +1986,71 @@
     renderNiezrealizowaneLista();
   }
 
-  // Zapis powodu niezrealizowania celu do tabeli "cele_tygodniowe" (kolumna "przeszkoda")
-  async function zapiszPrzeszkode(cel, input, btn) {
-    const tekst = input.value.trim();
-    btn.disabled = true;
+  // Zbiorczy zapis podsumowania tygodnia:
+  // - dla każdego niezrealizowanego celu zapisuje powód (kolumna "powod") do jego wiersza (historia zostaje)
+  // - dla celów zaznaczonych do przeniesienia tworzy NOWY wiersz na kolejny tydzień (bez powodu),
+  //   stary wiersz pozostaje bez zmian poza zapisanym powodem
+  async function zapiszPodsumowanieTygodnia() {
+    if (wierszeNiezrealizowanychRoboczych.length === 0) return;
 
-    const { error } = await db
-      .from("cele_tygodniowe")
-      .update({ przeszkoda: tekst || null })
-      .eq("id", cel.id);
+    btnZapiszPodsumowanie.disabled = true;
 
-    btn.disabled = false;
+    const nastepnyPoniedzialek = new Date(
+      wybranyPoniedzialek.getFullYear(), wybranyPoniedzialek.getMonth(), wybranyPoniedzialek.getDate() + 7
+    );
+    const nowyTydzienStart = isoZDaty(nastepnyPoniedzialek);
 
-    if (error) {
-      console.error(error);
-      alert("Nie udało się zapisać: " + error.message);
-      return;
+    for (const wpis of wierszeNiezrealizowanychRoboczych) {
+      const cel = wpis.cel;
+      const powod = wpis.input.value.trim();
+
+      if (powod !== (cel.powod || "")) {
+        const { error } = await db
+          .from("cele_tygodniowe")
+          .update({ powod: powod || null })
+          .eq("id", cel.id);
+
+        if (error) {
+          console.error(error);
+          alert('Nie udało się zapisać powodu dla celu „' + cel.tresc + '": ' + error.message);
+          btnZapiszPodsumowanie.disabled = false;
+          return;
+        }
+        cel.powod = powod || null;
+      }
+
+      if (wpis.checkbox.checked) {
+        const { error: bladPrzeniesienia } = await db
+          .from("cele_tygodniowe")
+          .insert({
+            rola_id: cel.rola_id,
+            tydzien_start: nowyTydzienStart,
+            tresc: cel.tresc,
+            plan: cel.plan || null,
+            zrealizowane: false,
+            powod: null
+          });
+
+        if (bladPrzeniesienia) {
+          console.error(bladPrzeniesienia);
+          alert('Nie udało się przenieść celu „' + cel.tresc + '" na następny tydzień: ' + bladPrzeniesienia.message);
+          btnZapiszPodsumowanie.disabled = false;
+          return;
+        }
+      }
     }
 
-    cel.przeszkoda = tekst || null;
-    const poprzedniTekst = btn.textContent;
-    btn.textContent = "Zapisano ✓";
-    setTimeout(function () { btn.textContent = poprzedniTekst; }, 1500);
+    btnZapiszPodsumowanie.disabled = false;
+    renderNiezrealizowaneLista();
+    if (!btnZapiszPodsumowanie.hidden) {
+      btnZapiszPodsumowanie.textContent = "Zapisano ✓";
+      setTimeout(function () {
+        if (!btnZapiszPodsumowanie.hidden) btnZapiszPodsumowanie.textContent = "Zapisz podsumowanie";
+      }, 1500);
+    }
   }
+
+  btnZapiszPodsumowanie.addEventListener("click", zapiszPodsumowanieTygodnia);
 
   // Przełącznik panelu "Zakończ tydzień"
   btnZakonczTydzien.addEventListener("click", function () {
