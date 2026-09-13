@@ -642,6 +642,43 @@
   }
   .form-dodaj-cel .btn-pill { margin-top: 2px; align-self: flex-start; }
 
+  /* ----- Zakończ tydzień: podsumowanie + "co mnie powstrzymało" ----- */
+  .btn-zakoncz-tydzien {
+    display: block;
+    width: 100%;
+    margin-top: 18px;
+    padding: 13px 20px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #EDB8C2, var(--accent-pink) 55%, #C98999);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.01em;
+    box-shadow: 0 12px 24px -10px rgba(227, 169, 180, 0.6);
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .btn-zakoncz-tydzien:hover { filter: brightness(1.05); }
+  .btn-zakoncz-tydzien:active { transform: translateY(1px); }
+
+  .wykres-kolowy-wrap { max-width: 220px; margin: 4px auto 18px; }
+
+  .przeszkoda-naglowek { margin: 18px 0 10px; }
+  .przeszkoda-wiersz {
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #FCFAF4;
+  }
+  .przeszkoda-tytul { font-weight: 600; font-size: 0.88rem; margin-bottom: 8px; }
+  .przeszkoda-form { display: flex; gap: 8px; }
+  .przeszkoda-form input { flex: 1; }
+  .przeszkoda-form .btn-pill { margin-top: 0; flex: none; }
+  @media (max-width: 380px) {
+    .przeszkoda-form { flex-direction: column; }
+  }
+
   /* ----- Responsywność ----- */
   @media (max-width: 560px) {
     h1 { font-size: 1.8rem; }
@@ -829,6 +866,17 @@
 
     <div id="cele-lista">
       <p class="pusto">Dodaj pierwszą rolę, aby zacząć planować cele tygodniowe.</p>
+    </div>
+
+    <button type="button" id="btn-zakoncz-tydzien" class="btn-zakoncz-tydzien">Zakończ tydzień</button>
+
+    <div id="podsumowanie-tydzien-szczegoly" class="karta" hidden>
+      <h3 style="margin:0 0 4px">Podsumowanie tygodnia</h3>
+      <div class="wykres-kolowy-wrap">
+        <canvas id="wykres-tydzien-kolowy"></canvas>
+      </div>
+      <p id="wykres-tydzien-brak" class="pusto" hidden>Brak celów w tym tygodniu.</p>
+      <div id="niezrealizowane-lista"></div>
     </div>
   </section>
 </div>
@@ -1541,6 +1589,11 @@
   const tydzienPodsumowanieTekst = document.getElementById("tydzien-podsumowanie-tekst");
   const tydzienProgressRing = document.getElementById("tydzien-progress-ring");
   const OBWOD_PIERSCIENIA_TYGODNIA = 2 * Math.PI * 15.5;
+  const btnZakonczTydzien = document.getElementById("btn-zakoncz-tydzien");
+  const podsumowanieSzczegoly = document.getElementById("podsumowanie-tydzien-szczegoly");
+  const wykresTydzienBrak = document.getElementById("wykres-tydzien-brak");
+  const niezrealizowaneLista = document.getElementById("niezrealizowane-lista");
+  let wykresTydzienKolowy = null;
 
   let role = [];  // wiersze z tabeli "role": { id, nazwa }
   let cele = [];  // wiersze z tabeli "cele_tygodniowe" dla wybranego tygodnia
@@ -1762,6 +1815,133 @@
     });
   }
 
+  // Wykres kołowy: ile celów w tygodniu zrealizowano, a ile nie
+  function renderWykresTygodniaKolowy() {
+    const canvas = document.getElementById("wykres-tydzien-kolowy");
+    const wszystkie = cele.length;
+    const zrealizowane = cele.filter(function (c) { return c.zrealizowane; }).length;
+
+    if (wszystkie === 0) {
+      wykresTydzienBrak.hidden = false;
+      canvas.hidden = true;
+      if (wykresTydzienKolowy) { wykresTydzienKolowy.destroy(); wykresTydzienKolowy = null; }
+      return;
+    }
+
+    wykresTydzienBrak.hidden = true;
+    canvas.hidden = false;
+
+    if (wykresTydzienKolowy) wykresTydzienKolowy.destroy();
+    wykresTydzienKolowy = new Chart(canvas, {
+      type: "doughnut",
+      data: {
+        labels: ["Zrealizowane", "Niezrealizowane"],
+        datasets: [{
+          data: [zrealizowane, wszystkie - zrealizowane],
+          backgroundColor: ["#E3A9B4", "#ECE1CF"],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        plugins: { legend: { position: "bottom" } }
+      }
+    });
+  }
+
+  // Lista niezrealizowanych celów z polem "co mnie powstrzymało"
+  function renderNiezrealizowaneLista() {
+    niezrealizowaneLista.innerHTML = "";
+    const niezrealizowane = cele.filter(function (c) { return !c.zrealizowane; });
+
+    if (niezrealizowane.length === 0) {
+      niezrealizowaneLista.innerHTML = '<p class="pusto">Wszystkie cele w tym tygodniu zrealizowane!</p>';
+      return;
+    }
+
+    const naglowek = document.createElement("h4");
+    naglowek.className = "przeszkoda-naglowek";
+    naglowek.textContent = "Co mnie powstrzymało?";
+    niezrealizowaneLista.appendChild(naglowek);
+
+    niezrealizowane.forEach(function (c) {
+      const rola = role.find(function (r) { return r.id === c.rola_id; });
+
+      const wiersz = document.createElement("div");
+      wiersz.className = "przeszkoda-wiersz";
+
+      const tytul = document.createElement("div");
+      tytul.className = "przeszkoda-tytul";
+      tytul.textContent = (rola ? rola.nazwa + " — " : "") + c.tresc;
+      wiersz.appendChild(tytul);
+
+      const formularz = document.createElement("form");
+      formularz.className = "przeszkoda-form";
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = "Co mnie powstrzymało?";
+      input.autocomplete = "off";
+      input.value = c.przeszkoda || "";
+
+      const btn = document.createElement("button");
+      btn.type = "submit";
+      btn.className = "btn-pill";
+      btn.textContent = "Zapisz";
+
+      formularz.appendChild(input);
+      formularz.appendChild(btn);
+      formularz.addEventListener("submit", function (e) {
+        e.preventDefault();
+        zapiszPrzeszkode(c, input, btn);
+      });
+
+      wiersz.appendChild(formularz);
+      niezrealizowaneLista.appendChild(wiersz);
+    });
+  }
+
+  function renderPodsumowanieSzczegoly() {
+    renderWykresTygodniaKolowy();
+    renderNiezrealizowaneLista();
+  }
+
+  // Zapis powodu niezrealizowania celu do tabeli "cele_tygodniowe" (kolumna "przeszkoda")
+  async function zapiszPrzeszkode(cel, input, btn) {
+    const tekst = input.value.trim();
+    btn.disabled = true;
+
+    const { error } = await db
+      .from("cele_tygodniowe")
+      .update({ przeszkoda: tekst || null })
+      .eq("id", cel.id);
+
+    btn.disabled = false;
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się zapisać: " + error.message);
+      return;
+    }
+
+    cel.przeszkoda = tekst || null;
+    const poprzedniTekst = btn.textContent;
+    btn.textContent = "Zapisano ✓";
+    setTimeout(function () { btn.textContent = poprzedniTekst; }, 1500);
+  }
+
+  // Przełącznik panelu "Zakończ tydzień"
+  btnZakonczTydzien.addEventListener("click", function () {
+    const otwarte = !podsumowanieSzczegoly.hidden;
+    if (otwarte) {
+      podsumowanieSzczegoly.hidden = true;
+      btnZakonczTydzien.textContent = "Zakończ tydzień";
+    } else {
+      renderPodsumowanieSzczegoly();
+      podsumowanieSzczegoly.hidden = false;
+      btnZakonczTydzien.textContent = "Ukryj podsumowanie tygodnia";
+    }
+  });
+
   // Aktualizacja pola "zrealizowane" po kliknięciu checkboxa
   async function przelaczCel(cel, checkbox, wiersz) {
     const nowaWartosc = checkbox.checked;
@@ -1783,6 +1963,8 @@
 
     cel.zrealizowane = nowaWartosc;
     wiersz.classList.toggle("zrealizowany", nowaWartosc);
+    renderPodsumowanieTygodnia();
+    if (!podsumowanieSzczegoly.hidden) renderPodsumowanieSzczegoly();
   }
 
   // Usunięcie pojedynczego celu z tabeli "cele_tygodniowe"
@@ -1806,6 +1988,7 @@
 
     cele = cele.filter(function (c) { return c.id !== cel.id; });
     renderCeleWszystkie();
+    if (!podsumowanieSzczegoly.hidden) renderPodsumowanieSzczegoly();
   }
 
   // Dodanie nowego celu dla danej roli na aktualnie wybrany tydzień
@@ -1840,6 +2023,7 @@
       tydzien_start: isoZDaty(wybranyPoniedzialek), tresc: tresc, plan: plan || null, zrealizowane: false
     });
     renderCeleWszystkie();
+    if (!podsumowanieSzczegoly.hidden) renderPodsumowanieSzczegoly();
   }
 
   // Pobranie ról z tabeli "role"
@@ -1874,6 +2058,7 @@
     }
     cele = data || [];
     renderCeleWszystkie();
+    if (!podsumowanieSzczegoly.hidden) renderPodsumowanieSzczegoly();
   }
 
   renderTydzienEtykieta();
