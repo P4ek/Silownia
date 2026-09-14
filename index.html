@@ -495,10 +495,84 @@
   .btn-usun:hover { background: #F3D7CC; }
   .btn-usun:disabled { opacity: 0.55; cursor: default; }
 
-  /* ----- Wykres / status ----- */
-  #wykres { max-width: 100%; margin-top: 8px; }
-  #wykres-brak { color: var(--muted); font-style: italic; margin: 14px 0 0; }
+  /* ----- Status ----- */
   #nowe-status { margin: 12px 0 0; font-size: 0.9rem; font-weight: 600; }
+
+  /* ----- Wykres postępu: karty ----- */
+  #widok-wykres .karta { margin-bottom: 18px; }
+  .karta-tytul {
+    font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.25rem;
+    color: var(--ink);
+    margin: 0 0 4px;
+  }
+  .karta-podpis { color: var(--muted); font-size: 0.85rem; margin: 0 0 14px; }
+
+  #rekordy-tygodnia-lista { list-style: none; margin: 0; padding: 0; }
+  .rekord-tygodnia-wiersz {
+    display: flex;
+    align-items: center;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.92rem;
+  }
+  .rekord-tygodnia-wiersz:last-child { border-bottom: none; }
+
+  .wolumen-naglowek {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
+  .wolumen-naglowek .karta-tytul { margin: 0; }
+  #wolumen-miesiac { width: auto; min-width: 150px; }
+  .wolumen-wiersz { margin-bottom: 14px; }
+  .wolumen-wiersz:last-child { margin-bottom: 0; }
+  .wolumen-glowa {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .wolumen-nazwa { display: flex; align-items: center; flex-wrap: wrap; row-gap: 2px; }
+  .wolumen-wartosc { color: var(--muted); font-weight: 600; white-space: nowrap; }
+  .wolumen-zaniedbanie {
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #F8E7E0;
+    color: #B4482C;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .wolumen-pasek-tlo {
+    height: 14px;
+    border-radius: 999px;
+    background: #F4EEE2;
+    overflow: hidden;
+  }
+  .wolumen-pasek {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+    min-width: 3px;
+  }
+  .wolumen-pasek-Klata   { background: #E2643F; }
+  .wolumen-pasek-Plecy   { background: #3F7DE2; }
+  .wolumen-pasek-Biceps  { background: #8B5CF6; }
+  .wolumen-pasek-Triceps { background: #12A594; }
+  .wolumen-pasek-Barki   { background: #E0A82E; }
+  .wolumen-pasek-Brzuch  { background: #D6409F; }
+  .wolumen-pasek-Nogi    { background: #5B8C2A; }
 
   /* ----- Plan tygodnia (motyw różowy, skopowany na #widok-plan) ----- */
   #widok-plan {
@@ -815,6 +889,7 @@
     .set-row { grid-template-columns: 1fr 1fr; }
     .set-row .btn-remove { grid-column: 1 / -1; }
     .tydzien-podpis { font-size: 0.7rem; }
+    #wolumen-miesiac { min-width: 0; flex: 1 1 100%; }
   }
 
   /* ----- Ekran logowania ----- */
@@ -957,13 +1032,21 @@
   <!-- ===== Widok 3: Wykres postępu ===== -->
   <section id="widok-wykres" class="widok">
     <h2>Wykres postępu</h2>
-    <div class="karta">
-      <label for="wykres-cwiczenie">Ćwiczenie</label>
-      <select id="wykres-cwiczenie">
-        <option value="">-- wybierz ćwiczenie --</option>
-      </select>
-      <canvas id="wykres" height="240"></canvas>
-      <p id="wykres-brak" hidden>Brak jeszcze danych dla tego ćwiczenia</p>
+
+    <div class="karta karta-rekordy-tygodnia">
+      <h3 class="karta-tytul">Rekordy osobiste</h3>
+      <p class="karta-podpis">Ćwiczenia, w których padł rekord w bieżącym tygodniu</p>
+      <ul id="rekordy-tygodnia-lista"></ul>
+      <p id="rekordy-tygodnia-brak" class="pusto" hidden>Brak nowych rekordów w tym tygodniu.</p>
+    </div>
+
+    <div class="karta karta-wolumen">
+      <div class="wolumen-naglowek">
+        <h3 class="karta-tytul">Wolumen na partię</h3>
+        <select id="wolumen-miesiac" aria-label="Miesiąc"></select>
+      </div>
+      <p class="karta-podpis">Suma ciężaru × powtórzeń dla każdej partii w wybranym miesiącu</p>
+      <div id="wolumen-partie-lista"></div>
     </div>
   </section>
 
@@ -1184,8 +1267,10 @@
   const rejestrBox = document.getElementById("rejestr");
   const rejestrSzukaj = document.getElementById("rejestr-szukaj");
   const rejestrDatalist = document.getElementById("rejestr-cwiczenia-lista");
-  const selWykres = document.getElementById("wykres-cwiczenie");
-  const wykresBrak = document.getElementById("wykres-brak");
+  const rekordyTygodniaLista = document.getElementById("rekordy-tygodnia-lista");
+  const rekordyTygodniaBrak = document.getElementById("rekordy-tygodnia-brak");
+  const selWolumenMiesiac = document.getElementById("wolumen-miesiac");
+  const wolumenPartieLista = document.getElementById("wolumen-partie-lista");
   const formNowe = document.getElementById("form-nowe-cwiczenie");
   const selNowePartia = document.getElementById("nowe-partia");
   const inputNoweNazwa = document.getElementById("nowe-nazwa");
@@ -1254,23 +1339,6 @@
     if (poprzednie) selCwiczenie.value = poprzednie;
   }
 
-  // Odbudowa selecta ćwiczeń na wykresie (wszystkie partie, pogrupowane)
-  function odbudujSelectWykres() {
-    const poprzednie = selWykres.value;
-    selWykres.innerHTML = "";
-    selWykres.appendChild(new Option("-- wybierz ćwiczenie --", ""));
-
-    PARTIE.forEach(function (partia) {
-      const nazwy = cwiczeniaDlaPartii(partia);
-      if (nazwy.length === 0) return;
-      const grupa = document.createElement("optgroup");
-      grupa.label = partia;
-      nazwy.forEach(function (nazwa) { grupa.appendChild(new Option(nazwa, nazwa)); });
-      selWykres.appendChild(grupa);
-    });
-    if (poprzednie) selWykres.value = poprzednie;
-  }
-
   // Odbudowa listy podpowiedzi do wyszukiwarki w rejestrze (wszystkie ćwiczenia z katalogu)
   function odbudujDatalistRejestr() {
     rejestrDatalist.innerHTML = "";
@@ -1283,7 +1351,6 @@
   // Odświeżenie wszystkich list ćwiczeń na stronie
   function odswiezSelectyCwiczen() {
     odbudujSelectCwiczenie();
-    odbudujSelectWykres();
     odbudujDatalistRejestr();
     renderKatalogListy();
   }
@@ -1626,68 +1693,154 @@
     renderOstatnio();
     renderRekord();
     renderRejestr();
-    odswiezWykres();
+    renderWykresPostepu();
   }
 
-  // ----- Wykres postępu (Chart.js) -----
-  let wykres = null;
+  // ----- Wykres postępu: karta "Rekordy osobiste" + karta "Wolumen na partię" -----
 
-  function odswiezWykres() {
-    const cwiczenie = selWykres.value;
-    if (!cwiczenie) {
-      wykresBrak.hidden = true;
-      if (wykres) { wykres.destroy(); wykres = null; }
-      return;
-    }
+  // Karta 1: ćwiczenia, dla których wpis z bieżącego tygodnia (poniedziałek-niedziela)
+  // trafia w historycznie maksymalny ciężar tego ćwiczenia - czyli w tym tygodniu padł rekord
+  function renderRekordyTygodnia() {
+    const poniedzialek = poniedzialekTygodnia(new Date());
+    const poczatekTygodnia = isoZDaty(poniedzialek);
+    const niedziela = new Date(poniedzialek.getFullYear(), poniedzialek.getMonth(), poniedzialek.getDate() + 6);
+    const koniecTygodnia = isoZDaty(niedziela);
 
-    // max ciężaru per data dla wybranego ćwiczenia
-    const perData = {};
-    wpisy
-      .filter(function (w) { return w.cwiczenie === cwiczenie; })
-      .forEach(function (w) {
-        const maxCiezar = (w.podejscia || []).reduce(function (m, p) {
-          return Math.max(m, Number(p["cieżar"]) || 0);
-        }, 0);
-        if (!(w.data in perData) || maxCiezar > perData[w.data]) {
-          perData[w.data] = maxCiezar;
-        }
-      });
+    const maksymalneCiezary = obliczMaksymalneCiezary();
 
-    const daty = Object.keys(perData).sort();
+    // Najlepszy (najświeższy) pobity rekord w tygodniu, per ćwiczenie
+    const rekordyPerCwiczenie = {};
+    wpisy.forEach(function (w) {
+      if (w.data < poczatekTygodnia || w.data > koniecTygodnia) return;
+      if (!czyWpisMaRekord(w, maksymalneCiezary)) return;
 
-    if (daty.length === 0) {
-      wykresBrak.hidden = false;
-      if (wykres) { wykres.destroy(); wykres = null; }
-      return;
-    }
+      const maks = maksymalneCiezary[w.cwiczenie];
+      const powtorzeniaPrzyRekordzie = (w.podejscia || []).reduce(function (m, p) {
+        return (Number(p["cieżar"]) || 0) === maks ? Math.max(m, Number(p.powtorzenia) || 0) : m;
+      }, 0);
 
-    wykresBrak.hidden = true;
-    const wartosci = daty.map(function (d) { return perData[d]; });
-
-    if (wykres) wykres.destroy();
-    wykres = new Chart(document.getElementById("wykres"), {
-      type: "line",
-      data: {
-        labels: daty,
-        datasets: [{
-          label: "Najwyższy ciężar (kg) — " + cwiczenie,
-          data: wartosci,
-          borderColor: "#E2643F",
-          backgroundColor: "rgba(226, 100, 63, 0.15)",
-          tension: 0.2,
-          pointRadius: 4
-        }]
-      },
-      options: {
-        scales: {
-          x: { title: { display: true, text: "Data treningu" } },
-          y: { title: { display: true, text: "Ciężar (kg)" }, beginAtZero: true }
-        }
+      const istniejacy = rekordyPerCwiczenie[w.cwiczenie];
+      if (!istniejacy || w.data > istniejacy.data) {
+        rekordyPerCwiczenie[w.cwiczenie] = {
+          partia: w.partia, cwiczenie: w.cwiczenie, data: w.data,
+          ciezar: maks, powtorzenia: powtorzeniaPrzyRekordzie
+        };
       }
+    });
+
+    const rekordy = Object.keys(rekordyPerCwiczenie)
+      .map(function (cw) { return rekordyPerCwiczenie[cw]; })
+      .sort(function (a, b) { return a.cwiczenie.localeCompare(b.cwiczenie, "pl"); });
+
+    rekordyTygodniaLista.innerHTML = "";
+    if (rekordy.length === 0) {
+      rekordyTygodniaBrak.hidden = false;
+      return;
+    }
+    rekordyTygodniaBrak.hidden = true;
+
+    rekordy.forEach(function (r) {
+      const li = document.createElement("li");
+      li.className = "rekord-tygodnia-wiersz";
+      li.appendChild(kropkaPartii(r.partia));
+      const tekst = document.createElement("span");
+      tekst.textContent = r.cwiczenie + " — " + r.ciezar + " kg × " + r.powtorzenia;
+      li.appendChild(tekst);
+      rekordyTygodniaLista.appendChild(li);
     });
   }
 
-  selWykres.addEventListener("change", odswiezWykres);
+  // Suma wolumenu (ciężar × powtórzenia) na partię, dla danego miesiąca ("RRRR-MM")
+  function obliczWolumenPartii(miesiac) {
+    const suma = {};
+    PARTIE.forEach(function (p) { suma[p] = 0; });
+    wpisy.forEach(function (w) {
+      if (!w.data || w.data.slice(0, 7) !== miesiac) return;
+      if (!(w.partia in suma)) suma[w.partia] = 0;
+      (w.podejscia || []).forEach(function (p) {
+        const c = Number(p["cieżar"]) || 0;
+        const r = Number(p.powtorzenia) || 0;
+        suma[w.partia] += c * r;
+      });
+    });
+    return suma;
+  }
+
+  // Odbudowa selecta miesięcy na podstawie miesięcy obecnych w danych (+ bieżący miesiąc)
+  function odbudujSelectWolumenMiesiac() {
+    const poprzedni = selWolumenMiesiac.value;
+    const miesiace = {};
+    wpisy.forEach(function (w) { if (w.data) miesiace[w.data.slice(0, 7)] = true; });
+    const biezacyMiesiac = dzisiaj().slice(0, 7);
+    miesiace[biezacyMiesiac] = true;
+
+    const posortowane = Object.keys(miesiace).sort().reverse();
+
+    selWolumenMiesiac.innerHTML = "";
+    posortowane.forEach(function (m) {
+      selWolumenMiesiac.appendChild(new Option(etykietaMiesiaca(m + "-01"), m));
+    });
+
+    selWolumenMiesiac.value = (poprzedni && miesiace[poprzedni]) ? poprzedni : biezacyMiesiac;
+  }
+
+  // Karta 2: poziome paski wolumenu na partię dla wybranego miesiąca
+  function renderWolumenPartie() {
+    const miesiac = selWolumenMiesiac.value;
+    const suma = obliczWolumenPartii(miesiac);
+    const maxWolumen = PARTIE.reduce(function (m, p) { return Math.max(m, suma[p] || 0); }, 0);
+
+    wolumenPartieLista.innerHTML = "";
+    PARTIE.forEach(function (partia) {
+      const wolumen = suma[partia] || 0;
+      const procent = maxWolumen > 0 ? (wolumen / maxWolumen) * 100 : 0;
+      const zaniedbanie = maxWolumen > 0 && procent < 40;
+
+      const wiersz = document.createElement("div");
+      wiersz.className = "wolumen-wiersz";
+
+      const glowa = document.createElement("div");
+      glowa.className = "wolumen-glowa";
+
+      const nazwa = document.createElement("span");
+      nazwa.className = "wolumen-nazwa";
+      nazwa.appendChild(kropkaPartii(partia));
+      nazwa.appendChild(document.createTextNode(partia));
+      if (zaniedbanie) {
+        const znacznik = document.createElement("span");
+        znacznik.className = "wolumen-zaniedbanie";
+        znacznik.textContent = "zaniedbanie";
+        nazwa.appendChild(znacznik);
+      }
+
+      const wartoscEl = document.createElement("span");
+      wartoscEl.className = "wolumen-wartosc";
+      wartoscEl.textContent = Math.round(wolumen).toLocaleString("pl-PL") + " kg";
+
+      glowa.appendChild(nazwa);
+      glowa.appendChild(wartoscEl);
+
+      const pasekTlo = document.createElement("div");
+      pasekTlo.className = "wolumen-pasek-tlo";
+      const pasek = document.createElement("div");
+      pasek.className = "wolumen-pasek wolumen-pasek-" + partia;
+      pasek.style.width = procent + "%";
+      pasekTlo.appendChild(pasek);
+
+      wiersz.appendChild(glowa);
+      wiersz.appendChild(pasekTlo);
+      wolumenPartieLista.appendChild(wiersz);
+    });
+  }
+
+  // Odświeżenie obu kart widoku "Wykres postępu"
+  function renderWykresPostepu() {
+    renderRekordyTygodnia();
+    odbudujSelectWolumenMiesiac();
+    renderWolumenPartie();
+  }
+
+  selWolumenMiesiac.addEventListener("change", renderWolumenPartie);
 
   // Submit
   form.addEventListener("submit", async function (e) {
@@ -1725,7 +1878,7 @@
     renderOstatnio();
     renderRekord();
     renderRejestr();
-    if (selWykres.value === cwiczenie) odswiezWykres();
+    renderWykresPostepu();
 
     form.reset();
     odbudujSelectCwiczenie();
@@ -1850,7 +2003,7 @@
     renderOstatnio();
     renderRekord();
     renderRejestr();
-    odswiezWykres();
+    renderWykresPostepu();
   }
 
   // Usunięcie ćwiczenia z tabeli "cwiczenia"
