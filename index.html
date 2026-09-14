@@ -1027,7 +1027,10 @@
     btn.disabled = true;
     logowanieStatus.hidden = true;
 
-    const { error } = await db.auth.signInWithOtp({ email: email });
+    const { error } = await db.auth.signInWithOtp({
+      email: email,
+      options: { emailRedirectTo: window.location.href },
+    });
 
     btn.disabled = false;
 
