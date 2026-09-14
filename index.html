@@ -123,6 +123,8 @@
     z-index: 55;
     padding: 64px 12px 20px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
   }
   #sidebar.open { transform: translateX(0); }
   #sidebar h3 {
@@ -170,7 +172,7 @@
   }
   .nav-btn.aktywny.nav-rozwoj svg { color: var(--accent-pink); }
   .nav-wyloguj {
-    margin-top: 16px;
+    margin-top: auto;
     border-top: 1px solid var(--border);
     border-radius: 0;
     padding-top: 17px;
@@ -178,6 +180,69 @@
   }
   .nav-wyloguj:hover { background: #F7F1E6; color: #b00020; }
   .nav-wyloguj:hover svg { color: #b00020; }
+
+  /* ----- Okno potwierdzenia wylogowania ----- */
+  #wyloguj-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(42, 35, 32, 0.45);
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #wyloguj-modal {
+    width: 100%;
+    max-width: 340px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-warm);
+    padding: 26px 22px 22px;
+    text-align: center;
+  }
+  #wyloguj-modal h3 {
+    margin: 0 0 8px;
+    font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.35rem;
+  }
+  #wyloguj-modal p {
+    margin: 0 0 22px;
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+  .wyloguj-akcje {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .btn-wyloguj-tak {
+    padding: 13px 20px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #EF7B50, #E2643F 55%, #CF5330);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.92rem;
+    box-shadow: 0 12px 26px -8px rgba(226, 100, 63, 0.55);
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .btn-wyloguj-tak:hover { filter: brightness(1.05); }
+  .btn-wyloguj-tak:active { transform: translateY(1px); }
+  .btn-wyloguj-tak:disabled { opacity: 0.55; box-shadow: none; cursor: default; }
+  .btn-wyloguj-nie {
+    padding: 13px 20px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: none;
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 0.92rem;
+  }
+  .btn-wyloguj-nie:hover { background: #F7F1E6; }
 
   /* ----- Widoki ----- */
   .widok { display: none; }
@@ -820,6 +885,17 @@
   </button>
 </nav>
 
+<div id="wyloguj-overlay" hidden>
+  <div id="wyloguj-modal" role="dialog" aria-modal="true" aria-labelledby="wyloguj-tytul">
+    <h3 id="wyloguj-tytul">Czy na pewno chcesz się wylogować?</h3>
+    <p>Możesz też zostać zalogowanym i wrócić do panelu.</p>
+    <div class="wyloguj-akcje">
+      <button type="button" class="btn-wyloguj-tak" id="btn-wyloguj-tak">Tak, wyloguj</button>
+      <button type="button" class="btn-wyloguj-nie" id="btn-wyloguj-nie">Zostań zalogowany</button>
+    </div>
+  </div>
+</div>
+
 <div class="kontener">
   <div class="blob" aria-hidden="true"></div>
 
@@ -1062,11 +1138,29 @@
   });
 
   const btnWyloguj = document.getElementById("btn-wyloguj");
-  btnWyloguj.addEventListener("click", async function () {
-    btnWyloguj.disabled = true;
+  const wylogujOverlay = document.getElementById("wyloguj-overlay");
+  const btnWylogujTak = document.getElementById("btn-wyloguj-tak");
+  const btnWylogujNie = document.getElementById("btn-wyloguj-nie");
+
+  function otworzWylogujModal() {
+    wylogujOverlay.hidden = false;
+  }
+  function zamknijWylogujModal() {
+    wylogujOverlay.hidden = true;
+  }
+
+  btnWyloguj.addEventListener("click", otworzWylogujModal);
+  btnWylogujNie.addEventListener("click", zamknijWylogujModal);
+  wylogujOverlay.addEventListener("click", function (e) {
+    if (e.target === wylogujOverlay) zamknijWylogujModal();
+  });
+
+  btnWylogujTak.addEventListener("click", async function () {
+    btnWylogujTak.disabled = true;
     await db.auth.signOut();
     aplikacjaZainicjowana = false;
-    btnWyloguj.disabled = false;
+    btnWylogujTak.disabled = false;
+    zamknijWylogujModal();
   });
 
   // Stała lista partii; ćwiczenia pobierane z tabeli "cwiczenia"
