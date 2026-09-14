@@ -782,6 +782,37 @@
   .cel-wiersz .btn-usun:focus-visible {
     opacity: 1;
   }
+  /* Przycisk wyróżniania celu (gwiazdka) - przenosi cel na górę listy i podświetla wiersz */
+  .cel-wiersz .btn-wyroznij {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex: none;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+    color: #C9433D;
+    opacity: 0.45;
+    transition: opacity 0.15s ease, background 0.15s ease;
+  }
+  .cel-wiersz .btn-wyroznij svg { width: 17px; height: 17px; }
+  .cel-wiersz:hover .btn-wyroznij,
+  .cel-wiersz .btn-wyroznij:focus-visible {
+    opacity: 1;
+  }
+  .cel-wiersz .btn-wyroznij.aktywny {
+    opacity: 1;
+    background: #FCE7E3;
+    border-color: #E7B4AC;
+  }
+  .cel-wiersz.wyrozniony {
+    background: #FCEFE9;
+    border-color: #E7B4AC;
+    box-shadow: 0 0 0 1px rgba(201, 67, 61, 0.12);
+  }
   .form-dodaj-cel {
     display: flex;
     flex-direction: column;
@@ -2055,6 +2086,7 @@
   let role = [];  // wiersze z tabeli "role": { id, nazwa }
   let cele = [];  // wiersze z tabeli "cele_tygodniowe" dla wybranego tygodnia
   const roleWidoczne = new Set(); // id ról zaznaczonych do pokazania na dole (checkbox przy chipie)
+  const wyrozenioneCele = new Set(); // id celów wyróżnionych gwiazdką (tylko lokalnie, na ten podgląd)
 
   // Poniedziałek tygodnia zawierającego podaną datę
   function poniedzialekTygodnia(d) {
@@ -2188,7 +2220,12 @@
 
       blok.appendChild(naglowekWrap);
 
-      const celeRoli = cele.filter(function (c) { return c.rola_id === r.id; });
+      const celeRoli = cele
+        .filter(function (c) { return c.rola_id === r.id; })
+        .slice()
+        .sort(function (a, b) {
+          return (wyrozenioneCele.has(b.id) ? 1 : 0) - (wyrozenioneCele.has(a.id) ? 1 : 0);
+        });
 
       const lista = document.createElement("div");
       lista.className = "cele-checklist";
@@ -2198,7 +2235,9 @@
       } else {
         celeRoli.forEach(function (c) {
           const wiersz = document.createElement("label");
-          wiersz.className = "cel-wiersz" + (c.zrealizowane ? " zrealizowany" : "");
+          wiersz.className = "cel-wiersz"
+            + (c.zrealizowane ? " zrealizowany" : "")
+            + (wyrozenioneCele.has(c.id) ? " wyrozniony" : "");
 
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
@@ -2222,6 +2261,24 @@
             wrapTresc.appendChild(planEl);
           }
 
+          const btnWyroznij = document.createElement("button");
+          btnWyroznij.type = "button";
+          btnWyroznij.className = "btn-wyroznij" + (wyrozenioneCele.has(c.id) ? " aktywny" : "");
+          btnWyroznij.setAttribute("aria-label", "Wyróżnij cel");
+          btnWyroznij.innerHTML = wyrozenioneCele.has(c.id)
+            ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.26 6.9.86-5.1 4.62 1.4 6.86L12 17.9l-6.1 3.2 1.4-6.86-5.1-4.62 6.9-.86L12 2.5z"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5l2.9 6.26 6.9.86-5.1 4.62 1.4 6.86L12 17.9l-6.1 3.2 1.4-6.86-5.1-4.62 6.9-.86L12 2.5z"/></svg>';
+          btnWyroznij.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (wyrozenioneCele.has(c.id)) {
+              wyrozenioneCele.delete(c.id);
+            } else {
+              wyrozenioneCele.add(c.id);
+            }
+            renderCeleWszystkie();
+          });
+
           const btnUsun = document.createElement("button");
           btnUsun.type = "button";
           btnUsun.className = "btn-usun";
@@ -2234,6 +2291,7 @@
 
           wiersz.appendChild(checkbox);
           wiersz.appendChild(wrapTresc);
+          wiersz.appendChild(btnWyroznij);
           wiersz.appendChild(btnUsun);
           lista.appendChild(wiersz);
         });
