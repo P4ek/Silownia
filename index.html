@@ -1219,6 +1219,7 @@
   navBtns.forEach(function (btn) {
     btn.addEventListener("click", function () {
       const cel = btn.dataset.widok;
+      if (!cel) return;
       widoki.forEach(function (w) { w.classList.toggle("aktywny", w.id === cel); });
       navBtns.forEach(function (b) { b.classList.toggle("aktywny", b === btn); });
       kontener.classList.toggle("motyw-rozwoj", cel === "widok-plan");
