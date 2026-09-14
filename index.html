@@ -1907,7 +1907,7 @@
 
     const { data: wstawione, error } = await db
       .from("cwiczenia")
-      .insert({ partia: partia, nazwa: nazwa })
+      .insert({ partia: partia, nazwa: nazwa, user_id: sesjaUzytkownika.user.id })
       .select();
 
     btn.disabled = false;
