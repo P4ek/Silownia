@@ -894,6 +894,63 @@
     .przeszkoda-form { flex-direction: column; }
   }
 
+  /* ----- Habit Tracker (motyw różowy, jak Plan tygodnia) ----- */
+  #widok-habits {
+    --accent: var(--accent-pink);
+    --accent-soft: var(--accent-pink-soft);
+  }
+  #widok-habits .karta { margin-bottom: 18px; }
+  #widok-habits form { margin-top: 0; padding: 0; border: none; box-shadow: none; background: none; }
+
+  .nawyk-blok { margin-bottom: 14px; }
+  .nawyk-naglowek {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .nawyk-nazwa { font-weight: 700; flex: 1; min-width: 0; }
+  .nawyk-streak { color: var(--accent); font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+  .nawyk-dni { display: flex; gap: 8px; flex-wrap: wrap; }
+  .nawyk-dzien {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+  .nawyk-dzien span {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .nawyk-dzien input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 30px;
+    height: 30px;
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    display: grid;
+    place-content: center;
+    transition: background 0.15s ease;
+  }
+  .nawyk-dzien input[type="checkbox"]::before {
+    content: "";
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    transform: scale(0);
+    transition: transform 0.1s ease;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 45% 62%);
+  }
+  .nawyk-dzien input[type="checkbox"]:checked { background: var(--accent); }
+  .nawyk-dzien input[type="checkbox"]:checked::before { transform: scale(1); }
+  .nawyk-dzien input[type="checkbox"]:disabled { opacity: 0.55; cursor: default; }
+
   /* ----- Rejestr: znacznik nowego rekordu ----- */
   .rekord-tag-rejestr {
     margin-left: 8px;
@@ -983,6 +1040,10 @@
   <button class="nav-btn nav-rozwoj" data-widok="widok-plan">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.9 6.4.6-4.9 4.2 1.5 6.3L12 16.9l-5.5 3.1 1.5-6.3-4.9-4.2 6.4-.6L12 3Z"/></svg>
     <span>Plan tygodnia</span>
+  </button>
+  <button class="nav-btn nav-rozwoj" data-widok="widok-habits">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M8 15l2 2 4-4"/></svg>
+    <span>Habit Tracker</span>
   </button>
 
   <button class="nav-btn nav-wyloguj" id="btn-wyloguj">
@@ -1157,6 +1218,31 @@
       <button type="button" id="btn-zapisz-podsumowanie" class="btn-zakoncz-tydzien" hidden>Zapisz podsumowanie</button>
     </div>
   </section>
+
+  <!-- ===== Widok 6: Habit Tracker ===== -->
+  <section id="widok-habits" class="widok">
+    <h2>Habit Tracker</h2>
+
+    <div id="habits-podsumowanie" class="rekord-baner rekord-baner-rozowy" hidden>
+      <svg viewBox="0 0 36 36" aria-hidden="true">
+        <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="3"/>
+        <circle id="habits-progress-ring" cx="18" cy="18" r="15.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+      </svg>
+      <span id="habits-podsumowanie-tekst"></span>
+    </div>
+
+    <div class="karta">
+      <form id="form-nawyk">
+        <label for="nowy-nawyk">Nowy nawyk</label>
+        <input type="text" id="nowy-nawyk" autocomplete="off" placeholder="np. Pić 2l wody" required>
+        <button type="submit" class="btn-pill btn-pill-rola">+ dodaj nawyk</button>
+      </form>
+    </div>
+
+    <div id="nawyki-lista">
+      <p class="pusto">Brak zapisanych nawyków.</p>
+    </div>
+  </section>
 </div>
 
 </div>
@@ -1186,6 +1272,8 @@
     renderTydzienEtykieta();
     wczytajRole();
     wczytajCeleDlaTygodnia();
+    wczytajNawyki();
+    wczytajNawykiWpisy();
   }
 
   function pokazAplikacje() {
@@ -1338,7 +1426,7 @@
       if (!cel) return;
       widoki.forEach(function (w) { w.classList.toggle("aktywny", w.id === cel); });
       navBtns.forEach(function (b) { b.classList.toggle("aktywny", b === btn); });
-      kontener.classList.toggle("motyw-rozwoj", cel === "widok-plan");
+      kontener.classList.toggle("motyw-rozwoj", cel === "widok-plan" || cel === "widok-habits");
       if (cel === "widok-rejestr") renderRejestr();
       zamknijPanel();
     });
@@ -2669,6 +2757,244 @@
     );
     wczytajCeleDlaTygodnia();
   });
+
+  // ===================== Widok 6: Habit Tracker =====================
+
+  const habitsPodsumowanie = document.getElementById("habits-podsumowanie");
+  const habitsPodsumowanieTekst = document.getElementById("habits-podsumowanie-tekst");
+  const habitsProgressRing = document.getElementById("habits-progress-ring");
+  const OBWOD_PIERSCIENIA_HABITS = 2 * Math.PI * 15.5;
+  const formNawyk = document.getElementById("form-nawyk");
+  const inputNowyNawyk = document.getElementById("nowy-nawyk");
+  const nawykiLista = document.getElementById("nawyki-lista");
+  const DNI_TYGODNIA_ETYKIETY = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Ndz"];
+
+  let nawyki = [];      // wiersze z tabeli "nawyki": { id, nazwa, user_id }
+  let nawykiWpisy = [];  // wiersze z tabeli "nawyki_wpisy": { id, nawyk_id, data, user_id }
+
+  // 7 dat (RRRR-MM-DD) bieżącego tygodnia, od poniedziałku do niedzieli
+  function habitsDniTygodnia() {
+    const poniedzialek = poniedzialekTygodnia(new Date());
+    const dni = [];
+    for (let i = 0; i < 7; i++) {
+      dni.push(isoZDaty(new Date(poniedzialek.getFullYear(), poniedzialek.getMonth(), poniedzialek.getDate() + i)));
+    }
+    return dni;
+  }
+
+  // Ile kolejnych dni wstecz (licząc od dziś) dany nawyk ma zaznaczenie bez przerwy
+  function obliczStreakNawyku(nawykId) {
+    const zaznaczoneDaty = new Set(
+      nawykiWpisy
+        .filter(function (w) { return w.nawyk_id === nawykId; })
+        .map(function (w) { return w.data; })
+    );
+    let streak = 0;
+    let d = new Date();
+    d.setHours(0, 0, 0, 0);
+    while (zaznaczoneDaty.has(isoZDaty(d))) {
+      streak++;
+      d = new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1);
+    }
+    return streak;
+  }
+
+  // Koło postępu na górze: suma zaznaczeń w tygodniu / (liczba nawyków x 7)
+  function renderHabitsPodsumowanie() {
+    if (nawyki.length === 0) {
+      habitsPodsumowanie.hidden = true;
+      return;
+    }
+    const dni = habitsDniTygodnia();
+    let sumaZaznaczonych = 0;
+    nawyki.forEach(function (n) {
+      dni.forEach(function (d) {
+        if (nawykiWpisy.some(function (w) { return w.nawyk_id === n.id && w.data === d; })) {
+          sumaZaznaczonych++;
+        }
+      });
+    });
+    const mianownik = nawyki.length * 7;
+    const udzial = mianownik > 0 ? sumaZaznaczonych / mianownik : 0;
+
+    habitsPodsumowanieTekst.textContent =
+      "Ten tydzień: " + sumaZaznaczonych + " z " + mianownik + " zaznaczeń";
+    habitsProgressRing.style.strokeDasharray = String(OBWOD_PIERSCIENIA_HABITS);
+    habitsProgressRing.style.strokeDashoffset = String(OBWOD_PIERSCIENIA_HABITS * (1 - udzial));
+    habitsPodsumowanie.hidden = false;
+  }
+
+  // Render listy nawyków: dla każdego nawyku 7 kwadracików (Pon-Ndz) + licznik serii
+  function renderNawykiListy() {
+    nawykiLista.innerHTML = "";
+    if (nawyki.length === 0) {
+      nawykiLista.innerHTML = '<p class="pusto">Brak zapisanych nawyków.</p>';
+      return;
+    }
+
+    const dni = habitsDniTygodnia();
+
+    nawyki.forEach(function (n) {
+      const blok = document.createElement("div");
+      blok.className = "karta nawyk-blok";
+
+      const naglowek = document.createElement("div");
+      naglowek.className = "nawyk-naglowek";
+
+      const nazwa = document.createElement("span");
+      nazwa.className = "nawyk-nazwa";
+      nazwa.textContent = n.nazwa;
+      naglowek.appendChild(nazwa);
+
+      const streak = document.createElement("span");
+      streak.className = "nawyk-streak";
+      streak.textContent = obliczStreakNawyku(n.id) + " dni z rzędu";
+      naglowek.appendChild(streak);
+
+      blok.appendChild(naglowek);
+
+      const dniWrap = document.createElement("div");
+      dniWrap.className = "nawyk-dni";
+
+      dni.forEach(function (data, i) {
+        const etykietaDnia = document.createElement("label");
+        etykietaDnia.className = "nawyk-dzien";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = nawykiWpisy.some(function (w) { return w.nawyk_id === n.id && w.data === data; });
+        checkbox.addEventListener("change", function () {
+          przelaczNawykDzien(n, data, checkbox);
+        });
+
+        const tekstDnia = document.createElement("span");
+        tekstDnia.textContent = DNI_TYGODNIA_ETYKIETY[i];
+
+        etykietaDnia.appendChild(checkbox);
+        etykietaDnia.appendChild(tekstDnia);
+        dniWrap.appendChild(etykietaDnia);
+      });
+
+      blok.appendChild(dniWrap);
+      nawykiLista.appendChild(blok);
+    });
+  }
+
+  // Zaznaczenie/odznaczenie kwadracika dnia dla nawyku - wstawia lub usuwa wiersz w "nawyki_wpisy"
+  async function przelaczNawykDzien(nawyk, data, checkbox) {
+    checkbox.disabled = true;
+
+    if (checkbox.checked) {
+      const istnieje = nawykiWpisy.some(function (w) { return w.nawyk_id === nawyk.id && w.data === data; });
+      if (istnieje) {
+        checkbox.disabled = false;
+        return;
+      }
+
+      const { data: wstawione, error } = await db
+        .from("nawyki_wpisy")
+        .insert({ nawyk_id: nawyk.id, data: data, user_id: sesjaUzytkownika.user.id })
+        .select();
+
+      checkbox.disabled = false;
+
+      if (error) {
+        console.error(error);
+        alert("Nie udało się zapisać zaznaczenia: " + error.message);
+        checkbox.checked = false;
+        return;
+      }
+
+      nawykiWpisy.push(wstawione && wstawione[0] ? wstawione[0] : { nawyk_id: nawyk.id, data: data });
+    } else {
+      const wpis = nawykiWpisy.find(function (w) { return w.nawyk_id === nawyk.id && w.data === data; });
+      if (!wpis) {
+        checkbox.disabled = false;
+        return;
+      }
+
+      const { error } = await db
+        .from("nawyki_wpisy")
+        .delete()
+        .eq("id", wpis.id);
+
+      checkbox.disabled = false;
+
+      if (error) {
+        console.error(error);
+        alert("Nie udało się usunąć zaznaczenia: " + error.message);
+        checkbox.checked = true;
+        return;
+      }
+
+      nawykiWpisy = nawykiWpisy.filter(function (w) { return w !== wpis; });
+    }
+
+    renderNawykiListy();
+    renderHabitsPodsumowanie();
+  }
+
+  // Formularz dodawania nowego nawyku
+  formNawyk.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const nazwa = inputNowyNawyk.value.trim();
+    if (!nazwa) return;
+
+    const btn = formNawyk.querySelector(".btn-pill");
+    btn.disabled = true;
+
+    const { data, error } = await db
+      .from("nawyki")
+      .insert({ nazwa: nazwa, user_id: sesjaUzytkownika.user.id })
+      .select();
+
+    btn.disabled = false;
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się zapisać nawyku: " + error.message);
+      return;
+    }
+
+    nawyki.push(data && data[0] ? data[0] : { id: Date.now(), nazwa: nazwa });
+    formNawyk.reset();
+    renderNawykiListy();
+    renderHabitsPodsumowanie();
+  });
+
+  // Pobranie nawyków z tabeli "nawyki"
+  async function wczytajNawyki() {
+    const { data, error } = await db
+      .from("nawyki")
+      .select("*")
+      .order("nazwa", { ascending: true });
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się pobrać nawyków: " + error.message);
+      return;
+    }
+    nawyki = data || [];
+    renderNawykiListy();
+    renderHabitsPodsumowanie();
+  }
+
+  // Pobranie wpisów (zaznaczeń) z tabeli "nawyki_wpisy"
+  async function wczytajNawykiWpisy() {
+    const { data, error } = await db
+      .from("nawyki_wpisy")
+      .select("*");
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się pobrać wpisów nawyków: " + error.message);
+      return;
+    }
+    nawykiWpisy = data || [];
+    renderNawykiListy();
+    renderHabitsPodsumowanie();
+  }
 </script>
 </body>
 </html>
