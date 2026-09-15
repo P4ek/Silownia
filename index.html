@@ -894,8 +894,8 @@
     .przeszkoda-form { flex-direction: column; }
   }
 
-  /* ----- Habit Tracker: "szczotkowane srebro" — ciemny motyw, tylko w obrębie tego widoku ----- */
-  #widok-habits {
+  /* ----- Habit Tracker: "szczotkowane srebro" — ciemny motyw na .kontener.motyw-habits, obejmuje całą kolumnę (nagłówek + widok) ----- */
+  .kontener.motyw-habits {
     --habits-akcent: #D6D0C0;
     --habits-tlo: oklch(0.07 0.004 250);
     --habits-tlo-karta: oklch(0.1 0.006 250);
@@ -908,14 +908,16 @@
     border-radius: 20px;
     padding: 18px 16px 22px;
   }
+  .kontener.motyw-habits > h1 { color: var(--habits-naglowek); }
   #widok-habits h2 { color: var(--habits-naglowek); }
-  #widok-habits .karta { margin-bottom: 18px; }
+  #widok-habits .karta { margin-bottom: 26px; }
   #widok-habits form { margin-top: 0; padding: 0; border: none; box-shadow: none; background: none; }
 
   #widok-habits .karta {
     background: var(--habits-tlo-karta);
     border: 1px solid var(--habits-obramowanie);
     border-radius: 16px;
+    padding: 26px;
     box-shadow: none;
   }
   #widok-habits label { color: var(--habits-tekst-pomocniczy); }
@@ -946,16 +948,41 @@
     filter: brightness(1.08);
   }
 
-  /* Baner z pierścieniem tygodniowego postępu */
-  #habits-podsumowanie {
-    background: var(--habits-tlo-karta, oklch(0.1 0.006 250));
-    border: 1px solid var(--habits-obramowanie, oklch(0.19 0.008 245));
-    box-shadow: none;
+  /* Karta z dużym pierścieniem tygodniowego postępu + procent na środku */
+  .habits-pierscien-karta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 26px;
+    padding: 26px;
+    background: var(--habits-tlo-karta);
+    border: 1px solid var(--habits-obramowanie);
+    border-radius: 16px;
   }
-  #habits-podsumowanie-tekst { color: var(--habits-tekst, oklch(0.85 0.005 240)); }
-  #habits-progress-ring { filter: drop-shadow(0 0 6px rgba(214, 208, 192, 0.6)); }
+  .habits-pierscien-wrap {
+    position: relative;
+    width: 82px;
+    height: 82px;
+    flex: none;
+  }
+  .habits-pierscien-wrap svg { width: 100%; height: 100%; }
+  #habits-progress-ring {
+    filter: drop-shadow(0 0 6px rgba(214, 208, 192, 0.6));
+    transition: stroke-dashoffset 0.3s ease;
+  }
+  .habits-pierscien-procent {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--habits-akcent);
+  }
+  .habits-pierscien-tekst { color: var(--habits-tekst); font-size: 0.85rem; text-align: center; }
 
-  .nawyk-blok { margin-bottom: 14px; }
   .nawyk-naglowek {
     display: flex;
     align-items: center;
@@ -964,7 +991,7 @@
   }
   #widok-habits .nawyk-nazwa { color: var(--habits-tekst); font-weight: 700; flex: 1; min-width: 0; }
   #widok-habits .nawyk-streak { color: var(--habits-tekst-pomocniczy); font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
-  .nawyk-dni { display: flex; gap: 8px; flex-wrap: wrap; }
+  .nawyk-dni { display: flex; gap: 10px; flex-wrap: wrap; }
   .nawyk-dzien {
     display: flex;
     flex-direction: column;
@@ -981,10 +1008,10 @@
   #widok-habits .nawyk-dzien input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
     border: 2px solid var(--habits-obramowanie-puste);
-    border-radius: 8px;
+    border-radius: 9px;
     background: transparent;
     cursor: pointer;
     display: grid;
@@ -993,8 +1020,8 @@
   }
   #widok-habits .nawyk-dzien input[type="checkbox"]::before {
     content: "";
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     background: oklch(0.07 0.004 250);
     transform: scale(0);
     transition: transform 0.1s ease;
@@ -1287,12 +1314,15 @@
   <section id="widok-habits" class="widok">
     <h2>Habit Tracker</h2>
 
-    <div id="habits-podsumowanie" class="rekord-baner" hidden>
-      <svg viewBox="0 0 36 36" aria-hidden="true">
-        <circle cx="18" cy="18" r="15.5" fill="none" stroke="oklch(0.24 0.01 245)" stroke-width="3"/>
-        <circle id="habits-progress-ring" cx="18" cy="18" r="15.5" fill="none" stroke="#D6D0C0" stroke-width="3" stroke-linecap="round" transform="rotate(-90 18 18)"/>
-      </svg>
-      <span id="habits-podsumowanie-tekst"></span>
+    <div id="habits-podsumowanie" class="habits-pierscien-karta" hidden>
+      <div class="habits-pierscien-wrap">
+        <svg viewBox="0 0 90 90" aria-hidden="true">
+          <circle cx="45" cy="45" r="39" fill="none" stroke="oklch(0.24 0.01 245)" stroke-width="7"/>
+          <circle id="habits-progress-ring" cx="45" cy="45" r="39" fill="none" stroke="#D6D0C0" stroke-width="7" stroke-linecap="round" transform="rotate(-90 45 45)"/>
+        </svg>
+        <span id="habits-progress-procent" class="habits-pierscien-procent"></span>
+      </div>
+      <span id="habits-podsumowanie-tekst" class="habits-pierscien-tekst"></span>
     </div>
 
     <div class="karta">
@@ -1491,6 +1521,7 @@
       widoki.forEach(function (w) { w.classList.toggle("aktywny", w.id === cel); });
       navBtns.forEach(function (b) { b.classList.toggle("aktywny", b === btn); });
       kontener.classList.toggle("motyw-rozwoj", cel === "widok-plan");
+      kontener.classList.toggle("motyw-habits", cel === "widok-habits");
       if (cel === "widok-rejestr") renderRejestr();
       zamknijPanel();
     });
@@ -2827,7 +2858,8 @@
   const habitsPodsumowanie = document.getElementById("habits-podsumowanie");
   const habitsPodsumowanieTekst = document.getElementById("habits-podsumowanie-tekst");
   const habitsProgressRing = document.getElementById("habits-progress-ring");
-  const OBWOD_PIERSCIENIA_HABITS = 2 * Math.PI * 15.5;
+  const habitsProgressProcent = document.getElementById("habits-progress-procent");
+  const OBWOD_PIERSCIENIA_HABITS = 2 * Math.PI * 39;
   const formNawyk = document.getElementById("form-nawyk");
   const inputNowyNawyk = document.getElementById("nowy-nawyk");
   const nawykiLista = document.getElementById("nawyki-lista");
@@ -2883,6 +2915,7 @@
 
     habitsPodsumowanieTekst.textContent =
       "Ten tydzień: " + sumaZaznaczonych + " z " + mianownik + " zaznaczeń";
+    habitsProgressProcent.textContent = Math.round(udzial * 100) + "%";
     habitsProgressRing.style.strokeDasharray = String(OBWOD_PIERSCIENIA_HABITS);
     habitsProgressRing.style.strokeDashoffset = String(OBWOD_PIERSCIENIA_HABITS * (1 - udzial));
     habitsPodsumowanie.hidden = false;
