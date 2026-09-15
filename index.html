@@ -894,13 +894,66 @@
     .przeszkoda-form { flex-direction: column; }
   }
 
-  /* ----- Habit Tracker (motyw różowy, jak Plan tygodnia) ----- */
+  /* ----- Habit Tracker: "szczotkowane srebro" — ciemny motyw, tylko w obrębie tego widoku ----- */
   #widok-habits {
-    --accent: var(--accent-pink);
-    --accent-soft: var(--accent-pink-soft);
+    --habits-akcent: #D6D0C0;
+    --habits-tlo: oklch(0.07 0.004 250);
+    --habits-tlo-karta: oklch(0.1 0.006 250);
+    --habits-obramowanie: oklch(0.19 0.008 245);
+    --habits-obramowanie-puste: oklch(0.24 0.01 245);
+    --habits-naglowek: oklch(0.97 0.004 240);
+    --habits-tekst: oklch(0.85 0.005 240);
+    --habits-tekst-pomocniczy: oklch(0.44 0.008 240);
+    background: var(--habits-tlo);
+    border-radius: 20px;
+    padding: 18px 16px 22px;
   }
+  #widok-habits h2 { color: var(--habits-naglowek); }
   #widok-habits .karta { margin-bottom: 18px; }
   #widok-habits form { margin-top: 0; padding: 0; border: none; box-shadow: none; background: none; }
+
+  #widok-habits .karta {
+    background: var(--habits-tlo-karta);
+    border: 1px solid var(--habits-obramowanie);
+    border-radius: 16px;
+    box-shadow: none;
+  }
+  #widok-habits label { color: var(--habits-tekst-pomocniczy); }
+  #widok-habits input {
+    background: var(--habits-tlo);
+    border-color: var(--habits-obramowanie);
+    color: var(--habits-tekst);
+  }
+  #widok-habits input::placeholder { color: var(--habits-tekst-pomocniczy); }
+  #widok-habits input:focus {
+    border-color: var(--habits-akcent);
+    box-shadow: 0 0 0 3px rgba(214, 208, 192, 0.18);
+  }
+  #widok-habits .pusto {
+    background: var(--habits-tlo-karta);
+    border-color: var(--habits-obramowanie-puste);
+    color: var(--habits-tekst-pomocniczy);
+  }
+
+  /* Przycisk "+ dodaj nawyk" — akcent szczotkowanego srebra zamiast różowego gradientu */
+  #widok-habits .btn-pill-rola {
+    background: var(--habits-akcent);
+    color: oklch(0.07 0.004 250);
+    box-shadow: 0 0 10px rgba(214, 208, 192, 0.35);
+  }
+  #widok-habits .btn-pill-rola:hover {
+    background: var(--habits-akcent);
+    filter: brightness(1.08);
+  }
+
+  /* Baner z pierścieniem tygodniowego postępu */
+  #habits-podsumowanie {
+    background: var(--habits-tlo-karta, oklch(0.1 0.006 250));
+    border: 1px solid var(--habits-obramowanie, oklch(0.19 0.008 245));
+    box-shadow: none;
+  }
+  #habits-podsumowanie-tekst { color: var(--habits-tekst, oklch(0.85 0.005 240)); }
+  #habits-progress-ring { filter: drop-shadow(0 0 6px rgba(214, 208, 192, 0.6)); }
 
   .nawyk-blok { margin-bottom: 14px; }
   .nawyk-naglowek {
@@ -909,8 +962,8 @@
     gap: 10px;
     margin-bottom: 12px;
   }
-  .nawyk-nazwa { font-weight: 700; flex: 1; min-width: 0; }
-  .nawyk-streak { color: var(--accent); font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+  #widok-habits .nawyk-nazwa { color: var(--habits-tekst); font-weight: 700; flex: 1; min-width: 0; }
+  #widok-habits .nawyk-streak { color: var(--habits-tekst-pomocniczy); font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
   .nawyk-dni { display: flex; gap: 8px; flex-wrap: wrap; }
   .nawyk-dzien {
     display: flex;
@@ -919,37 +972,48 @@
     gap: 4px;
     cursor: pointer;
   }
-  .nawyk-dzien span {
+  #widok-habits .nawyk-dzien span {
     font-size: 0.7rem;
-    color: var(--muted);
+    color: var(--habits-tekst-pomocniczy);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.08em;
   }
-  .nawyk-dzien input[type="checkbox"] {
+  #widok-habits .nawyk-dzien input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     width: 30px;
     height: 30px;
-    border: 2px solid var(--accent);
+    border: 2px solid var(--habits-obramowanie-puste);
     border-radius: 8px;
-    background: #fff;
+    background: transparent;
     cursor: pointer;
     display: grid;
     place-content: center;
-    transition: background 0.15s ease;
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   }
-  .nawyk-dzien input[type="checkbox"]::before {
+  #widok-habits .nawyk-dzien input[type="checkbox"]::before {
     content: "";
     width: 14px;
     height: 14px;
-    background: #fff;
+    background: oklch(0.07 0.004 250);
     transform: scale(0);
     transition: transform 0.1s ease;
     clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 45% 62%);
   }
-  .nawyk-dzien input[type="checkbox"]:checked { background: var(--accent); }
-  .nawyk-dzien input[type="checkbox"]:checked::before { transform: scale(1); }
-  .nawyk-dzien input[type="checkbox"]:disabled { opacity: 0.55; cursor: default; }
+  #widok-habits .nawyk-dzien input[type="checkbox"]:checked {
+    background: var(--habits-akcent);
+    border-color: var(--habits-akcent);
+    box-shadow: 0 0 8px rgba(214, 208, 192, 0.55);
+  }
+  #widok-habits .nawyk-dzien input[type="checkbox"]:checked::before { transform: scale(1); }
+  #widok-habits .nawyk-dzien input[type="checkbox"]:disabled { opacity: 0.55; cursor: default; }
+
+  /* Aktywny przycisk "Habit Tracker" w panelu bocznym — akcent szczotkowanego srebra */
+  .nav-btn.aktywny.nav-habits {
+    background: oklch(0.1 0.006 250);
+    color: #D6D0C0;
+  }
+  .nav-btn.aktywny.nav-habits svg { color: #D6D0C0; }
 
   /* ----- Rejestr: znacznik nowego rekordu ----- */
   .rekord-tag-rejestr {
@@ -1041,7 +1105,7 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.9 6.4.6-4.9 4.2 1.5 6.3L12 16.9l-5.5 3.1 1.5-6.3-4.9-4.2 6.4-.6L12 3Z"/></svg>
     <span>Plan tygodnia</span>
   </button>
-  <button class="nav-btn nav-rozwoj" data-widok="widok-habits">
+  <button class="nav-btn nav-habits" data-widok="widok-habits">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M8 15l2 2 4-4"/></svg>
     <span>Habit Tracker</span>
   </button>
@@ -1223,10 +1287,10 @@
   <section id="widok-habits" class="widok">
     <h2>Habit Tracker</h2>
 
-    <div id="habits-podsumowanie" class="rekord-baner rekord-baner-rozowy" hidden>
+    <div id="habits-podsumowanie" class="rekord-baner" hidden>
       <svg viewBox="0 0 36 36" aria-hidden="true">
-        <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="3"/>
-        <circle id="habits-progress-ring" cx="18" cy="18" r="15.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+        <circle cx="18" cy="18" r="15.5" fill="none" stroke="oklch(0.24 0.01 245)" stroke-width="3"/>
+        <circle id="habits-progress-ring" cx="18" cy="18" r="15.5" fill="none" stroke="#D6D0C0" stroke-width="3" stroke-linecap="round" transform="rotate(-90 18 18)"/>
       </svg>
       <span id="habits-podsumowanie-tekst"></span>
     </div>
@@ -1426,7 +1490,7 @@
       if (!cel) return;
       widoki.forEach(function (w) { w.classList.toggle("aktywny", w.id === cel); });
       navBtns.forEach(function (b) { b.classList.toggle("aktywny", b === btn); });
-      kontener.classList.toggle("motyw-rozwoj", cel === "widok-plan" || cel === "widok-habits");
+      kontener.classList.toggle("motyw-rozwoj", cel === "widok-plan");
       if (cel === "widok-rejestr") renderRejestr();
       zamknijPanel();
     });
