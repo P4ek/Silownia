@@ -1028,22 +1028,35 @@
     letter-spacing: 0.08em;
   }
   #widok-habits .nawyk-nazwa { color: var(--habits-tekst); font-weight: 600; }
-  .nawyk-kwadrat { justify-self: center; display: flex; }
+  .nawyk-kwadrat {
+    justify-self: center;
+    position: relative;
+    width: 34px;
+    height: 34px;
+    display: flex;
+  }
   .nawyk-kwadrat input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .nawyk-kwadrat input[type="checkbox"]:disabled { cursor: default; }
+  .nawyk-kwadrat-wizualny {
     width: 34px;
     height: 34px;
     border: 2px solid var(--habits-obramowanie-puste);
     border-radius: 9px;
     background: transparent;
-    cursor: pointer;
     display: grid;
     place-content: center;
+    pointer-events: none;
     transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   }
-  .nawyk-kwadrat input[type="checkbox"]::before {
+  .nawyk-kwadrat-wizualny::before {
     content: "";
     width: 16px;
     height: 16px;
@@ -1052,13 +1065,13 @@
     transition: transform 0.1s ease;
     clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 45% 62%);
   }
-  .nawyk-kwadrat input[type="checkbox"]:checked {
+  .nawyk-kwadrat input[type="checkbox"]:checked + .nawyk-kwadrat-wizualny {
     background: var(--habits-akcent);
     border-color: var(--habits-akcent);
     box-shadow: 0 0 8px rgba(var(--habits-akcent-rgb), 0.55);
   }
-  .nawyk-kwadrat input[type="checkbox"]:checked::before { transform: scale(1); }
-  .nawyk-kwadrat input[type="checkbox"]:disabled { opacity: 0.55; cursor: default; }
+  .nawyk-kwadrat input[type="checkbox"]:checked + .nawyk-kwadrat-wizualny::before { transform: scale(1); }
+  .nawyk-kwadrat input[type="checkbox"]:disabled + .nawyk-kwadrat-wizualny { opacity: 0.55; }
   #widok-habits .nawyk-streak {
     display: flex;
     align-items: center;
@@ -3049,7 +3062,11 @@
           przelaczNawykDzien(n, data, checkbox);
         });
 
+        const wizualny = document.createElement("span");
+        wizualny.className = "nawyk-kwadrat-wizualny";
+
         kwadrat.appendChild(checkbox);
+        kwadrat.appendChild(wizualny);
         siatka.appendChild(kwadrat);
       });
 
