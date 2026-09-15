@@ -894,9 +894,10 @@
     .przeszkoda-form { flex-direction: column; }
   }
 
-  /* ----- Habit Tracker: "szczotkowane srebro" — ciemny motyw na .kontener.motyw-habits, obejmuje całą kolumnę (nagłówek + widok) ----- */
+  /* ----- Nawyki: ciemny motyw ze złotym akcentem na .kontener.motyw-habits, obejmuje całą kolumnę (nagłówek + widok) ----- */
   .kontener.motyw-habits {
-    --habits-akcent: #D6D0C0;
+    --habits-akcent: #E6A93C;
+    --habits-akcent-rgb: 230, 169, 60;
     --habits-tlo: oklch(0.07 0.004 250);
     --habits-tlo-karta: oklch(0.1 0.006 250);
     --habits-obramowanie: oklch(0.19 0.008 245);
@@ -909,7 +910,15 @@
     padding: 18px 16px 22px;
   }
   .kontener.motyw-habits > h1 { color: var(--habits-naglowek); }
-  #widok-habits h2 { color: var(--habits-naglowek); }
+  #widok-habits h2 { color: var(--habits-naglowek); margin-bottom: 4px; }
+  .nawyki-podtytul {
+    margin: 0 0 20px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--habits-tekst-pomocniczy);
+  }
   #widok-habits .karta { margin-bottom: 26px; }
   #widok-habits form { margin-top: 0; padding: 0; border: none; box-shadow: none; background: none; }
 
@@ -929,7 +938,7 @@
   #widok-habits input::placeholder { color: var(--habits-tekst-pomocniczy); }
   #widok-habits input:focus {
     border-color: var(--habits-akcent);
-    box-shadow: 0 0 0 3px rgba(214, 208, 192, 0.18);
+    box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18);
   }
   #widok-habits .pusto {
     background: var(--habits-tlo-karta);
@@ -937,23 +946,22 @@
     color: var(--habits-tekst-pomocniczy);
   }
 
-  /* Przycisk "+ dodaj nawyk" — akcent szczotkowanego srebra zamiast różowego gradientu */
+  /* Przycisk "+ dodaj nawyk" — złoty akcent zamiast różowego gradientu */
   #widok-habits .btn-pill-rola {
     background: var(--habits-akcent);
     color: oklch(0.07 0.004 250);
-    box-shadow: 0 0 10px rgba(214, 208, 192, 0.35);
+    box-shadow: 0 0 10px rgba(var(--habits-akcent-rgb), 0.35);
   }
   #widok-habits .btn-pill-rola:hover {
     background: var(--habits-akcent);
     filter: brightness(1.08);
   }
 
-  /* Karta z dużym pierścieniem tygodniowego postępu + procent na środku */
+  /* Karta z dużym pierścieniem tygodniowego postępu (procent na środku) + opisem obok */
   .habits-pierscien-karta {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 22px;
     margin-bottom: 26px;
     padding: 26px;
     background: var(--habits-tlo-karta);
@@ -962,50 +970,55 @@
   }
   .habits-pierscien-wrap {
     position: relative;
-    width: 82px;
-    height: 82px;
+    width: 128px;
+    height: 128px;
     flex: none;
   }
   .habits-pierscien-wrap svg { width: 100%; height: 100%; }
   #habits-progress-ring {
-    filter: drop-shadow(0 0 6px rgba(214, 208, 192, 0.6));
+    filter: drop-shadow(0 0 8px rgba(var(--habits-akcent-rgb), 0.65));
     transition: stroke-dashoffset 0.3s ease;
   }
   .habits-pierscien-procent {
     position: absolute;
     inset: 0;
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: center;
     font-weight: 700;
-    font-size: 1.3rem;
-    color: var(--habits-akcent);
+    color: var(--habits-naglowek);
   }
-  .habits-pierscien-tekst { color: var(--habits-tekst); font-size: 0.85rem; text-align: center; }
+  #habits-progress-procent { font-size: 2.1rem; }
+  .habits-procent-znak { font-size: 1.15rem; margin-left: 1px; color: var(--habits-tekst-pomocniczy); }
+  .habits-pierscien-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .habits-pierscien-tytul { font-weight: 700; font-size: 1.15rem; color: var(--habits-naglowek); }
+  .habits-pierscien-podtytul { font-size: 0.85rem; color: var(--habits-tekst-pomocniczy); }
+  @media (max-width: 420px) {
+    .habits-pierscien-karta { flex-direction: column; text-align: center; }
+    .habits-pierscien-info { align-items: center; }
+  }
 
-  .nawyk-naglowek {
-    display: flex;
+  /* Karta z listą nawyków: siatka (nazwa + 7 kolumn dni + seria) z jednym wspólnym wierszem nagłówka */
+  #widok-habits .nawyki-karta { overflow-x: auto; }
+  .nawyki-siatka {
+    display: grid;
+    grid-template-columns: minmax(70px, 130px) repeat(7, 34px) auto;
+    column-gap: 10px;
+    row-gap: 14px;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
+    min-width: 460px;
   }
-  #widok-habits .nawyk-nazwa { color: var(--habits-tekst); font-weight: 700; flex: 1; min-width: 0; }
-  #widok-habits .nawyk-streak { color: var(--habits-tekst-pomocniczy); font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
-  .nawyk-dni { display: flex; gap: 10px; flex-wrap: wrap; }
-  .nawyk-dzien {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-  }
-  #widok-habits .nawyk-dzien span {
+  .nawyki-naglowek-dzien {
+    justify-self: center;
     font-size: 0.7rem;
+    font-weight: 600;
     color: var(--habits-tekst-pomocniczy);
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
-  #widok-habits .nawyk-dzien input[type="checkbox"] {
+  #widok-habits .nawyk-nazwa { color: var(--habits-tekst); font-weight: 600; }
+  .nawyk-kwadrat { justify-self: center; display: flex; }
+  .nawyk-kwadrat input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     width: 34px;
@@ -1018,7 +1031,7 @@
     place-content: center;
     transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   }
-  #widok-habits .nawyk-dzien input[type="checkbox"]::before {
+  .nawyk-kwadrat input[type="checkbox"]::before {
     content: "";
     width: 16px;
     height: 16px;
@@ -1027,20 +1040,33 @@
     transition: transform 0.1s ease;
     clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 45% 62%);
   }
-  #widok-habits .nawyk-dzien input[type="checkbox"]:checked {
+  .nawyk-kwadrat input[type="checkbox"]:checked {
     background: var(--habits-akcent);
     border-color: var(--habits-akcent);
-    box-shadow: 0 0 8px rgba(214, 208, 192, 0.55);
+    box-shadow: 0 0 8px rgba(var(--habits-akcent-rgb), 0.55);
   }
-  #widok-habits .nawyk-dzien input[type="checkbox"]:checked::before { transform: scale(1); }
-  #widok-habits .nawyk-dzien input[type="checkbox"]:disabled { opacity: 0.55; cursor: default; }
+  .nawyk-kwadrat input[type="checkbox"]:checked::before { transform: scale(1); }
+  .nawyk-kwadrat input[type="checkbox"]:disabled { opacity: 0.55; cursor: default; }
+  #widok-habits .nawyk-streak {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-self: end;
+    color: var(--habits-akcent);
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .nawyk-streak svg { width: 13px; height: 13px; flex: none; }
+  .nawyki-linia { grid-column: 1 / -1; border-bottom: 1px solid var(--habits-obramowanie); }
 
-  /* Aktywny przycisk "Habit Tracker" w panelu bocznym — akcent szczotkowanego srebra */
+  /* Aktywny przycisk "Nawyki" w panelu bocznym — złoty akcent */
   .nav-btn.aktywny.nav-habits {
     background: oklch(0.1 0.006 250);
-    color: #D6D0C0;
+    border: 1px solid rgba(230, 169, 60, 0.45);
+    color: #E6A93C;
   }
-  .nav-btn.aktywny.nav-habits svg { color: #D6D0C0; }
+  .nav-btn.aktywny.nav-habits svg { color: #E6A93C; }
 
   /* ----- Rejestr: znacznik nowego rekordu ----- */
   .rekord-tag-rejestr {
@@ -1134,7 +1160,7 @@
   </button>
   <button class="nav-btn nav-habits" data-widok="widok-habits">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M8 15l2 2 4-4"/></svg>
-    <span>Habit Tracker</span>
+    <span>Nawyki</span>
   </button>
 
   <button class="nav-btn nav-wyloguj" id="btn-wyloguj">
@@ -1310,19 +1336,23 @@
     </div>
   </section>
 
-  <!-- ===== Widok 6: Habit Tracker ===== -->
+  <!-- ===== Widok 6: Nawyki ===== -->
   <section id="widok-habits" class="widok">
-    <h2>Habit Tracker</h2>
+    <h2>Nawyki</h2>
+    <p id="habits-zakres" class="nawyki-podtytul"></p>
 
     <div id="habits-podsumowanie" class="habits-pierscien-karta" hidden>
       <div class="habits-pierscien-wrap">
-        <svg viewBox="0 0 90 90" aria-hidden="true">
-          <circle cx="45" cy="45" r="39" fill="none" stroke="oklch(0.24 0.01 245)" stroke-width="7"/>
-          <circle id="habits-progress-ring" cx="45" cy="45" r="39" fill="none" stroke="#D6D0C0" stroke-width="7" stroke-linecap="round" transform="rotate(-90 45 45)"/>
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="oklch(0.24 0.01 245)" stroke-width="11"/>
+          <circle id="habits-progress-ring" cx="60" cy="60" r="52" fill="none" stroke="#E6A93C" stroke-width="11" stroke-linecap="round" transform="rotate(-90 60 60)"/>
         </svg>
-        <span id="habits-progress-procent" class="habits-pierscien-procent"></span>
+        <span class="habits-pierscien-procent"><span id="habits-progress-procent">0</span><span class="habits-procent-znak">%</span></span>
       </div>
-      <span id="habits-podsumowanie-tekst" class="habits-pierscien-tekst"></span>
+      <div class="habits-pierscien-info">
+        <span id="habits-podsumowanie-tekst" class="habits-pierscien-tytul"></span>
+        <span class="habits-pierscien-podtytul">Twoja spójność w tym tygodniu</span>
+      </div>
     </div>
 
     <div class="karta">
@@ -2853,17 +2883,22 @@
     wczytajCeleDlaTygodnia();
   });
 
-  // ===================== Widok 6: Habit Tracker =====================
+  // ===================== Widok 6: Nawyki =====================
 
+  const habitsZakres = document.getElementById("habits-zakres");
   const habitsPodsumowanie = document.getElementById("habits-podsumowanie");
   const habitsPodsumowanieTekst = document.getElementById("habits-podsumowanie-tekst");
   const habitsProgressRing = document.getElementById("habits-progress-ring");
   const habitsProgressProcent = document.getElementById("habits-progress-procent");
-  const OBWOD_PIERSCIENIA_HABITS = 2 * Math.PI * 39;
+  const OBWOD_PIERSCIENIA_HABITS = 2 * Math.PI * 52;
   const formNawyk = document.getElementById("form-nawyk");
   const inputNowyNawyk = document.getElementById("nowy-nawyk");
   const nawykiLista = document.getElementById("nawyki-lista");
-  const DNI_TYGODNIA_ETYKIETY = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Ndz"];
+  const DNI_TYGODNIA_ETYKIETY = ["Pn", "Wt", "Śr", "Cz", "Pt", "So", "Nd"];
+  const MIESIACE_DOPELNIACZ = [
+    "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
+    "lipca", "sierpnia", "września", "października", "listopada", "grudnia"
+  ];
 
   let nawyki = [];      // wiersze z tabeli "nawyki": { id, nazwa, user_id }
   let nawykiWpisy = [];  // wiersze z tabeli "nawyki_wpisy": { id, nawyk_id, data, user_id }
@@ -2877,6 +2912,18 @@
     }
     return dni;
   }
+
+  // Nagłówek "8 – 14 września 2026 · Trzymaj się planu" nad kartami
+  function renderHabitsZakresTygodnia() {
+    const poniedzialek = poniedzialekTygodnia(new Date());
+    const niedziela = new Date(poniedzialek.getFullYear(), poniedzialek.getMonth(), poniedzialek.getDate() + 6);
+    const rok = niedziela.getFullYear();
+    const zakresDat = poniedzialek.getMonth() === niedziela.getMonth()
+      ? poniedzialek.getDate() + " – " + niedziela.getDate() + " " + MIESIACE_DOPELNIACZ[niedziela.getMonth()]
+      : poniedzialek.getDate() + " " + MIESIACE_DOPELNIACZ[poniedzialek.getMonth()] + " – " + niedziela.getDate() + " " + MIESIACE_DOPELNIACZ[niedziela.getMonth()];
+    habitsZakres.textContent = zakresDat + " " + rok + " · Trzymaj się planu";
+  }
+  renderHabitsZakresTygodnia();
 
   // Ile kolejnych dni wstecz (licząc od dziś) dany nawyk ma zaznaczenie bez przerwy
   function obliczStreakNawyku(nawykId) {
@@ -2914,14 +2961,19 @@
     const udzial = mianownik > 0 ? sumaZaznaczonych / mianownik : 0;
 
     habitsPodsumowanieTekst.textContent =
-      "Ten tydzień: " + sumaZaznaczonych + " z " + mianownik + " zaznaczeń";
-    habitsProgressProcent.textContent = Math.round(udzial * 100) + "%";
+      sumaZaznaczonych + " z " + mianownik + " nawyków odhaczonych";
+    habitsProgressProcent.textContent = String(Math.round(udzial * 100));
     habitsProgressRing.style.strokeDasharray = String(OBWOD_PIERSCIENIA_HABITS);
     habitsProgressRing.style.strokeDashoffset = String(OBWOD_PIERSCIENIA_HABITS * (1 - udzial));
     habitsPodsumowanie.hidden = false;
   }
 
-  // Render listy nawyków: dla każdego nawyku 7 kwadracików (Pon-Ndz) + licznik serii
+  // Ikona "płomyka" przy liczniku serii (ten sam kształt co w banerze rekordu)
+  const IKONA_STREAK =
+    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 1.5c.6 3.6-1.4 5.6-3 7.2-1.6 1.6-3 3.2-3 6.1a5.5 5.5 0 0 0 11 .3c.1-2.3-1-4.2-2-5.4-.6.9-1.4 1.2-2.2 1.2 1.3-2.8 1-7-.8-9.4z"/></svg>';
+
+  // Render listy nawyków: jedna karta z siatką (nazwa + 7 kwadracików Pn-Nd + seria),
+  // wspólny wiersz nagłówka z dniami tygodnia u góry
   function renderNawykiListy() {
     nawykiLista.innerHTML = "";
     if (nawyki.length === 0) {
@@ -2931,31 +2983,30 @@
 
     const dni = habitsDniTygodnia();
 
-    nawyki.forEach(function (n) {
-      const blok = document.createElement("div");
-      blok.className = "karta nawyk-blok";
+    const karta = document.createElement("div");
+    karta.className = "karta nawyki-karta";
 
-      const naglowek = document.createElement("div");
-      naglowek.className = "nawyk-naglowek";
+    const siatka = document.createElement("div");
+    siatka.className = "nawyki-siatka";
 
+    siatka.appendChild(document.createElement("span"));
+    DNI_TYGODNIA_ETYKIETY.forEach(function (etykieta) {
+      const naglowekDnia = document.createElement("span");
+      naglowekDnia.className = "nawyki-naglowek-dzien";
+      naglowekDnia.textContent = etykieta;
+      siatka.appendChild(naglowekDnia);
+    });
+    siatka.appendChild(document.createElement("span"));
+
+    nawyki.forEach(function (n, indeks) {
       const nazwa = document.createElement("span");
       nazwa.className = "nawyk-nazwa";
       nazwa.textContent = n.nazwa;
-      naglowek.appendChild(nazwa);
+      siatka.appendChild(nazwa);
 
-      const streak = document.createElement("span");
-      streak.className = "nawyk-streak";
-      streak.textContent = obliczStreakNawyku(n.id) + " dni z rzędu";
-      naglowek.appendChild(streak);
-
-      blok.appendChild(naglowek);
-
-      const dniWrap = document.createElement("div");
-      dniWrap.className = "nawyk-dni";
-
-      dni.forEach(function (data, i) {
-        const etykietaDnia = document.createElement("label");
-        etykietaDnia.className = "nawyk-dzien";
+      dni.forEach(function (data) {
+        const kwadrat = document.createElement("label");
+        kwadrat.className = "nawyk-kwadrat";
 
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
@@ -2964,17 +3015,26 @@
           przelaczNawykDzien(n, data, checkbox);
         });
 
-        const tekstDnia = document.createElement("span");
-        tekstDnia.textContent = DNI_TYGODNIA_ETYKIETY[i];
-
-        etykietaDnia.appendChild(checkbox);
-        etykietaDnia.appendChild(tekstDnia);
-        dniWrap.appendChild(etykietaDnia);
+        kwadrat.appendChild(checkbox);
+        siatka.appendChild(kwadrat);
       });
 
-      blok.appendChild(dniWrap);
-      nawykiLista.appendChild(blok);
+      const streakDni = obliczStreakNawyku(n.id);
+      const streak = document.createElement("span");
+      streak.className = "nawyk-streak";
+      streak.setAttribute("aria-label", streakDni + " dni z rzędu");
+      streak.innerHTML = IKONA_STREAK + "<span>" + streakDni + "</span>";
+      siatka.appendChild(streak);
+
+      if (indeks < nawyki.length - 1) {
+        const linia = document.createElement("div");
+        linia.className = "nawyki-linia";
+        siatka.appendChild(linia);
+      }
     });
+
+    karta.appendChild(siatka);
+    nawykiLista.appendChild(karta);
   }
 
   // Zaznaczenie/odznaczenie kwadracika dnia dla nawyku - wstawia lub usuwa wiersz w "nawyki_wpisy"
