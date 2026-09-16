@@ -373,6 +373,23 @@
   .rekord-baner svg { width: 20px; height: 20px; flex: none; }
   .rekord-baner span { font-style: italic; }
 
+  /* ----- Baner "plan w trakcie" w widoku Zapisz trening ----- */
+  .plan-trakcie-baner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    margin-bottom: 18px;
+    padding: 14px 18px;
+    border-radius: 16px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    color: var(--ink);
+  }
+  .plan-trakcie-tekst { font-weight: 600; font-size: 0.92rem; }
+  .plan-trakcie-akcje { display: flex; gap: 8px; flex: none; }
+
   /* ----- Kropki partii ----- */
   .dot {
     display: inline-block;
@@ -1283,6 +1300,14 @@
       <span id="rekord-tekst"></span>
     </div>
 
+    <div id="plan-trakcie-baner" class="plan-trakcie-baner" hidden>
+      <span id="plan-trakcie-tekst" class="plan-trakcie-tekst"></span>
+      <div class="plan-trakcie-akcje">
+        <button type="button" id="btn-plan-pomin" class="btn-pill" style="margin-top:0">Pomiń</button>
+        <button type="button" id="btn-plan-zakoncz" class="btn-pill" style="margin-top:0">Zakończ plan</button>
+      </div>
+    </div>
+
     <form id="form-treningu">
       <label for="partia">Partia mięśniowa</label>
       <select id="partia" name="partia" required>
@@ -1664,6 +1689,10 @@
   const selPartia = document.getElementById("partia");
   const selCwiczenie = document.getElementById("cwiczenie");
   const inputData = document.getElementById("data");
+  const planTrakcieBaner = document.getElementById("plan-trakcie-baner");
+  const planTrakcieTekst = document.getElementById("plan-trakcie-tekst");
+  const btnPlanPomin = document.getElementById("btn-plan-pomin");
+  const btnPlanZakoncz = document.getElementById("btn-plan-zakoncz");
   const podejsciaBox = document.getElementById("podejscia");
   const btnDodaj = document.getElementById("dodaj-podejscie");
   const lista = document.getElementById("lista");
@@ -2258,6 +2287,55 @@
 
   selWolumenMiesiac.addEventListener("change", renderWolumenPartie);
 
+  // ----- Trening rozpoczęty z zapisanego planu (widok "Zapisz trening") -----
+  let planWTrakcie = null; // gdy aktywny: { nazwa, cwiczenia, indeks }
+
+  // Ustawienie pól #partia/#cwiczenie na bieżącą pozycję trwającego planu + tekst banera
+  function ustawFormularzNaCwiczeniePlanu() {
+    const poz = planWTrakcie.cwiczenia[planWTrakcie.indeks];
+    selPartia.value = poz.partia;
+    selPartia.dispatchEvent(new Event("change"));
+    selCwiczenie.value = poz.cwiczenie;
+
+    planTrakcieTekst.textContent =
+      "Plan: " + planWTrakcie.nazwa + " — ćwiczenie " + (planWTrakcie.indeks + 1) + " z " +
+      planWTrakcie.cwiczenia.length + ": " + poz.partia + " — " + poz.cwiczenie;
+  }
+
+  // Uruchomienie trybu "trening z planu" po kliknięciu "Rozpocznij" na karcie planu
+  function rozpocznijTreningZPlanu(plan) {
+    planWTrakcie = { nazwa: plan.nazwa, cwiczenia: plan.cwiczenia, indeks: 0 };
+    document.querySelector('.nav-btn[data-widok="widok-dodaj"]').click();
+    ustawFormularzNaCwiczeniePlanu();
+    planTrakcieBaner.hidden = false;
+  }
+
+  // Zakończenie trybu "trening z planu"
+  function zakonczPlanWTrakcie() {
+    planWTrakcie = null;
+    planTrakcieBaner.hidden = true;
+  }
+
+  // Przejście do kolejnego ćwiczenia z trwającego planu (po zapisie lub po pominięciu)
+  function przejdzDoNastepnegoCwiczeniaPlanu() {
+    planWTrakcie.indeks++;
+    if (planWTrakcie.indeks >= planWTrakcie.cwiczenia.length) {
+      alert("Plan ukończony!");
+      zakonczPlanWTrakcie();
+      return;
+    }
+    ustawFormularzNaCwiczeniePlanu();
+  }
+
+  btnPlanPomin.addEventListener("click", function () {
+    if (!planWTrakcie) return;
+    przejdzDoNastepnegoCwiczeniaPlanu();
+  });
+
+  btnPlanZakoncz.addEventListener("click", function () {
+    zakonczPlanWTrakcie();
+  });
+
   // Submit
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -2300,6 +2378,10 @@
     odbudujSelectCwiczenie();
     inputData.value = dzisiaj();
     resetPodejscia();
+
+    if (planWTrakcie) {
+      przejdzDoNastepnegoCwiczeniaPlanu();
+    }
   });
 
   // Submit: dodanie nowego ćwiczenia do tabeli "cwiczenia"
@@ -2529,7 +2611,7 @@
     btnRozpocznij.style.marginTop = "0";
     btnRozpocznij.textContent = "Rozpocznij";
     btnRozpocznij.addEventListener("click", function () {
-      alert("Wkrótce dostępne");
+      rozpocznijTreningZPlanu(plan);
     });
     naglowek.appendChild(btnRozpocznij);
 
