@@ -441,6 +441,13 @@
     border: 1px solid var(--border);
     border-radius: 14px;
   }
+  #form-plan-treningu input[type="checkbox"] {
+    width: auto;
+    padding: 0;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
   .pusto {
     color: var(--muted);
     font-style: italic;
@@ -1417,6 +1424,8 @@
 
       <div id="plan-cwiczenia-lista"></div>
 
+      <label><input type="checkbox" id="plan-wyslij-notion"> Wyślij też do Notion</label>
+
       <button type="submit" class="btn-submit">Zapisz plan</button>
     </form>
 
@@ -1716,6 +1725,7 @@
   const selPlanCwiczenie = document.getElementById("plan-cwiczenie");
   const btnDodajDoPlanu = document.getElementById("btn-dodaj-do-planu");
   const planCwiczeniaLista = document.getElementById("plan-cwiczenia-lista");
+  const inputPlanWyslijNotion = document.getElementById("plan-wyslij-notion");
   const planyLista = document.getElementById("plany-lista");
 
   // Wszystkie pobrane wpisy z tabeli "treningi"
@@ -2615,6 +2625,17 @@
     });
     naglowek.appendChild(btnRozpocznij);
 
+    const btnUsunPlan = document.createElement("button");
+    btnUsunPlan.type = "button";
+    btnUsunPlan.className = "btn-usun";
+    btnUsunPlan.textContent = "×";
+    btnUsunPlan.addEventListener("click", function () {
+      const potwierdzenie = window.confirm('Usunąć plan „' + plan.nazwa + '"?');
+      if (!potwierdzenie) return;
+      usunPlan(plan, btnUsunPlan);
+    });
+    naglowek.appendChild(btnUsunPlan);
+
     const ul = document.createElement("ul");
     (plan.cwiczenia || []).forEach(function (poz) {
       const li = document.createElement("li");
@@ -2655,6 +2676,26 @@
     renderPlanyListy();
   }
 
+  // Usunięcie zapisanego planu treningowego z tabeli "plany_treningowe"
+  async function usunPlan(plan, btn) {
+    btn.disabled = true;
+
+    const { error } = await db
+      .from("plany_treningowe")
+      .delete()
+      .eq("id", plan.id);
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się usunąć planu: " + error.message);
+      btn.disabled = false;
+      return;
+    }
+
+    plany = plany.filter(function (p) { return p.id !== plan.id; });
+    renderPlanyListy();
+  }
+
   // Submit: zapisanie budowanego planu treningowego do tabeli "plany_treningowe"
   formPlanTreningu.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -2685,6 +2726,16 @@
     const nowyPlan = data && data[0] ? data[0] : { nazwa: nazwa, cwiczenia: planCwiczeniaRobocze };
     plany.unshift(nowyPlan);
     renderPlanyListy();
+
+    if (inputPlanWyslijNotion.checked) {
+      const { error: bladNotion } = await db.functions.invoke("wyslij-plan-do-notion", {
+        body: { nazwa: nazwa, cwiczenia: planCwiczeniaRobocze },
+      });
+      if (bladNotion) {
+        console.error(bladNotion);
+        alert("Plan zapisany, ale nie udało się wysłać do Notion: " + bladNotion.message);
+      }
+    }
 
     formPlanTreningu.reset();
     odbudujSelectCwiczeniePlan();
