@@ -1185,8 +1185,13 @@
       <label for="logowanie-email">Adres e-mail</label>
       <input type="email" id="logowanie-email" autocomplete="email" required placeholder="ty@przyklad.pl">
       <button type="submit" class="btn-submit">Wyślij link logowania</button>
-      <p id="logowanie-status" class="logowanie-status" hidden></p>
     </form>
+    <form id="form-kodu" hidden>
+      <label for="logowanie-kod">Kod logowania</label>
+      <input type="text" id="logowanie-kod" inputmode="numeric" autocomplete="one-time-code" required placeholder="123456">
+      <button type="submit" class="btn-submit">Zaloguj</button>
+    </form>
+    <p id="logowanie-status" class="logowanie-status" hidden></p>
   </div>
 </div>
 
@@ -1463,7 +1468,10 @@
   const aplikacja = document.getElementById("aplikacja");
   const formLogowania = document.getElementById("form-logowania");
   const inputEmailLogowania = document.getElementById("logowanie-email");
+  const formKodu = document.getElementById("form-kodu");
+  const inputKodLogowania = document.getElementById("logowanie-kod");
   const logowanieStatus = document.getElementById("logowanie-status");
+  let logowanieEmail = ""; // e-mail zapamiętany między krokiem wysyłki kodu a jego weryfikacją
 
   // Wywoływane raz, przy pierwszym pokazaniu aplikacji po zalogowaniu - wczytuje wszystkie dane
   function inicjalizujDaneAplikacji() {
@@ -1521,7 +1529,6 @@
 
     const { error } = await db.auth.signInWithOtp({
       email: email,
-      options: { emailRedirectTo: window.location.href },
     });
 
     btn.disabled = false;
@@ -1534,9 +1541,37 @@
       return;
     }
 
+    logowanieEmail = email;
     logowanieStatus.textContent = "Sprawdź maila";
     logowanieStatus.style.color = "#2b7a2b";
     logowanieStatus.hidden = false;
+    formLogowania.hidden = true;
+    formKodu.hidden = false;
+  });
+
+  formKodu.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const kod = inputKodLogowania.value.trim();
+    if (!kod) return;
+
+    const btn = formKodu.querySelector(".btn-submit");
+    btn.disabled = true;
+    logowanieStatus.hidden = true;
+
+    const { error } = await db.auth.verifyOtp({
+      email: logowanieEmail,
+      token: kod,
+      type: "email",
+    });
+
+    btn.disabled = false;
+
+    if (error) {
+      console.error(error);
+      logowanieStatus.textContent = "Nie udało się zalogować: " + error.message;
+      logowanieStatus.style.color = "#b00020";
+      logowanieStatus.hidden = false;
+    }
   });
 
   const btnWyloguj = document.getElementById("btn-wyloguj");
