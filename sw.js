@@ -24,6 +24,14 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
+
+  // Zostaw przeglądarce bez ingerencji wszystko poza GET-ami do własnej domeny
+  // (czyli m.in. wszystkie zapytania do Supabase i Edge Functions)
+  if (event.request.method !== "GET" || url.origin !== self.location.origin) {
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
