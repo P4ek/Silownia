@@ -411,6 +411,19 @@
   .wpis-data { color: var(--muted); font-size: 0.82rem; margin-bottom: 8px; }
   .wpis ul { margin: 0; padding-left: 20px; }
   .wpis li { margin: 2px 0; }
+
+  /* ----- Zaplanuj trening: lista ćwiczeń dodanych do budowanego planu ----- */
+  .plan-cwicz-wiersz {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    margin-top: 8px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
   .pusto {
     color: var(--muted);
     font-style: italic;
@@ -1221,6 +1234,10 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6M7 6v12M17 6v12M20 9v6M7 12h10"/></svg>
     <span>Nowe ćwiczenie</span>
   </button>
+  <button class="nav-btn" data-widok="widok-zaplanuj">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v3h6V3"/><path d="M8 12h8M8 16h5"/></svg>
+    <span>Zaplanuj trening</span>
+  </button>
 
   <h3>Rozwój</h3>
   <button class="nav-btn nav-rozwoj" data-widok="widok-plan">
@@ -1353,6 +1370,37 @@
     </div>
   </section>
 
+  <!-- ===== Widok: Zaplanuj trening ===== -->
+  <section id="widok-zaplanuj" class="widok">
+    <h2>Zaplanuj trening</h2>
+
+    <form id="form-plan-treningu">
+      <label for="plan-nazwa">Nazwa treningu</label>
+      <input type="text" id="plan-nazwa" autocomplete="off" required placeholder="np. Trening nóg">
+
+      <label for="plan-partia">Partia mięśniowa</label>
+      <select id="plan-partia">
+        <option value="">-- wybierz partię --</option>
+      </select>
+
+      <label for="plan-cwiczenie">Ćwiczenie</label>
+      <select id="plan-cwiczenie" disabled>
+        <option value="">-- najpierw wybierz partię --</option>
+      </select>
+
+      <button type="button" id="btn-dodaj-do-planu" class="btn-pill">Dodaj do planu</button>
+
+      <div id="plan-cwiczenia-lista"></div>
+
+      <button type="submit" class="btn-submit">Zapisz plan</button>
+    </form>
+
+    <h2 style="margin-top:28px">Zapisane plany</h2>
+    <div id="plany-lista">
+      <p class="pusto">Brak zapisanych planów.</p>
+    </div>
+  </section>
+
   <!-- ===== Widok 5: Plan tygodnia ===== -->
   <section id="widok-plan" class="widok">
     <h2>Plan tygodnia</h2>
@@ -1482,6 +1530,7 @@
     wczytajCeleDlaTygodnia();
     wczytajNawyki();
     wczytajNawykiWpisy();
+    wczytajPlanyTreningowe();
   }
 
   function pokazAplikacje() {
@@ -1632,6 +1681,13 @@
   const katalogLista = document.getElementById("katalog-lista");
   const rekordBaner = document.getElementById("rekord-baner");
   const rekordTekst = document.getElementById("rekord-tekst");
+  const formPlanTreningu = document.getElementById("form-plan-treningu");
+  const inputPlanNazwa = document.getElementById("plan-nazwa");
+  const selPlanPartia = document.getElementById("plan-partia");
+  const selPlanCwiczenie = document.getElementById("plan-cwiczenie");
+  const btnDodajDoPlanu = document.getElementById("btn-dodaj-do-planu");
+  const planCwiczeniaLista = document.getElementById("plan-cwiczenia-lista");
+  const planyLista = document.getElementById("plany-lista");
 
   // Wszystkie pobrane wpisy z tabeli "treningi"
   const wpisy = [];
@@ -1671,10 +1727,11 @@
     });
   });
 
-  // Wypełnienie selectów partii (formularz treningu + dodawanie nowego ćwiczenia)
+  // Wypełnienie selectów partii (formularz treningu + dodawanie nowego ćwiczenia + planowanie treningu)
   PARTIE.forEach(function (partia) {
     selPartia.appendChild(new Option(partia, partia));
     selNowePartia.appendChild(new Option(partia, partia));
+    selPlanPartia.appendChild(new Option(partia, partia));
   });
 
   // Odbudowa selecta ćwiczeń w formularzu treningu (zależny od wybranej partii)
@@ -1709,6 +1766,7 @@
   // Odświeżenie wszystkich list ćwiczeń na stronie
   function odswiezSelectyCwiczen() {
     odbudujSelectCwiczenie();
+    odbudujSelectCwiczeniePlan();
     odbudujDatalistRejestr();
     renderKatalogListy();
   }
@@ -2388,6 +2446,169 @@
     katalog = katalog.filter(function (c) { return c.id !== cwicz.id; });
     odswiezSelectyCwiczen();
   }
+
+  // ===================== Widok: Zaplanuj trening =====================
+
+  let planCwiczeniaRobocze = []; // ćwiczenia dodane do budowanego planu, przed zapisem: [{ partia, cwiczenie }]
+  let plany = []; // wiersze z tabeli "plany_treningowe": { id, nazwa, cwiczenia, user_id }
+
+  // Odbudowa selecta ćwiczeń w formularzu planu (zależna od wybranej partii) - ten sam katalog co w formularzu zapisu treningu
+  function odbudujSelectCwiczeniePlan() {
+    const partia = selPlanPartia.value;
+    const poprzednie = selPlanCwiczenie.value;
+    selPlanCwiczenie.innerHTML = "";
+
+    if (!partia) {
+      selPlanCwiczenie.disabled = true;
+      selPlanCwiczenie.appendChild(new Option("-- najpierw wybierz partię --", ""));
+      return;
+    }
+
+    selPlanCwiczenie.disabled = false;
+    selPlanCwiczenie.appendChild(new Option("-- wybierz ćwiczenie --", ""));
+    cwiczeniaDlaPartii(partia).forEach(function (nazwa) {
+      selPlanCwiczenie.appendChild(new Option(nazwa, nazwa));
+    });
+    if (poprzednie) selPlanCwiczenie.value = poprzednie;
+  }
+  selPlanPartia.addEventListener("change", odbudujSelectCwiczeniePlan);
+
+  // Render listy ćwiczeń dodanych do budowanego planu (przed zapisem), z możliwością usunięcia pozycji
+  function renderPlanCwiczeniaListy() {
+    planCwiczeniaLista.innerHTML = "";
+    planCwiczeniaRobocze.forEach(function (poz, indeks) {
+      const wiersz = document.createElement("div");
+      wiersz.className = "plan-cwicz-wiersz";
+
+      const tytul = document.createElement("span");
+      tytul.className = "wpis-tytul";
+      tytul.appendChild(kropkaPartii(poz.partia));
+      tytul.appendChild(document.createTextNode(poz.partia + " — " + poz.cwiczenie));
+      wiersz.appendChild(tytul);
+
+      const btnUsunPoz = document.createElement("button");
+      btnUsunPoz.type = "button";
+      btnUsunPoz.className = "btn-usun";
+      btnUsunPoz.textContent = "×";
+      btnUsunPoz.addEventListener("click", function () {
+        planCwiczeniaRobocze.splice(indeks, 1);
+        renderPlanCwiczeniaListy();
+      });
+      wiersz.appendChild(btnUsunPoz);
+
+      planCwiczeniaLista.appendChild(wiersz);
+    });
+  }
+
+  // Dodanie wybranej pary partia + ćwiczenie do budowanego planu
+  btnDodajDoPlanu.addEventListener("click", function () {
+    const partia = selPlanPartia.value;
+    const cwiczenie = selPlanCwiczenie.value;
+    if (!partia || !cwiczenie) return;
+
+    planCwiczeniaRobocze.push({ partia: partia, cwiczenie: cwiczenie });
+    renderPlanCwiczeniaListy();
+  });
+
+  // Budowa kafelka zapisanego planu treningowego
+  function budujKartePlanu(plan) {
+    const karta = document.createElement("div");
+    karta.className = "wpis";
+
+    const naglowek = document.createElement("div");
+    naglowek.className = "wpis-naglowek";
+
+    const tytul = document.createElement("span");
+    tytul.className = "wpis-tytul";
+    tytul.textContent = plan.nazwa;
+    naglowek.appendChild(tytul);
+
+    const btnRozpocznij = document.createElement("button");
+    btnRozpocznij.type = "button";
+    btnRozpocznij.className = "btn-pill";
+    btnRozpocznij.style.marginTop = "0";
+    btnRozpocznij.textContent = "Rozpocznij";
+    btnRozpocznij.addEventListener("click", function () {
+      alert("Wkrótce dostępne");
+    });
+    naglowek.appendChild(btnRozpocznij);
+
+    const ul = document.createElement("ul");
+    (plan.cwiczenia || []).forEach(function (poz) {
+      const li = document.createElement("li");
+      li.textContent = poz.partia + " — " + poz.cwiczenie;
+      ul.appendChild(li);
+    });
+
+    karta.appendChild(naglowek);
+    karta.appendChild(ul);
+    return karta;
+  }
+
+  // Render listy zapisanych planów treningowych
+  function renderPlanyListy() {
+    planyLista.innerHTML = "";
+    if (plany.length === 0) {
+      planyLista.innerHTML = '<p class="pusto">Brak zapisanych planów.</p>';
+      return;
+    }
+    plany.forEach(function (plan) {
+      planyLista.appendChild(budujKartePlanu(plan));
+    });
+  }
+
+  // Pobranie zapisanych planów z tabeli "plany_treningowe", od najnowszego
+  async function wczytajPlanyTreningowe() {
+    const { data, error } = await db
+      .from("plany_treningowe")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się pobrać planów treningowych: " + error.message);
+      return;
+    }
+    plany = data || [];
+    renderPlanyListy();
+  }
+
+  // Submit: zapisanie budowanego planu treningowego do tabeli "plany_treningowe"
+  formPlanTreningu.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const nazwa = inputPlanNazwa.value.trim();
+    if (!nazwa) return;
+    if (planCwiczeniaRobocze.length === 0) {
+      alert("Dodaj przynajmniej jedno ćwiczenie do planu.");
+      return;
+    }
+
+    const btn = formPlanTreningu.querySelector(".btn-submit");
+    btn.disabled = true;
+
+    const { data, error } = await db
+      .from("plany_treningowe")
+      .insert({ user_id: sesjaUzytkownika.user.id, nazwa: nazwa, cwiczenia: planCwiczeniaRobocze })
+      .select();
+
+    btn.disabled = false;
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się zapisać planu: " + error.message);
+      return;
+    }
+
+    const nowyPlan = data && data[0] ? data[0] : { nazwa: nazwa, cwiczenia: planCwiczeniaRobocze };
+    plany.unshift(nowyPlan);
+    renderPlanyListy();
+
+    formPlanTreningu.reset();
+    odbudujSelectCwiczeniePlan();
+    planCwiczeniaRobocze = [];
+    renderPlanCwiczeniaListy();
+  });
 
   // ===================== Widok 5: Plan tygodnia =====================
 
