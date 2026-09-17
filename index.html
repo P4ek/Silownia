@@ -88,12 +88,16 @@
     pointer-events: none;
   }
 
-  /* ----- Hamburger ----- */
-  .hamburger {
+  /* ----- Hamburger + przełącznik motywu ----- */
+  .topbar-ikony {
     position: fixed;
     top: 14px;
     left: 14px;
     z-index: 60;
+    display: flex;
+    gap: 8px;
+  }
+  .hamburger {
     width: 42px;
     height: 42px;
     display: flex;
@@ -113,6 +117,31 @@
     height: 2px;
     border-radius: 2px;
     background: var(--ink);
+  }
+  .motyw-btn {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    box-shadow: var(--shadow-warm);
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .motyw-btn svg { width: 19px; height: 19px; }
+  .motyw-btn.aktywny {
+    color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-soft), var(--shadow-warm);
+  }
+  .motyw-btn.motyw-btn-habits.aktywny {
+    color: #D6D0C0;
+    border-color: #D6D0C0;
+    box-shadow: 0 0 0 2px rgba(214, 208, 192, 0.35), var(--shadow-warm);
   }
 
   /* ----- Panel boczny ----- */
@@ -1234,9 +1263,17 @@
 
 <div id="aplikacja" hidden>
 
-<button class="hamburger" id="hamburger" aria-label="Menu">
-  <span></span><span></span><span></span>
-</button>
+<div class="topbar-ikony">
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <button class="motyw-btn motyw-btn-auto aktywny" id="motyw-btn-auto" aria-label="Domyślny wygląd" title="Domyślny wygląd">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+  </button>
+  <button class="motyw-btn motyw-btn-habits" id="motyw-btn-habits" aria-label="Motyw Nawyki (ciemny)" title="Motyw Nawyki (ciemny)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+  </button>
+</div>
 
 <div id="overlay" hidden></div>
 
@@ -1750,17 +1787,42 @@
   hamburger.addEventListener("click", otworzPanel);
   overlay.addEventListener("click", zamknijPanel);
 
+  // ----- Przełącznik motywu (obok hamburgera): domyślny wygląd vs. ciemny motyw z sekcji "Nawyki" wszędzie -----
+  const motywBtnAuto = document.getElementById("motyw-btn-auto");
+  const motywBtnHabits = document.getElementById("motyw-btn-habits");
+  const MOTYW_KEY = "silownia-motyw-globalny";
+  let motywGlobalny = localStorage.getItem(MOTYW_KEY) === "habits" ? "habits" : "auto";
+
+  function zastosujMotyw() {
+    const aktywnyBtn = document.querySelector(".nav-btn.aktywny");
+    const cel = aktywnyBtn ? aktywnyBtn.dataset.widok : null;
+    const habitsWlaczony = motywGlobalny === "habits" || cel === "widok-habits";
+    kontener.classList.toggle("motyw-habits", habitsWlaczony);
+    sidebar.classList.toggle("motyw-habits", habitsWlaczony);
+    document.body.classList.toggle("motyw-habits", habitsWlaczony);
+    document.documentElement.classList.toggle("motyw-habits", habitsWlaczony);
+    kontener.classList.toggle("motyw-rozwoj", !habitsWlaczony && cel === "widok-plan");
+    motywBtnAuto.classList.toggle("aktywny", motywGlobalny === "auto");
+    motywBtnHabits.classList.toggle("aktywny", motywGlobalny === "habits");
+  }
+
+  function ustawMotywGlobalny(nowyMotyw) {
+    motywGlobalny = nowyMotyw;
+    localStorage.setItem(MOTYW_KEY, motywGlobalny);
+    zastosujMotyw();
+  }
+
+  motywBtnAuto.addEventListener("click", function () { ustawMotywGlobalny("auto"); });
+  motywBtnHabits.addEventListener("click", function () { ustawMotywGlobalny("habits"); });
+  zastosujMotyw();
+
   navBtns.forEach(function (btn) {
     btn.addEventListener("click", function () {
       const cel = btn.dataset.widok;
       if (!cel) return;
       widoki.forEach(function (w) { w.classList.toggle("aktywny", w.id === cel); });
       navBtns.forEach(function (b) { b.classList.toggle("aktywny", b === btn); });
-      kontener.classList.toggle("motyw-rozwoj", cel === "widok-plan");
-      kontener.classList.toggle("motyw-habits", cel === "widok-habits");
-      sidebar.classList.toggle("motyw-habits", cel === "widok-habits");
-      document.body.classList.toggle("motyw-habits", cel === "widok-habits");
-      document.documentElement.classList.toggle("motyw-habits", cel === "widok-habits");
+      zastosujMotyw();
       if (cel === "widok-rejestr") renderRejestr();
       zamknijPanel();
     });
