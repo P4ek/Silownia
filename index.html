@@ -986,6 +986,8 @@
     --habits-naglowek: oklch(0.97 0.004 240);
     --habits-tekst: oklch(0.85 0.005 240);
     --habits-tekst-pomocniczy: oklch(0.44 0.008 240);
+    /* Jaśniejsze tło kart/formularzy używane tylko w trybie ciemnym poza sekcją "Nawyki" — --habits-tlo-karta zostaje bez zmian dla samej sekcji Nawyki */
+    --tryb-ciemny-tlo-karta: oklch(0.14 0.006 250);
     background: var(--habits-tlo);
     border-radius: 20px;
     padding: 18px 16px 22px;
@@ -1201,8 +1203,20 @@
   /* ----- Tryb ciemny (przełącznik globalny obok hamburgera): pozostałe widoki, poza sekcją "Nawyki" -----
      Reguły #widok-habits mają wyższą swoistość (selektor z ID), więc wygląd samej sekcji "Nawyki" zostaje bez zmian. */
   .kontener.motyw-habits :is(form, .karta, .rejestr-tabela > tbody > tr > td, .wpis, .plan-cwicz-wiersz, .katalog-wiersz, .pusto, .cel-wiersz, .przeszkoda-wiersz, select, input) {
-    background: var(--habits-tlo-karta);
+    background: var(--tryb-ciemny-tlo-karta);
     border-color: var(--habits-obramowanie);
+  }
+
+  /* Czytelność tekstu w trybie ciemnym poza sekcją "Nawyki": jaśniejszy --habits-tekst zamiast zbyt ciemnego --habits-tekst-pomocniczy */
+  .kontener.motyw-habits :is(h1, h2, legend, label) {
+    color: var(--habits-tekst);
+  }
+  .kontener.motyw-habits select,
+  .kontener.motyw-habits select option {
+    color: var(--habits-tekst);
+  }
+  .kontener.motyw-habits input::placeholder {
+    color: var(--habits-tekst);
   }
 
   .kontener.motyw-habits .btn-submit {
