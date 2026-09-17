@@ -1447,6 +1447,9 @@
       <label for="plan-nazwa">Nazwa treningu</label>
       <input type="text" id="plan-nazwa" autocomplete="off" required placeholder="np. Trening nóg">
 
+      <label for="plan-data">Data treningu</label>
+      <input type="date" id="plan-data">
+
       <label for="plan-partia">Partia mięśniowa</label>
       <select id="plan-partia">
         <option value="">-- wybierz partię --</option>
@@ -1758,6 +1761,7 @@
   const rekordTekst = document.getElementById("rekord-tekst");
   const formPlanTreningu = document.getElementById("form-plan-treningu");
   const inputPlanNazwa = document.getElementById("plan-nazwa");
+  const inputPlanData = document.getElementById("plan-data");
   const selPlanPartia = document.getElementById("plan-partia");
   const selPlanCwiczenie = document.getElementById("plan-cwiczenie");
   const btnDodajDoPlanu = document.getElementById("btn-dodaj-do-planu");
@@ -2774,7 +2778,7 @@
 
     const { data, error } = await db
       .from("plany_treningowe")
-      .insert({ user_id: sesjaUzytkownika.user.id, nazwa: nazwa, cwiczenia: planCwiczeniaRobocze })
+      .insert({ user_id: sesjaUzytkownika.user.id, nazwa: nazwa, cwiczenia: planCwiczeniaRobocze, data: inputPlanData.value || null })
       .select();
 
     btn.disabled = false;
@@ -2791,7 +2795,7 @@
 
     if (inputPlanWyslijNotion.checked) {
       const { error: bladNotion } = await db.functions.invoke("wyslij-plan-do-notion", {
-        body: { nazwa: nazwa, cwiczenia: planCwiczeniaRobocze },
+        body: { nazwa: nazwa, cwiczenia: planCwiczeniaRobocze, data: inputPlanData.value || null },
       });
       if (bladNotion) {
         console.error(bladNotion);
