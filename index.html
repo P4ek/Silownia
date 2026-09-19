@@ -404,6 +404,16 @@
   .rekord-baner svg { width: 20px; height: 20px; flex: none; }
   .rekord-baner span { font-style: italic; }
 
+  /* Krótki błysk/pulsowanie przy pojawieniu się banera rekordu — klasa dodawana i po chwili usuwana w renderRekord() */
+  @keyframes rekord-pulsuj-anim {
+    0% { filter: brightness(1); transform: scale(1); }
+    30% { filter: brightness(1.25); transform: scale(1.03); }
+    100% { filter: brightness(1); transform: scale(1); }
+  }
+  .rekord-baner.rekord-pulsuj {
+    animation: rekord-pulsuj-anim 600ms ease;
+  }
+
   /* ----- Baner "plan w trakcie" w widoku Zapisz trening ----- */
   .plan-trakcie-baner {
     display: flex;
@@ -2217,6 +2227,10 @@
     rekordTekst.textContent =
       "Ostatni rekord: " + best.cw + " — " + best.c + " kg × " + best.r;
     rekordBaner.hidden = false;
+    rekordBaner.classList.remove("rekord-pulsuj");
+    void rekordBaner.offsetWidth; // wymuszenie przeliczenia stylów, żeby animacja odpaliła się ponownie przy każdym pokazaniu
+    rekordBaner.classList.add("rekord-pulsuj");
+    setTimeout(function () { rekordBaner.classList.remove("rekord-pulsuj"); }, 600);
   }
 
   // Render listy "Ostatnio dodane" - tylko wpisy z dzisiejszą datą (reset o północy)
