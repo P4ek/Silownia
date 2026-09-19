@@ -25,6 +25,8 @@
     --accent-pink: #E3A9B4;
     --accent-pink-soft: #FBEEF1;
     --shadow-warm: 0 14px 34px -16px rgba(226, 100, 63, 0.30), 0 2px 8px rgba(180, 150, 120, 0.12);
+    /* Bardzo subtelna tekstura szumu (film grain) na tło strony — SVG feTurbulence, jak w ikonce PWA; opacity 0.04 wpisane w sam SVG (rect) */
+    --tekstura-szumu: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
   }
   * { box-sizing: border-box; }
   /* Gwarantuje, że atrybut [hidden] zawsze ukrywa element, nawet gdy jakaś
@@ -38,6 +40,7 @@
     font-size: 15px;
     line-height: 1.5;
     background:
+      var(--tekstura-szumu) repeat,
       radial-gradient(1000px 620px at 100% -5%, rgba(226, 100, 63, 0.16), rgba(226, 100, 63, 0) 62%),
       var(--cream);
     background-attachment: fixed;
@@ -1235,7 +1238,7 @@
   /* Tło strony poza kontenerem — bez tego widać jasny margines wokół zaokrąglonych rogów kontenera */
   body.motyw-habits,
   html.motyw-habits {
-    background: oklch(0.07 0.004 250);
+    background: var(--tekstura-szumu) repeat, oklch(0.07 0.004 250);
   }
 
   /* ----- Tryb ciemny (przełącznik globalny obok hamburgera): pozostałe widoki, poza sekcją "Nawyki" -----
