@@ -393,6 +393,7 @@
   .btn-submit:disabled { opacity: 0.55; box-shadow: none; cursor: default; }
 
   /* ----- AI Analiza: wynik analizy tygodnia ----- */
+  .ai-analiza-limit { margin: 10px 0 0; font-size: 0.82rem; color: var(--muted); }
   .ai-analiza-wynik {
     margin-top: 16px;
     white-space: pre-line;
@@ -1501,7 +1502,7 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M8 15l2 2 4-4"/></svg>
     <span>Nawyki</span>
   </button>
-  <button class="nav-btn nav-ai" id="nav-ai-analiza" data-widok="widok-ai-analiza" hidden>
+  <button class="nav-btn nav-ai" id="nav-ai-analiza" data-widok="widok-ai-analiza">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l1.9 4.9L20 9.8l-4.9 1.9L13 16.6l-1.9-4.9L6 9.8l4.9-1.9L13 3Z"/></svg>
     <span>AI Analiza</span>
   </button>
@@ -1767,12 +1768,13 @@
     </div>
   </section>
 
-  <!-- ===== Widok: AI Analiza (widoczny tylko dla AI_UZYTKOWNIK_ID) ===== -->
+  <!-- ===== Widok: AI Analiza ===== -->
   <section id="widok-ai-analiza" class="widok">
     <h2>AI Analiza</h2>
 
     <div class="karta">
       <button type="button" id="btn-analizuj-tydzien" class="btn-submit" style="margin-top:0">Przeanalizuj tydzień</button>
+      <p class="ai-analiza-limit">Limit tygodniowy: <span id="ai-analiza-licznik">3/3</span></p>
       <div id="ai-analiza-wynik" class="ai-analiza-wynik" hidden></div>
     </div>
   </section>
@@ -1822,8 +1824,6 @@
     if (appTytulEl) {
       appTytulEl.textContent = jestUzytkownikiemAI ? "Zapierdalaj Bardziej" : "Dziennik treningowy";
     }
-    const navAiAnaliza = document.getElementById("nav-ai-analiza");
-    if (navAiAnaliza) navAiAnaliza.hidden = !jestUzytkownikiemAI;
     if (!aplikacjaZainicjowana) {
       aplikacjaZainicjowana = true;
       inicjalizujDaneAplikacji();
@@ -4044,20 +4044,67 @@
   // ===================== Widok: AI Analiza =====================
   const btnAnalizujTydzien = document.getElementById("btn-analizuj-tydzien");
   const aiAnalizaWynik = document.getElementById("ai-analiza-wynik");
+  const aiAnalizaLicznikEl = document.getElementById("ai-analiza-licznik");
+  const AI_LIMIT_TYGODNIOWY = 3;
+  const AI_LICZNIK_KEY = "ai-analiza-licznik";
+
+  // Odczyt licznika pozostałych analiz z localStorage; reset do limitu, jeśli zapis jest z innego tygodnia (lub go brak)
+  function wczytajAiLicznik() {
+    const biezacyTydzien = isoZDaty(poniedzialekTygodnia(new Date()));
+    try {
+      const zapisany = JSON.parse(localStorage.getItem(AI_LICZNIK_KEY));
+      if (zapisany && zapisany.tydzien === biezacyTydzien && typeof zapisany.pozostalo === "number") {
+        return zapisany.pozostalo;
+      }
+    } catch (e) {
+      // nieprawidłowy zapis w localStorage - zignoruj i zresetuj do limitu
+    }
+    return AI_LIMIT_TYGODNIOWY;
+  }
+
+  function zapiszAiLicznik(pozostalo) {
+    const biezacyTydzien = isoZDaty(poniedzialekTygodnia(new Date()));
+    localStorage.setItem(AI_LICZNIK_KEY, JSON.stringify({ tydzien: biezacyTydzien, pozostalo: pozostalo }));
+  }
+
+  function renderAiLicznik(pozostalo) {
+    if (aiAnalizaLicznikEl) aiAnalizaLicznikEl.textContent = AI_LIMIT_TYGODNIOWY + "/" + pozostalo;
+    if (btnAnalizujTydzien) btnAnalizujTydzien.disabled = pozostalo <= 0;
+  }
+
+  let aiLicznikPozostalo = wczytajAiLicznik();
+  renderAiLicznik(aiLicznikPozostalo);
 
   if (btnAnalizujTydzien) {
     btnAnalizujTydzien.addEventListener("click", async function () {
-      const tekstPrzycisku = btnAnalizujTydzien.textContent;
-      btnAnalizujTydzien.disabled = true;
-      btnAnalizujTydzien.textContent = "Analizuję...";
+      if (aiLicznikPozostalo <= 0) return;
+
+      aiLicznikPozostalo -= 1;
+      zapiszAiLicznik(aiLicznikPozostalo);
+      renderAiLicznik(aiLicznikPozostalo);
+
       aiAnalizaWynik.hidden = true;
       aiAnalizaWynik.classList.remove("ai-analiza-blad");
       aiAnalizaWynik.textContent = "";
 
+      // Sprawdzenie czy jest co najmniej tydzień (7 dni) zapisanych treningów, zanim wywołamy funkcję AI
+      const najstarszaData = wpisy.reduce(function (min, w) { return (!min || w.data < min) ? w.data : min; }, null);
+      const dniDanych = najstarszaData ? Math.round((new Date(dzisiaj()) - new Date(najstarszaData)) / 86400000) : -1;
+      if (dniDanych < 6) {
+        aiAnalizaWynik.classList.add("ai-analiza-blad");
+        aiAnalizaWynik.textContent = "Za mało danych — zapisuj treningi przez co najmniej tydzień, żeby zrobić analizę.";
+        aiAnalizaWynik.hidden = false;
+        return;
+      }
+
+      const tekstPrzycisku = btnAnalizujTydzien.textContent;
+      btnAnalizujTydzien.disabled = true;
+      btnAnalizujTydzien.textContent = "Analizuję...";
+
       const { data, error } = await db.functions.invoke("analizuj-tydzien");
 
-      btnAnalizujTydzien.disabled = false;
       btnAnalizujTydzien.textContent = tekstPrzycisku;
+      btnAnalizujTydzien.disabled = aiLicznikPozostalo <= 0;
 
       if (error) {
         aiAnalizaWynik.classList.add("ai-analiza-blad");
