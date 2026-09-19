@@ -993,6 +993,8 @@
     --accent-soft: var(--habits-tlo-karta);
     --accent-pink: var(--habits-akcent);
     --accent-pink-soft: var(--habits-tlo-karta);
+    /* Domyslny jasny kolor tekstu dla wszystkiego bez wlasnego koloru "wprost" (np. komorki tabel, li, span w Rejestrze/Wykresie/Zaplanuj trening/Nowe cwiczenie). Elementy z jawnym kolorem (habits-* w #widok-habits, przyciski z wlasnym color nizej) nie sa tym nadpisywane. */
+    color: var(--habits-tekst);
     background: var(--habits-tlo);
     border-radius: 20px;
     padding: 18px 16px 22px;
@@ -1221,6 +1223,21 @@
     color: var(--habits-tekst);
   }
   .kontener.motyw-habits input::placeholder {
+    color: var(--habits-tekst);
+  }
+  /* input/select/textarea maja wprost ustawiony color w bazowym CSS (var(--ink)), wiec dziedziczenie go nie nadpisuje — wpisywany tekst (np. nazwa nowego cwiczenia) zostawalby czarny bez tej reguly */
+  .kontener.motyw-habits :is(input, select, textarea) {
+    color: var(--habits-tekst);
+  }
+
+  /* Naglowki/teksty z wlasnym jawnym color: var(--ink), ktorych dziedziczenie z .kontener nie obejmuje */
+  .kontener.motyw-habits .plan-trakcie-baner {
+    color: var(--habits-tekst);
+  }
+  .kontener.motyw-habits .karta-tytul {
+    color: var(--habits-tekst);
+  }
+  .kontener.motyw-habits .rola-blok h3 {
     color: var(--habits-tekst);
   }
 
