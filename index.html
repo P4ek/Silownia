@@ -289,8 +289,10 @@
   .btn-wyloguj-nie:hover { background: #F7F1E6; }
 
   /* ----- Widoki ----- */
-  .widok { display: none; }
+  .widok { display: none; opacity: 1; transition: opacity 150ms ease; }
   .widok.aktywny { display: block; }
+  /* Klasa pomocnicza do animacji fade przy przełączaniu widoków (patrz handler .nav-btn) — na aktywnym widoku daje fade-out (krótszy czas), na nowo pokazywanym jest chwilowo dodana i usuwana, żeby wystartować od opacity:0 i przejść do 1 z domyślnym czasem powyżej */
+  .widok.widok-znika { opacity: 0; transition-duration: 120ms; }
 
   /* ----- Karty / formularze ----- */
   form,
@@ -1995,11 +1997,32 @@
     btn.addEventListener("click", function () {
       const cel = btn.dataset.widok;
       if (!cel) return;
-      widoki.forEach(function (w) { w.classList.toggle("aktywny", w.id === cel); });
+
+      const aktualny = document.querySelector(".widok.aktywny");
       navBtns.forEach(function (b) { b.classList.toggle("aktywny", b === btn); });
-      zastosujMotyw();
-      if (cel === "widok-rejestr") renderRejestr();
-      zamknijPanel();
+
+      function przelaczWidoki() {
+        widoki.forEach(function (w) {
+          w.classList.remove("widok-znika");
+          w.classList.toggle("aktywny", w.id === cel);
+        });
+        const nowyWidok = document.getElementById(cel);
+        if (nowyWidok) {
+          nowyWidok.classList.add("widok-znika");
+          void nowyWidok.offsetWidth; // wymuszenie przeliczenia stylów, żeby przejście z opacity:0 na 1 faktycznie się zanimowało
+          nowyWidok.classList.remove("widok-znika");
+        }
+        zastosujMotyw();
+        if (cel === "widok-rejestr") renderRejestr();
+        zamknijPanel();
+      }
+
+      if (aktualny && aktualny.id !== cel) {
+        aktualny.classList.add("widok-znika");
+        setTimeout(przelaczWidoki, 120);
+      } else {
+        przelaczWidoki();
+      }
     });
   });
 
