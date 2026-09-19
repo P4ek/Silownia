@@ -988,6 +988,11 @@
     --habits-tekst-pomocniczy: oklch(0.44 0.008 240);
     /* Jaśniejsze tło kart/formularzy używane tylko w trybie ciemnym poza sekcją "Nawyki" — --habits-tlo-karta zostaje bez zmian dla samej sekcji Nawyki */
     --tryb-ciemny-tlo-karta: oklch(0.14 0.006 250);
+    /* Podmiana palety pomarańczowej/różowej na akcent z Nawyków dla wszystkiego poza #widok-habits (tam wyższa swoistość ID zachowuje oryginalny wygląd) — obejmuje każdy element używający var(--accent)/var(--accent-soft)/var(--accent-pink)/var(--accent-pink-soft), w tym wewnątrz #widok-plan, który nadpisuje --accent na --accent-pink */
+    --accent: var(--habits-akcent);
+    --accent-soft: var(--habits-tlo-karta);
+    --accent-pink: var(--habits-akcent);
+    --accent-pink-soft: var(--habits-tlo-karta);
     background: var(--habits-tlo);
     border-radius: 20px;
     padding: 18px 16px 22px;
@@ -1239,12 +1244,75 @@
     box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18);
   }
 
-  /* Aktywna pozycja w panelu bocznym — poza wariantami .nav-rozwoj i .nav-habits, które mają własny, niezależny wygląd */
-  #sidebar.motyw-habits .nav-btn.aktywny:not(.nav-rozwoj):not(.nav-habits) {
+  /* Aktywna pozycja w panelu bocznym — poza wariantem .nav-habits, który ma własny, niezależny wygląd; .nav-rozwoj (różowy w jasnym motywie) dostaje ten sam srebrny akcent co reszta, żeby nie zostawiać różu w trybie ciemnym */
+  #sidebar.motyw-habits .nav-btn.aktywny:not(.nav-habits) {
     background: oklch(0.1 0.006 250);
     color: #D6D0C0;
   }
-  #sidebar.motyw-habits .nav-btn.aktywny:not(.nav-rozwoj):not(.nav-habits) svg { color: #D6D0C0; }
+  #sidebar.motyw-habits .nav-btn.aktywny:not(.nav-habits) svg { color: #D6D0C0; }
+
+  /* Elementy z twardo wpisanym pomarańczem/różem (gradienty, cienie, kolory stanu) — podmiana zmiennych --accent* wyżej ich nie obejmuje, więc dopasowujemy je ręcznie do akcentu z Nawyków */
+  .kontener.motyw-habits .blob { display: none; }
+
+  .kontener.motyw-habits .rekord-baner {
+    background: var(--habits-akcent);
+    color: oklch(0.07 0.004 250);
+    box-shadow: 0 12px 26px -10px rgba(var(--habits-akcent-rgb), 0.35);
+  }
+  .kontener.motyw-habits .rekord-baner-rozowy {
+    background: var(--habits-akcent);
+    box-shadow: 0 12px 26px -10px rgba(var(--habits-akcent-rgb), 0.35);
+  }
+
+  .kontener.motyw-habits #dodaj-podejscie:hover { background: var(--habits-obramowanie); }
+
+  .kontener.motyw-habits :is(.btn-usun, .btn-remove) {
+    border-color: var(--habits-obramowanie);
+    background: transparent;
+    color: var(--habits-tekst-pomocniczy);
+  }
+  .kontener.motyw-habits :is(.btn-usun, .btn-remove):hover {
+    background: rgba(180, 72, 44, 0.12);
+    border-color: #B4482C;
+    color: #B4482C;
+  }
+
+  .kontener.motyw-habits .rola-blok::before {
+    background: var(--habits-akcent);
+  }
+
+  .kontener.motyw-habits .btn-pill-rola {
+    background: var(--habits-akcent);
+    color: oklch(0.07 0.004 250);
+    box-shadow: 0 12px 24px -10px rgba(var(--habits-akcent-rgb), 0.6);
+  }
+  .kontener.motyw-habits .btn-pill-rola:hover {
+    background: var(--habits-akcent);
+    filter: brightness(1.08);
+  }
+
+  .kontener.motyw-habits .btn-zakoncz-tydzien {
+    background: var(--habits-akcent);
+    color: oklch(0.07 0.004 250);
+    box-shadow: 0 12px 24px -10px rgba(var(--habits-akcent-rgb), 0.6);
+  }
+  .kontener.motyw-habits .btn-zakoncz-tydzien:hover { filter: brightness(1.08); }
+
+  .kontener.motyw-habits .btn-wyroznij { color: var(--habits-tekst-pomocniczy); }
+  .kontener.motyw-habits .btn-wyroznij.aktywny {
+    color: var(--habits-akcent);
+    background: var(--habits-tlo-karta);
+    border-color: var(--habits-akcent);
+  }
+  .kontener.motyw-habits .cel-wiersz.wyrozniony {
+    background: var(--tryb-ciemny-tlo-karta);
+    border-color: var(--habits-akcent);
+    box-shadow: 0 0 0 1px rgba(var(--habits-akcent-rgb), 0.12);
+  }
+
+  .kontener.motyw-habits :is(.dot-Klata, .wolumen-pasek-Klata) {
+    background: var(--habits-akcent);
+  }
 
   /* ----- Rejestr: znacznik nowego rekordu ----- */
   .rekord-tag-rejestr {
