@@ -3885,6 +3885,7 @@
       }
 
       nawykiWpisy.push(wstawione && wstawione[0] ? wstawione[0] : { nawyk_id: nawyk.id, data: data });
+      if (navigator.vibrate) navigator.vibrate(15);
     } else {
       const wpis = nawykiWpisy.find(function (w) { return w.nawyk_id === nawyk.id && w.data === data; });
       if (!wpis) {
