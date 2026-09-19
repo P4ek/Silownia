@@ -1774,7 +1774,7 @@
 
     <div class="karta">
       <button type="button" id="btn-analizuj-tydzien" class="btn-submit" style="margin-top:0">Przeanalizuj tydzień</button>
-      <p class="ai-analiza-limit">Limit tygodniowy: <span id="ai-analiza-licznik">3/3</span></p>
+      <p id="ai-analiza-licznik" class="ai-analiza-limit" hidden></p>
       <div id="ai-analiza-wynik" class="ai-analiza-wynik" hidden></div>
     </div>
   </section>
@@ -4045,57 +4045,12 @@
   const btnAnalizujTydzien = document.getElementById("btn-analizuj-tydzien");
   const aiAnalizaWynik = document.getElementById("ai-analiza-wynik");
   const aiAnalizaLicznikEl = document.getElementById("ai-analiza-licznik");
-  const AI_LIMIT_TYGODNIOWY = 3;
-  const AI_LICZNIK_KEY = "ai-analiza-licznik";
-
-  // Odczyt licznika pozostałych analiz z localStorage; reset do limitu, jeśli zapis jest z innego tygodnia (lub go brak)
-  function wczytajAiLicznik() {
-    const biezacyTydzien = isoZDaty(poniedzialekTygodnia(new Date()));
-    try {
-      const zapisany = JSON.parse(localStorage.getItem(AI_LICZNIK_KEY));
-      if (zapisany && zapisany.tydzien === biezacyTydzien && typeof zapisany.pozostalo === "number") {
-        return zapisany.pozostalo;
-      }
-    } catch (e) {
-      // nieprawidłowy zapis w localStorage - zignoruj i zresetuj do limitu
-    }
-    return AI_LIMIT_TYGODNIOWY;
-  }
-
-  function zapiszAiLicznik(pozostalo) {
-    const biezacyTydzien = isoZDaty(poniedzialekTygodnia(new Date()));
-    localStorage.setItem(AI_LICZNIK_KEY, JSON.stringify({ tydzien: biezacyTydzien, pozostalo: pozostalo }));
-  }
-
-  function renderAiLicznik(pozostalo) {
-    if (aiAnalizaLicznikEl) aiAnalizaLicznikEl.textContent = AI_LIMIT_TYGODNIOWY + "/" + pozostalo;
-    if (btnAnalizujTydzien) btnAnalizujTydzien.disabled = pozostalo <= 0;
-  }
-
-  let aiLicznikPozostalo = wczytajAiLicznik();
-  renderAiLicznik(aiLicznikPozostalo);
 
   if (btnAnalizujTydzien) {
     btnAnalizujTydzien.addEventListener("click", async function () {
-      if (aiLicznikPozostalo <= 0) return;
-
-      aiLicznikPozostalo -= 1;
-      zapiszAiLicznik(aiLicznikPozostalo);
-      renderAiLicznik(aiLicznikPozostalo);
-
       aiAnalizaWynik.hidden = true;
       aiAnalizaWynik.classList.remove("ai-analiza-blad");
       aiAnalizaWynik.textContent = "";
-
-      // Sprawdzenie czy jest co najmniej tydzień (7 dni) zapisanych treningów, zanim wywołamy funkcję AI
-      const najstarszaData = wpisy.reduce(function (min, w) { return (!min || w.data < min) ? w.data : min; }, null);
-      const dniDanych = najstarszaData ? Math.round((new Date(dzisiaj()) - new Date(najstarszaData)) / 86400000) : -1;
-      if (dniDanych < 6) {
-        aiAnalizaWynik.classList.add("ai-analiza-blad");
-        aiAnalizaWynik.textContent = "Za mało danych — zapisuj treningi przez co najmniej tydzień, żeby zrobić analizę.";
-        aiAnalizaWynik.hidden = false;
-        return;
-      }
 
       const tekstPrzycisku = btnAnalizujTydzien.textContent;
       btnAnalizujTydzien.disabled = true;
@@ -4104,17 +4059,33 @@
       const { data, error } = await db.functions.invoke("analizuj-tydzien");
 
       btnAnalizujTydzien.textContent = tekstPrzycisku;
-      btnAnalizujTydzien.disabled = aiLicznikPozostalo <= 0;
 
-      if (error) {
+      // Błąd może przyjść z samego wywołania (np. sieć) albo z pola "error" w odpowiedzi funkcji
+      const tekstBledu = error ? error.message : (data && data.error ? data.error : null);
+
+      if (tekstBledu) {
+        btnAnalizujTydzien.disabled = false;
         aiAnalizaWynik.classList.add("ai-analiza-blad");
-        aiAnalizaWynik.textContent = "Nie udało się przeanalizować tygodnia: " + error.message;
+        aiAnalizaWynik.textContent = tekstBledu;
         aiAnalizaWynik.hidden = false;
         return;
       }
 
       aiAnalizaWynik.textContent = (data && data.analiza) ? data.analiza : "Brak wyniku analizy.";
       aiAnalizaWynik.hidden = false;
+
+      if (data && data.limit === null) {
+        if (aiAnalizaLicznikEl) aiAnalizaLicznikEl.hidden = true;
+        btnAnalizujTydzien.disabled = false;
+      } else if (data) {
+        if (aiAnalizaLicznikEl) {
+          aiAnalizaLicznikEl.hidden = false;
+          aiAnalizaLicznikEl.textContent = "pozostało: " + data.pozostalo + "/" + data.limit;
+        }
+        btnAnalizujTydzien.disabled = data.pozostalo <= 0;
+      } else {
+        btnAnalizujTydzien.disabled = false;
+      }
     });
   }
 </script>
