@@ -706,20 +706,29 @@
     font-size: 0.85rem;
     cursor: pointer;
   }
-  /* Przełącznik (toggle) widoczności roli na dany tydzień */
-  .rola-chip input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
+  /* Przełącznik (toggle) widoczności roli na dany tydzień — checkbox ukryty wizualnie (position:absolute + opacity:0), wygląd renderuje siostrzany span (jak w Nawykach), bo appearance:none + tło na natywnym checkboxie nie renderuje się poprawnie we wszystkich przeglądarkach */
+  .rola-toggle {
+    position: relative;
     width: 34px;
     height: 20px;
     flex: none;
+  }
+  .rola-toggle input[type="checkbox"] {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .rola-toggle-wizualny {
+    position: absolute;
+    inset: 0;
     border-radius: 999px;
     background: #E7DCD0;
-    position: relative;
-    cursor: pointer;
+    pointer-events: none;
     transition: background 0.15s ease;
   }
-  .rola-chip input[type="checkbox"]::before {
+  .rola-toggle-wizualny::before {
     content: "";
     position: absolute;
     top: 2px;
@@ -731,8 +740,8 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
     transition: transform 0.15s ease;
   }
-  .rola-chip input[type="checkbox"]:checked { background: var(--accent); }
-  .rola-chip input[type="checkbox"]:checked::before { transform: translateX(14px); }
+  .rola-toggle input[type="checkbox"]:checked + .rola-toggle-wizualny { background: var(--accent); }
+  .rola-toggle input[type="checkbox"]:checked + .rola-toggle-wizualny::before { transform: translateX(14px); }
 
   .tydzien-nawigacja {
     display: flex;
@@ -821,22 +830,32 @@
     background: #FCFAF4;
     cursor: pointer;
   }
-  /* Checkbox celu: kwadrat z zaokrąglonymi rogami, wypełniony po zaznaczeniu */
-  .cel-wiersz input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
+  /* Checkbox celu: kwadrat z zaokrąglonymi rogami, wypełniony po zaznaczeniu — checkbox ukryty wizualnie, wygląd renderuje siostrzany span (jak w Nawykach), bo appearance:none + tło/::before na natywnym checkboxie nie renderuje się poprawnie we wszystkich przeglądarkach */
+  .cel-checkbox {
+    position: relative;
     width: 20px;
     height: 20px;
     flex: none;
+  }
+  .cel-checkbox input[type="checkbox"] {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .cel-checkbox-wizualny {
+    position: absolute;
+    inset: 0;
     border: 2px solid var(--accent);
     border-radius: 6px;
     background: #fff;
-    cursor: pointer;
+    pointer-events: none;
     display: grid;
     place-content: center;
     transition: background 0.15s ease;
   }
-  .cel-wiersz input[type="checkbox"]::before {
+  .cel-checkbox-wizualny::before {
     content: "";
     width: 10px;
     height: 10px;
@@ -845,8 +864,8 @@
     transition: transform 0.1s ease;
     clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 45% 62%);
   }
-  .cel-wiersz input[type="checkbox"]:checked { background: var(--accent); }
-  .cel-wiersz input[type="checkbox"]:checked::before { transform: scale(1); }
+  .cel-checkbox input[type="checkbox"]:checked + .cel-checkbox-wizualny { background: var(--accent); }
+  .cel-checkbox input[type="checkbox"]:checked + .cel-checkbox-wizualny::before { transform: scale(1); }
   .cel-tresc { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
   .cel-plan { font-size: 0.78rem; color: var(--muted); }
   .cel-wiersz.zrealizowany .cel-tresc-glowna,
@@ -1315,7 +1334,8 @@
   }
   .kontener.motyw-habits .btn-zakoncz-tydzien:hover { filter: brightness(1.08); }
 
-  .kontener.motyw-habits .btn-wyroznij { color: var(--habits-tekst-pomocniczy); }
+  .kontener.motyw-habits .btn-wyroznij { color: var(--habits-akcent); }
+  .kontener.motyw-habits .cel-wiersz .btn-usun { color: var(--habits-tekst); }
   .kontener.motyw-habits .btn-wyroznij.aktywny {
     color: var(--habits-akcent);
     background: var(--habits-tlo-karta);
@@ -1325,6 +1345,18 @@
     background: var(--tryb-ciemny-tlo-karta);
     border-color: var(--habits-akcent);
     box-shadow: 0 0 0 1px rgba(var(--habits-akcent-rgb), 0.12);
+  }
+
+  /* Tło "wyłączonego" stanu przełącznika/checkboxa (span-wizualny) — nie jest zamiatane ogólną regułą tła kart/inputów wyżej, więc dociemniamy je osobno; stan "zaznaczone" nadal wygrywa dzięki wyższej swoistości selektora :checked + span */
+  .kontener.motyw-habits .rola-toggle-wizualny {
+    background: var(--habits-obramowanie);
+  }
+  .kontener.motyw-habits .cel-checkbox-wizualny {
+    background: var(--tryb-ciemny-tlo-karta);
+  }
+  /* Ptaszek w zaznaczonym checkboxie celu byłby biały na jasnym srebrnym tle (słaby kontrast) — przyciemniamy go tak jak tekst na innych jasnych przyciskach akcentu */
+  .kontener.motyw-habits .cel-checkbox input[type="checkbox"]:checked + .cel-checkbox-wizualny::before {
+    background: oklch(0.07 0.004 250);
   }
 
   .kontener.motyw-habits :is(.dot-Klata, .wolumen-pasek-Klata) {
@@ -3027,6 +3059,9 @@
       const chip = document.createElement("label");
       chip.className = "rola-chip";
 
+      const toggle = document.createElement("span");
+      toggle.className = "rola-toggle";
+
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.checked = roleWidoczne.has(r.id);
@@ -3036,10 +3071,16 @@
         renderCeleWszystkie();
       });
 
+      const toggleWizualny = document.createElement("span");
+      toggleWizualny.className = "rola-toggle-wizualny";
+
+      toggle.appendChild(checkbox);
+      toggle.appendChild(toggleWizualny);
+
       const tekst = document.createElement("span");
       tekst.textContent = r.nazwa;
 
-      chip.appendChild(checkbox);
+      chip.appendChild(toggle);
       chip.appendChild(tekst);
       roleLista.appendChild(chip);
     });
@@ -3119,12 +3160,21 @@
             + (c.zrealizowane ? " zrealizowany" : "")
             + (wyrozenioneCele.has(c.id) ? " wyrozniony" : "");
 
+          const checkboxWrap = document.createElement("span");
+          checkboxWrap.className = "cel-checkbox";
+
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
           checkbox.checked = !!c.zrealizowane;
           checkbox.addEventListener("change", function () {
             przelaczCel(c, checkbox, wiersz);
           });
+
+          const checkboxWizualny = document.createElement("span");
+          checkboxWizualny.className = "cel-checkbox-wizualny";
+
+          checkboxWrap.appendChild(checkbox);
+          checkboxWrap.appendChild(checkboxWizualny);
 
           const wrapTresc = document.createElement("div");
           wrapTresc.className = "cel-tresc";
@@ -3169,7 +3219,7 @@
             usunCel(c, btnUsun);
           });
 
-          wiersz.appendChild(checkbox);
+          wiersz.appendChild(checkboxWrap);
           wiersz.appendChild(wrapTresc);
           wiersz.appendChild(btnWyroznij);
           wiersz.appendChild(btnUsun);
