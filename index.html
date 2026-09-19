@@ -393,7 +393,6 @@
   .btn-submit:disabled { opacity: 0.55; box-shadow: none; cursor: default; }
 
   /* ----- AI Analiza: wynik analizy tygodnia ----- */
-  .ai-analiza-limit { margin: 10px 0 0; font-size: 0.82rem; color: var(--muted); }
   .ai-analiza-wynik {
     margin-top: 16px;
     white-space: pre-line;
@@ -1774,7 +1773,6 @@
 
     <div class="karta">
       <button type="button" id="btn-analizuj-tydzien" class="btn-submit" style="margin-top:0">Przeanalizuj tydzień</button>
-      <p id="ai-analiza-licznik" class="ai-analiza-limit" hidden></p>
       <div id="ai-analiza-wynik" class="ai-analiza-wynik" hidden></div>
     </div>
   </section>
@@ -4044,7 +4042,6 @@
   // ===================== Widok: AI Analiza =====================
   const btnAnalizujTydzien = document.getElementById("btn-analizuj-tydzien");
   const aiAnalizaWynik = document.getElementById("ai-analiza-wynik");
-  const aiAnalizaLicznikEl = document.getElementById("ai-analiza-licznik");
 
   if (btnAnalizujTydzien) {
     btnAnalizujTydzien.addEventListener("click", async function () {
@@ -4059,12 +4056,12 @@
       const { data, error } = await db.functions.invoke("analizuj-tydzien");
 
       btnAnalizujTydzien.textContent = tekstPrzycisku;
+      btnAnalizujTydzien.disabled = false;
 
       // Błąd może przyjść z samego wywołania (np. sieć) albo z pola "error" w odpowiedzi funkcji
       const tekstBledu = error ? error.message : (data && data.error ? data.error : null);
 
       if (tekstBledu) {
-        btnAnalizujTydzien.disabled = false;
         aiAnalizaWynik.classList.add("ai-analiza-blad");
         aiAnalizaWynik.textContent = tekstBledu;
         aiAnalizaWynik.hidden = false;
@@ -4073,19 +4070,6 @@
 
       aiAnalizaWynik.textContent = (data && data.analiza) ? data.analiza : "Brak wyniku analizy.";
       aiAnalizaWynik.hidden = false;
-
-      if (data && data.limit === null) {
-        if (aiAnalizaLicznikEl) aiAnalizaLicznikEl.hidden = true;
-        btnAnalizujTydzien.disabled = false;
-      } else if (data) {
-        if (aiAnalizaLicznikEl) {
-          aiAnalizaLicznikEl.hidden = false;
-          aiAnalizaLicznikEl.textContent = "pozostało: " + data.pozostalo + "/" + data.limit;
-        }
-        btnAnalizujTydzien.disabled = data.pozostalo <= 0;
-      } else {
-        btnAnalizujTydzien.disabled = false;
-      }
     });
   }
 </script>
