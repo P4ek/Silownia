@@ -3068,6 +3068,7 @@
       checkbox.addEventListener("change", function () {
         if (checkbox.checked) roleWidoczne.add(r.id);
         else roleWidoczne.delete(r.id);
+        localStorage.setItem("role-widoczne", JSON.stringify(Array.from(roleWidoczne)));
         renderCeleWszystkie();
       });
 
@@ -3533,7 +3534,25 @@
       return;
     }
     role = data || [];
-    role.forEach(function (r) { roleWidoczne.add(r.id); });
+
+    let zapisaneRoleWidoczne = null;
+    try {
+      const surowe = localStorage.getItem("role-widoczne");
+      if (surowe) {
+        const sparsowane = JSON.parse(surowe);
+        if (Array.isArray(sparsowane)) zapisaneRoleWidoczne = sparsowane;
+      }
+    } catch (e) {
+      zapisaneRoleWidoczne = null;
+    }
+
+    if (zapisaneRoleWidoczne) {
+      const zapisaneId = new Set(zapisaneRoleWidoczne);
+      role.forEach(function (r) { if (zapisaneId.has(r.id)) roleWidoczne.add(r.id); });
+    } else {
+      role.forEach(function (r) { roleWidoczne.add(r.id); });
+    }
+
     renderRoleListy();
     renderCeleWszystkie();
   }
