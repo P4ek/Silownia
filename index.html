@@ -1498,7 +1498,7 @@
     <circle cx="310" cy="310" r="280" fill="#D6D0C0"/>
   </svg>
 
-  <h1>Dziennik treningowy</h1>
+  <h1 id="app-tytul">Dziennik treningowy</h1>
 
   <!-- ===== Widok 1: Zapisz trening ===== -->
   <section id="widok-dodaj" class="widok aktywny">
@@ -1775,6 +1775,12 @@
   function pokazAplikacje() {
     ekranLogowania.hidden = true;
     aplikacja.hidden = false;
+    const appTytulEl = document.getElementById("app-tytul");
+    if (appTytulEl) {
+      appTytulEl.textContent = (sesjaUzytkownika && sesjaUzytkownika.user && sesjaUzytkownika.user.id === "1f1fc4a4-1b87-4ea7-9ddd-785873e98cbc")
+        ? "Zapierdalaj Bardziej"
+        : "Dziennik treningowy";
+    }
     if (!aplikacjaZainicjowana) {
       aplikacjaZainicjowana = true;
       inicjalizujDaneAplikacji();
