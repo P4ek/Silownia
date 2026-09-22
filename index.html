@@ -392,6 +392,13 @@
   .btn-submit:active { transform: translateY(1px); }
   .btn-submit:disabled { opacity: 0.55; box-shadow: none; cursor: default; }
 
+  /* ----- Adnotacja z ostatnio branym ciężarem dla wybranego ćwiczenia ----- */
+  .cwiczenie-ostatnio {
+    margin: 6px 2px 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
   /* ----- AI Analiza: wynik analizy tygodnia ----- */
   .ai-analiza-wynik {
     margin-top: 16px;
@@ -1558,6 +1565,7 @@
       <select id="cwiczenie" name="cwiczenie" required disabled>
         <option value="">-- najpierw wybierz partię --</option>
       </select>
+      <p id="cwiczenie-ostatni-ciezar" class="cwiczenie-ostatnio" hidden></p>
 
       <label for="data">Data</label>
       <input type="date" id="data" name="data" required>
@@ -1949,6 +1957,7 @@
   const form = document.getElementById("form-treningu");
   const selPartia = document.getElementById("partia");
   const selCwiczenie = document.getElementById("cwiczenie");
+  const cwiczenieOstatniCiezar = document.getElementById("cwiczenie-ostatni-ciezar");
   const inputData = document.getElementById("data");
   const planTrakcieBaner = document.getElementById("plan-trakcie-baner");
   const planTrakcieTekst = document.getElementById("plan-trakcie-tekst");
@@ -2081,6 +2090,7 @@
     if (!partia) {
       selCwiczenie.disabled = true;
       selCwiczenie.appendChild(new Option("-- najpierw wybierz partię --", ""));
+      renderOstatniCiezarDlaCwiczenia();
       return;
     }
 
@@ -2090,7 +2100,36 @@
       selCwiczenie.appendChild(new Option(nazwa, nazwa));
     });
     if (poprzednie) selCwiczenie.value = poprzednie;
+    renderOstatniCiezarDlaCwiczenia();
   }
+
+  // Ostatni (najświeższy, wg daty) zapisany wpis z tabeli "treningi" dla danego ćwiczenia
+  function ostatniWpisDlaCwiczenia(cwiczenie) {
+    let ostatni = null;
+    wpisy.forEach(function (w) {
+      if (w.cwiczenie !== cwiczenie) return;
+      if (!ostatni || w.data > ostatni.data) ostatni = w;
+    });
+    return ostatni;
+  }
+
+  // Adnotacja przy polu ćwiczenia: jaki ciężar (z "podejścia") był ostatnio brany na tym ćwiczeniu
+  function renderOstatniCiezarDlaCwiczenia() {
+    const cwiczenie = selCwiczenie.value;
+    const ostatni = cwiczenie ? ostatniWpisDlaCwiczenia(cwiczenie) : null;
+
+    if (!ostatni || !(ostatni.podejscia || []).length) {
+      cwiczenieOstatniCiezar.hidden = true;
+      return;
+    }
+
+    const opis = ostatni.podejscia
+      .map(function (p) { return p["cieżar"] + " kg × " + p.powtorzenia; })
+      .join(", ");
+    cwiczenieOstatniCiezar.textContent = "Ostatnio (" + ostatni.data + "): " + opis;
+    cwiczenieOstatniCiezar.hidden = false;
+  }
+  selCwiczenie.addEventListener("change", renderOstatniCiezarDlaCwiczenia);
 
   // Odbudowa listy podpowiedzi do wyszukiwarki w rejestrze (wszystkie ćwiczenia z katalogu)
   function odbudujDatalistRejestr() {
@@ -2452,6 +2491,7 @@
     renderRekord();
     renderRejestr();
     renderWykresPostepu();
+    renderOstatniCiezarDlaCwiczenia();
   }
 
   // ----- Wykres postępu: karta "Rekordy osobiste" + karta "Wolumen na partię" -----
@@ -2609,6 +2649,7 @@
     selPartia.value = poz.partia;
     selPartia.dispatchEvent(new Event("change"));
     selCwiczenie.value = poz.cwiczenie;
+    renderOstatniCiezarDlaCwiczenia();
 
     planTrakcieTekst.textContent =
       "Plan: " + planWTrakcie.nazwa + " — ćwiczenie " + (planWTrakcie.indeks + 1) + " z " +
@@ -2928,6 +2969,16 @@
     });
     naglowek.appendChild(btnRozpocznij);
 
+    const btnDodajDoNotion = document.createElement("button");
+    btnDodajDoNotion.type = "button";
+    btnDodajDoNotion.className = "btn-pill";
+    btnDodajDoNotion.style.marginTop = "0";
+    btnDodajDoNotion.textContent = "Dodaj do Notion";
+    btnDodajDoNotion.addEventListener("click", function () {
+      wyslijPlanDoNotion(plan, btnDodajDoNotion);
+    });
+    naglowek.appendChild(btnDodajDoNotion);
+
     const btnUsunPlan = document.createElement("button");
     btnUsunPlan.type = "button";
     btnUsunPlan.className = "btn-usun";
@@ -2997,6 +3048,25 @@
 
     plany = plany.filter(function (p) { return p.id !== plan.id; });
     renderPlanyListy();
+  }
+
+  // Wysłanie już zapisanego planu do Notion, zawsze z dzisiejszą datą (nie z datą utworzenia treningu)
+  async function wyslijPlanDoNotion(plan, btn) {
+    const tekstPrzycisku = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Wysyłam...";
+
+    const { error } = await db.functions.invoke("wyslij-plan-do-notion", {
+      body: { nazwa: plan.nazwa, cwiczenia: plan.cwiczenia, data: dzisiaj() },
+    });
+
+    btn.disabled = false;
+    btn.textContent = tekstPrzycisku;
+
+    if (error) {
+      console.error(error);
+      alert("Nie udało się wysłać do Notion: " + error.message);
+    }
   }
 
   // Submit: zapisanie budowanego planu treningowego do tabeli "plany_treningowe"
