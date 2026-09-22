@@ -2172,6 +2172,7 @@
     return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
   }
   inputData.value = dzisiaj();
+  inputPlanData.value = dzisiaj();
 
   // Aktualizacja listy ćwiczeń po wyborze partii
   selPartia.addEventListener("change", odbudujSelectCwiczenie);
@@ -3111,6 +3112,7 @@
     }
 
     formPlanTreningu.reset();
+    inputPlanData.value = dzisiaj();
     odbudujSelectCwiczeniePlan();
     planCwiczeniaRobocze = [];
     renderPlanCwiczeniaListy();
