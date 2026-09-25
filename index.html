@@ -451,6 +451,19 @@
   }
   .plan-trakcie-tekst { font-weight: 600; font-size: 0.92rem; }
   .plan-trakcie-akcje { display: flex; gap: 8px; flex: none; }
+  /* Zasada dnia nad formularzem zapisu treningu (tylko do odczytu, zmienia się raz na dobę) */
+  .zasada-dnia {
+    margin: 0 0 16px;
+    padding: 2px 0 2px 12px;
+    border-left: 3px solid var(--accent);
+    font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    line-height: 1.35;
+    color: var(--muted);
+  }
+  .zasada-dnia:empty { display: none; }
+
   .plan-trakcie-info { display: flex; align-items: center; gap: 12px; min-width: 0; }
 
   /* Kolo postepu trwajacego planu (x/N) — obwod luku 2*PI*19 ≈ 119.38 */
@@ -1313,6 +1326,10 @@
   .kontener.motyw-habits .plan-trakcie-baner {
     color: var(--habits-tekst);
   }
+  .kontener.motyw-habits .zasada-dnia {
+    color: var(--habits-tekst-pomocniczy);
+    border-left-color: var(--habits-akcent);
+  }
   .kontener.motyw-habits .plan-postep-luk {
     stroke: var(--habits-akcent);
   }
@@ -1594,6 +1611,8 @@
       </div>
     </div>
 
+    <p id="zasada-dnia" class="zasada-dnia"></p>
+
     <form id="form-treningu">
       <label for="partia">Partia mięśniowa</label>
       <select id="partia" name="partia" required>
@@ -1830,6 +1849,26 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+  const ZASADY = [
+    "Compare yourself to who you were yesterday, not to who someone else is today.",
+    "Bądź mężczyzną i dopchaj to do końca.",
+    "Porażka to stan umysłu, nie fakt.",
+    "Konsekwencja to 95% sukcesu.",
+    "Lanie jest wartościowe pod warunkiem że cię czegoś nauczy.",
+    "Żaden dobry traf nie przydarzy ci się, jeśli nie podejmiesz żadnego działania.",
+    "99% rzeczy, o które się martwisz, się nie wydarzy."
+  ];
+
+  // Zasada dnia: indeks = numer dnia w roku (czas lokalny) modulo liczba zasad — ta sama przez cały dzień
+  (function renderZasadaDnia() {
+    const dzis = new Date();
+    const poczatekRoku = Date.UTC(dzis.getFullYear(), 0, 1);
+    const dzisUTC = Date.UTC(dzis.getFullYear(), dzis.getMonth(), dzis.getDate());
+    const dzienRoku = Math.round((dzisUTC - poczatekRoku) / 86400000) + 1;
+    const el = document.getElementById("zasada-dnia");
+    if (el) el.textContent = ZASADY[dzienRoku % ZASADY.length];
+  })();
+
   const SUPABASE_URL = "https://yrnubpuffivauxatvthr.supabase.co";
   const SUPABASE_KEY = "sb_publishable_4nd418S2FdKpFmp5vGh1Ug_jltWAFrI";
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
