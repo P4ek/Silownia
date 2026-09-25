@@ -1598,6 +1598,18 @@
     }
   }
 
+  /* ----- Kaskadowe wejście elementów list (wjazdKarty) — oba motywy -----
+     fill-mode "backwards": przed startem (w trakcie opóźnienia) element jest niewidoczny, a po końcu animacja
+     niczego nie nadpisuje (np. opacity zrealizowanego celu). Animacja startuje też przy ponownym pokazaniu sekcji. */
+  .karta-wjazd { animation: karta-wjazd 0.35s ease-out backwards; }
+  @keyframes karta-wjazd {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .karta-wjazd { animation: none; }
+  }
+
   /* ----- Puste stany z ikoną ----- */
   .pusto.pusto-z-ikona {
     display: flex;
@@ -2011,6 +2023,15 @@
       toast.classList.remove("widoczny");
       setTimeout(function () { toast.remove(); }, 300);
     }, 3000);
+  }
+
+  // Kaskadowe wejście elementu listy: opóźnienie rośnie z indeksem, ale tylko dla pierwszych 15 elementów
+  const WJAZD_KROK_S = 0.05;
+  const WJAZD_MAX_INDEKS = 15;
+  function wjazdKarty(el, indeks) {
+    el.classList.add("karta-wjazd");
+    el.style.animationDelay = Math.min(indeks, WJAZD_MAX_INDEKS) * WJAZD_KROK_S + "s";
+    return el;
   }
 
   // Wyśrodkowany pusty stan listy: ikona (emoji) + krótki tekst; tekst jest escapowany
@@ -2577,8 +2598,8 @@
       lista.innerHTML = pustyStanHTML("🏋️", "Dziś jeszcze nic - zapisz pierwsze ćwiczenie powyżej.");
       return;
     }
-    dzisiejsze.slice().reverse().forEach(function (row) {
-      lista.appendChild(budujWpis(row));
+    dzisiejsze.slice().reverse().forEach(function (row, i) {
+      lista.appendChild(wjazdKarty(budujWpis(row), i));
     });
   }
 
@@ -2730,12 +2751,13 @@
       biezacy.daty.push(d);
     });
 
+    let indeksWjazdu = 0;
     miesiace.forEach(function (mies) {
       const naglowek = document.createElement("h3");
       naglowek.className = "rejestr-miesiac";
       naglowek.textContent = mies.etykieta;
-      rejestrBox.appendChild(naglowek);
-      rejestrBox.appendChild(budujTabeleDni(mies.daty, grupy, maksymalneCiezary));
+      rejestrBox.appendChild(wjazdKarty(naglowek, indeksWjazdu++));
+      rejestrBox.appendChild(wjazdKarty(budujTabeleDni(mies.daty, grupy, maksymalneCiezary), indeksWjazdu++));
     });
   }
   rejestrSzukaj.addEventListener("input", renderRejestr);
@@ -3056,6 +3078,7 @@
   // Render katalogu ćwiczeń (widok "Dodaj nowe ćwiczenie") z przyciskiem usuwania
   function renderKatalogListy() {
     katalogLista.innerHTML = "";
+    let indeksWjazdu = 0;
 
     if (katalog.length === 0) {
       katalogLista.innerHTML = pustyStanHTML("💪", "Brak zapisanych ćwiczeń - dodaj pierwsze powyżej.");
@@ -3092,7 +3115,7 @@
 
         wiersz.appendChild(nazwa);
         wiersz.appendChild(btnUsun);
-        grupa.appendChild(wiersz);
+        grupa.appendChild(wjazdKarty(wiersz, indeksWjazdu++));
       });
 
       katalogLista.appendChild(grupa);
@@ -3280,8 +3303,8 @@
       planyLista.innerHTML = pustyStanHTML("📋", "Brak zapisanych planów - ułóż pierwszy powyżej.");
       return;
     }
-    plany.forEach(function (plan) {
-      planyLista.appendChild(budujKartePlanu(plan));
+    plany.forEach(function (plan, i) {
+      planyLista.appendChild(wjazdKarty(budujKartePlanu(plan), i));
     });
   }
 
@@ -3544,6 +3567,7 @@
       return;
     }
 
+    let indeksWjazdu = 0;
     roleDoPokazania.forEach(function (r) {
       const blok = document.createElement("div");
       blok.className = "karta rola-blok";
@@ -3644,7 +3668,7 @@
           wiersz.appendChild(wrapTresc);
           wiersz.appendChild(btnWyroznij);
           wiersz.appendChild(btnUsun);
-          lista.appendChild(wiersz);
+          lista.appendChild(wjazdKarty(wiersz, indeksWjazdu++));
         });
       }
       blok.appendChild(lista);
@@ -4155,7 +4179,8 @@
 
   // Render listy nawyków: jedna karta z siatką (nazwa + 7 kwadracików Pn-Nd + seria),
   // wspólny wiersz nagłówka z dniami tygodnia u góry
-  function renderNawykiListy() {
+  // bezWjazdu: true przy samym odznaczaniu dnia — siatka przerysowuje się wtedy po każdym kliknięciu i kaskada by migała
+  function renderNawykiListy(bezWjazdu) {
     nawykiLista.innerHTML = "";
     if (nawyki.length === 0) {
       nawykiLista.innerHTML = pustyStanHTML("✅", "Brak nawyków - dodaj pierwszy powyżej.");
@@ -4181,10 +4206,13 @@
     siatka.appendChild(document.createElement("span"));
 
     nawyki.forEach(function (n, indeks) {
+      // Wiersz nawyku to kilka komórek siatki — wszystkie dostają to samo opóźnienie
+      const wjazdWiersza = function (el) { return bezWjazdu ? el : wjazdKarty(el, indeks); };
+
       const nazwa = document.createElement("span");
       nazwa.className = "nawyk-nazwa";
       nazwa.textContent = n.nazwa;
-      siatka.appendChild(nazwa);
+      siatka.appendChild(wjazdWiersza(nazwa));
 
       dni.forEach(function (data) {
         const kwadrat = document.createElement("label");
@@ -4202,7 +4230,7 @@
 
         kwadrat.appendChild(checkbox);
         kwadrat.appendChild(wizualny);
-        siatka.appendChild(kwadrat);
+        siatka.appendChild(wjazdWiersza(kwadrat));
       });
 
       const streakDni = obliczStreakNawyku(n.id);
@@ -4210,7 +4238,7 @@
       streak.className = "nawyk-streak";
       streak.setAttribute("aria-label", streakDni + " dni z rzędu");
       streak.innerHTML = IKONA_STREAK + "<span>" + streakDni + "</span>";
-      siatka.appendChild(streak);
+      siatka.appendChild(wjazdWiersza(streak));
 
       const btnUsunNawyk = document.createElement("button");
       btnUsunNawyk.type = "button";
@@ -4220,7 +4248,7 @@
       btnUsunNawyk.addEventListener("click", function () {
         usunNawyk(n, btnUsunNawyk);
       });
-      siatka.appendChild(btnUsunNawyk);
+      siatka.appendChild(wjazdWiersza(btnUsunNawyk));
 
       if (indeks < nawyki.length - 1) {
         const linia = document.createElement("div");
@@ -4328,7 +4356,7 @@
       nawykiWpisy = nawykiWpisy.filter(function (w) { return w !== wpis; });
     }
 
-    renderNawykiListy();
+    renderNawykiListy(true);
     renderHabitsPodsumowanie();
   }
 
