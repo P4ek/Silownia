@@ -730,6 +730,14 @@
     border-radius: 999px;
     transition: width 0.3s ease;
     min-width: 3px;
+    /* Zapełnianie od zera do docelowej szerokości (inline width); opóźnienie/czas ustawiane w renderWolumenPartie */
+    animation: wolumen-zapelnij 0.6s ease-out backwards;
+  }
+  @keyframes wolumen-zapelnij {
+    from { width: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wolumen-pasek { animation: none; }
   }
   .wolumen-pasek-Klata   { background: #E2643F; }
   .wolumen-pasek-Plecy   { background: #3F7DE2; }
@@ -2386,6 +2394,7 @@
         }
         zastosujMotyw();
         if (cel === "widok-rejestr") renderRejestr();
+        if (cel === "widok-wykres") renderWykresPostepu();
         if (cel === "widok-wnioski") renderWnioski();
         zamknijPanel();
       }
@@ -2862,8 +2871,8 @@
     }
     rekordyTygodniaBrak.hidden = true;
 
-    rekordy.forEach(function (r) {
-      const li = document.createElement("li");
+    rekordy.forEach(function (r, i) {
+      const li = wjazdKarty(document.createElement("li"), i);
       li.className = "rekord-tygodnia-wiersz";
       li.appendChild(kropkaPartii(r.partia));
       const tekst = document.createElement("span");
@@ -2909,19 +2918,46 @@
   }
 
   // Karta 2: poziome paski wolumenu na partię dla wybranego miesiąca
+  const WOLUMEN_START_PASKOW_S = 0.45; // po wjeździe wierszy (7 × 50 ms + zapas)
+  const WOLUMEN_KROK_PASKA_S = 0.12;
+  const WOLUMEN_CZAS_PASKA_S = 0.6;
+  const bezRuchu = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  // Licznik "X kg" rośnie od 0 razem ze swoim paskiem (ease-out); przy ograniczeniu animacji od razu wartość końcowa
+  function animujKg(el, cel, opoznienieMs, czasMs) {
+    const format = function (x) { return Math.round(x).toLocaleString("pl-PL") + " kg"; };
+    if (bezRuchu.matches || cel === 0) {
+      el.textContent = format(cel);
+      return;
+    }
+    el.textContent = format(0);
+    setTimeout(function () {
+      const start = performance.now();
+      function klatka(teraz) {
+        const t = Math.min((teraz - start) / czasMs, 1);
+        el.textContent = format(cel * (1 - Math.pow(1 - t, 3)));
+        if (t < 1 && el.isConnected) requestAnimationFrame(klatka);
+      }
+      requestAnimationFrame(klatka);
+    }, opoznienieMs);
+  }
+
   function renderWolumenPartie() {
     const miesiac = selWolumenMiesiac.value;
     const suma = obliczWolumenPartii(miesiac);
     const maxWolumen = PARTIE.reduce(function (m, p) { return Math.max(m, suma[p] || 0); }, 0);
 
     wolumenPartieLista.innerHTML = "";
-    PARTIE.forEach(function (partia) {
+    PARTIE.forEach(function (partia, i) {
+      // Najpierw wjeżdżają wiersze z pustymi paskami, potem paski (i liczby kg) zapełniają się po kolei
+      const startPaskaS = WOLUMEN_START_PASKOW_S + i * WOLUMEN_KROK_PASKA_S;
+
       const wolumen = suma[partia] || 0;
       const procent = maxWolumen > 0 ? (wolumen / maxWolumen) * 100 : 0;
       const zaniedbanie = maxWolumen > 0 && procent < 40;
 
-      const wiersz = document.createElement("div");
-      wiersz.className = "wolumen-wiersz";
+      const wiersz = wjazdKarty(document.createElement("div"), i);
+      wiersz.className += " wolumen-wiersz";
 
       const glowa = document.createElement("div");
       glowa.className = "wolumen-glowa";
@@ -2939,7 +2975,7 @@
 
       const wartoscEl = document.createElement("span");
       wartoscEl.className = "wolumen-wartosc";
-      wartoscEl.textContent = Math.round(wolumen).toLocaleString("pl-PL") + " kg";
+      animujKg(wartoscEl, Math.round(wolumen), startPaskaS * 1000, WOLUMEN_CZAS_PASKA_S * 1000);
 
       glowa.appendChild(nazwa);
       glowa.appendChild(wartoscEl);
@@ -2949,6 +2985,8 @@
       const pasek = document.createElement("div");
       pasek.className = "wolumen-pasek wolumen-pasek-" + partia;
       pasek.style.width = procent + "%";
+      pasek.style.animationDelay = startPaskaS + "s";
+      pasek.style.animationDuration = WOLUMEN_CZAS_PASKA_S + "s";
       pasekTlo.appendChild(pasek);
 
       wiersz.appendChild(glowa);
