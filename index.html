@@ -143,13 +143,13 @@
     opacity: 0;
     visibility: hidden;
     transform: translateX(-6px);
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s, scale 0.1s ease;
   }
   .topbar-ikony.panel-otwarty .motyw-btn {
     opacity: 1;
     visibility: visible;
     transform: none;
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s, scale 0.1s ease;
   }
   .motyw-btn.aktywny {
     color: var(--accent);
@@ -212,7 +212,7 @@
     font-size: 0.95rem;
     color: var(--ink);
     cursor: pointer;
-    transition: background 0.15s ease;
+    transition: background 0.15s ease, scale 0.1s ease;
   }
   .nav-btn svg {
     width: 20px;
@@ -290,7 +290,7 @@
     font-weight: 700;
     font-size: 0.92rem;
     box-shadow: 0 12px 26px -8px rgba(226, 100, 63, 0.55);
-    transition: filter 0.15s ease, transform 0.1s ease;
+    transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease;
   }
   .btn-wyloguj-tak:hover { filter: brightness(1.05); }
   .btn-wyloguj-tak:active { transform: translateY(1px); }
@@ -401,7 +401,7 @@
     font-size: 0.98rem;
     letter-spacing: 0.01em;
     box-shadow: 0 12px 26px -8px rgba(226, 100, 63, 0.55);
-    transition: filter 0.15s ease, transform 0.1s ease;
+    transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease;
   }
   .btn-submit:hover { filter: brightness(1.05); }
   .btn-submit:active { transform: translateY(1px); }
@@ -775,7 +775,7 @@
     background: linear-gradient(135deg, #EDB8C2, var(--accent-pink) 55%, #C98999);
     color: #fff;
     box-shadow: 0 12px 24px -10px rgba(227, 169, 180, 0.6);
-    transition: filter 0.15s ease, transform 0.1s ease;
+    transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease;
   }
   .btn-pill-rola:hover { background: linear-gradient(135deg, #EDB8C2, var(--accent-pink) 55%, #C98999); filter: brightness(1.05); }
   .btn-pill-rola:active { transform: translateY(1px); }
@@ -963,7 +963,7 @@
   /* Przycisk usuwania celu: subtelny, pełna widoczność przy najechaniu/focusie */
   .cel-wiersz .btn-usun {
     opacity: 0.45;
-    transition: opacity 0.15s ease;
+    transition: opacity 0.15s ease, scale 0.1s ease;
   }
   .cel-wiersz:hover .btn-usun,
   .cel-wiersz .btn-usun:focus-visible {
@@ -983,7 +983,7 @@
     background: #fff;
     color: #C9433D;
     opacity: 0.45;
-    transition: opacity 0.15s ease, background 0.15s ease;
+    transition: opacity 0.15s ease, background 0.15s ease, scale 0.1s ease;
   }
   .cel-wiersz .btn-wyroznij svg { width: 17px; height: 17px; }
   .cel-wiersz:hover .btn-wyroznij,
@@ -1022,7 +1022,7 @@
     font-size: 0.95rem;
     letter-spacing: 0.01em;
     box-shadow: 0 12px 24px -10px rgba(227, 169, 180, 0.6);
-    transition: filter 0.15s ease, transform 0.1s ease;
+    transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease;
   }
   .btn-zakoncz-tydzien:hover { filter: brightness(1.05); }
   .btn-zakoncz-tydzien:active { transform: translateY(1px); }
@@ -1278,7 +1278,7 @@
     border-radius: 8px;
     background: transparent;
     color: var(--habits-tekst-pomocniczy);
-    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, scale 0.1s ease;
   }
   .btn-usun-nawyk svg { width: 14px; height: 14px; }
   .btn-usun-nawyk:hover {
@@ -1499,6 +1499,79 @@
   .logowanie-karta h1 { padding-left: 0; text-align: center; }
   .logowanie-opis { color: var(--muted); margin: 0 0 4px; text-align: center; }
   .logowanie-status { margin: 14px 0 0; font-size: 0.9rem; font-weight: 600; text-align: center; }
+
+  /* ----- Toast (pokazToast) zamiast alert() ----- */
+  .toast-kontener {
+    position: fixed;
+    left: 50%;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    z-index: 100;
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+  }
+  .toast {
+    padding: 11px 18px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: center;
+    box-shadow: 0 12px 28px -12px rgba(42, 35, 32, 0.35);
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .toast.widoczny { opacity: 1; transform: none; }
+  .toast-sukces { background: #E6F3E4; border-color: #BCDDB6; color: #2F6B2A; }
+  .toast-blad   { background: #F8E7E0; border-color: #E7C3B4; color: #B4482C; }
+  html.motyw-habits .toast-sukces { background: oklch(0.2 0.035 150); border-color: oklch(0.32 0.06 150); color: oklch(0.86 0.08 150); }
+  html.motyw-habits .toast-blad   { background: oklch(0.2 0.04 28);   border-color: oklch(0.34 0.08 28);  color: oklch(0.85 0.08 28); }
+  html.motyw-habits .toast { box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.7); }
+
+  /* ----- Konfetti po odznaczeniu wszystkich nawyków na dziś ----- */
+  .konfetti-warstwa {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .konfetti {
+    position: absolute;
+    top: -16px;
+    animation: konfetti-spadanie var(--czas, 2s) cubic-bezier(0.3, 0.6, 0.5, 1) forwards;
+  }
+  @keyframes konfetti-spadanie {
+    to {
+      transform: translate(var(--dx, 0px), 105vh) rotate(var(--obrot, 540deg));
+      opacity: 0.2;
+    }
+  }
+
+  /* ----- Puste stany z ikoną ----- */
+  .pusto.pusto-z-ikona {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 24px 18px;
+    text-align: center;
+  }
+  .pusto-ikona { font-size: 1.9rem; line-height: 1; font-style: normal; }
+
+  /* ----- Feedback dotykowy przy naciśnięciu przycisku (właściwość scale, żeby nie gryzła się z transform) ----- */
+  button { transition: scale 0.1s ease; }
+  button:not(:disabled):active { scale: 0.96; }
+  @media (prefers-reduced-motion: reduce) {
+    .konfetti-warstwa { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -1657,7 +1730,7 @@
 
     <h2 style="margin-top:28px">Ostatnio dodane</h2>
     <div id="lista">
-      <p class="pusto">Brak zapisanych treningów.</p>
+      <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">📒</span><span>Brak zapisanych treningów.</span></p>
     </div>
   </section>
 
@@ -1672,7 +1745,7 @@
     </div>
 
     <div id="rejestr">
-      <p class="pusto">Brak zapisanych treningów.</p>
+      <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">📒</span><span>Brak zapisanych treningów.</span></p>
     </div>
   </section>
 
@@ -1715,7 +1788,7 @@
 
     <h2 style="margin-top:28px">Katalog ćwiczeń</h2>
     <div id="katalog-lista">
-      <p class="pusto">Brak zapisanych ćwiczeń.</p>
+      <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">💪</span><span>Brak zapisanych ćwiczeń - dodaj pierwsze powyżej.</span></p>
     </div>
   </section>
 
@@ -1751,7 +1824,7 @@
 
     <h2 style="margin-top:28px">Zapisane plany</h2>
     <div id="plany-lista">
-      <p class="pusto">Brak zapisanych planów.</p>
+      <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">📋</span><span>Brak zapisanych planów - ułóż pierwszy powyżej.</span></p>
     </div>
   </section>
 
@@ -1770,7 +1843,7 @@
     <div class="karta">
       <label>Twoje role</label>
       <div id="role-lista">
-        <p class="pusto">Brak zapisanych ról.</p>
+        <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">👤</span><span>Brak ról - dodaj pierwszą poniżej.</span></p>
       </div>
 
       <form id="form-rola">
@@ -1794,7 +1867,7 @@
     </div>
 
     <div id="cele-lista">
-      <p class="pusto">Dodaj pierwszą rolę, aby zacząć planować cele tygodniowe.</p>
+      <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">🎯</span><span>Dodaj pierwszą rolę, aby zacząć planować cele tygodniowe.</span></p>
     </div>
 
     <button type="button" id="btn-zakoncz-tydzien" class="btn-zakoncz-tydzien">Zakończ tydzień</button>
@@ -1847,7 +1920,7 @@
     </div>
 
     <div id="nawyki-lista">
-      <p class="pusto">Brak zapisanych nawyków.</p>
+      <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">✅</span><span>Brak nawyków - dodaj pierwszy powyżej.</span></p>
     </div>
   </section>
 
@@ -1872,6 +1945,45 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+  // Krótki komunikat na dole ekranu zamiast alert(); typ: "sukces" | "blad", znika po ~3 s
+  function pokazToast(tekst, typ) {
+    let kontenerToastow = document.getElementById("toast-kontener");
+    if (!kontenerToastow) {
+      kontenerToastow = document.createElement("div");
+      kontenerToastow.id = "toast-kontener";
+      kontenerToastow.className = "toast-kontener";
+      document.body.appendChild(kontenerToastow);
+    }
+    const toast = document.createElement("div");
+    toast.className = "toast " + (typ === "sukces" ? "toast-sukces" : "toast-blad");
+    toast.setAttribute("role", typ === "sukces" ? "status" : "alert");
+    toast.textContent = tekst;
+    kontenerToastow.appendChild(toast);
+
+    // Dwie klatki, żeby przeglądarka zdążyła narysować stan początkowy i przejście się zanimowało
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { toast.classList.add("widoczny"); });
+    });
+    setTimeout(function () {
+      toast.classList.remove("widoczny");
+      setTimeout(function () { toast.remove(); }, 300);
+    }, 3000);
+  }
+
+  // Wyśrodkowany pusty stan listy: ikona (emoji) + krótki tekst; tekst jest escapowany
+  function pustyStanHTML(ikona, tekst) {
+    const p = document.createElement("p");
+    p.className = "pusto pusto-z-ikona";
+    const ikonaEl = document.createElement("span");
+    ikonaEl.className = "pusto-ikona";
+    ikonaEl.setAttribute("aria-hidden", "true");
+    ikonaEl.textContent = ikona;
+    const tekstEl = document.createElement("span");
+    tekstEl.textContent = tekst;
+    p.append(ikonaEl, tekstEl);
+    return p.outerHTML;
+  }
+
   const ZASADY = [
     "Bądź mężczyzną i dopchaj to do końca.",
     "Porażka to stan umysłu, nie fakt.",
@@ -2268,7 +2380,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się pobrać listy ćwiczeń: " + error.message);
+      pokazToast("Nie udało się pobrać listy ćwiczeń: " + error.message, "blad");
       return;
     }
     katalog = data || [];
@@ -2419,7 +2531,7 @@
 
     lista.innerHTML = "";
     if (dzisiejsze.length === 0) {
-      lista.innerHTML = '<p class="pusto">Brak ćwiczeń dodanych dzisiaj.</p>';
+      lista.innerHTML = pustyStanHTML("🏋️", "Dziś jeszcze nic - zapisz pierwsze ćwiczenie powyżej.");
       return;
     }
     dzisiejsze.slice().reverse().forEach(function (row) {
@@ -2558,8 +2670,8 @@
     rejestrBox.innerHTML = "";
     if (daty.length === 0) {
       rejestrBox.innerHTML = szukane
-        ? '<p class="pusto">Brak wyników dla „' + rejestrSzukaj.value + '".</p>'
-        : '<p class="pusto">Brak zapisanych treningów.</p>';
+        ? pustyStanHTML("🔍", "Brak wyników dla „" + rejestrSzukaj.value + "\".")
+        : pustyStanHTML("📒", "Brak zapisanych treningów - dodaj pierwszy w „Zapisz trening”.");
       return;
     }
 
@@ -2594,7 +2706,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się pobrać treningów: " + error.message);
+      pokazToast("Nie udało się pobrać treningów: " + error.message, "blad");
       return;
     }
     (data || []).forEach(function (row) { wpisy.push(row); });
@@ -2790,7 +2902,7 @@
   function przejdzDoNastepnegoCwiczeniaPlanu() {
     planWTrakcie.indeks++;
     if (planWTrakcie.indeks >= planWTrakcie.cwiczenia.length) {
-      alert("Plan ukończony!");
+      pokazToast("Plan ukończony!", "sukces");
       zakonczPlanWTrakcie();
       return;
     }
@@ -2833,7 +2945,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się zapisać: " + error.message);
+      pokazToast("Nie udało się zapisać: " + error.message, "blad");
       return;
     }
 
@@ -2903,7 +3015,7 @@
     katalogLista.innerHTML = "";
 
     if (katalog.length === 0) {
-      katalogLista.innerHTML = '<p class="pusto">Brak zapisanych ćwiczeń.</p>';
+      katalogLista.innerHTML = pustyStanHTML("💪", "Brak zapisanych ćwiczeń - dodaj pierwsze powyżej.");
       return;
     }
 
@@ -2960,7 +3072,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się usunąć wpisu: " + error.message);
+      pokazToast("Nie udało się usunąć wpisu: " + error.message, "blad");
       btn.disabled = false;
       return;
     }
@@ -2990,7 +3102,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się usunąć ćwiczenia: " + error.message);
+      pokazToast("Nie udało się usunąć ćwiczenia: " + error.message, "blad");
       btn.disabled = false;
       return;
     }
@@ -3122,7 +3234,7 @@
   function renderPlanyListy() {
     planyLista.innerHTML = "";
     if (plany.length === 0) {
-      planyLista.innerHTML = '<p class="pusto">Brak zapisanych planów.</p>';
+      planyLista.innerHTML = pustyStanHTML("📋", "Brak zapisanych planów - ułóż pierwszy powyżej.");
       return;
     }
     plany.forEach(function (plan) {
@@ -3139,7 +3251,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się pobrać planów treningowych: " + error.message);
+      pokazToast("Nie udało się pobrać planów treningowych: " + error.message, "blad");
       return;
     }
     plany = data || [];
@@ -3157,7 +3269,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się usunąć planu: " + error.message);
+      pokazToast("Nie udało się usunąć planu: " + error.message, "blad");
       btn.disabled = false;
       return;
     }
@@ -3181,8 +3293,10 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się wysłać do Notion: " + error.message);
+      pokazToast("Nie udało się wysłać do Notion: " + error.message, "blad");
+      return;
     }
+    pokazToast("Wysłano plan do Notion.", "sukces");
   }
 
   // Submit: zapisanie budowanego planu treningowego do tabeli "plany_treningowe"
@@ -3192,7 +3306,7 @@
     const nazwa = inputPlanNazwa.value.trim();
     if (!nazwa) return;
     if (planCwiczeniaRobocze.length === 0) {
-      alert("Dodaj przynajmniej jedno ćwiczenie do planu.");
+      pokazToast("Dodaj przynajmniej jedno ćwiczenie do planu.", "blad");
       return;
     }
 
@@ -3208,7 +3322,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się zapisać planu: " + error.message);
+      pokazToast("Nie udało się zapisać planu: " + error.message, "blad");
       return;
     }
 
@@ -3222,8 +3336,12 @@
       });
       if (bladNotion) {
         console.error(bladNotion);
-        alert("Plan zapisany, ale nie udało się wysłać do Notion: " + bladNotion.message);
+        pokazToast("Plan zapisany, ale nie udało się wysłać do Notion: " + bladNotion.message, "blad");
+      } else {
+        pokazToast("Plan zapisany i wysłany do Notion.", "sukces");
       }
+    } else {
+      pokazToast("Plan zapisany.", "sukces");
     }
 
     formPlanTreningu.reset();
@@ -3311,7 +3429,7 @@
   function renderRoleListy() {
     roleLista.innerHTML = "";
     if (role.length === 0) {
-      roleLista.innerHTML = '<p class="pusto">Brak zapisanych ról.</p>';
+      roleLista.innerHTML = pustyStanHTML("👤", "Brak ról - dodaj pierwszą poniżej.");
       return;
     }
     role.forEach(function (r) {
@@ -3373,13 +3491,13 @@
     celeLista.innerHTML = "";
 
     if (role.length === 0) {
-      celeLista.innerHTML = '<p class="pusto">Dodaj pierwszą rolę, aby zacząć planować cele tygodniowe.</p>';
+      celeLista.innerHTML = pustyStanHTML("🎯", "Dodaj pierwszą rolę, aby zacząć planować cele tygodniowe.");
       return;
     }
 
     const roleDoPokazania = role.filter(function (r) { return roleWidoczne.has(r.id); });
     if (roleDoPokazania.length === 0) {
-      celeLista.innerHTML = '<p class="pusto">Zaznacz rolę powyżej, aby zobaczyć tu jej cele na ten tydzień.</p>';
+      celeLista.innerHTML = pustyStanHTML("👆", "Zaznacz rolę powyżej, aby zobaczyć tu jej cele na ten tydzień.");
       return;
     }
 
@@ -3412,7 +3530,7 @@
       lista.className = "cele-checklist";
 
       if (celeRoli.length === 0) {
-        lista.innerHTML = '<p class="pusto">Brak celów na ten tydzień.</p>';
+        lista.innerHTML = pustyStanHTML("🎯", "Brak celów na ten tydzień - dodaj pierwszy poniżej.");
       } else {
         celeRoli.forEach(function (c) {
           const wiersz = document.createElement("label");
@@ -3560,7 +3678,7 @@
     const niezrealizowane = cele.filter(function (c) { return !c.zrealizowane; });
 
     if (niezrealizowane.length === 0) {
-      niezrealizowaneLista.innerHTML = '<p class="pusto">Wszystkie cele w tym tygodniu zrealizowane!</p>';
+      niezrealizowaneLista.innerHTML = pustyStanHTML("🎉", "Wszystkie cele w tym tygodniu zrealizowane!");
       btnZapiszPodsumowanie.hidden = true;
       return;
     }
@@ -3641,7 +3759,7 @@
 
         if (error) {
           console.error(error);
-          alert('Nie udało się zapisać powodu dla celu „' + cel.tresc + '": ' + error.message);
+          pokazToast('Nie udało się zapisać powodu dla celu „' + cel.tresc + '": ' + error.message, "blad");
           btnZapiszPodsumowanie.disabled = false;
           return;
         }
@@ -3663,7 +3781,7 @@
 
         if (bladPrzeniesienia) {
           console.error(bladPrzeniesienia);
-          alert('Nie udało się przenieść celu „' + cel.tresc + '" na następny tydzień: ' + bladPrzeniesienia.message);
+          pokazToast('Nie udało się przenieść celu „' + cel.tresc + '" na następny tydzień: ' + bladPrzeniesienia.message, "blad");
           btnZapiszPodsumowanie.disabled = false;
           return;
         }
@@ -3709,7 +3827,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się zaktualizować celu: " + error.message);
+      pokazToast("Nie udało się zaktualizować celu: " + error.message, "blad");
       checkbox.checked = !nowaWartosc;
       return;
     }
@@ -3734,7 +3852,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się usunąć celu: " + error.message);
+      pokazToast("Nie udało się usunąć celu: " + error.message, "blad");
       btn.disabled = false;
       return;
     }
@@ -3768,7 +3886,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się zapisać celu: " + error.message);
+      pokazToast("Nie udało się zapisać celu: " + error.message, "blad");
       return;
     }
 
@@ -3789,7 +3907,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się pobrać ról: " + error.message);
+      pokazToast("Nie udało się pobrać ról: " + error.message, "blad");
       return;
     }
     role = data || [];
@@ -3825,7 +3943,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się pobrać celów tygodniowych: " + error.message);
+      pokazToast("Nie udało się pobrać celów tygodniowych: " + error.message, "blad");
       return;
     }
     cele = data || [];
@@ -3852,7 +3970,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się zapisać roli: " + error.message);
+      pokazToast("Nie udało się zapisać roli: " + error.message, "blad");
       return;
     }
 
@@ -3997,7 +4115,7 @@
   function renderNawykiListy() {
     nawykiLista.innerHTML = "";
     if (nawyki.length === 0) {
-      nawykiLista.innerHTML = '<p class="pusto">Brak zapisanych nawyków.</p>';
+      nawykiLista.innerHTML = pustyStanHTML("✅", "Brak nawyków - dodaj pierwszy powyżej.");
       return;
     }
 
@@ -4073,6 +4191,48 @@
   }
 
   // Zaznaczenie/odznaczenie kwadracika dnia dla nawyku - wstawia lub usuwa wiersz w "nawyki_wpisy"
+  function wszystkieNawykiOdznaczone(data) {
+    return nawyki.length > 0 && nawyki.every(function (n) {
+      return nawykiWpisy.some(function (w) { return w.nawyk_id === n.id && w.data === data; });
+    });
+  }
+
+  // Konfetti tylko raz na dzień — kolejne odznaczenia (np. po odznaczeniu i ponownym zaznaczeniu) już go nie odpalają
+  const KONFETTI_KEY = "silownia-konfetti-dzien";
+  let konfettiOstatniDzien = null;
+  try { konfettiOstatniDzien = localStorage.getItem(KONFETTI_KEY); } catch (e) {}
+
+  function odpalKonfettiRazDziennie(data) {
+    if (konfettiOstatniDzien === data) return;
+    konfettiOstatniDzien = data;
+    try { localStorage.setItem(KONFETTI_KEY, data); } catch (e) {}
+    odpalKonfetti();
+  }
+
+  // Kolorowe kwadraciki/kółka spadające z góry ekranu przez ~2 s (czysty CSS/JS)
+  function odpalKonfetti() {
+    const KOLORY = ["#E2643F", "#E3A9B4", "#E0A82E", "#12A594", "#3F7DE2", "#8B5CF6", "#D6D0C0"];
+    const warstwa = document.createElement("div");
+    warstwa.className = "konfetti-warstwa";
+    for (let i = 0; i < 80; i++) {
+      const k = document.createElement("span");
+      k.className = "konfetti";
+      const rozmiar = 6 + Math.random() * 6;
+      k.style.left = Math.random() * 100 + "vw";
+      k.style.width = rozmiar + "px";
+      k.style.height = (Math.random() < 0.5 ? rozmiar : rozmiar * 0.5) + "px";
+      k.style.background = KOLORY[i % KOLORY.length];
+      k.style.borderRadius = Math.random() < 0.4 ? "50%" : "2px";
+      k.style.animationDelay = Math.random() * 0.35 + "s";
+      k.style.setProperty("--czas", (1.4 + Math.random() * 0.6) + "s");
+      k.style.setProperty("--dx", (Math.random() * 160 - 80) + "px");
+      k.style.setProperty("--obrot", (Math.random() * 720 - 360) + "deg");
+      warstwa.appendChild(k);
+    }
+    document.body.appendChild(warstwa);
+    setTimeout(function () { warstwa.remove(); }, 2500);
+  }
+
   async function przelaczNawykDzien(nawyk, data, checkbox) {
     checkbox.disabled = true;
 
@@ -4092,13 +4252,15 @@
 
       if (error) {
         console.error(error);
-        alert("Nie udało się zapisać zaznaczenia: " + error.message);
+        pokazToast("Nie udało się zapisać zaznaczenia: " + error.message, "blad");
         checkbox.checked = false;
         return;
       }
 
       nawykiWpisy.push(wstawione && wstawione[0] ? wstawione[0] : { nawyk_id: nawyk.id, data: data });
       if (navigator.vibrate) navigator.vibrate(15);
+      // Ten nawyk nie był odznaczony przed kliknięciem, więc dzień nie był wcześniej kompletny
+      if (data === dzisiaj() && wszystkieNawykiOdznaczone(data)) odpalKonfettiRazDziennie(data);
     } else {
       const wpis = nawykiWpisy.find(function (w) { return w.nawyk_id === nawyk.id && w.data === data; });
       if (!wpis) {
@@ -4115,7 +4277,7 @@
 
       if (error) {
         console.error(error);
-        alert("Nie udało się usunąć zaznaczenia: " + error.message);
+        pokazToast("Nie udało się usunąć zaznaczenia: " + error.message, "blad");
         checkbox.checked = true;
         return;
       }
@@ -4141,7 +4303,7 @@
 
     if (bladWpisow) {
       console.error(bladWpisow);
-      alert("Nie udało się usunąć historii nawyku: " + bladWpisow.message);
+      pokazToast("Nie udało się usunąć historii nawyku: " + bladWpisow.message, "blad");
       btn.disabled = false;
       return;
     }
@@ -4153,7 +4315,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się usunąć nawyku: " + error.message);
+      pokazToast("Nie udało się usunąć nawyku: " + error.message, "blad");
       btn.disabled = false;
       return;
     }
@@ -4183,7 +4345,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się zapisać nawyku: " + error.message);
+      pokazToast("Nie udało się zapisać nawyku: " + error.message, "blad");
       return;
     }
 
@@ -4202,7 +4364,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się pobrać nawyków: " + error.message);
+      pokazToast("Nie udało się pobrać nawyków: " + error.message, "blad");
       return;
     }
     nawyki = data || [];
@@ -4218,7 +4380,7 @@
 
     if (error) {
       console.error(error);
-      alert("Nie udało się pobrać wpisów nawyków: " + error.message);
+      pokazToast("Nie udało się pobrać wpisów nawyków: " + error.message, "blad");
       return;
     }
     nawykiWpisy = data || [];
