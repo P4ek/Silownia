@@ -1332,7 +1332,7 @@
     color: var(--habits-tekst);
   }
   /* input/select/textarea maja wprost ustawiony color w bazowym CSS (var(--ink)), wiec dziedziczenie go nie nadpisuje — wpisywany tekst (np. nazwa nowego cwiczenia) zostawalby czarny bez tej reguly */
-  .kontener.motyw-habits :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  .kontener.motyw-habits :is(input, select, textarea) {
     color: var(--habits-tekst);
   }
 
