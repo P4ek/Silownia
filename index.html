@@ -1332,7 +1332,7 @@
     color: var(--habits-tekst);
   }
   /* input/select/textarea maja wprost ustawiony color w bazowym CSS (var(--ink)), wiec dziedziczenie go nie nadpisuje — wpisywany tekst (np. nazwa nowego cwiczenia) zostawalby czarny bez tej reguly */
-  .kontener.motyw-habits :is(input, select, textarea) {
+  .kontener.motyw-habits :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
     color: var(--habits-tekst);
   }
 
@@ -1372,6 +1372,29 @@
   .kontener.motyw-habits input:focus {
     border-color: var(--habits-akcent);
     box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18);
+  }
+
+  /* ----- Poświata (glow) w kolorze akcentu na aktywnych elementach — tylko motyw ciemny ----- */
+  /* #sidebar leży poza .kontener, więc --habits-akcent-rgb ma tam fallback na te same wartości */
+  #sidebar.motyw-habits .nav-btn {
+    transition: background 0.15s ease, scale 0.1s ease, box-shadow 0.2s ease;
+  }
+  #sidebar.motyw-habits .nav-btn.aktywny {
+    box-shadow: 0 0 12px rgba(var(--habits-akcent-rgb, 214, 208, 192), 0.35);
+  }
+  .kontener.motyw-habits .btn-submit {
+    transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease, box-shadow 0.2s ease;
+  }
+  .kontener.motyw-habits .btn-submit:not(:disabled):is(:hover, :focus-visible) {
+    box-shadow: 0 0 18px rgba(var(--habits-akcent-rgb), 0.5);
+  }
+  .kontener.motyw-habits :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .kontener.motyw-habits :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus,
+  .kontener.motyw-habits #widok-habits input:focus {
+    border-color: var(--habits-akcent);
+    box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18), 0 0 12px rgba(var(--habits-akcent-rgb), 0.35);
   }
 
   /* Aktywna pozycja w panelu bocznym — poza wariantem .nav-habits, który ma własny, niezależny wygląd; .nav-rozwoj (różowy w jasnym motywie) dostaje ten sam srebrny akcent co reszta, żeby nie zostawiać różu w trybie ciemnym */
