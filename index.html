@@ -1320,6 +1320,26 @@
     border-color: var(--habits-obramowanie);
   }
 
+  /* ----- Szkło mrożone na kartach (tylko motyw ciemny) -----
+     Tylko kontenery najwyższego poziomu (karty, formularze, wpisy/plany) — bez wierszy długich list (rejestr, cele, katalog)
+     i bez elementów zagnieżdżonych w innej karcie, żeby nie mnożyć kosztownych warstw backdrop-filter przy przewijaniu. */
+  @supports (background: color-mix(in oklch, red 50%, transparent)) {
+    .kontener.motyw-habits :is(form, .karta, .wpis):not(.karta *),
+    .kontener.motyw-habits #widok-habits .karta {
+      background: color-mix(in oklch, var(--habits-tlo-karta) 70%, transparent);
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(var(--habits-akcent-rgb), 0.15);
+    }
+    /* Formularze w sekcji "Nawyki" są celowo bez tła i ramki */
+    .kontener.motyw-habits #widok-habits form {
+      background: none;
+      border: none;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
   /* Czytelność tekstu w trybie ciemnym poza sekcją "Nawyki": jaśniejszy --habits-tekst zamiast zbyt ciemnego --habits-tekst-pomocniczy */
   .kontener.motyw-habits :is(h1, h2, legend, label) {
     color: var(--habits-tekst);
