@@ -138,6 +138,19 @@
     cursor: pointer;
   }
   .motyw-btn svg { width: 19px; height: 19px; }
+  /* Przyciski motywu widoczne tylko przy wysuniętym panelu bocznym (klasa ustawiana w otworzPanel/zamknijPanel) */
+  .topbar-ikony .motyw-btn {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-6px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+  }
+  .topbar-ikony.panel-otwarty .motyw-btn {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s;
+  }
   .motyw-btn.aktywny {
     color: var(--accent);
     border-color: var(--accent);
@@ -2083,13 +2096,17 @@
   const navBtns = document.querySelectorAll(".nav-btn");
   const kontener = document.querySelector(".kontener");
 
+  const topbarIkony = document.querySelector(".topbar-ikony");
+
   function otworzPanel() {
     sidebar.classList.add("open");
     overlay.hidden = false;
+    topbarIkony.classList.add("panel-otwarty");
   }
   function zamknijPanel() {
     sidebar.classList.remove("open");
     overlay.hidden = true;
+    topbarIkony.classList.remove("panel-otwarty");
   }
   hamburger.addEventListener("click", otworzPanel);
   overlay.addEventListener("click", zamknijPanel);
