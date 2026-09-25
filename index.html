@@ -2043,9 +2043,34 @@
   const WJAZD_KROK_S = 0.05;
   const WJAZD_MAX_INDEKS = 15;
   function wjazdKarty(el, indeks) {
+    return wjazdZOpoznieniem(el, Math.min(indeks, WJAZD_MAX_INDEKS) * WJAZD_KROK_S);
+  }
+  function wjazdZOpoznieniem(el, sekundy) {
     el.classList.add("karta-wjazd");
-    el.style.animationDelay = Math.min(indeks, WJAZD_MAX_INDEKS) * WJAZD_KROK_S + "s";
+    el.style.animationDelay = sekundy + "s";
     return el;
+  }
+
+  // Rejestr: najpierw kaskada dni (szkielet z datami), potem ćwiczenia wewnątrz każdego dnia.
+  // Wszystkie opóźnienia ucięte do REJESTR_MAX_S, więc całość mieści się w około 0.7 s + czas animacji niezależnie od liczby wpisów.
+  const REJESTR_KROK_DNIA_S = 0.06;
+  const REJESTR_MAX_DZIEN_S = 0.4;
+  const REJESTR_START_CWICZEN_S = 0.12;   // ćwiczenia ruszają chwilę po swoim dniu
+  const REJESTR_KROK_CWICZENIA_S = 0.04;
+  const REJESTR_MAX_S = 0.7;
+  function opoznienieDniaRejestru(indeksDnia) {
+    return Math.min(indeksDnia * REJESTR_KROK_DNIA_S, REJESTR_MAX_DZIEN_S);
+  }
+  function opoznienieCwiczeniaRejestru(indeksDnia, indeksCwiczenia) {
+    return Math.min(opoznienieDniaRejestru(indeksDnia) + REJESTR_START_CWICZEN_S + indeksCwiczenia * REJESTR_KROK_CWICZENIA_S, REJESTR_MAX_S);
+  }
+
+  // Pigułka "nowy rekord" z gwiazdką — wspólna dla Rejestru i "Rekordów osobistych"
+  function tagNowyRekord() {
+    const tag = document.createElement("span");
+    tag.className = "rekord-tag-rejestr";
+    tag.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.26 6.9.86-5.1 4.62 1.4 6.86L12 17.9l-6.1 3.2 1.4-6.86-5.1-4.62 6.9-.86L12 2.5z"/></svg>nowy rekord';
+    return tag;
   }
 
   // Wyśrodkowany pusty stan listy: ikona (emoji) + krótki tekst; tekst jest escapowany
@@ -2663,14 +2688,15 @@
     return (w.podejscia || []).some(function (p) { return (Number(p["cieżar"]) || 0) === maks; });
   }
 
-  function budujTabeleDni(daty, grupy, maksymalneCiezary) {
+  function budujTabeleDni(daty, grupy, maksymalneCiezary, licznikDni) {
     const tabela = document.createElement("table");
     tabela.className = "rejestr-tabela";
     tabela.innerHTML = "<thead><tr><th>Dzień treningowy</th><th>Ćwiczenia</th></tr></thead>";
 
     const tbody = document.createElement("tbody");
     daty.forEach(function (d) {
-      const tr = document.createElement("tr");
+      const indeksDnia = licznikDni.indeks++;
+      const tr = wjazdZOpoznieniem(document.createElement("tr"), opoznienieDniaRejestru(indeksDnia));
 
       const tdDzien = document.createElement("td");
       tdDzien.className = "rejestr-dzien";
@@ -2682,8 +2708,8 @@
       wewn.innerHTML = "<thead><tr><th>Partia</th><th>Ćwiczenie</th><th>Podejścia</th><th></th></tr></thead>";
 
       const wbody = document.createElement("tbody");
-      grupy[d].forEach(function (w) {
-        const wr = document.createElement("tr");
+      grupy[d].forEach(function (w, indeksCwiczenia) {
+        const wr = wjazdZOpoznieniem(document.createElement("tr"), opoznienieCwiczeniaRejestru(indeksDnia, indeksCwiczenia));
 
         const c1 = document.createElement("td");
         c1.className = "rejestr-partia";
@@ -2693,10 +2719,7 @@
         const c2 = document.createElement("td");
         c2.textContent = w.cwiczenie;
         if (czyWpisMaRekord(w, maksymalneCiezary)) {
-          const tagRekord = document.createElement("span");
-          tagRekord.className = "rekord-tag-rejestr";
-          tagRekord.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.26 6.9.86-5.1 4.62 1.4 6.86L12 17.9l-6.1 3.2 1.4-6.86-5.1-4.62 6.9-.86L12 2.5z"/></svg>nowy rekord';
-          c2.appendChild(tagRekord);
+          c2.appendChild(tagNowyRekord());
         }
 
         const c3 = document.createElement("td");
@@ -2765,13 +2788,13 @@
       biezacy.daty.push(d);
     });
 
-    let indeksWjazdu = 0;
+    const licznikDni = { indeks: 0 }; // wspólny dla wszystkich miesięcy, żeby kaskada dni szła ciągiem
     miesiace.forEach(function (mies) {
       const naglowek = document.createElement("h3");
       naglowek.className = "rejestr-miesiac";
       naglowek.textContent = mies.etykieta;
-      rejestrBox.appendChild(wjazdKarty(naglowek, indeksWjazdu++));
-      rejestrBox.appendChild(wjazdKarty(budujTabeleDni(mies.daty, grupy, maksymalneCiezary), indeksWjazdu++));
+      rejestrBox.appendChild(wjazdZOpoznieniem(naglowek, opoznienieDniaRejestru(licznikDni.indeks)));
+      rejestrBox.appendChild(budujTabeleDni(mies.daty, grupy, maksymalneCiezary, licznikDni));
     });
   }
   rejestrSzukaj.addEventListener("input", renderRejestr);
@@ -2846,6 +2869,7 @@
       const tekst = document.createElement("span");
       tekst.textContent = r.cwiczenie + " — " + r.ciezar + " kg × " + r.powtorzenia;
       li.appendChild(tekst);
+      li.appendChild(tagNowyRekord());
       rekordyTygodniaLista.appendChild(li);
     });
   }
