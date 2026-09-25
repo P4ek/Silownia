@@ -449,6 +449,30 @@
   }
   .plan-trakcie-tekst { font-weight: 600; font-size: 0.92rem; }
   .plan-trakcie-akcje { display: flex; gap: 8px; flex: none; }
+  .plan-trakcie-info { display: flex; align-items: center; gap: 12px; min-width: 0; }
+
+  /* Kolo postepu trwajacego planu (x/N) — obwod luku 2*PI*19 ≈ 119.38 */
+  .plan-postep { position: relative; width: 48px; height: 48px; flex: none; }
+  .plan-postep svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .plan-postep circle { fill: none; stroke-width: 4; }
+  .plan-postep-tlo { stroke: currentColor; opacity: 0.15; }
+  .plan-postep-luk {
+    stroke: var(--accent);
+    stroke-linecap: round;
+    stroke-dasharray: 119.38;
+    stroke-dashoffset: 119.38;
+    transition: stroke-dashoffset 0.4s ease;
+  }
+  .plan-postep-liczba {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
 
   /* ----- Kropki partii ----- */
   .dot {
@@ -1287,6 +1311,9 @@
   .kontener.motyw-habits .plan-trakcie-baner {
     color: var(--habits-tekst);
   }
+  .kontener.motyw-habits .plan-postep-luk {
+    stroke: var(--habits-akcent);
+  }
   .kontener.motyw-habits .karta-tytul {
     color: var(--habits-tekst);
   }
@@ -1548,7 +1575,16 @@
     </div>
 
     <div id="plan-trakcie-baner" class="plan-trakcie-baner" hidden>
-      <span id="plan-trakcie-tekst" class="plan-trakcie-tekst"></span>
+      <div class="plan-trakcie-info">
+        <div class="plan-postep" aria-hidden="true">
+          <svg viewBox="0 0 44 44">
+            <circle class="plan-postep-tlo" cx="22" cy="22" r="19"/>
+            <circle id="plan-postep-luk" class="plan-postep-luk" cx="22" cy="22" r="19"/>
+          </svg>
+          <span id="plan-postep-liczba" class="plan-postep-liczba"></span>
+        </div>
+        <span id="plan-trakcie-tekst" class="plan-trakcie-tekst"></span>
+      </div>
       <div class="plan-trakcie-akcje">
         <button type="button" id="btn-plan-pomin" class="btn-pill" style="margin-top:0">Pomiń</button>
         <button type="button" id="btn-plan-zakoncz" class="btn-pill" style="margin-top:0">Zakończ plan</button>
@@ -1960,6 +1996,8 @@
   const cwiczenieOstatniCiezar = document.getElementById("cwiczenie-ostatni-ciezar");
   const inputData = document.getElementById("data");
   const planTrakcieBaner = document.getElementById("plan-trakcie-baner");
+  const planPostepLiczba = document.getElementById("plan-postep-liczba");
+  const planPostepLuk = document.getElementById("plan-postep-luk");
   const planTrakcieTekst = document.getElementById("plan-trakcie-tekst");
   const btnPlanPomin = document.getElementById("btn-plan-pomin");
   const btnPlanZakoncz = document.getElementById("btn-plan-zakoncz");
@@ -2655,6 +2693,11 @@
     planTrakcieTekst.textContent =
       "Plan: " + planWTrakcie.nazwa + " — ćwiczenie " + (planWTrakcie.indeks + 1) + " z " +
       planWTrakcie.cwiczenia.length + ": " + poz.partia + " — " + poz.cwiczenie;
+
+    const nr = planWTrakcie.indeks + 1;
+    const wszystkie = planWTrakcie.cwiczenia.length;
+    planPostepLiczba.textContent = nr + "/" + wszystkie;
+    planPostepLuk.style.strokeDashoffset = String(119.38 * (1 - nr / wszystkie));
   }
 
   // Uruchomienie trybu "trening z planu" po kliknięciu "Rozpocznij" na karcie planu
