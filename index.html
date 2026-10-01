@@ -138,13 +138,28 @@
     cursor: pointer;
   }
   .motyw-btn svg { width: 19px; height: 19px; }
-  /* Przyciski motywu widoczne tylko przy wysuniętym panelu bocznym (klasa ustawiana w otworzPanel/zamknijPanel) */
-  .topbar-ikony .motyw-btn {
+  /* Przycisk "Przypomnienia" obok przełącznika motywu — wygląd kafelka jak .motyw-btn, ale z tekstem */
+  .topbar-ikony #btn-przypomnienia {
+    width: auto;
+    height: 42px;
+    margin: 0;
+    padding: 0 14px;
+    gap: 6px;
+    white-space: nowrap;
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-warm);
+    color: var(--ink);
+  }
+  /* Przyciski motywu i przypomnień widoczne tylko przy wysuniętym panelu bocznym (klasa ustawiana w otworzPanel/zamknijPanel) */
+  .topbar-ikony .motyw-btn,
+  .topbar-ikony #btn-przypomnienia {
     opacity: 0;
     visibility: hidden;
     transform: translateX(-6px);
     transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s, scale 0.1s ease;
   }
+  .topbar-ikony.panel-otwarty #btn-przypomnienia,
   .topbar-ikony.panel-otwarty .motyw-btn {
     opacity: 1;
     visibility: visible;
@@ -1683,6 +1698,7 @@
   <button class="motyw-btn motyw-btn-habits" id="motyw-btn-habits" aria-label="Motyw Nawyki (ciemny)" title="Motyw Nawyki (ciemny)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
   </button>
+  <button type="button" id="btn-przypomnienia" class="nav-btn">🔔 Przypomnienia</button>
 </div>
 
 <div id="overlay" hidden></div>
