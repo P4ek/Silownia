@@ -42,3 +42,35 @@ self.addEventListener("fetch", (event) => {
       .catch(() => caches.match(event.request))
   );
 });
+// ----- Obsługa powiadomień push (przypomnienie o zapisaniu treningu/nawyku) -----
+
+self.addEventListener("push", (event) => {
+  let dane = {};
+  try {
+    dane = event.data ? event.data.json() : {};
+  } catch (e) {
+    dane = { title: "Silownia", body: event.data ? event.data.text() : "" };
+  }
+
+  const tytul = dane.title || "Dziennik treningowy";
+  const opcje = {
+    body: dane.body || "",
+    icon: "./logo/icon-192.png",
+    badge: "./logo/icon-192.png",
+    tag: "silownia-przypomnienie"
+  };
+
+  event.waitUntil(self.registration.showNotification(tytul, opcje));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: "window" }).then((lista) => {
+      for (const klient of lista) {
+        if ("focus" in klient) return klient.focus();
+      }
+      if (clients.openWindow) return clients.openWindow("./index.html");
+    })
+  );
+});
