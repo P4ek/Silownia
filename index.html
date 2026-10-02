@@ -138,19 +138,19 @@
     cursor: pointer;
   }
   .motyw-btn svg { width: 19px; height: 19px; }
-  /* Przycisk "Przypomnienia" obok przełącznika motywu — wygląd kafelka jak .motyw-btn, ale z tekstem */
+  /* Przycisk "Przypomnienia" obok przełącznika motywu — wygląd kafelka jak .motyw-btn, tylko z ikoną dzwonka (bez tekstu) */
   .topbar-ikony #btn-przypomnienia {
-    width: auto;
+    width: 42px;
     height: 42px;
     margin: 0;
-    padding: 0 14px;
-    gap: 6px;
-    white-space: nowrap;
+    padding: 0;
+    justify-content: center;
     background: var(--card);
     border: 1px solid var(--border);
     box-shadow: var(--shadow-warm);
-    color: var(--ink);
+    color: var(--muted);
   }
+  .topbar-ikony #btn-przypomnienia svg { width: 19px; height: 19px; }
   /* Przyciski motywu i przypomnień widoczne tylko przy wysuniętym panelu bocznym (klasa ustawiana w otworzPanel/zamknijPanel) */
   .topbar-ikony .motyw-btn,
   .topbar-ikony #btn-przypomnienia {
@@ -248,6 +248,33 @@
     color: var(--accent-pink);
   }
   .nav-btn.aktywny.nav-rozwoj svg { color: var(--accent-pink); }
+
+  /* Pigułka przy "Plan tygodnia": X/Y celów zrealizowanych w bieżącym tygodniu (niezależna od przeglądanego tygodnia strzałkami) */
+  .nav-cele-pigulka {
+    margin-left: auto;
+    flex: none;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.5;
+    border: 1.5px solid var(--accent-pink);
+    color: var(--accent-pink);
+  }
+  .nav-cele-pigulka.pigulka-kompletna {
+    background: #E6F3E4;
+    border-color: #BCDDB6;
+    color: #2F6B2A;
+  }
+  #sidebar.motyw-habits .nav-cele-pigulka {
+    border-color: var(--habits-akcent, #D6D0C0);
+    color: var(--habits-akcent, #D6D0C0);
+  }
+  html.motyw-habits .nav-cele-pigulka.pigulka-kompletna {
+    background: oklch(0.2 0.035 150);
+    border-color: oklch(0.32 0.06 150);
+    color: oklch(0.86 0.08 150);
+  }
   .nav-wyloguj {
     margin-top: auto;
     border-top: 1px solid var(--border);
@@ -1698,7 +1725,9 @@
   <button class="motyw-btn motyw-btn-habits" id="motyw-btn-habits" aria-label="Motyw Nawyki (ciemny)" title="Motyw Nawyki (ciemny)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
   </button>
-  <button type="button" id="btn-przypomnienia" class="nav-btn">🔔 Przypomnienia</button>
+  <button type="button" id="btn-przypomnienia" class="nav-btn" aria-label="Przypomnienia" title="Przypomnienia">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+  </button>
 </div>
 
 <div id="overlay" hidden></div>
@@ -1730,6 +1759,7 @@
   <button class="nav-btn nav-rozwoj" data-widok="widok-plan">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.9 6.4.6-4.9 4.2 1.5 6.3L12 16.9l-5.5 3.1 1.5-6.3-4.9-4.2 6.4-.6L12 3Z"/></svg>
     <span>Plan tygodnia</span>
+    <span id="cele-tydzien-pigulka" class="nav-cele-pigulka" hidden></span>
   </button>
   <button class="nav-btn nav-habits" data-widok="widok-habits">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M8 15l2 2 4-4"/></svg>
@@ -3521,6 +3551,7 @@
   const tydzienPodsumowanie = document.getElementById("tydzien-podsumowanie");
   const tydzienPodsumowanieTekst = document.getElementById("tydzien-podsumowanie-tekst");
   const tydzienProgressRing = document.getElementById("tydzien-progress-ring");
+  const celeTydzienPigulkaEl = document.getElementById("cele-tydzien-pigulka");
   const OBWOD_PIERSCIENIA_TYGODNIA = 2 * Math.PI * 15.5;
   const btnZakonczTydzien = document.getElementById("btn-zakoncz-tydzien");
   const podsumowanieSzczegoly = document.getElementById("podsumowanie-tydzien-szczegoly");
@@ -3626,11 +3657,28 @@
     tydzienDataEl.textContent = formatDataPL(wybranyPoniedzialek);
   }
 
+  // Pigułka w panelu bocznym obok "Plan tygodnia": X/Y celów zrealizowanych w BIEŻĄCYM (dzisiejszym) tygodniu,
+  // niezależnie od tygodnia aktualnie przeglądanego strzałkami. Gdy przeglądany tydzień to nie bieżący tydzień,
+  // pigułka zostaje bez zmian (nie dotyczy przeglądanych tygodni).
+  function renderCeleTydzienPigulkaBocznej() {
+    if (isoZDaty(wybranyPoniedzialek) !== isoZDaty(poniedzialekTygodnia(new Date()))) return;
+    const wszystkie = cele.length;
+    if (wszystkie === 0) {
+      celeTydzienPigulkaEl.hidden = true;
+      return;
+    }
+    const zrealizowane = cele.filter(function (c) { return c.zrealizowane; }).length;
+    celeTydzienPigulkaEl.textContent = zrealizowane + "/" + wszystkie;
+    celeTydzienPigulkaEl.classList.toggle("pigulka-kompletna", zrealizowane === wszystkie);
+    celeTydzienPigulkaEl.hidden = false;
+  }
+
   // Pigułka podsumowania: ile celów (ze wszystkich ról) zrealizowano w wybranym tygodniu
   function renderPodsumowanieTygodnia() {
     const wszystkie = cele.length;
     if (wszystkie === 0) {
       tydzienPodsumowanie.hidden = true;
+      renderCeleTydzienPigulkaBocznej();
       return;
     }
     const zrealizowane = cele.filter(function (c) { return c.zrealizowane; }).length;
@@ -3640,6 +3688,7 @@
     tydzienProgressRing.style.strokeDasharray = String(OBWOD_PIERSCIENIA_TYGODNIA);
     tydzienProgressRing.style.strokeDashoffset = String(OBWOD_PIERSCIENIA_TYGODNIA * (1 - udzial));
     tydzienPodsumowanie.hidden = false;
+    renderCeleTydzienPigulkaBocznej();
   }
 
   // Render bloków "cele wg roli" - checklisty na wybrany tydzień + formularz dodawania celu
