@@ -727,67 +727,78 @@
   }
   .rekord-tygodnia-wiersz:last-child { border-bottom: none; }
 
-  .wolumen-naglowek {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  /* ----- Mapa ciała: kolor partii wg dni od ostatniego treningu ----- */
+  .karta-mapa {
+    --mapa-poziom-0: var(--accent);
+    --mapa-poziom-1: color-mix(in srgb, var(--accent) 55%, var(--card));
+    --mapa-poziom-2: color-mix(in srgb, var(--accent) 24%, var(--card));
+    --mapa-nieaktywna: #DCD4C7;
+    --mapa-cialo: var(--card);
+    --mapa-obrys: #B9AC9B;
+    --mapa-zaznaczenie: var(--ink);
+  }
+  .mapa-sylwetki {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 4px;
+    justify-items: center;
   }
-  .wolumen-naglowek .karta-tytul { margin: 0; }
-  #wolumen-miesiac { width: auto; min-width: 150px; }
-  .wolumen-wiersz { margin-bottom: 14px; }
-  .wolumen-wiersz:last-child { margin-bottom: 0; }
-  .wolumen-glowa {
+  .mapa-sylwetka { margin: 0; width: 100%; max-width: 170px; text-align: center; }
+  .mapa-sylwetka svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .mapa-sylwetka figcaption { margin: 6px 0 0; }
+  .mapa-sylwetka path, .mapa-sylwetka circle, .mapa-sylwetka ellipse {
+    stroke: var(--mapa-obrys);
+    stroke-width: 1.2;
+    stroke-linejoin: round;
+  }
+  .mapa-cialo { fill: var(--mapa-cialo); }
+  .mapa-linia { fill: none; pointer-events: none; opacity: 0.7; }
+  .mapa-partia {
+    fill: var(--mapa-nieaktywna);
+    cursor: pointer;
+    transition: fill 0.3s ease, opacity 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mapa-partia:hover { opacity: 0.82; }
+  .mapa-partia:focus { outline: none; }
+  .mapa-partia:focus-visible, .mapa-sylwetka .mapa-partia.zaznaczona {
+    stroke: var(--mapa-zaznaczenie);
+    stroke-width: 2;
+  }
+  .mapa-partia.poziom-0 { fill: var(--mapa-poziom-0); }
+  .mapa-partia.poziom-1 { fill: var(--mapa-poziom-1); }
+  .mapa-partia.poziom-2 { fill: var(--mapa-poziom-2); }
+  .mapa-legenda {
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 6px;
-    font-size: 0.88rem;
-    font-weight: 600;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 14px;
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
   }
-  .wolumen-nazwa { display: flex; align-items: center; flex-wrap: wrap; row-gap: 2px; }
-  .wolumen-wartosc { color: var(--muted); font-weight: 600; white-space: nowrap; }
-  .wolumen-zaniedbanie {
-    margin-left: 8px;
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: #F8E7E0;
-    color: #B4482C;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
+  .mapa-legenda li { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 0.78rem; }
+  .mapa-probka {
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+    border: 1px solid var(--mapa-obrys);
+    flex: none;
   }
-  .wolumen-pasek-tlo {
-    height: 14px;
-    border-radius: 999px;
-    background: #F4EEE2;
-    overflow: hidden;
+  .mapa-probka.poziom-0 { background: var(--mapa-poziom-0); }
+  .mapa-probka.poziom-1 { background: var(--mapa-poziom-1); }
+  .mapa-probka.poziom-2 { background: var(--mapa-poziom-2); }
+  .mapa-probka.poziom-3 { background: var(--mapa-nieaktywna); }
+  .mapa-info {
+    margin: 14px 0 0;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    text-align: center;
   }
-  .wolumen-pasek {
-    height: 100%;
-    border-radius: 999px;
-    transition: width 0.3s ease;
-    min-width: 3px;
-    /* Zapełnianie od zera do docelowej szerokości (inline width); opóźnienie/czas ustawiane w renderWolumenPartie */
-    animation: wolumen-zapelnij 0.6s ease-out backwards;
-  }
-  @keyframes wolumen-zapelnij {
-    from { width: 0; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .wolumen-pasek { animation: none; }
-  }
-  .wolumen-pasek-Klata   { background: #E2643F; }
-  .wolumen-pasek-Plecy   { background: #3F7DE2; }
-  .wolumen-pasek-Biceps  { background: #8B5CF6; }
-  .wolumen-pasek-Triceps { background: #12A594; }
-  .wolumen-pasek-Barki   { background: #E0A82E; }
-  .wolumen-pasek-Brzuch  { background: #D6409F; }
-  .wolumen-pasek-Nogi    { background: #5B8C2A; }
+  .mapa-info strong { color: var(--ink); }
 
   /* ----- Plan tygodnia (motyw różowy, skopowany na #widok-plan) ----- */
   #widok-plan {
@@ -1546,9 +1557,20 @@
     background: oklch(0.07 0.004 250);
   }
 
-  .kontener.motyw-habits :is(.dot-Klata, .wolumen-pasek-Klata) {
+  .kontener.motyw-habits .dot-Klata {
     background: var(--habits-akcent);
   }
+  /* Mapa ciała w ciemnym motywie: progi mieszane z ciemnym tłem karty, szary "nieaktywny" i obrys jaśniejsze od tła */
+  .kontener.motyw-habits .karta-mapa {
+    --mapa-poziom-1: color-mix(in srgb, var(--accent) 62%, var(--habits-tlo-karta));
+    --mapa-poziom-2: color-mix(in srgb, var(--accent) 36%, var(--habits-tlo-karta));
+    --mapa-nieaktywna: oklch(0.25 0.008 245);
+    --mapa-cialo: oklch(0.15 0.006 250);
+    --mapa-obrys: oklch(0.52 0.01 245);
+    --mapa-zaznaczenie: var(--habits-naglowek);
+  }
+  .kontener.motyw-habits .mapa-info { border-color: var(--habits-obramowanie); }
+  .kontener.motyw-habits .mapa-info strong { color: var(--habits-naglowek); }
 
   /* ----- Rejestr: znacznik nowego rekordu ----- */
   .rekord-tag-rejestr {
@@ -1591,7 +1613,6 @@
     .set-row { grid-template-columns: 1fr 1fr; }
     .set-row .btn-remove { grid-column: 1 / -1; }
     .tydzien-podpis { font-size: 0.7rem; }
-    #wolumen-miesiac { min-width: 0; flex: 1 1 100%; }
   }
 
   /* ----- Ekran logowania ----- */
@@ -1876,6 +1897,67 @@
   <section id="widok-wykres" class="widok">
     <h2>Wykres postępu</h2>
 
+    <div class="karta karta-mapa">
+      <h3 class="karta-tytul">Mapa ciała</h3>
+      <p class="karta-podpis">Kolor partii zależy od tego, ile dni minęło od jej ostatniego treningu</p>
+      <div class="mapa-sylwetki" id="mapa-ciala">
+        <figure class="mapa-sylwetka">
+          <svg viewBox="0 0 120 252" aria-label="Sylwetka z przodu">
+          <circle class="mapa-cialo" cx="60" cy="22" r="14"/>
+          <path class="mapa-cialo" d="M54 35 L66 35 L67 45 L53 45 Z"/>
+          <path class="mapa-cialo" d="M21 101 Q29 105 37 101 L34 140 Q28 143 23 140 Z"/>
+          <path class="mapa-cialo" d="M99 101 Q91 105 83 101 L86 140 Q92 143 97 140 Z"/>
+          <circle class="mapa-cialo" cx="28.5" cy="149" r="6"/>
+          <circle class="mapa-cialo" cx="91.5" cy="149" r="6"/>
+          <ellipse class="mapa-cialo" cx="50" cy="244" rx="8" ry="4.5"/>
+          <ellipse class="mapa-cialo" cx="70" cy="244" rx="8" ry="4.5"/>
+          <path class="mapa-partia" data-partia="Biceps" tabindex="0" role="button" aria-label="Biceps" d="M24 69 L39 62 L38 98 Q30 102 21 98 Z"/>
+          <path class="mapa-partia" data-partia="Biceps" tabindex="0" role="button" aria-label="Biceps" d="M96 69 L81 62 L82 98 Q90 102 99 98 Z"/>
+          <path class="mapa-partia" data-partia="Klata" tabindex="0" role="button" aria-label="Klata" d="M46 47 L74 47 Q78 49 78 60 L77 78 Q68 84 60 82 Q52 84 43 78 L42 60 Q42 49 46 47 Z"/>
+          <path class="mapa-partia" data-partia="Brzuch" tabindex="0" role="button" aria-label="Brzuch" d="M45 82 Q52 86 60 85 Q68 86 75 82 L74 117 Q67 124 60 124 Q53 124 46 117 Z"/>
+          <path class="mapa-cialo" d="M46 120 Q53 128 60 128 Q67 128 74 120 L77 139 L43 139 Z"/>
+          <path class="mapa-linia" d="M60 50 L60 80 M50 96 L70 96 M50 108 L70 108 M60 87 L60 120"/>
+          <path class="mapa-partia" data-partia="Barki" tabindex="0" role="button" aria-label="Barki" d="M45 45 C34 44 25 48 23 60 L24 68 C30 64 36 61 42 59 Z"/>
+          <path class="mapa-partia" data-partia="Barki" tabindex="0" role="button" aria-label="Barki" d="M75 45 C86 44 95 48 97 60 L96 68 C90 64 84 61 78 59 Z"/>
+          <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M43 141 L59 141 L57 238 L45 238 Q40 190 43 141 Z"/>
+          <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M61 141 L77 141 Q80 190 75 238 L63 238 Z"/>
+          </svg>
+          <figcaption class="karta-podpis">Przód</figcaption>
+        </figure>
+        <figure class="mapa-sylwetka">
+          <svg viewBox="0 0 120 252" aria-label="Sylwetka z tyłu">
+          <circle class="mapa-cialo" cx="60" cy="22" r="14"/>
+          <path class="mapa-cialo" d="M54 35 L66 35 L67 45 L53 45 Z"/>
+          <path class="mapa-cialo" d="M21 101 Q29 105 37 101 L34 140 Q28 143 23 140 Z"/>
+          <path class="mapa-cialo" d="M99 101 Q91 105 83 101 L86 140 Q92 143 97 140 Z"/>
+          <circle class="mapa-cialo" cx="28.5" cy="149" r="6"/>
+          <circle class="mapa-cialo" cx="91.5" cy="149" r="6"/>
+          <ellipse class="mapa-cialo" cx="50" cy="244" rx="8" ry="4.5"/>
+          <ellipse class="mapa-cialo" cx="70" cy="244" rx="8" ry="4.5"/>
+          <path class="mapa-partia" data-partia="Triceps" tabindex="0" role="button" aria-label="Triceps" d="M24 69 L39 62 L38 98 Q30 102 21 98 Z"/>
+          <path class="mapa-partia" data-partia="Triceps" tabindex="0" role="button" aria-label="Triceps" d="M96 69 L81 62 L82 98 Q90 102 99 98 Z"/>
+          <path class="mapa-partia" data-partia="Plecy" tabindex="0" role="button" aria-label="Plecy" d="M45 46 L75 46 Q80 50 79 64 L76 96 Q68 111 60 113 Q52 111 44 96 L41 64 Q40 50 45 46 Z"/>
+          <path class="mapa-cialo" d="M44 99 Q52 114 60 116 Q68 114 76 99 L76 122 L44 122 Z"/>
+          <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M44 123 L59.5 123 L59.5 140 Q50 143 43 138 Z"/>
+          <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M76 123 L60.5 123 L60.5 140 Q70 143 77 138 Z"/>
+          <path class="mapa-linia" d="M60 52 L60 108"/>
+          <path class="mapa-partia" data-partia="Barki" tabindex="0" role="button" aria-label="Barki" d="M45 45 C34 44 25 48 23 60 L24 68 C30 64 36 61 42 59 Z"/>
+          <path class="mapa-partia" data-partia="Barki" tabindex="0" role="button" aria-label="Barki" d="M75 45 C86 44 95 48 97 60 L96 68 C90 64 84 61 78 59 Z"/>
+          <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M43 141 L59 141 L57 238 L45 238 Q40 190 43 141 Z"/>
+          <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M61 141 L77 141 Q80 190 75 238 L63 238 Z"/>
+          </svg>
+          <figcaption class="karta-podpis">Tył</figcaption>
+        </figure>
+      </div>
+      <ul class="mapa-legenda karta-podpis">
+        <li><span class="mapa-probka poziom-0"></span>0–1 dzień</li>
+        <li><span class="mapa-probka poziom-1"></span>2–3 dni</li>
+        <li><span class="mapa-probka poziom-2"></span>4–6 dni</li>
+        <li><span class="mapa-probka poziom-3"></span>7+ dni lub nigdy</li>
+      </ul>
+      <p id="mapa-info" class="mapa-info karta-podpis" aria-live="polite">Dotknij partii, aby zobaczyć szczegóły.</p>
+    </div>
+
     <div class="karta karta-rekordy-tygodnia">
       <h3 class="karta-tytul">Rekordy osobiste</h3>
       <p class="karta-podpis">Ćwiczenia, w których padł rekord w bieżącym tygodniu</p>
@@ -1883,14 +1965,6 @@
       <p id="rekordy-tygodnia-brak" class="pusto" hidden>Brak nowych rekordów w tym tygodniu.</p>
     </div>
 
-    <div class="karta karta-wolumen">
-      <div class="wolumen-naglowek">
-        <h3 class="karta-tytul">Wolumen na partię</h3>
-        <select id="wolumen-miesiac" aria-label="Miesiąc"></select>
-      </div>
-      <p class="karta-podpis">Suma ciężaru × powtórzeń dla każdej partii w wybranym miesiącu</p>
-      <div id="wolumen-partie-lista"></div>
-    </div>
   </section>
 
   <!-- ===== Widok 4: Dodaj nowe ćwiczenie ===== -->
@@ -2345,8 +2419,8 @@
   const rejestrDatalist = document.getElementById("rejestr-cwiczenia-lista");
   const rekordyTygodniaLista = document.getElementById("rekordy-tygodnia-lista");
   const rekordyTygodniaBrak = document.getElementById("rekordy-tygodnia-brak");
-  const selWolumenMiesiac = document.getElementById("wolumen-miesiac");
-  const wolumenPartieLista = document.getElementById("wolumen-partie-lista");
+  const mapaCiala = document.getElementById("mapa-ciala");
+  const mapaInfo = document.getElementById("mapa-info");
   const formNowe = document.getElementById("form-nowe-cwiczenie");
   const selNowePartia = document.getElementById("nowe-partia");
   const inputNoweNazwa = document.getElementById("nowe-nazwa");
@@ -2874,7 +2948,7 @@
     renderOstatniCiezarDlaCwiczenia();
   }
 
-  // ----- Wykres postępu: karta "Rekordy osobiste" + karta "Wolumen na partię" -----
+  // ----- Wykres postępu: karta "Mapa ciała" + karta "Rekordy osobiste" -----
 
   // Karta 1: ćwiczenia, dla których wpis z bieżącego tygodnia (poniedziałek-niedziela)
   // trafia w historycznie maksymalny ciężar tego ćwiczenia - czyli w tym tygodniu padł rekord
@@ -2929,126 +3003,101 @@
     });
   }
 
-  // Suma wolumenu (ciężar × powtórzenia) na partię, dla danego miesiąca ("RRRR-MM")
-  function obliczWolumenPartii(miesiac) {
-    const suma = {};
-    PARTIE.forEach(function (p) { suma[p] = 0; });
+  // Karta "Mapa ciała": dni od ostatniego treningu każdej partii, liczone z wczytanych wpisów
+  let mapaWybranaPartia = null;
+
+  // Różnica w pełnych dniach między dwiema datami "RRRR-MM-DD"
+  function dniMiedzy(odStr, doStr) {
+    const od = odStr.split("-").map(Number);
+    const dd = doStr.split("-").map(Number);
+    return Math.round((Date.UTC(dd[0], dd[1] - 1, dd[2]) - Date.UTC(od[0], od[1] - 1, od[2])) / 86400000);
+  }
+
+  // { partia: { dni: liczba dni od ostatniego treningu albo null, treningi30: liczba dni treningowych w ostatnich 30 dniach } }
+  function obliczStanPartii() {
+    const dzis = dzisiaj();
+    const ostatnia = {};
+    const dni30 = {};
     wpisy.forEach(function (w) {
-      if (!w.data || w.data.slice(0, 7) !== miesiac) return;
-      if (!(w.partia in suma)) suma[w.partia] = 0;
-      (w.podejscia || []).forEach(function (p) {
-        const c = Number(p["cieżar"]) || 0;
-        const r = Number(p.powtorzenia) || 0;
-        suma[w.partia] += c * r;
-      });
-    });
-    return suma;
-  }
-
-  // Odbudowa selecta miesięcy na podstawie miesięcy obecnych w danych (+ bieżący miesiąc)
-  function odbudujSelectWolumenMiesiac() {
-    const poprzedni = selWolumenMiesiac.value;
-    const miesiace = {};
-    wpisy.forEach(function (w) { if (w.data) miesiace[w.data.slice(0, 7)] = true; });
-    const biezacyMiesiac = dzisiaj().slice(0, 7);
-    miesiace[biezacyMiesiac] = true;
-
-    const posortowane = Object.keys(miesiace).sort().reverse();
-
-    selWolumenMiesiac.innerHTML = "";
-    posortowane.forEach(function (m) {
-      selWolumenMiesiac.appendChild(new Option(etykietaMiesiaca(m + "-01"), m));
-    });
-
-    selWolumenMiesiac.value = (poprzedni && miesiace[poprzedni]) ? poprzedni : biezacyMiesiac;
-  }
-
-  // Karta 2: poziome paski wolumenu na partię dla wybranego miesiąca
-  const WOLUMEN_START_PASKOW_S = 0.45; // po wjeździe wierszy (7 × 50 ms + zapas)
-  const WOLUMEN_KROK_PASKA_S = 0.12;
-  const WOLUMEN_CZAS_PASKA_S = 0.6;
-  const bezRuchu = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-  // Licznik "X kg" rośnie od 0 razem ze swoim paskiem (ease-out); przy ograniczeniu animacji od razu wartość końcowa
-  function animujKg(el, cel, opoznienieMs, czasMs) {
-    const format = function (x) { return Math.round(x).toLocaleString("pl-PL") + " kg"; };
-    if (bezRuchu.matches || cel === 0) {
-      el.textContent = format(cel);
-      return;
-    }
-    el.textContent = format(0);
-    setTimeout(function () {
-      const start = performance.now();
-      function klatka(teraz) {
-        const t = Math.min((teraz - start) / czasMs, 1);
-        el.textContent = format(cel * (1 - Math.pow(1 - t, 3)));
-        if (t < 1 && el.isConnected) requestAnimationFrame(klatka);
+      if (!w.data || !w.partia || w.data > dzis) return;
+      if (!ostatnia[w.partia] || w.data > ostatnia[w.partia]) ostatnia[w.partia] = w.data;
+      if (dniMiedzy(w.data, dzis) < 30) {
+        (dni30[w.partia] = dni30[w.partia] || {})[w.data] = true;
       }
-      requestAnimationFrame(klatka);
-    }, opoznienieMs);
-  }
-
-  function renderWolumenPartie() {
-    const miesiac = selWolumenMiesiac.value;
-    const suma = obliczWolumenPartii(miesiac);
-    const maxWolumen = PARTIE.reduce(function (m, p) { return Math.max(m, suma[p] || 0); }, 0);
-
-    wolumenPartieLista.innerHTML = "";
-    PARTIE.forEach(function (partia, i) {
-      // Najpierw wjeżdżają wiersze z pustymi paskami, potem paski (i liczby kg) zapełniają się po kolei
-      const startPaskaS = WOLUMEN_START_PASKOW_S + i * WOLUMEN_KROK_PASKA_S;
-
-      const wolumen = suma[partia] || 0;
-      const procent = maxWolumen > 0 ? (wolumen / maxWolumen) * 100 : 0;
-      const zaniedbanie = maxWolumen > 0 && procent < 40;
-
-      const wiersz = wjazdKarty(document.createElement("div"), i);
-      wiersz.className += " wolumen-wiersz";
-
-      const glowa = document.createElement("div");
-      glowa.className = "wolumen-glowa";
-
-      const nazwa = document.createElement("span");
-      nazwa.className = "wolumen-nazwa";
-      nazwa.appendChild(kropkaPartii(partia));
-      nazwa.appendChild(document.createTextNode(partia));
-      if (zaniedbanie) {
-        const znacznik = document.createElement("span");
-        znacznik.className = "wolumen-zaniedbanie";
-        znacznik.textContent = "zaniedbanie";
-        nazwa.appendChild(znacznik);
-      }
-
-      const wartoscEl = document.createElement("span");
-      wartoscEl.className = "wolumen-wartosc";
-      animujKg(wartoscEl, Math.round(wolumen), startPaskaS * 1000, WOLUMEN_CZAS_PASKA_S * 1000);
-
-      glowa.appendChild(nazwa);
-      glowa.appendChild(wartoscEl);
-
-      const pasekTlo = document.createElement("div");
-      pasekTlo.className = "wolumen-pasek-tlo";
-      const pasek = document.createElement("div");
-      pasek.className = "wolumen-pasek wolumen-pasek-" + partia;
-      pasek.style.width = procent + "%";
-      pasek.style.animationDelay = startPaskaS + "s";
-      pasek.style.animationDuration = WOLUMEN_CZAS_PASKA_S + "s";
-      pasekTlo.appendChild(pasek);
-
-      wiersz.appendChild(glowa);
-      wiersz.appendChild(pasekTlo);
-      wolumenPartieLista.appendChild(wiersz);
     });
+    const stan = {};
+    PARTIE.forEach(function (p) {
+      stan[p] = {
+        dni: ostatnia[p] ? dniMiedzy(ostatnia[p], dzis) : null,
+        treningi30: dni30[p] ? Object.keys(dni30[p]).length : 0
+      };
+    });
+    return stan;
   }
 
-  // Odświeżenie obu kart widoku "Wykres postępu"
+  function poziomMapy(dni) {
+    if (dni === null || dni >= 7) return 3;
+    if (dni <= 1) return 0;
+    if (dni <= 3) return 1;
+    return 2;
+  }
+
+  function odmianaTreningow(n) {
+    if (n === 1) return "trening";
+    const r10 = n % 10, r100 = n % 100;
+    return (r10 >= 2 && r10 <= 4 && (r100 < 12 || r100 > 14)) ? "treningi" : "treningów";
+  }
+
+  function pokazInfoMapy(stan) {
+    if (!mapaWybranaPartia) return;
+    const s = stan[mapaWybranaPartia];
+    let ostatnio;
+    if (s.dni === null) ostatnio = "jeszcze nie trenowana";
+    else if (s.dni === 0) ostatnio = "ostatnio: dzisiaj";
+    else ostatnio = "ostatnio: " + s.dni + (s.dni === 1 ? " dzień" : " dni") + " temu";
+
+    mapaInfo.innerHTML = "";
+    const nazwa = document.createElement("strong");
+    nazwa.textContent = mapaWybranaPartia;
+    mapaInfo.appendChild(nazwa);
+    mapaInfo.appendChild(document.createTextNode(
+      " · " + ostatnio + " · " + s.treningi30 + " " + odmianaTreningow(s.treningi30) + " w ostatnich 30 dniach"
+    ));
+  }
+
+  function renderMapaCiala() {
+    const stan = obliczStanPartii();
+    mapaCiala.querySelectorAll(".mapa-partia").forEach(function (el) {
+      const partia = el.getAttribute("data-partia");
+      const poziom = poziomMapy(stan[partia].dni);
+      el.classList.remove("poziom-0", "poziom-1", "poziom-2", "poziom-3");
+      el.classList.add("poziom-" + poziom);
+      el.classList.toggle("zaznaczona", partia === mapaWybranaPartia);
+    });
+    pokazInfoMapy(stan);
+  }
+
+  function wybierzPartieMapy(el) {
+    mapaWybranaPartia = el.getAttribute("data-partia");
+    renderMapaCiala();
+  }
+
+  mapaCiala.addEventListener("click", function (e) {
+    const el = e.target.closest(".mapa-partia");
+    if (el) wybierzPartieMapy(el);
+  });
+  mapaCiala.addEventListener("keydown", function (e) {
+    const el = e.target.closest(".mapa-partia");
+    if (!el || (e.key !== "Enter" && e.key !== " ")) return;
+    e.preventDefault();
+    wybierzPartieMapy(el);
+  });
+
+  // Odświeżenie kart widoku "Wykres postępu"
   function renderWykresPostepu() {
+    renderMapaCiala();
     renderRekordyTygodnia();
-    odbudujSelectWolumenMiesiac();
-    renderWolumenPartie();
   }
-
-  selWolumenMiesiac.addEventListener("change", renderWolumenPartie);
 
   // ----- Trening rozpoczęty z zapisanego planu (widok "Zapisz trening") -----
   let planWTrakcie = null; // gdy aktywny: { nazwa, cwiczenia, indeks }
