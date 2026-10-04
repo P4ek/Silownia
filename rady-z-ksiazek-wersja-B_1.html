@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rady z książek – gwiazdozbiór</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:oklch(0.07 0.004 250)}
+a{color:#D6D0C0}a:hover{color:#ffffff}
+button{font-family:inherit;cursor:pointer}
+.shelf{scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 75%,transparent);mask-image:linear-gradient(90deg,#000 75%,transparent)}
+.shelf::-webkit-scrollbar{display:none}
+.orbit{position:absolute;border-radius:50%;border:1px dashed rgba(214,208,192,0.45);animation:spin 18s linear infinite}
+.orbit2{position:absolute;border-radius:50%;border:1px solid rgba(214,208,192,0.14);animation:spin 30s linear infinite reverse}
+.twinkle{animation:tw 3.2s ease-in-out infinite}
+.glow{filter:drop-shadow(0 0 6px rgba(214,208,192,0.7))}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes tw{0%,100%{opacity:.15}50%{opacity:.8}}
+</style>
+</head>
+<body>
+<div id="dc-root"></div>
+<template id="dc-tpl">
+<div style="width: 390px; min-height: 100vh; margin: 0 auto; padding-bottom: 64px; box-sizing: border-box; background: oklch(0.07 0.004 250); color: oklch(0.85 0.005 240); font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden">
+
+  <!-- Nagłówek: menu + odznaka poziomu, wielki tytuł -->
+  <header style="padding: 56px 24px 0">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <button aria-label="Menu" style="width: 48px; height: 48px; border-radius: 14px; border: 1px solid oklch(0.19 0.008 245); background: oklch(0.1 0.006 250); color: oklch(0.85 0.005 240); display: grid; place-items: center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+      </button>
+      <div style="{{levelRingStyle}}">
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: oklch(0.07 0.004 250); display: flex; flex-direction: column; align-items: center; justify-content: center; color: oklch(0.72 0.08 75)">
+          <span style="font-size: 8px; font-weight: 700; letter-spacing: 0.14em">POZ.</span>
+          <span style="font-family: 'Instrument Serif', serif; font-size: 22px; line-height: 1">{{level}}</span>
+        </div>
+      </div>
+    </div>
+    <h1 style="margin: 28px 0 0; font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; font-size: 64px; line-height: 0.9; letter-spacing: -0.01em; color: oklch(0.95 0.004 240)">Rady<br>z książek</h1>
+    <div style="margin-top: 14px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: oklch(0.52 0.008 240)">
+      <span style="color: oklch(0.72 0.08 75); font-weight: 700">{{rank}}</span>
+      <span style="width: 3px; height: 3px; border-radius: 50%; background: oklch(0.44 0.008 240)"></span>
+      <span>{{pd}} PD</span>
+      <span style="width: 3px; height: 3px; border-radius: 50%; background: oklch(0.44 0.008 240)"></span>
+      <span>{{xpHint}}</span>
+    </div>
+  </header>
+
+  <!-- Półka z reflektorem -->
+  <div style="display: flex; align-items: baseline; justify-content: space-between; padding: 40px 24px 0">
+    <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.16em; color: oklch(0.44 0.008 240)">TWOJA PÓŁKA</span>
+    <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.16em; color: oklch(0.44 0.008 240)">1 / ∞</span>
+  </div>
+  <div style="position: relative">
+    <div style="position: absolute; left: -20px; top: -10px; width: 200px; height: 250px; background: radial-gradient(ellipse 50% 60% at 50% 30%, rgba(214,208,192,0.16), transparent 70%); pointer-events: none"></div>
+    <div class="shelf" style="position: relative; display: flex; align-items: flex-end; gap: 8px; overflow-x: auto; padding: 30px 24px 0; height: 236px; box-sizing: border-box">
+      <button aria-pressed="true" aria-label="Magia myślenia na wielką skalę – wybrana" style="position: relative; flex: none; width: 60px; height: 196px; margin-bottom: 18px; padding: 0; border: none; border-radius: 5px 5px 3px 3px; background: #D6D0C0; color: oklch(0.1 0.006 250); display: flex; flex-direction: column; align-items: center; justify-content: space-between; transform: rotate(-4deg); box-shadow: 0 24px 40px -14px rgba(0,0,0,0.9), 0 0 60px -10px rgba(214,208,192,0.45)">
+        <div style="width: 100%; padding-top: 14px; display: flex; flex-direction: column; gap: 3px; align-items: center">
+          <div style="width: 72%; height: 3px; background: oklch(0.72 0.08 75)"></div>
+          <div style="width: 72%; height: 1px; background: oklch(0.1 0.006 250); opacity: 0.3"></div>
+        </div>
+        <span style="writing-mode: vertical-rl; transform: rotate(180deg); font-family: 'Instrument Serif', serif; font-style: italic; font-size: 19px; line-height: 1; white-space: nowrap">Magia myślenia</span>
+        <div style="width: 100%; padding-bottom: 12px; display: flex; flex-direction: column; gap: 6px; align-items: center">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C13 8 16 11 24 12C16 13 13 16 12 24C11 16 8 13 0 12C8 11 11 8 12 0Z"></path></svg>
+          <div style="width: 72%; height: 3px; background: oklch(0.72 0.08 75)"></div>
+        </div>
+        <div style="position: absolute; top: -12px; right: 10px; width: 9px; height: 30px; background: oklch(0.72 0.08 75); clip-path: polygon(0 0,100% 0,100% 100%,50% 78%,0 100%)"></div>
+      </button>
+      <button aria-label="Dodaj książkę" style="flex: none; width: 46px; height: 172px; border-radius: 5px 5px 3px 3px; border: 1.5px dashed oklch(0.32 0.008 245); background: oklch(0.09 0.005 250); color: oklch(0.6 0.008 240); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+        <span style="writing-mode: vertical-rl; transform: rotate(180deg); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; white-space: nowrap">Następna książka</span>
+      </button>
+      <div style="flex: none; width: 34px; height: 148px; border-radius: 4px 4px 2px 2px; background: oklch(0.1 0.006 250); border: 1px solid oklch(0.16 0.007 248)"></div>
+      <div style="flex: none; width: 52px; height: 180px; border-radius: 4px 4px 2px 2px; background: oklch(0.1 0.006 250); border: 1px solid oklch(0.16 0.007 248); opacity: 0.75"></div>
+      <div style="flex: none; width: 40px; height: 136px; border-radius: 4px 4px 2px 2px; background: oklch(0.1 0.006 250); border: 1px solid oklch(0.16 0.007 248); opacity: 0.6; transform: rotate(6deg); transform-origin: bottom left"></div>
+      <div style="flex: none; width: 10px"></div>
+      <div style="flex: none; width: 44px; height: 160px; border-radius: 4px 4px 2px 2px; background: oklch(0.1 0.006 250); border: 1px solid oklch(0.16 0.007 248); opacity: 0.45"></div>
+      <div style="flex: none; width: 38px; height: 150px; border-radius: 4px 4px 2px 2px; background: oklch(0.1 0.006 250); border: 1px solid oklch(0.16 0.007 248); opacity: 0.3"></div>
+      <div style="flex: none; width: 24px"></div>
+    </div>
+    <div style="height: 10px; margin: 0 8px; border-radius: 3px; background: oklch(0.14 0.008 248); border-top: 1px solid oklch(0.26 0.008 245); box-shadow: 0 18px 30px -8px rgba(0,0,0,0.95)"></div>
+  </div>
+
+  <!-- Bilet misji -->
+  <sc-if value="{{notFinished}}" hint-placeholder-val="{{ true }}">
+    <section style="position: relative; margin: 36px 24px 0; border-radius: 24px; background: oklch(0.1 0.006 250); border: 1px solid oklch(0.19 0.008 245)">
+      <div style="position: relative; padding: 24px 24px 26px; overflow: hidden; border-radius: 24px 24px 0 0">
+        <span aria-hidden="true" style="position: absolute; right: -8px; top: -58px; font-family: 'Instrument Serif', serif; font-style: italic; font-size: 230px; line-height: 1; color: oklch(0.14 0.008 248); pointer-events: none">{{roman}}</span>
+        <div style="position: relative; display: flex; align-items: center; gap: 8px">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #D6D0C0; box-shadow: 0 0 10px #D6D0C0"></span>
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.16em; color: #D6D0C0">MISJA W TOKU</span>
+        </div>
+        <h3 style="position: relative; margin: 14px 0 0; font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; font-size: 40px; line-height: 1; color: oklch(0.95 0.004 240)">{{cur.title}}</h3>
+        <p style="position: relative; margin: 14px 0 0; font-size: 15px; line-height: 1.55; color: oklch(0.7 0.006 240)">{{cur.quest}}</p>
+      </div>
+      <!-- perforacja -->
+      <div style="position: relative; height: 0; margin: 0 18px; border-top: 2px dashed oklch(0.19 0.008 245)">
+        <div style="position: absolute; left: -31px; top: -13px; width: 24px; height: 24px; border-radius: 50%; background: oklch(0.07 0.004 250); border: 1px solid oklch(0.19 0.008 245); clip-path: inset(0 0 0 50%)"></div>
+        <div style="position: absolute; right: -31px; top: -13px; width: 24px; height: 24px; border-radius: 50%; background: oklch(0.07 0.004 250); border: 1px solid oklch(0.19 0.008 245); clip-path: inset(0 50% 0 0)"></div>
+      </div>
+      <div style="padding: 22px 24px 24px">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.16em; color: oklch(0.52 0.008 240)">PIECZĄTKI · {{day}}/{{days}}</span>
+          <span style="font-family: 'Instrument Serif', serif; font-style: italic; font-size: 22px; color: oklch(0.72 0.08 75)">+100 PD</span>
+        </div>
+        <div style="display: flex; gap: 7px; margin-top: 14px">
+          <sc-for list="{{stamps}}" as="s" hint-placeholder-count="5">
+            <sc-if value="{{s.on}}" hint-placeholder-val="{{ false }}">
+              <div style="{{s.style}}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+              </div>
+            </sc-if>
+            <sc-if value="{{s.now}}" hint-placeholder-val="{{ false }}">
+              <div style="width: 36px; height: 36px; border-radius: 50%; border: 1.5px dashed #D6D0C0; display: grid; place-items: center; font-size: 9px; font-weight: 700; letter-spacing: 0.06em; color: #D6D0C0">DZIŚ</div>
+            </sc-if>
+            <sc-if value="{{s.later}}" hint-placeholder-val="{{ true }}">
+              <div style="width: 36px; height: 36px; border-radius: 50%; border: 1px solid oklch(0.19 0.008 245); display: grid; place-items: center; font-size: 12px; font-weight: 600; color: oklch(0.44 0.008 240)">{{s.n}}</div>
+            </sc-if>
+          </sc-for>
+        </div>
+        <button onClick="{{completeDay}}" style="margin-top: 22px; width: 100%; height: 56px; border-radius: 16px; border: none; background: #D6D0C0; color: oklch(0.1 0.006 250); font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 14px 36px -12px rgba(214,208,192,0.5)">
+          <span>Przybij dzisiejszą pieczątkę</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+        </button>
+      </div>
+    </section>
+  </sc-if>
+  <sc-if value="{{finished}}" hint-placeholder-val="{{ false }}">
+    <section style="margin: 36px 24px 0; padding: 32px 24px; border-radius: 24px; background: oklch(0.1 0.006 250); border: 1px solid oklch(0.72 0.08 75 / 0.5); text-align: center">
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.16em; color: oklch(0.72 0.08 75)">GWIAZDOZBIÓR UKOŃCZONY</div>
+      <h3 style="margin: 12px 0 0; font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; font-size: 40px; line-height: 1; color: oklch(0.95 0.004 240)">Wszystkie 13 gwiazd zapalone</h3>
+      <button onClick="{{restart}}" style="margin-top: 22px; height: 48px; padding: 0 22px; border-radius: 999px; border: 1px solid oklch(0.19 0.008 245); background: transparent; color: oklch(0.85 0.005 240); font-size: 14px; font-weight: 600">Zacznij od nowa</button>
+    </section>
+  </sc-if>
+
+  <!-- Mapa: gwiazdozbiór zasad -->
+  <div style="padding: 56px 24px 0">
+    <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.16em; color: oklch(0.44 0.008 240)">{{sealsLabel}}</span>
+    <h2 style="margin: 6px 0 0; font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; font-size: 40px; line-height: 1; color: oklch(0.93 0.004 240)">Gwiazdozbiór zasad</h2>
+    <p style="margin: 8px 0 0; font-size: 14px; line-height: 1.5; color: oklch(0.52 0.008 240)">Każda zaliczona zasada zapala gwiazdę. Zapal wszystkie 13, a książka trafi na półkę jako ukończona.</p>
+  </div>
+  <div style="{{mapStyle}}">
+    <sc-for list="{{stars}}" as="st" hint-placeholder-count="80">
+      <div class="{{st.cls}}" style="{{st.style}}"></div>
+    </sc-for>
+    <div style="{{haloStyle}}"></div>
+    <svg width="390" height="{{mapH}}" viewBox="0 0 390 {{mapH}}" style="position: absolute; left: 0; top: 0; pointer-events: none" aria-hidden="true">
+      <path d="{{fullD}}" fill="none" stroke="oklch(0.26 0.008 245)" stroke-width="1" stroke-dasharray="3 5"></path>
+      <path d="{{doneD}}" fill="none" stroke="#D6D0C0" stroke-width="1.5" stroke-linejoin="round" style="filter: drop-shadow(0 0 4px rgba(214,208,192,0.6))"></path>
+    </svg>
+    <sc-for list="{{nodes}}" as="n" hint-placeholder-count="16">
+      <div style="{{n.pos}}">
+        <sc-if value="{{n.isDone}}" hint-placeholder-val="{{ false }}">
+          <button aria-label="{{n.aria}}" class="glow" style="width: 44px; height: 44px; border: none; background: transparent; color: #D6D0C0; display: grid; place-items: center; padding: 0">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C13 8 16 11 24 12C16 13 13 16 12 24C11 16 8 13 0 12C8 11 11 8 12 0Z"></path></svg>
+          </button>
+        </sc-if>
+        <sc-if value="{{n.isActive}}" hint-placeholder-val="{{ false }}">
+          <div style="position: relative; width: 96px; height: 96px; display: grid; place-items: center">
+            <span class="orbit2" style="inset: 0"></span>
+            <span class="orbit" style="inset: 16px"></span>
+            <button aria-label="{{n.aria}}" style="position: relative; width: 48px; height: 48px; border-radius: 50%; border: none; background: oklch(0.07 0.004 250); color: oklch(0.95 0.004 240); display: grid; place-items: center; padding: 0; box-shadow: 0 0 0 1px #D6D0C0, 0 0 40px rgba(214,208,192,0.55)">
+              <span style="font-family: 'Instrument Serif', serif; font-size: 20px">{{n.roman}}</span>
+            </button>
+          </div>
+        </sc-if>
+        <sc-if value="{{n.isLocked}}" hint-placeholder-val="{{ true }}">
+          <button aria-label="{{n.aria}}" disabled="" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid oklch(0.22 0.008 245); background: oklch(0.07 0.004 250); display: grid; place-items: center; padding: 0; cursor: default">
+            <span style="width: 4px; height: 4px; border-radius: 50%; background: oklch(0.44 0.008 240)"></span>
+          </button>
+        </sc-if>
+        <sc-if value="{{n.isPlanet}}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+            <div style="{{n.planetStyle}}">
+              <svg width="64" height="40" viewBox="0 0 64 40" fill="none" aria-hidden="true">
+                <circle cx="32" cy="20" r="12" fill="currentColor" opacity="{{n.planetOpacity}}"></circle>
+                <ellipse cx="32" cy="20" rx="28" ry="7" stroke="currentColor" stroke-width="1.5" transform="rotate(-14 32 20)"></ellipse>
+              </svg>
+            </div>
+            <span style="{{n.planetLabelStyle}}">{{n.planetLabel}}</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{n.isFinal}}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+            <div style="{{n.finalStyle}}">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C13 8 16 11 24 12C16 13 13 16 12 24C11 16 8 13 0 12C8 11 11 8 12 0Z"></path></svg>
+            </div>
+            <span style="font-family: 'Instrument Serif', serif; font-style: italic; font-size: 22px; color: oklch(0.7 0.006 240); white-space: nowrap">Gwiazda polarna</span>
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.14em; color: oklch(0.44 0.008 240)">KSIĄŻKA UKOŃCZONA · +200 PD</span>
+          </div>
+        </sc-if>
+      </div>
+      <sc-if value="{{n.hasLabel}}" hint-placeholder-val="{{ true }}">
+        <div style="{{n.labelPos}}">
+          <span style="{{n.kickerStyle}}">{{n.kicker}}</span>
+          <span style="{{n.titleStyle}}">{{n.title}}</span>
+        </div>
+      </sc-if>
+    </sc-for>
+  </div>
+</div>
+</template>
+<script>
+
+class DCLogic { constructor(props){ this.props = props; this.state = {}; } setState(p){ Object.assign(this.state, p); __render(); } forceUpdate(){ __render(); } }
+
+const MISJE = [
+  { title: 'Uwierz, że ci się uda', quest: 'Każdego ranka zapisz jedną rzecz, którą dziś osiągniesz, i powiedz ją na głos: „zrobię”, nie „może”.', days: 5 },
+  { title: 'Wylecz się z wymówek', quest: 'Łap każdą wymówkę („nie mam czasu”, „to nie dla mnie”) i zapisz obok, co zrobisz zamiast niej.', days: 5 },
+  { title: 'Pokonaj strach działaniem', quest: 'Codziennie zrób jedną małą rzecz, którą odkładasz ze strachu. Usiądź z przodu, odezwij się pierwszy.', days: 5 },
+  { title: 'Myśl z rozmachem', quest: 'Opisz swój cel w wersji ×10. Przez cały dzień wybieraj słowa, które budują, a nie pomniejszają.', days: 3 },
+  { title: 'Myśl twórczo', quest: 'Codziennie zapytaj: „jak zrobić to lepiej?” i zapisz jeden pomysł usprawnienia.', days: 5 },
+  { title: 'Jesteś tym, kim myślisz, że jesteś', quest: 'Zachowuj się jak osoba, którą chcesz być. Wieczorem zapisz jedną rzecz, z której jesteś dumny.', days: 5 },
+  { title: 'Zadbaj o swoje otoczenie', quest: 'Spędź czas z kimś, kto myśli z rozmachem. Odetnij jedno źródło negatywnych bodźców.', days: 7 },
+  { title: 'Postawa jako sojusznik', quest: 'Codziennie doceń jedną osobę – konkretnie i po imieniu.', days: 5 },
+  { title: 'Dobrze myśl o ludziach', quest: 'W każdej rozmowie znajdź jedną rzecz, którą lubisz w drugiej osobie. Uśmiechaj się pierwszy.', days: 5 },
+  { title: 'Nawyk działania', quest: 'Zacznij odkładane zadanie w ciągu 5 minut od pomysłu. Bez czekania na idealny moment.', days: 5 },
+  { title: 'Zamień porażkę w zwycięstwo', quest: 'Każde niepowodzenie zapisz jako lekcję: co poprawię następnym razem?', days: 5 },
+  { title: 'Wyznaczaj cele', quest: 'Spisz cel na 10 lat, rozbij go na 30 dni i zrób dziś pierwszy krok.', days: 3 },
+  { title: 'Myśl jak lider', quest: 'Codziennie zapytaj: co zrobiłby tu ktoś, kogo podziwiam? I zrób to.', days: 5 }
+];
+const RZYM = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII'];
+// kolejne punkty mapy: p = zasada, s = planeta-pieczęć, f = gwiazda polarna
+const MAPA = [
+  { k: 'p', x: 110 }, { k: 'p', x: 250 }, { k: 'p', x: 300 }, { k: 'p', x: 170 },
+  { k: 's', x: 240, after: 4, name: 'Planeta I' },
+  { k: 'p', x: 90 }, { k: 'p', x: 150 }, { k: 'p', x: 290 }, { k: 'p', x: 215 },
+  { k: 's', x: 140, after: 8, name: 'Planeta II' },
+  { k: 'p', x: 70 }, { k: 'p', x: 200 }, { k: 'p', x: 310 }, { k: 'p', x: 230 }, { k: 'p', x: 100 },
+  { k: 'f', x: 195 }
+];
+
+class Component extends DCLogic {
+  getDone() {
+    const s = this.state || {};
+    const base = Math.max(0, Math.min(13, Number(this.props.ukonczone ?? 2)));
+    return s.done ?? base;
+  }
+  getDay() {
+    const s = this.state || {};
+    return s.day ?? Number(this.props.dzien ?? 3);
+  }
+  renderVals() {
+    const done = this.getDone();
+    const finished = done >= 13;
+    const cur = finished ? MISJE[12] : MISJE[done];
+    const days = cur.days;
+    const day = finished ? days : Math.min(this.getDay(), days - 1);
+    const muted = 'oklch(0.44 0.008 240)';
+
+    // punkty mapy
+    const STEP = 92;
+    let y = 90, j = 0;
+    const pts = MAPA.map((m) => {
+      const p = { k: m.k, x: m.x, y: y, after: m.after, name: m.name };
+      if (m.k === 'p') { p.j = j; j++; }
+      y += m.k === 'p' ? STEP : 120;
+      return p;
+    });
+    const last = pts[pts.length - 1];
+    const mapH = last.y + 170;
+    let activeIdx = pts.length - 1;
+    if (!finished) activeIdx = pts.findIndex((p) => p.k === 'p' && p.j === done);
+    const line = (arr) => arr.map((p, i) => (i ? 'L' : 'M') + p.x + ' ' + p.y).join(' ');
+
+    const nodes = pts.map((p) => {
+      const o = {
+        pos: 'position:absolute;left:' + p.x + 'px;top:' + p.y + 'px;transform:translate(-50%,-50%);z-index:3',
+        isDone: false, isActive: false, isLocked: false, isPlanet: false, isFinal: false, hasLabel: false
+      };
+      if (p.k === 'p') {
+        const st = p.j < done ? 'done' : (p.j === done ? 'active' : 'locked');
+        o.isDone = st === 'done'; o.isActive = st === 'active'; o.isLocked = st === 'locked';
+        o.roman = RZYM[p.j];
+        o.title = MISJE[p.j].title;
+        o.aria = 'Zasada ' + RZYM[p.j] + ': ' + MISJE[p.j].title;
+        o.hasLabel = true;
+        o.kicker = (st === 'active' ? 'TERAZ · ' : '') + RZYM[p.j];
+        o.kickerStyle = "font-family:'Instrument Serif',serif;font-size:15px;line-height:1;color:" + (st === 'locked' ? muted : (st === 'active' ? '#D6D0C0' : 'oklch(0.72 0.08 75)'));
+        o.titleStyle = st === 'active'
+          ? "font-family:'Instrument Serif',serif;font-style:italic;font-size:26px;line-height:1.02;color:oklch(0.95 0.004 240)"
+          : 'font-size:13px;font-weight:600;line-height:1.3;color:' + (st === 'done' ? 'oklch(0.75 0.006 240)' : muted);
+        const gap = st === 'active' ? 54 : 30;
+        const base = 'position:absolute;top:' + p.y + 'px;transform:translateY(-50%);display:flex;flex-direction:column;gap:4px;z-index:3;';
+        if (p.x > 195) {
+          const r = p.x - gap;
+          o.labelPos = base + 'left:20px;width:' + (r - 20) + 'px;text-align:right;align-items:flex-end';
+        } else {
+          const l = p.x + gap;
+          o.labelPos = base + 'left:' + l + 'px;width:' + (370 - l) + 'px';
+        }
+      } else if (p.k === 's') {
+        const open = done >= p.after;
+        o.isPlanet = true;
+        o.planetOpacity = open ? 0.9 : 0.15;
+        o.planetStyle = 'color:' + (open ? 'oklch(0.72 0.08 75)' : 'oklch(0.3 0.008 245)') + (open ? ';filter:drop-shadow(0 0 12px oklch(0.72 0.08 75 / 0.5))' : '');
+        o.planetLabel = p.name + (open ? ' · odkryta · +50 PD' : ' · po ' + RZYM[p.after - 1] + ' zasadzie');
+        o.planetLabelStyle = 'font-size:11px;font-weight:700;letter-spacing:0.1em;white-space:nowrap;color:' + (open ? 'oklch(0.72 0.08 75)' : muted);
+      } else {
+        o.isFinal = true;
+        o.finalStyle = finished
+          ? 'color:oklch(0.72 0.08 75);filter:drop-shadow(0 0 22px oklch(0.72 0.08 75 / 0.8))'
+          : 'color:oklch(0.2 0.008 245)';
+      }
+      return o;
+    });
+
+    // tło: deterministyczne gwiazdy
+    let seed = 7;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+    const stars = [];
+    for (let i = 0; i < 90; i++) {
+      const sz = rnd() < 0.85 ? 1 : 2;
+      const op = (0.12 + rnd() * 0.4).toFixed(2);
+      stars.push({
+        cls: i % 9 === 0 ? 'twinkle' : '',
+        style: 'position:absolute;left:' + Math.round(rnd() * 388) + 'px;top:' + Math.round(rnd() * (mapH - 4)) + 'px;width:' + sz + 'px;height:' + sz + 'px;border-radius:50%;background:#D6D0C0;opacity:' + op + ';animation-delay:' + (rnd() * 3).toFixed(1) + 's'
+      });
+    }
+    const act = pts[activeIdx];
+    const haloStyle = 'position:absolute;left:' + (act.x - 160) + 'px;top:' + (act.y - 160) + 'px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle, rgba(214,208,192,0.10), transparent 65%);pointer-events:none;z-index:1';
+
+    const stamps = [];
+    for (let i = 0; i < days; i++) {
+      const tilt = [-8, 5, -3, 9, -6, 4, -10][i % 7];
+      stamps.push({
+        on: i < day, now: i === day, later: i > day, n: i + 1,
+        style: 'width:36px;height:36px;border-radius:50%;background:#D6D0C0;color:oklch(0.1 0.006 250);display:grid;place-items:center;transform:rotate(' + tilt + 'deg);box-shadow:inset 0 0 0 3px oklch(0.1 0.006 250 / 0.25)'
+      });
+    }
+
+    const seals = [4, 8].filter((k) => done >= k).length;
+    const rank = done >= 13 ? 'Mistrz myślenia' : done >= 10 ? 'Strateg' : done >= 6 ? 'Praktyk' : done >= 3 ? 'Adept' : 'Czytelnik';
+    const pd = done * 100 + seals * 50 + (finished ? 200 : day * 20);
+    const pct = finished ? 100 : Math.round((day / days) * 100);
+
+    return {
+      done: done,
+      finished: finished,
+      notFinished: !finished,
+      cur: cur,
+      roman: RZYM[Math.min(done, 12)],
+      day: day,
+      days: days,
+      stamps: stamps,
+      level: finished ? 14 : done + 1,
+      levelRingStyle: 'width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(oklch(0.72 0.08 75) ' + pct + '%, oklch(0.19 0.008 245) 0)',
+      rank: rank,
+      pd: pd,
+      xpHint: finished ? 'maks. poziom' : (days - day) * 20 + ' PD do poz. ' + (done + 2),
+      sealsLabel: done + ' Z 13 GWIAZD · ' + seals + ' Z 2 PLANET',
+      mapH: mapH,
+      mapStyle: 'position:relative;margin-top:24px;height:' + mapH + 'px;background:oklch(0.075 0.006 258);border-top:1px solid oklch(0.14 0.008 248);border-bottom:1px solid oklch(0.14 0.008 248)',
+      stars: stars,
+      haloStyle: haloStyle,
+      fullD: line(pts),
+      doneD: line(pts.slice(0, activeIdx + 1)),
+      nodes: nodes,
+      completeDay: () => {
+        const d0 = this.getDone();
+        if (d0 >= 13) return;
+        const nd = Math.min(this.getDay(), MISJE[d0].days - 1) + 1;
+        if (nd >= MISJE[d0].days) this.setState({ done: d0 + 1, day: 0 });
+        else this.setState({ done: d0, day: nd });
+      },
+      restart: () => this.setState({ done: 0, day: 0 })
+    };
+  }
+}
+
+(function(){
+  const props = {"ukonczone": 2, "dzien": 3};
+  const comp = new Component(props);
+  const tpl = document.getElementById('dc-tpl');
+  const root = document.getElementById('dc-root');
+  const HOLE = /\{\{\s*([^}]+?)\s*\}\}/g;
+  function look(path, scope){
+    path = path.trim();
+    if (path === 'true') return true; if (path === 'false') return false;
+    if (/^-?\d+(\.\d+)?$/.test(path)) return Number(path);
+    return path.split('.').reduce((o,k)=> o == null ? undefined : o[k], scope);
+  }
+  function interp(str, scope){ return str.replace(HOLE, (_, p) => { const v = look(p, scope); return v == null ? '' : String(v); }); }
+  function proc(node, scope){
+    if (node.nodeType === 3) { if (node.nodeValue.includes('{{')) node.nodeValue = interp(node.nodeValue, scope); return; }
+    if (node.nodeType !== 1) { if (node.nodeType === 8) node.remove(); return; }
+    const tag = node.tagName.toLowerCase();
+    if (tag === 'sc-for') {
+      const m = (node.getAttribute('list')||'').match(/^\{\{\s*([^}]+?)\s*\}\}$/);
+      const list = (m ? look(m[1], scope) : []) || [];
+      const as = node.getAttribute('as') || 'item';
+      const frag = document.createDocumentFragment();
+      list.forEach((item, i) => {
+        const s = Object.assign(Object.create(scope), { [as]: item, $index: i });
+        Array.from(node.childNodes).forEach(c => { const cl = c.cloneNode(true); const holder = document.createElement('div'); holder.appendChild(cl); proc(cl, s); while (holder.firstChild) frag.appendChild(holder.firstChild); });
+      });
+      node.replaceWith(frag); return;
+    }
+    if (tag === 'sc-if') {
+      const m = (node.getAttribute('value')||'').match(/^\{\{\s*([^}]+?)\s*\}\}$/);
+      if (!(m && look(m[1], scope))) { node.remove(); return; }
+      Array.from(node.childNodes).forEach(c => proc(c, scope));
+      node.replaceWith(...Array.from(node.childNodes)); return;
+    }
+    for (const a of Array.from(node.attributes)) {
+      if (a.name.startsWith('hint-')) { node.removeAttribute(a.name); continue; }
+      if (!a.value.includes('{{')) continue;
+      const whole = a.value.match(/^\{\{\s*([^}]+?)\s*\}\}$/);
+      if (a.name.startsWith('on') && whole) {
+        node.removeAttribute(a.name);
+        const fn = look(whole[1], scope);
+        if (typeof fn === 'function') node.addEventListener(a.name.slice(2), fn);
+        continue;
+      }
+      node.setAttribute(a.name, interp(a.value, scope));
+    }
+    Array.from(node.childNodes).forEach(c => proc(c, scope));
+  }
+  window.__render = function(){
+    const frag = tpl.content.cloneNode(true);
+    const vals = comp.renderVals();
+    Array.from(frag.childNodes).forEach(c => proc(c, vals));
+    root.replaceChildren(frag);
+  };
+  __render();
+})();
+
+</script>
+</body>
+</html>
