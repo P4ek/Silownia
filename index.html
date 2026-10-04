@@ -5258,7 +5258,7 @@
   const RADY_KOMUNIKAT_JEDNA_AKTYWNA = "Ukończ najpierw wybraną zasadę";
 
   // Punkty doświadczenia (PD) — liczone w apce z danych w bazie, bez osobnej tabeli
-  const RADY_PIECZATKI_WYMAGANE = 5;
+  const RADY_PIECZATKI_WYMAGANE = 3; // ile pieczątek (dni) potrzeba do zaliczenia zasady
   const RADY_PD_PIECZATKA = 20;
   const RADY_PD_ZASADA = 100;
   const RADY_PD_PLANETA = 50;
@@ -5313,6 +5313,13 @@
   }
   function radyPieczatkiZasady(zasadaId) {
     return radyWpisy.filter(function (w) { return String(w.zasada_id) === String(zasadaId) && w.zadzialalo !== false; });
+  }
+  // Odmiana: 1 pieczątka, 2–4 pieczątki, 5+ (i 12–14) pieczątek
+  function radyOdmianaPieczatek(n) {
+    if (n === 1) return "pieczątka";
+    const r10 = n % 10;
+    const r100 = n % 100;
+    return r10 >= 2 && r10 <= 4 && (r100 < 12 || r100 > 14) ? "pieczątki" : "pieczątek";
   }
   function radyPieczatkaDzis(zasadaId) {
     const dzis = dataSprzedDni(0);
@@ -5590,7 +5597,7 @@
     radyAktywna.appendChild(bilet);
   }
 
-  // Bilet "Misja w toku": nazwa zasady, plan jeśli–to, pieczątki X/5 i przyciski
+  // Bilet "Misja w toku": nazwa zasady, plan jeśli–to, pieczątki X/RADY_PIECZATKI_WYMAGANE i przyciski
   function radyBiletMisji(aktywny, zasada) {
     const numer = rzymska(radyNumerZasady(zasada));
     const bilet = document.createElement("section");
@@ -5659,7 +5666,7 @@
     btnZaliczona.className = "rady-btn-dyskretny" + (komplet ? " gotowa" : "");
     btnZaliczona.textContent = "Zaliczona";
     btnZaliczona.disabled = !komplet;
-    if (!komplet) btnZaliczona.title = "Najpierw zbierz " + RADY_PIECZATKI_WYMAGANE + " pieczątek";
+    if (!komplet) btnZaliczona.title = "Najpierw zbierz " + RADY_PIECZATKI_WYMAGANE + " " + radyOdmianaPieczatek(RADY_PIECZATKI_WYMAGANE);
     const btnRezygnuje = document.createElement("button");
     btnRezygnuje.type = "button";
     btnRezygnuje.className = "rady-btn-dyskretny";
@@ -5788,7 +5795,7 @@
 
   async function zaliczZasade(postep, przyciski) {
     if (radyPieczatkiZasady(postep.zasada_id).length < RADY_PIECZATKI_WYMAGANE) {
-      pokazToast("Zbierz najpierw " + RADY_PIECZATKI_WYMAGANE + " pieczątek.", "blad");
+      pokazToast("Zbierz najpierw " + RADY_PIECZATKI_WYMAGANE + " " + radyOdmianaPieczatek(RADY_PIECZATKI_WYMAGANE) + ".", "blad");
       return;
     }
     const pdPrzed = radyObliczPD();
@@ -5818,7 +5825,7 @@
     const liczba = radyPieczatkiZasady(zasada.id).length;
     const potwierdzenie = window.confirm(
       'Zrezygnować z zasady „' + zasada.nazwa + '"? Twój plan jeśli–to' +
-      (liczba > 0 ? " i " + liczba + " " + (liczba === 1 ? "pieczątka" : liczba < 5 ? "pieczątki" : "pieczątek") + " zostaną usunięte." : " zostanie usunięty.")
+      (liczba > 0 ? " i " + liczba + " " + radyOdmianaPieczatek(liczba) + " zostaną usunięte." : " zostanie usunięty.")
     );
     if (!potwierdzenie) return;
 
