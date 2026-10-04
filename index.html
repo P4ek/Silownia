@@ -548,24 +548,344 @@
   .wpis ul { margin: 0; padding-left: 20px; }
   .wpis li { margin: 2px 0; }
 
-  /* ----- Zaplanuj trening: lista ćwiczeń dodanych do budowanego planu ----- */
-  .plan-cwicz-wiersz {
+  /* ----- Zaplanuj trening (#widok-zaplanuj): okładka planu, lista ćwiczeń, dodawanie z katalogu, Notion, zapisane plany ----- */
+  #widok-zaplanuj .zaplanuj-kicker {
+    margin: 0;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--habits-tekst-pomocniczy);
+  }
+  #widok-zaplanuj .zaplanuj-form {
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .plan-ukryta-etykieta {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .plan-okladka {
+    position: relative;
+    margin-top: 24px;
+    height: 300px;
+    border-radius: 28px;
+    background: var(--habits-tlo-karta);
+    border: 1px solid var(--habits-obramowanie);
+    overflow: hidden;
+  }
+  .plan-okladka-kola, .plany-karta-okladka { position: absolute; inset: 0; overflow: hidden; }
+  .plan-kolo {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--kolor-partii);
+    opacity: 0.85;
+    mix-blend-mode: screen;
+    transition: left 0.3s ease, top 0.3s ease;
+  }
+  .plan-kolo.puste { background: none; opacity: 1; mix-blend-mode: normal; border: 1.5px dashed oklch(0.3 0.008 245); }
+  .plan-okladka-dol {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 60px 20px 18px;
+    background: linear-gradient(to top, var(--habits-tlo-karta) 45%, transparent);
+  }
+  .plan-okladka-licznik { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; color: oklch(0.6 0.008 240); }
+  #widok-zaplanuj .plan-okladka-nazwa {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-size: clamp(2.2rem, 11vw, 2.75rem);
+    line-height: 1.1;
+    color: oklch(0.95 0.004 240);
+    outline: none;
+  }
+  #widok-zaplanuj .plan-okladka-nazwa::placeholder { color: oklch(0.44 0.008 240); }
+  .plan-okladka-data {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    font-size: 13px;
+    color: oklch(0.6 0.008 240);
+    cursor: pointer;
+  }
+  .plan-okladka-data svg { width: 14px; height: 14px; flex: none; color: oklch(0.52 0.008 240); }
+  .plan-okladka-data:hover { color: var(--habits-tekst); }
+  /* Natywne pole daty leży przezroczyste na wierszu z datą — dotknięcie otwiera systemowy wybór daty */
+  #widok-zaplanuj .plan-data-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: none;
+    opacity: 0;
+    cursor: pointer;
+  }
+  #widok-zaplanuj .plan-data-input:focus-visible + * { outline: none; }
+  .plan-okladka-data:focus-within { color: var(--habits-tekst); }
+  .plan-lista { list-style: none; margin: 18px 0 0; padding: 0; }
+  .plan-lista-wiersz {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 10px 14px;
-    margin-top: 8px;
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 14px;
+    gap: 14px;
+    min-height: 60px;
+    border-bottom: 1px solid oklch(0.16 0.007 248);
   }
-  #form-plan-treningu input[type="checkbox"] {
-    width: auto;
+  .plan-lista-numer { flex: none; width: 30px; font-family: "Instrument Serif", Georgia, serif; font-size: 24px; color: var(--habits-tekst-pomocniczy); }
+  .plan-lista-opis { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .plan-lista-nazwa { font-size: 15px; font-weight: 600; color: oklch(0.93 0.004 240); overflow-wrap: anywhere; }
+  .plan-lista-partia {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: oklch(0.52 0.008 240);
+  }
+  .plan-kropka { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--kolor-partii); }
+  .plan-btn-x {
+    flex: none;
+    width: 44px;
+    height: 44px;
     padding: 0;
-    border-radius: 4px;
-    vertical-align: middle;
-    margin-right: 6px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--habits-tekst-pomocniczy);
+    display: grid;
+    place-items: center;
+    transition: background 0.15s ease, color 0.15s ease, scale 0.1s ease;
+  }
+  .plan-btn-x svg { width: 16px; height: 16px; }
+  .plan-btn-x:hover { background: var(--habits-obramowanie); color: var(--habits-tekst); }
+  .plan-lista-pusto { margin: 0; padding: 18px 0; font-size: 14px; color: oklch(0.52 0.008 240); }
+  .zaplanuj-etykieta {
+    display: block;
+    margin-top: 26px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: oklch(0.52 0.008 240);
+  }
+  /* Poziome paski (chipy partii, zapisane plany) wychodzą do krawędzi kontenera i przewijają się w środku, bez przewijania strony */
+  .plan-chipy, .plany-pasek {
+    display: flex;
+    overflow-x: auto;
+    margin: 0 -16px;
+    padding: 12px 16px 0;
+    scrollbar-width: none;
+  }
+  .plan-chipy::-webkit-scrollbar, .plany-pasek::-webkit-scrollbar { display: none; }
+  .plan-chipy { gap: 8px; }
+  .plan-chipy::after, .plany-pasek::after { content: ""; flex: none; width: 8px; }
+  .plan-chip {
+    flex: none;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid var(--habits-obramowanie);
+    background: oklch(0.08 0.005 250);
+    color: oklch(0.7 0.006 240);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .plan-chip .plan-kropka { width: 8px; height: 8px; }
+  .plan-chip.aktywny { border-color: transparent; background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+  .plan-chip.aktywny .plan-kropka { background: oklch(0.1 0.006 250); }
+  .plan-katalog { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+  .plan-katalog-wiersz {
+    min-height: 52px;
+    padding: 0 16px;
+    border-radius: 16px;
+    border: 1px solid var(--habits-obramowanie);
+    background: var(--habits-tlo-karta);
+    color: var(--habits-tekst);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    font-size: 15px;
+    transition: border-color 0.15s ease, background 0.15s ease, scale 0.1s ease;
+  }
+  .plan-katalog-nazwa { flex: 1; min-width: 0; padding: 12px 0; overflow-wrap: anywhere; }
+  .plan-katalog-znacznik { flex: none; font-size: 12px; font-weight: 700; white-space: nowrap; color: oklch(0.7 0.006 240); }
+  .plan-katalog-wiersz.w-planie {
+    border-color: oklch(0.72 0.08 75 / 0.45);
+    background: oklch(0.12 0.015 75);
+    color: oklch(0.95 0.004 240);
+  }
+  .plan-katalog-wiersz.w-planie .plan-katalog-znacznik { color: var(--habits-zloto); }
+  .plan-notion {
+    width: 100%;
+    min-height: 56px;
+    margin-top: 20px;
+    padding: 0 16px;
+    border-radius: 18px;
+    border: 1px solid var(--habits-obramowanie);
+    background: var(--habits-tlo-karta);
+    color: var(--habits-tekst);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+  }
+  .plan-notion-ikona {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid oklch(0.26 0.008 245);
+    display: grid;
+    place-items: center;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-size: 17px;
+  }
+  .plan-notion-tekst { flex: 1; font-size: 15px; font-weight: 600; }
+  .plan-notion-tor { position: relative; flex: none; width: 48px; height: 28px; border-radius: 999px; background: var(--habits-obramowanie); transition: background 0.2s ease; }
+  .plan-notion-galka {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: oklch(0.6 0.008 240);
+    transition: left 0.2s ease, background 0.2s ease;
+  }
+  .plan-notion[aria-checked="true"] .plan-notion-tor { background: var(--habits-akcent); }
+  .plan-notion[aria-checked="true"] .plan-notion-galka { left: 23px; background: oklch(0.1 0.006 250); }
+  .plan-btn-zapisz {
+    width: 100%;
+    height: 60px;
+    margin-top: 12px;
+    border-radius: 999px;
+    border: none;
+    background: var(--habits-akcent);
+    color: oklch(0.1 0.006 250);
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 0 18px 40px -16px rgba(var(--habits-akcent-rgb), 0.6);
+  }
+  .plan-btn-zapisz:disabled { opacity: 0.55; cursor: default; }
+  .plany-naglowek { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 40px; }
+  #widok-zaplanuj .plany-tytul { margin: 0; font-size: 30px; color: var(--habits-tekst); }
+  .plany-licznik { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; color: var(--habits-tekst-pomocniczy); white-space: nowrap; }
+  .plany-pasek { align-items: flex-start; gap: 12px; padding-top: 14px; padding-bottom: 4px; }
+  .plany-karta {
+    position: relative;
+    flex: none;
+    width: 220px;
+    border-radius: 24px;
+    background: var(--habits-tlo-karta);
+    border: 1px solid var(--habits-obramowanie);
+    overflow: hidden;
+  }
+  .plany-karta-okladka { position: relative; height: 150px; }
+  .plany-karta-tresc { padding: 14px 16px 16px; }
+  #widok-zaplanuj .plany-karta-nazwa {
+    margin: 0;
+    padding-right: 52px;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 1;
+    color: oklch(0.95 0.004 240);
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+  .plany-karta-info { display: block; margin-top: 4px; font-size: 12px; color: oklch(0.52 0.008 240); }
+  .plany-karta-akcje { display: flex; gap: 8px; margin-top: 14px; }
+  .plany-btn-notion {
+    flex: 1;
+    height: 44px;
+    border-radius: 14px;
+    border: 1px solid oklch(0.26 0.008 245);
+    background: transparent;
+    color: var(--habits-tekst);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .plany-btn-notion:hover { background: var(--habits-obramowanie); }
+  .plany-btn-notion:disabled { opacity: 0.55; cursor: default; }
+  .plany-btn-kosz {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 14px;
+    border: 1px solid oklch(0.26 0.008 245);
+    background: transparent;
+    color: oklch(0.52 0.008 240);
+    display: grid;
+    place-items: center;
+  }
+  .plany-btn-kosz svg { width: 16px; height: 16px; }
+  .plany-btn-kosz:hover { background: rgba(180, 72, 44, 0.12); color: oklch(0.75 0.13 28); }
+  .plany-btn-kosz:disabled { opacity: 0.5; cursor: default; }
+  .plany-btn-start {
+    position: absolute;
+    right: 14px;
+    top: 124px;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    border-radius: 50%;
+    border: none;
+    background: var(--habits-akcent);
+    color: oklch(0.1 0.006 250);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.8);
+  }
+  .plany-btn-start svg { width: 20px; height: 20px; }
+  .plany-placeholder {
+    flex: none;
+    width: 140px;
+    min-height: 150px;
+    padding: 16px;
+    border-radius: 24px;
+    border: 1.5px dashed var(--habits-obramowanie);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 13px;
+    color: var(--habits-tekst-pomocniczy);
   }
   .pusto {
     color: var(--muted);
@@ -2034,7 +2354,7 @@
 
   /* ----- Tryb ciemny (przełącznik globalny obok hamburgera): pozostałe widoki, poza sekcją "Nawyki" -----
      Reguły #widok-habits mają wyższą swoistość (selektor z ID), więc wygląd samej sekcji "Nawyki" zostaje bez zmian. */
-  .kontener.motyw-habits :is(form, .karta, .rejestr-tabela > tbody > tr > td, .wpis, .plan-cwicz-wiersz, .pusto, .cel-wiersz, .przeszkoda-wiersz, select, input) {
+  .kontener.motyw-habits :is(form, .karta, .rejestr-tabela > tbody > tr > td, .wpis, .pusto, .cel-wiersz, .przeszkoda-wiersz, select, input) {
     background: var(--tryb-ciemny-tlo-karta);
     border-color: var(--habits-obramowanie);
   }
@@ -2647,38 +2967,45 @@
 
   <!-- ===== Widok: Zaplanuj trening ===== -->
   <section id="widok-zaplanuj" class="widok">
-    <h2>Zaplanuj trening</h2>
+    <h2 class="zaplanuj-kicker">Zaplanuj trening</h2>
 
-    <form id="form-plan-treningu">
-      <label for="plan-nazwa">Nazwa treningu</label>
-      <input type="text" id="plan-nazwa" autocomplete="off" required placeholder="np. Trening nóg">
+    <form id="form-plan-treningu" class="zaplanuj-form">
+      <!-- Okładka nowego planu: koła w kolorach partii ćwiczeń z planu (renderPlanOkladka) -->
+      <section class="plan-okladka">
+        <div id="plan-okladka-kola" class="plan-okladka-kola" aria-hidden="true"></div>
+        <div class="plan-okladka-dol">
+          <span id="plan-licznik" class="plan-okladka-licznik"></span>
+          <label for="plan-nazwa" class="plan-ukryta-etykieta">Nazwa planu</label>
+          <input type="text" id="plan-nazwa" class="plan-okladka-nazwa" autocomplete="off" required placeholder="Nazwij plan…">
+          <div class="plan-okladka-data">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>
+            <span id="plan-data-tekst"></span>
+            <label for="plan-data" class="plan-ukryta-etykieta">Data treningu</label>
+            <input type="date" id="plan-data" class="plan-data-input">
+          </div>
+        </div>
+      </section>
 
-      <label for="plan-data">Data treningu</label>
-      <input type="date" id="plan-data">
+      <ol id="plan-cwiczenia-lista" class="plan-lista"></ol>
 
-      <label for="plan-partia">Partia mięśniowa</label>
-      <select id="plan-partia">
-        <option value="">-- wybierz partię --</option>
-      </select>
+      <span class="zaplanuj-etykieta">Dodaj do planu</span>
+      <div id="plan-chipy" class="plan-chipy" role="group" aria-label="Partia mięśniowa"></div>
+      <div id="plan-katalog" class="plan-katalog"></div>
 
-      <label for="plan-cwiczenie">Ćwiczenie</label>
-      <select id="plan-cwiczenie" disabled>
-        <option value="">-- najpierw wybierz partię --</option>
-      </select>
+      <button type="button" id="plan-wyslij-notion" class="plan-notion" role="switch" aria-checked="false">
+        <span class="plan-notion-ikona" aria-hidden="true">N</span>
+        <span class="plan-notion-tekst">Wyślij też do Notion</span>
+        <span class="plan-notion-tor" aria-hidden="true"><span class="plan-notion-galka"></span></span>
+      </button>
 
-      <button type="button" id="btn-dodaj-do-planu" class="btn-pill">Dodaj do planu</button>
-
-      <div id="plan-cwiczenia-lista"></div>
-
-      <label><input type="checkbox" id="plan-wyslij-notion"> Wyślij też do Notion</label>
-
-      <button type="submit" class="btn-submit">Zapisz plan</button>
+      <button type="submit" class="plan-btn-zapisz">Zapisz plan</button>
     </form>
 
-    <h2 style="margin-top:28px">Zapisane plany</h2>
-    <div id="plany-lista">
-      <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">📋</span><span>Brak zapisanych planów - ułóż pierwszy powyżej.</span></p>
+    <div class="plany-naglowek">
+      <h2 class="plany-tytul">Twoje plany</h2>
+      <span id="plany-licznik" class="plany-licznik"></span>
     </div>
+    <div id="plany-lista" class="plany-pasek"></div>
   </section>
 
   <!-- ===== Widok 5: Plan tygodnia ===== -->
@@ -3136,12 +3463,15 @@
   const formPlanTreningu = document.getElementById("form-plan-treningu");
   const inputPlanNazwa = document.getElementById("plan-nazwa");
   const inputPlanData = document.getElementById("plan-data");
-  const selPlanPartia = document.getElementById("plan-partia");
-  const selPlanCwiczenie = document.getElementById("plan-cwiczenie");
-  const btnDodajDoPlanu = document.getElementById("btn-dodaj-do-planu");
+  const planDataTekst = document.getElementById("plan-data-tekst");
+  const planOkladkaKola = document.getElementById("plan-okladka-kola");
+  const planLicznik = document.getElementById("plan-licznik");
+  const planChipy = document.getElementById("plan-chipy");
+  const planKatalog = document.getElementById("plan-katalog");
   const planCwiczeniaLista = document.getElementById("plan-cwiczenia-lista");
-  const inputPlanWyslijNotion = document.getElementById("plan-wyslij-notion");
+  const btnPlanWyslijNotion = document.getElementById("plan-wyslij-notion");
   const planyLista = document.getElementById("plany-lista");
+  const planyLicznik = document.getElementById("plany-licznik");
 
   // Wszystkie pobrane wpisy z tabeli "treningi"
   const wpisy = [];
@@ -3202,10 +3532,9 @@
     });
   });
 
-  // Wypełnienie selectów partii (formularz treningu + planowanie treningu)
+  // Wypełnienie selecta partii w formularzu treningu
   PARTIE.forEach(function (partia) {
     selPartia.appendChild(new Option(partia, partia));
-    selPlanPartia.appendChild(new Option(partia, partia));
   });
 
   // Odbudowa selecta ćwiczeń w formularzu treningu (zależny od wybranej partii)
@@ -3272,7 +3601,7 @@
   // Odświeżenie wszystkich list ćwiczeń na stronie
   function odswiezSelectyCwiczen() {
     odbudujSelectCwiczenie();
-    odbudujSelectCwiczeniePlan();
+    renderPlanKatalog();
     odbudujDatalistRejestr();
     renderKatalogListy();
   }
@@ -3302,6 +3631,7 @@
   }
   inputData.value = dzisiaj();
   inputPlanData.value = dzisiaj();
+  renderPlanData();
 
   // Aktualizacja listy ćwiczeń po wyborze partii
   selPartia.addEventListener("change", odbudujSelectCwiczenie);
@@ -4099,130 +4429,247 @@
   let planCwiczeniaRobocze = []; // ćwiczenia dodane do budowanego planu, przed zapisem: [{ partia, cwiczenie }]
   let plany = []; // wiersze z tabeli "plany_treningowe": { id, nazwa, cwiczenia, user_id }
 
-  // Odbudowa selecta ćwiczeń w formularzu planu (zależna od wybranej partii) - ten sam katalog co w formularzu zapisu treningu
-  function odbudujSelectCwiczeniePlan() {
-    const partia = selPlanPartia.value;
-    const poprzednie = selPlanCwiczenie.value;
-    selPlanCwiczenie.innerHTML = "";
+  let planWybranaPartia = PARTIE[0]; // partia wybrana chipem w "Dodaj do planu"
+  let planWyslijDoNotion = false;     // przełącznik "Wyślij też do Notion"
 
-    if (!partia) {
-      selPlanCwiczenie.disabled = true;
-      selPlanCwiczenie.appendChild(new Option("-- najpierw wybierz partię --", ""));
+  function odmianaLiczby(n, jeden, kilka, wiele) {
+    if (n === 1) return jeden;
+    const r10 = n % 10;
+    const r100 = n % 100;
+    return r10 >= 2 && r10 <= 4 && (r100 < 12 || r100 > 14) ? kilka : wiele;
+  }
+
+  // Okładka planu: koło na każde ćwiczenie w kolorze jego partii (pozycje jak w makiecie; szer = szerokość karty w makiecie,
+  // z której liczony jest procent położenia w poziomie, więc okładka skaluje się do szerokości ekranu). Pusty plan = jedno przerywane koło.
+  function renderOkladkePlanu(kontenerKol, pozycje, szer, wys, skala) {
+    kontenerKol.innerHTML = "";
+    if (!pozycje.length) {
+      const kolo = document.createElement("span");
+      kolo.className = "plan-kolo puste";
+      kolo.style.width = kolo.style.height = "100px";
+      kolo.style.left = "calc(50% - 50px)";
+      kolo.style.top = (wys / 2 - 80) + "px";
+      kontenerKol.appendChild(kolo);
       return;
     }
-
-    selPlanCwiczenie.disabled = false;
-    selPlanCwiczenie.appendChild(new Option("-- wybierz ćwiczenie --", ""));
-    cwiczeniaDlaPartii(partia).forEach(function (nazwa) {
-      selPlanCwiczenie.appendChild(new Option(nazwa, nazwa));
+    pozycje.forEach(function (poz, i) {
+      const rozmiar = Math.round((150 - (i % 3) * 34) * skala);
+      const x = ((i * 97 + 20) % (szer - 40)) / szer * 100;
+      const y = Math.round(((i * 53 + 10) % Math.max(40, wys - 120)) - rozmiar / 4);
+      const kolo = document.createElement("span");
+      kolo.className = "plan-kolo";
+      kolo.style.setProperty("--kolor-partii", kolorPartiiCSS(poz.partia));
+      kolo.style.width = kolo.style.height = rozmiar + "px";
+      kolo.style.left = "calc(" + x.toFixed(2) + "% - " + Math.round(rozmiar / 3) + "px)";
+      kolo.style.top = y + "px";
+      kontenerKol.appendChild(kolo);
     });
-    if (poprzednie) selPlanCwiczenie.value = poprzednie;
   }
-  selPlanPartia.addEventListener("change", odbudujSelectCwiczeniePlan);
 
-  // Render listy ćwiczeń dodanych do budowanego planu (przed zapisem), z możliwością usunięcia pozycji
+  // Data planu w formie "Niedziela, 4 października"; pole daty leży przezroczyste na tym wierszu
+  function renderPlanData() {
+    if (!inputPlanData.value) {
+      planDataTekst.textContent = "Wybierz datę";
+      return;
+    }
+    const czesci = inputPlanData.value.split("-").map(Number);
+    const tekst = new Date(czesci[0], czesci[1] - 1, czesci[2])
+      .toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" });
+    planDataTekst.textContent = tekst.charAt(0).toUpperCase() + tekst.slice(1);
+  }
+  inputPlanData.addEventListener("change", renderPlanData);
+  inputPlanData.addEventListener("click", function () {
+    try { if (inputPlanData.showPicker) inputPlanData.showPicker(); } catch (e) {}
+  });
+
+  function czyWPlanie(partia, cwiczenie) {
+    return planCwiczeniaRobocze.some(function (poz) { return poz.partia === partia && poz.cwiczenie === cwiczenie; });
+  }
+
+  // Odświeżenie wszystkiego, co zależy od budowanego planu: okładka, licznik, lista, znaczniki "w planie"
   function renderPlanCwiczeniaListy() {
-    planCwiczeniaLista.innerHTML = "";
-    planCwiczeniaRobocze.forEach(function (poz, indeks) {
-      const wiersz = document.createElement("div");
-      wiersz.className = "plan-cwicz-wiersz";
+    const n = planCwiczeniaRobocze.length;
+    renderOkladkePlanu(planOkladkaKola, planCwiczeniaRobocze, 342, 300, 1);
+    planLicznik.textContent = ("Nowy plan · " + n + " " + odmianaLiczby(n, "ćwiczenie", "ćwiczenia", "ćwiczeń")).toUpperCase();
 
-      const tytul = document.createElement("span");
-      tytul.className = "wpis-tytul";
-      tytul.appendChild(kropkaPartii(poz.partia));
-      tytul.appendChild(document.createTextNode(poz.partia + " — " + poz.cwiczenie));
-      wiersz.appendChild(tytul);
+    planCwiczeniaLista.innerHTML = "";
+    if (n === 0) {
+      const pusto = document.createElement("li");
+      pusto.className = "plan-lista-pusto";
+      pusto.textContent = "Plan jest pusty – dodaj ćwiczenia poniżej.";
+      planCwiczeniaLista.appendChild(pusto);
+    }
+    planCwiczeniaRobocze.forEach(function (poz, indeks) {
+      const wiersz = document.createElement("li");
+      wiersz.className = "plan-lista-wiersz";
+
+      const numer = document.createElement("span");
+      numer.className = "plan-lista-numer";
+      numer.textContent = String(indeks + 1).padStart(2, "0");
+
+      const opis = document.createElement("span");
+      opis.className = "plan-lista-opis";
+      const nazwa = document.createElement("span");
+      nazwa.className = "plan-lista-nazwa";
+      nazwa.textContent = poz.cwiczenie;
+      const partia = document.createElement("span");
+      partia.className = "plan-lista-partia";
+      const kropka = document.createElement("span");
+      kropka.className = "plan-kropka";
+      kropka.style.setProperty("--kolor-partii", kolorPartiiCSS(poz.partia));
+      partia.append(kropka, document.createTextNode(poz.partia));
+      opis.append(nazwa, partia);
 
       const btnUsunPoz = document.createElement("button");
       btnUsunPoz.type = "button";
-      btnUsunPoz.className = "btn-usun";
-      btnUsunPoz.textContent = "×";
+      btnUsunPoz.className = "plan-btn-x";
+      btnUsunPoz.setAttribute("aria-label", "Usuń " + poz.cwiczenie + " z planu");
+      btnUsunPoz.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
       btnUsunPoz.addEventListener("click", function () {
         planCwiczeniaRobocze.splice(indeks, 1);
         renderPlanCwiczeniaListy();
       });
-      wiersz.appendChild(btnUsunPoz);
 
+      wiersz.append(numer, opis, btnUsunPoz);
       planCwiczeniaLista.appendChild(wiersz);
+    });
+    renderPlanKatalog();
+  }
+
+  // "Dodaj do planu": chipy partii + ćwiczenia wybranej partii z katalogu (klik dodaje albo usuwa z planu)
+  function renderPlanKatalog() {
+    planChipy.innerHTML = "";
+    PARTIE.forEach(function (partia) {
+      const aktywny = partia === planWybranaPartia;
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "plan-chip" + (aktywny ? " aktywny" : "");
+      chip.setAttribute("aria-pressed", aktywny ? "true" : "false");
+      const kropka = document.createElement("span");
+      kropka.className = "plan-kropka";
+      kropka.style.setProperty("--kolor-partii", kolorPartiiCSS(partia));
+      chip.append(kropka, document.createTextNode(partia));
+      chip.addEventListener("click", function () {
+        planWybranaPartia = partia;
+        renderPlanKatalog();
+      });
+      planChipy.appendChild(chip);
+    });
+
+    planKatalog.innerHTML = "";
+    const cwiczenia = cwiczeniaDlaPartii(planWybranaPartia);
+    if (cwiczenia.length === 0) {
+      planKatalog.innerHTML = pustyStanHTML("💪", "Brak ćwiczeń w partii " + planWybranaPartia + " - dodaj je w Katalogu ćwiczeń.");
+      return;
+    }
+    cwiczenia.forEach(function (nazwa) {
+      const partia = planWybranaPartia;
+      const wPlanie = czyWPlanie(partia, nazwa);
+      const wiersz = document.createElement("button");
+      wiersz.type = "button";
+      wiersz.className = "plan-katalog-wiersz" + (wPlanie ? " w-planie" : "");
+      wiersz.setAttribute("aria-pressed", wPlanie ? "true" : "false");
+      const nazwaEl = document.createElement("span");
+      nazwaEl.className = "plan-katalog-nazwa";
+      nazwaEl.textContent = nazwa;
+      const znacznik = document.createElement("span");
+      znacznik.className = "plan-katalog-znacznik";
+      znacznik.textContent = wPlanie ? "w planie" : "+ dodaj";
+      wiersz.append(nazwaEl, znacznik);
+      wiersz.addEventListener("click", function () {
+        if (czyWPlanie(partia, nazwa)) {
+          planCwiczeniaRobocze = planCwiczeniaRobocze.filter(function (poz) { return !(poz.partia === partia && poz.cwiczenie === nazwa); });
+        } else {
+          planCwiczeniaRobocze.push({ partia: partia, cwiczenie: nazwa });
+        }
+        renderPlanCwiczeniaListy();
+      });
+      planKatalog.appendChild(wiersz);
     });
   }
 
-  // Dodanie wybranej pary partia + ćwiczenie do budowanego planu
-  btnDodajDoPlanu.addEventListener("click", function () {
-    const partia = selPlanPartia.value;
-    const cwiczenie = selPlanCwiczenie.value;
-    if (!partia || !cwiczenie) return;
+  // Przełącznik "Wyślij też do Notion" (zamiast checkboxa)
+  function ustawPlanNotion(wlaczony) {
+    planWyslijDoNotion = wlaczony;
+    btnPlanWyslijNotion.setAttribute("aria-checked", wlaczony ? "true" : "false");
+  }
+  btnPlanWyslijNotion.addEventListener("click", function () { ustawPlanNotion(!planWyslijDoNotion); });
 
-    planCwiczeniaRobocze.push({ partia: partia, cwiczenie: cwiczenie });
-    renderPlanCwiczeniaListy();
-  });
+  renderPlanCwiczeniaListy();
 
-  // Budowa kafelka zapisanego planu treningowego
+  // Karta zapisanego planu: mini okładka z kołami partii, nazwa, liczby, ▶ rozpoczęcie, Notion, kosz
   function budujKartePlanu(plan) {
-    const karta = document.createElement("div");
-    karta.className = "wpis";
+    const cwiczenia = plan.cwiczenia || [];
+    const liczbaPartii = new Set(cwiczenia.map(function (poz) { return poz.partia; })).size;
 
-    const naglowek = document.createElement("div");
-    naglowek.className = "wpis-naglowek";
+    const karta = document.createElement("article");
+    karta.className = "plany-karta";
 
-    const tytul = document.createElement("span");
-    tytul.className = "wpis-tytul";
+    const okladka = document.createElement("div");
+    okladka.className = "plany-karta-okladka";
+    okladka.setAttribute("aria-hidden", "true");
+    renderOkladkePlanu(okladka, cwiczenia, 220, 150, 0.6);
+
+    const tresc = document.createElement("div");
+    tresc.className = "plany-karta-tresc";
+    const tytul = document.createElement("h3");
+    tytul.className = "plany-karta-nazwa";
     tytul.textContent = plan.nazwa;
-    naglowek.appendChild(tytul);
+    tytul.title = plan.nazwa;
+    const info = document.createElement("span");
+    info.className = "plany-karta-info";
+    info.textContent = cwiczenia.length + " " + odmianaLiczby(cwiczenia.length, "ćwiczenie", "ćwiczenia", "ćwiczeń") +
+      " · " + liczbaPartii + " " + odmianaLiczby(liczbaPartii, "partia", "partie", "partii");
+    karta.title = cwiczenia.map(function (poz) { return poz.partia + " — " + poz.cwiczenie; }).join("\n");
 
-    const btnRozpocznij = document.createElement("button");
-    btnRozpocznij.type = "button";
-    btnRozpocznij.className = "btn-pill";
-    btnRozpocznij.style.marginTop = "0";
-    btnRozpocznij.textContent = "Rozpocznij";
-    btnRozpocznij.addEventListener("click", function () {
-      rozpocznijTreningZPlanu(plan);
-    });
-    naglowek.appendChild(btnRozpocznij);
-
+    const akcje = document.createElement("div");
+    akcje.className = "plany-karta-akcje";
     const btnDodajDoNotion = document.createElement("button");
     btnDodajDoNotion.type = "button";
-    btnDodajDoNotion.className = "btn-pill";
-    btnDodajDoNotion.style.marginTop = "0";
-    btnDodajDoNotion.textContent = "Dodaj do Notion";
+    btnDodajDoNotion.className = "plany-btn-notion";
+    btnDodajDoNotion.textContent = "Notion";
+    btnDodajDoNotion.setAttribute("aria-label", "Dodaj plan " + plan.nazwa + " do Notion");
     btnDodajDoNotion.addEventListener("click", function () {
       wyslijPlanDoNotion(plan, btnDodajDoNotion);
     });
-    naglowek.appendChild(btnDodajDoNotion);
-
     const btnUsunPlan = document.createElement("button");
     btnUsunPlan.type = "button";
-    btnUsunPlan.className = "btn-usun";
-    btnUsunPlan.textContent = "×";
+    btnUsunPlan.className = "plany-btn-kosz";
+    btnUsunPlan.setAttribute("aria-label", "Usuń plan " + plan.nazwa);
+    btnUsunPlan.innerHTML = IKONA_KOSZ_KATALOG;
     btnUsunPlan.addEventListener("click", function () {
       const potwierdzenie = window.confirm('Usunąć plan „' + plan.nazwa + '"?');
       if (!potwierdzenie) return;
       usunPlan(plan, btnUsunPlan);
     });
-    naglowek.appendChild(btnUsunPlan);
+    akcje.append(btnDodajDoNotion, btnUsunPlan);
+    tresc.append(tytul, info, akcje);
 
-    const ul = document.createElement("ul");
-    (plan.cwiczenia || []).forEach(function (poz) {
-      const li = document.createElement("li");
-      li.textContent = poz.partia + " — " + poz.cwiczenie;
-      ul.appendChild(li);
+    const btnRozpocznij = document.createElement("button");
+    btnRozpocznij.type = "button";
+    btnRozpocznij.className = "plany-btn-start";
+    btnRozpocznij.setAttribute("aria-label", "Rozpocznij plan " + plan.nazwa);
+    btnRozpocznij.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+    btnRozpocznij.addEventListener("click", function () {
+      rozpocznijTreningZPlanu(plan);
     });
 
-    karta.appendChild(naglowek);
-    karta.appendChild(ul);
+    karta.append(okladka, tresc, btnRozpocznij);
     return karta;
   }
 
-  // Render listy zapisanych planów treningowych
+  // Render paska zapisanych planów + licznik przy nagłówku + placeholder na końcu
   function renderPlanyListy() {
     planyLista.innerHTML = "";
-    if (plany.length === 0) {
-      planyLista.innerHTML = pustyStanHTML("📋", "Brak zapisanych planów - ułóż pierwszy powyżej.");
-      return;
-    }
+    const n = plany.length;
+    planyLicznik.textContent = (n + " " + odmianaLiczby(n, "zapisany", "zapisane", "zapisanych")).toUpperCase();
     plany.forEach(function (plan, i) {
       planyLista.appendChild(wjazdKarty(budujKartePlanu(plan), i));
     });
+    const placeholder = document.createElement("div");
+    placeholder.className = "plany-placeholder";
+    placeholder.textContent = n === 0 ? "Tu pojawi się Twój pierwszy plan" : "Tu pojawi się Twój kolejny plan";
+    planyLista.appendChild(placeholder);
   }
 
   // Pobranie zapisanych planów z tabeli "plany_treningowe", od najnowszego
@@ -4293,7 +4740,7 @@
       return;
     }
 
-    const btn = formPlanTreningu.querySelector(".btn-submit");
+    const btn = formPlanTreningu.querySelector(".plan-btn-zapisz");
     btn.disabled = true;
 
     const { data, error } = await db
@@ -4313,7 +4760,7 @@
     plany.unshift(nowyPlan);
     renderPlanyListy();
 
-    if (inputPlanWyslijNotion.checked) {
+    if (planWyslijDoNotion) {
       const { error: bladNotion } = await db.functions.invoke("wyslij-plan-do-notion", {
         body: { nazwa: nazwa, cwiczenia: planCwiczeniaRobocze, data: inputPlanData.value || null },
       });
@@ -4329,7 +4776,8 @@
 
     formPlanTreningu.reset();
     inputPlanData.value = dzisiaj();
-    odbudujSelectCwiczeniePlan();
+    renderPlanData();
+    ustawPlanNotion(false);
     planCwiczeniaRobocze = [];
     renderPlanCwiczeniaListy();
   });
