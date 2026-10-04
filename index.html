@@ -1517,8 +1517,139 @@
   /* ----- Status ----- */
   #nowe-status { margin: 12px 0 0; font-size: 0.9rem; font-weight: 600; }
 
-  /* ----- Wykres postępu: karty ----- */
-  #widok-wykres .karta { margin-bottom: 18px; }
+  /* ----- Wykres postępu (#widok-wykres): nagłówek odpoczynku, mapa ciała z przełącznikiem, dni odpoczynku, gablota rekordów ----- */
+  .wykres-kicker {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--habits-zloto);
+  }
+  #widok-wykres .wykres-tytul {
+    margin: 10px 0 0;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(2.6rem, 13vw, 3.4rem);
+    line-height: 0.95;
+    color: oklch(0.95 0.004 240);
+    overflow-wrap: anywhere;
+  }
+  .wykres-szczegoly { margin: 12px 0 0; font-size: 14px; line-height: 1.5; color: oklch(0.6 0.008 240); }
+  .wykres-szczegoly b { color: var(--habits-tekst); font-weight: 600; }
+  .wykres-karta {
+    margin-top: 24px;
+    padding: 20px;
+    border-radius: 24px;
+    background: var(--habits-tlo-karta);
+    border: 1px solid var(--habits-obramowanie);
+  }
+  .wykres-karta-naglowek { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+  #widok-wykres .wykres-karta-tytul {
+    margin: 0;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 26px;
+    line-height: 1;
+    color: oklch(0.93 0.004 240);
+  }
+  .mapa-przelacznik {
+    flex: none;
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
+    border: 1px solid var(--habits-obramowanie);
+    background: oklch(0.08 0.005 250);
+  }
+  .mapa-przelacznik button {
+    padding: 7px 14px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: oklch(0.6 0.008 240);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .mapa-przelacznik button[aria-pressed="true"] { background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+  .wykres-odpoczynek { list-style: none; margin: 0; padding: 0; }
+  .wykres-odpoczynek li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 64px;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    border-top: 1px solid oklch(0.16 0.007 248);
+  }
+  .wykres-odpoczynek li:first-child { border-top: none; }
+  .wykres-odpoczynek-nazwa { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 15px; font-weight: 600; color: oklch(0.9 0.004 240); }
+  .wykres-kropka { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--kolor-partii); }
+  .wykres-kreski { display: flex; gap: 4px; }
+  .wykres-kreski span { width: 6px; height: 18px; border-radius: 3px; background: oklch(0.2 0.008 245); }
+  .wykres-kreski span.pelna { background: var(--kolor-partii); }
+  .wykres-odpoczynek li.zloty .wykres-kreski span.pelna { background: var(--habits-zloto); box-shadow: 0 0 8px oklch(0.72 0.08 75 / 0.45); }
+  .wykres-odpoczynek-dni { font-size: 13px; font-weight: 600; text-align: right; color: oklch(0.7 0.006 240); white-space: nowrap; }
+  .wykres-odpoczynek li.zloty .wykres-odpoczynek-dni { color: var(--habits-zloto); }
+  .wykres-gablota-naglowek { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 34px; }
+  .wykres-gablota-tydzien { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--habits-zloto); white-space: nowrap; }
+  .wykres-gablota {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    overflow-x: auto;
+    margin: 0 -16px;
+    padding: 14px 16px 4px;
+    scrollbar-width: none;
+  }
+  .wykres-gablota::-webkit-scrollbar { display: none; }
+  .wykres-gablota::after { content: ""; flex: none; width: 4px; }
+  .gablota-karta {
+    position: relative;
+    flex: none;
+    width: 168px;
+    min-height: 168px;
+    padding: 16px;
+    border-radius: 22px;
+    background: oklch(0.12 0.015 75);
+    border: 1px solid oklch(0.72 0.08 75 / 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+  }
+  .gablota-karta::before {
+    content: "";
+    position: absolute;
+    right: -30px;
+    top: -30px;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle, oklch(0.72 0.08 75 / 0.35), transparent 70%);
+    pointer-events: none;
+  }
+  .gablota-data { position: relative; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--habits-zloto); }
+  .gablota-data svg { width: 12px; height: 12px; }
+  .gablota-wynik { position: relative; margin-top: auto; font-family: "Instrument Serif", Georgia, serif; font-size: 34px; line-height: 1; color: oklch(0.95 0.004 240); white-space: nowrap; }
+  .gablota-nazwa { position: relative; display: flex; align-items: flex-start; gap: 7px; font-size: 13px; font-weight: 600; line-height: 1.3; color: oklch(0.8 0.005 240); overflow-wrap: anywhere; }
+  .gablota-nazwa .wykres-kropka { margin-top: 5px; }
+  .gablota-placeholder {
+    flex: none;
+    width: 168px;
+    min-height: 168px;
+    padding: 16px;
+    border-radius: 22px;
+    border: 1.5px dashed oklch(0.72 0.08 75 / 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.4;
+    color: oklch(0.6 0.008 240);
+  }
   .wniosek-karta { margin-bottom: 14px; font-size: 1rem; line-height: 1.5; }
   .karta-tytul {
     font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
@@ -1530,15 +1661,6 @@
   }
   .karta-podpis { color: var(--muted); font-size: 0.85rem; margin: 0 0 14px; }
 
-  #rekordy-tygodnia-lista { list-style: none; margin: 0; padding: 0; }
-  .rekord-tygodnia-wiersz {
-    display: flex;
-    align-items: center;
-    padding: 10px 4px;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.92rem;
-  }
-  .rekord-tygodnia-wiersz:last-child { border-bottom: none; }
 
   /* ----- Mapa ciała: kolor partii wg dni od ostatniego treningu ----- */
   .karta-mapa {
@@ -1550,15 +1672,40 @@
     --mapa-obrys: #B9AC9B;
     --mapa-zaznaczenie: var(--ink);
   }
-  .mapa-sylwetki {
+  /* Jedna sylwetka (przód albo tył) w środku, po bokach etykiety partii z liczbą dni (pozycja w % wysokości sylwetki) */
+  .mapa-sylwetka {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    justify-items: center;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 170px) minmax(0, 1fr);
+    align-items: stretch;
+    gap: 8px;
+    margin: 0;
   }
-  .mapa-sylwetka { margin: 0; width: 100%; max-width: 170px; text-align: center; }
   .mapa-sylwetka svg { display: block; width: 100%; height: auto; overflow: visible; }
-  .mapa-sylwetka figcaption { margin: 6px 0 0; }
+  .mapa-etykiety { position: relative; min-width: 0; }
+  .mapa-etykieta {
+    position: absolute;
+    top: var(--y);
+    transform: translateY(-50%);
+    max-width: 100%;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--habits-obramowanie);
+    background: oklch(0.08 0.005 250);
+    color: oklch(0.7 0.006 240);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .mapa-etykiety.lewe .mapa-etykieta { right: 0; }
+  .mapa-etykiety.prawe .mapa-etykieta { left: 0; }
+  .mapa-etykieta b { color: oklch(0.93 0.004 240); }
+  .mapa-etykieta.zlota { border-color: oklch(0.72 0.08 75 / 0.5); color: var(--habits-zloto); }
+  .mapa-etykieta.zlota b { color: var(--habits-zloto); }
+  .mapa-etykieta.zaznaczona { border-color: var(--habits-akcent); }
   .mapa-sylwetka path, .mapa-sylwetka circle, .mapa-sylwetka ellipse {
     stroke: var(--mapa-obrys);
     stroke-width: 1.2;
@@ -3368,14 +3515,23 @@
 
   <!-- ===== Widok 3: Wykres postępu ===== -->
   <section id="widok-wykres" class="widok">
-    <h2>Wykres postępu</h2>
+    <!-- Nagłówek: 1–2 partie, które najdłużej odpoczywają (renderWykresNaglowek) -->
+    <span id="wykres-kicker" class="wykres-kicker"></span>
+    <h2 id="wykres-tytul" class="wykres-tytul"></h2>
+    <p id="wykres-szczegoly" class="wykres-szczegoly"></p>
 
-    <div class="karta karta-mapa">
-      <h3 class="karta-tytul">Mapa ciała</h3>
-      <p class="karta-podpis">Kolor partii zależy od tego, ile dni minęło od jej ostatniego treningu</p>
+    <section class="wykres-karta karta-mapa">
+      <div class="wykres-karta-naglowek">
+        <h3 class="wykres-karta-tytul">Mapa ciała</h3>
+        <div id="mapa-przelacznik" class="mapa-przelacznik" role="group" aria-label="Strona sylwetki">
+          <button type="button" data-strona="przod" aria-pressed="true">Przód</button>
+          <button type="button" data-strona="tyl" aria-pressed="false">Tył</button>
+        </div>
+      </div>
       <div class="mapa-sylwetki" id="mapa-ciala">
-        <figure class="mapa-sylwetka">
-          <svg viewBox="0 0 120 252" aria-label="Sylwetka z przodu">
+        <figure class="mapa-sylwetka" data-strona="przod">
+          <div class="mapa-etykiety lewe"></div>
+          <svg class="mapa-svg" viewBox="0 0 120 252" aria-label="Sylwetka z przodu">
           <circle class="mapa-cialo" cx="60" cy="22" r="14"/>
           <path class="mapa-cialo" d="M54 35 L66 35 L67 45 L53 45 Z"/>
           <path class="mapa-cialo" d="M21 101 Q29 105 37 101 L34 140 Q28 143 23 140 Z"/>
@@ -3395,10 +3551,11 @@
           <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M43 141 L59 141 L57 238 L45 238 Q40 190 43 141 Z"/>
           <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M61 141 L77 141 Q80 190 75 238 L63 238 Z"/>
           </svg>
-          <figcaption class="karta-podpis">Przód</figcaption>
+          <div class="mapa-etykiety prawe"></div>
         </figure>
-        <figure class="mapa-sylwetka">
-          <svg viewBox="0 0 120 252" aria-label="Sylwetka z tyłu">
+        <figure class="mapa-sylwetka" data-strona="tyl" hidden>
+          <div class="mapa-etykiety lewe"></div>
+          <svg class="mapa-svg" viewBox="0 0 120 252" aria-label="Sylwetka z tyłu">
           <circle class="mapa-cialo" cx="60" cy="22" r="14"/>
           <path class="mapa-cialo" d="M54 35 L66 35 L67 45 L53 45 Z"/>
           <path class="mapa-cialo" d="M21 101 Q29 105 37 101 L34 140 Q28 143 23 140 Z"/>
@@ -3419,7 +3576,7 @@
           <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M43 141 L59 141 L57 238 L45 238 Q40 190 43 141 Z"/>
           <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M61 141 L77 141 Q80 190 75 238 L63 238 Z"/>
           </svg>
-          <figcaption class="karta-podpis">Tył</figcaption>
+          <div class="mapa-etykiety prawe"></div>
         </figure>
       </div>
       <ul class="mapa-legenda karta-podpis">
@@ -3429,15 +3586,18 @@
         <li><span class="mapa-probka poziom-3"></span>7+ dni lub nigdy</li>
       </ul>
       <p id="mapa-info" class="mapa-info karta-podpis" aria-live="polite">Dotknij partii, aby zobaczyć szczegóły.</p>
-    </div>
+    </section>
 
-    <div class="karta karta-rekordy-tygodnia">
-      <h3 class="karta-tytul">Rekordy osobiste</h3>
-      <p class="karta-podpis">Ćwiczenia, w których padł rekord w bieżącym tygodniu</p>
-      <ul id="rekordy-tygodnia-lista"></ul>
-      <p id="rekordy-tygodnia-brak" class="pusto" hidden>Brak nowych rekordów w tym tygodniu.</p>
-    </div>
+    <section class="wykres-karta">
+      <h3 class="wykres-karta-tytul">Dni odpoczynku</h3>
+      <ul id="wykres-odpoczynek" class="wykres-odpoczynek"></ul>
+    </section>
 
+    <div class="wykres-gablota-naglowek">
+      <h3 class="wykres-karta-tytul">Gablota rekordów</h3>
+      <span id="gablota-tydzien" class="wykres-gablota-tydzien"></span>
+    </div>
+    <div id="wykres-gablota" class="wykres-gablota"></div>
   </section>
 
   <!-- ===== Widok 4: Dodaj nowe ćwiczenie ===== -->
@@ -4011,8 +4171,13 @@
   const rejestrRozkladPasek = document.getElementById("rejestr-rozklad-pasek");
   const rejestrRozkladLegenda = document.getElementById("rejestr-rozklad-legenda");
   const rejestrKarty = document.getElementById("rejestr-karty");
-  const rekordyTygodniaLista = document.getElementById("rekordy-tygodnia-lista");
-  const rekordyTygodniaBrak = document.getElementById("rekordy-tygodnia-brak");
+  const wykresKicker = document.getElementById("wykres-kicker");
+  const wykresTytul = document.getElementById("wykres-tytul");
+  const wykresSzczegoly = document.getElementById("wykres-szczegoly");
+  const mapaPrzelacznik = document.getElementById("mapa-przelacznik");
+  const wykresOdpoczynek = document.getElementById("wykres-odpoczynek");
+  const gablotaTydzien = document.getElementById("gablota-tydzien");
+  const wykresGablota = document.getElementById("wykres-gablota");
   const mapaCiala = document.getElementById("mapa-ciala");
   const mapaInfo = document.getElementById("mapa-info");
   const formNowe = document.getElementById("form-nowe-cwiczenie");
@@ -4555,54 +4720,149 @@
     odswiezZapisPoZmianieWpisow();
   }
 
-  // ----- Wykres postępu: karta "Mapa ciała" + karta "Rekordy osobiste" -----
+  // ----- Wykres postępu: nagłówek odpoczynku, mapa ciała, dni odpoczynku, gablota rekordów -----
 
-  // Karta 1: ćwiczenia, dla których wpis z bieżącego tygodnia (poniedziałek-niedziela)
-  // zawiera rekordową serię tego ćwiczenia (obliczRekordy) - czyli w tym tygodniu padł rekord
-  function renderRekordyTygodnia() {
-    const poniedzialek = poniedzialekTygodnia(new Date());
-    const poczatekTygodnia = isoZDaty(poniedzialek);
-    const niedziela = new Date(poniedzialek.getFullYear(), poniedzialek.getMonth(), poniedzialek.getDate() + 6);
-    const koniecTygodnia = isoZDaty(niedziela);
-
+  // Gablota: rekordy (obliczRekordy) ustanowione w ostatnich 30 dniach, najnowsze pierwsze; "TEN TYDZIEŃ: N"
+  function renderGablotaRekordow() {
+    const dzis = dzisiaj();
+    const poczatekTygodnia = isoZDaty(poniedzialekTygodnia(new Date()));
     const rekordyWszystkie = obliczRekordy();
+    const rekordy = Object.keys(rekordyWszystkie)
+      .map(function (cw) { return rekordyWszystkie[cw]; })
+      .filter(function (r) { return r.data <= dzis && dniMiedzy(r.data, dzis) < 30; })
+      .sort(function (a, b) { return a.data < b.data ? 1 : a.data > b.data ? -1 : a.cwiczenie.localeCompare(b.cwiczenie, "pl"); });
+    const wTymTygodniu = rekordy.filter(function (r) { return r.data >= poczatekTygodnia; }).length;
 
-    // Najlepszy (najświeższy) pobity rekord w tygodniu, per ćwiczenie
-    const rekordyPerCwiczenie = {};
-    wpisy.forEach(function (w) {
-      if (w.data < poczatekTygodnia || w.data > koniecTygodnia) return;
-      const seria = seriaRekordowaWpisu(w, rekordyWszystkie);
-      if (!seria) return;
-
-      const istniejacy = rekordyPerCwiczenie[w.cwiczenie];
-      if (!istniejacy || w.data > istniejacy.data) {
-        rekordyPerCwiczenie[w.cwiczenie] = {
-          partia: w.partia, cwiczenie: w.cwiczenie, data: w.data,
-          ciezar: Number(seria["cieżar"]) || 0, powtorzenia: Number(seria.powtorzenia) || 0
-        };
-      }
-    });
-
-    const rekordy = Object.keys(rekordyPerCwiczenie)
-      .map(function (cw) { return rekordyPerCwiczenie[cw]; })
-      .sort(function (a, b) { return a.cwiczenie.localeCompare(b.cwiczenie, "pl"); });
-
-    rekordyTygodniaLista.innerHTML = "";
-    if (rekordy.length === 0) {
-      rekordyTygodniaBrak.hidden = false;
-      return;
+    gablotaTydzien.textContent = "Ten tydzień: " + wTymTygodniu;
+    wykresGablota.innerHTML = "";
+    if (wTymTygodniu === 0) {
+      const placeholder = document.createElement("div");
+      placeholder.className = "gablota-placeholder";
+      placeholder.textContent = "Miejsce na rekord tego tygodnia";
+      wykresGablota.appendChild(placeholder);
     }
-    rekordyTygodniaBrak.hidden = true;
-
     rekordy.forEach(function (r, i) {
-      const li = wjazdKarty(document.createElement("li"), i);
-      li.className = "rekord-tygodnia-wiersz";
-      li.appendChild(kropkaPartii(r.partia));
+      const karta = document.createElement("article");
+      karta.className = "gablota-karta";
+      karta.style.setProperty("--kolor-partii", kolorPartiiCSS(r.partia));
+      const data = document.createElement("span");
+      data.className = "gablota-data";
+      data.innerHTML = IKONA_GWIAZDKA_REKORD;
+      data.appendChild(document.createTextNode(formatDatyRejestru(r.data)));
+      const wynik = document.createElement("span");
+      wynik.className = "gablota-wynik";
+      wynik.textContent = formatKg(r.ciezar) + " × " + r.powtorzenia;
+      const nazwa = document.createElement("span");
+      nazwa.className = "gablota-nazwa";
+      const kropka = document.createElement("span");
+      kropka.className = "wykres-kropka";
+      nazwa.append(kropka, document.createTextNode(r.cwiczenie));
+      karta.append(data, wynik, nazwa);
+      wykresGablota.appendChild(wjazdKarty(karta, i));
+    });
+  }
+
+  // Partie od najdłużej odpoczywającej (nigdy nietrenowane na początku)
+  function partieWgOdpoczynku(stan) {
+    return PARTIE.slice().sort(function (a, b) {
+      const da = stan[a].dni === null ? Infinity : stan[a].dni;
+      const db2 = stan[b].dni === null ? Infinity : stan[b].dni;
+      return db2 - da;
+    });
+  }
+  function opisOdpoczynku(dni) {
+    if (dni === null) return "jeszcze ani razu";
+    if (dni === 0) return "trenowane dziś";
+    return dni + (dni === 1 ? " dzień" : " dni") + " bez treningu";
+  }
+
+  // Nagłówek: 1–2 partie, które najdłużej nie były trenowane (druga, gdy też długo odpoczywa)
+  function renderWykresNaglowek(stan) {
+    const kolejnosc = partieWgOdpoczynku(stan);
+    const pierwsza = kolejnosc[0];
+    const druga = kolejnosc[1];
+    const dniDrugiej = stan[druga].dni;
+    const wybrane = (dniDrugiej === null || dniDrugiej >= 4 || dniDrugiej === stan[pierwsza].dni) ? [pierwsza, druga] : [pierwsza];
+
+    wykresKicker.textContent = wybrane.length === 2 ? "Najdłużej odpoczywają – dziś idealne" : "Najdłużej odpoczywa – dziś idealna";
+    wykresTytul.textContent = wybrane.join(" i ");
+    wykresSzczegoly.innerHTML = "";
+    wybrane.forEach(function (partia, i) {
+      if (i > 0) wykresSzczegoly.appendChild(document.createTextNode(" · "));
+      const nazwa = document.createElement("b");
+      nazwa.textContent = partia + ":";
+      wykresSzczegoly.append(nazwa, document.createTextNode(" " + opisOdpoczynku(stan[partia].dni)));
+    });
+  }
+
+  // "Dni odpoczynku": 7 partii, 1 kreska = 1 dzień (max 7), złote przy 7+ dniach albo nigdy
+  function renderDniOdpoczynku(stan) {
+    wykresOdpoczynek.innerHTML = "";
+    partieWgOdpoczynku(stan).forEach(function (partia, i) {
+      const dni = stan[partia].dni;
+      const zloty = dni === null || dni >= 7;
+      const pelne = dni === null ? 7 : Math.min(dni, 7);
+
+      const li = document.createElement("li");
+      li.className = zloty ? "zloty" : "";
+      li.style.setProperty("--kolor-partii", kolorPartiiCSS(partia));
+      const nazwa = document.createElement("span");
+      nazwa.className = "wykres-odpoczynek-nazwa";
+      const kropka = document.createElement("span");
+      kropka.className = "wykres-kropka";
+      nazwa.append(kropka, document.createTextNode(partia));
+      const kreski = document.createElement("span");
+      kreski.className = "wykres-kreski";
+      kreski.setAttribute("aria-hidden", "true");
+      for (let k = 0; k < 7; k++) {
+        const kreska = document.createElement("span");
+        if (k < pelne) kreska.className = "pelna";
+        kreski.appendChild(kreska);
+      }
       const tekst = document.createElement("span");
-      tekst.textContent = r.cwiczenie + " — " + r.ciezar + " kg × " + r.powtorzenia;
-      li.appendChild(tekst);
-      li.appendChild(tagNowyRekord());
-      rekordyTygodniaLista.appendChild(li);
+      tekst.className = "wykres-odpoczynek-dni";
+      tekst.textContent = dni === null ? "nigdy" : dni + (dni === 1 ? " dzień" : " dni");
+      li.append(nazwa, kreski, tekst);
+      wykresOdpoczynek.appendChild(wjazdKarty(li, i));
+    });
+  }
+
+  // Przełącznik "Przód / Tył" - jedna sylwetka naraz
+  let mapaStrona = "przod";
+  mapaPrzelacznik.addEventListener("click", function (e) {
+    const btn = e.target.closest("button[data-strona]");
+    if (!btn) return;
+    mapaStrona = btn.dataset.strona;
+    mapaPrzelacznik.querySelectorAll("button").forEach(function (b) {
+      b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+    });
+    mapaCiala.querySelectorAll(".mapa-sylwetka").forEach(function (f) { f.hidden = f.dataset.strona !== mapaStrona; });
+  });
+
+  // Etykiety przy sylwetce: [partia, strona kolumny, położenie w % wysokości sylwetki]
+  const MAPA_ETYKIETY = {
+    przod: [["Barki", "lewe", 22], ["Biceps", "lewe", 33], ["Nogi", "lewe", 72], ["Klata", "prawe", 24], ["Brzuch", "prawe", 41]],
+    tyl: [["Barki", "lewe", 22], ["Triceps", "lewe", 33], ["Nogi", "lewe", 72], ["Plecy", "prawe", 31]]
+  };
+  function renderEtykietyMapy(stan) {
+    mapaCiala.querySelectorAll(".mapa-sylwetka").forEach(function (figura) {
+      const kolumny = { lewe: figura.querySelector(".mapa-etykiety.lewe"), prawe: figura.querySelector(".mapa-etykiety.prawe") };
+      kolumny.lewe.innerHTML = "";
+      kolumny.prawe.innerHTML = "";
+      MAPA_ETYKIETY[figura.dataset.strona].forEach(function (poz) {
+        const partia = poz[0];
+        const dni = stan[partia].dni;
+        const etykieta = document.createElement("button");
+        etykieta.type = "button";
+        etykieta.className = "mapa-etykieta" + (dni === null || dni >= 7 ? " zlota" : "") + (partia === mapaWybranaPartia ? " zaznaczona" : "");
+        etykieta.style.setProperty("--y", poz[2] + "%");
+        etykieta.dataset.partia = partia;
+        etykieta.setAttribute("aria-label", partia + ": " + (dni === null ? "nigdy nie trenowana" : dni + (dni === 1 ? " dzień" : " dni") + " od treningu"));
+        const wartosc = document.createElement("b");
+        wartosc.textContent = dni === null ? "—" : dni + "d";
+        etykieta.append(document.createTextNode(partia), wartosc);
+        kolumny[poz[1]].appendChild(etykieta);
+      });
     });
   }
 
@@ -4668,8 +4928,8 @@
     ));
   }
 
-  function renderMapaCiala() {
-    const stan = obliczStanPartii();
+  function renderMapaCiala(stan) {
+    stan = stan || obliczStanPartii();
     mapaCiala.querySelectorAll(".mapa-partia").forEach(function (el) {
       const partia = el.getAttribute("data-partia");
       const poziom = poziomMapy(stan[partia].dni);
@@ -4677,6 +4937,7 @@
       el.classList.add("poziom-" + poziom);
       el.classList.toggle("zaznaczona", partia === mapaWybranaPartia);
     });
+    renderEtykietyMapy(stan);
     pokazInfoMapy(stan);
   }
 
@@ -4685,8 +4946,9 @@
     renderMapaCiala();
   }
 
+  // Kliknięcie partii na sylwetce albo jej etykiety pokazuje szczegóły
   mapaCiala.addEventListener("click", function (e) {
-    const el = e.target.closest(".mapa-partia");
+    const el = e.target.closest(".mapa-partia, .mapa-etykieta");
     if (el) wybierzPartieMapy(el);
   });
   mapaCiala.addEventListener("keydown", function (e) {
@@ -4696,10 +4958,13 @@
     wybierzPartieMapy(el);
   });
 
-  // Odświeżenie kart widoku "Wykres postępu"
+  // Odświeżenie widoku "Wykres postępu" (po wczytaniu, dodaniu i usunięciu treningu)
   function renderWykresPostepu() {
-    renderMapaCiala();
-    renderRekordyTygodnia();
+    const stan = obliczStanPartii();
+    renderWykresNaglowek(stan);
+    renderMapaCiala(stan);
+    renderDniOdpoczynku(stan);
+    renderGablotaRekordow();
   }
 
   // ----- Trening rozpoczęty z zapisanego planu (widok "Zapisz trening") -----
