@@ -1,0 +1,567 @@
+/* Ekran "Rady z książek" (#widok-rady). */
+
+/* ----- Rady z książek: osobna sekcja (tylko konto AI_UZYTKOWNIK_ID), zawsze w ciemnym motywie Nawyków ----- */
+#widok-rady { color: var(--habits-tekst); }
+.rady-naglowek {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+#widok-rady .rady-tytul {
+  margin: 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(3rem, 15vw, 4rem);
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  color: oklch(0.95 0.004 240);
+}
+.rady-statystyki {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 13px;
+  color: oklch(0.52 0.008 240);
+}
+.rady-ranga { color: var(--habits-zloto); font-weight: 700; }
+.rady-kropka { width: 3px; height: 3px; border-radius: 50%; background: var(--habits-tekst-pomocniczy); }
+/* Odznaka poziomu: pierścień (conic-gradient) wypełniony w --postep procentach do następnego poziomu */
+.rady-odznaka {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  margin-top: 4px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(var(--habits-zloto) calc(var(--postep, 0) * 1%), var(--habits-obramowanie) 0);
+}
+.rady-odznaka-srodek {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--habits-tlo);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--habits-zloto);
+}
+.rady-odznaka-etykieta { font-size: 8px; font-weight: 700; letter-spacing: 0.14em; }
+.rady-odznaka-poziom { font-family: "Instrument Serif", Georgia, serif; font-size: 22px; line-height: 1; }
+.rady-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--habits-tekst-pomocniczy);
+}
+
+/* Półka z grzbietami książek */
+.rady-polka-naglowek {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 40px;
+}
+.rady-polka-wrap { position: relative; margin: 0 -16px; }
+.rady-polka {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 30px 24px 0;
+  height: 236px;
+  box-sizing: border-box;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 80%, transparent);
+  mask-image: linear-gradient(90deg, #000 80%, transparent);
+}
+.rady-polka::-webkit-scrollbar { display: none; }
+.rady-polka-deska {
+  height: 10px;
+  margin: 0 8px;
+  border-radius: 3px;
+  background: oklch(0.14 0.008 248);
+  border-top: 1px solid oklch(0.26 0.008 245);
+  box-shadow: 0 18px 30px -8px rgba(0, 0, 0, 0.95);
+}
+/* Przycisk to sam "slot" na półce; obrót i kolory ma okładka w środku, żeby reflektor (::before) mógł leżeć pod nią */
+.rady-grzbiet {
+  position: relative;
+  flex: none;
+  width: 52px;
+  height: var(--wysokosc, 176px);
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+.rady-grzbiet-okladka {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px 5px 3px 3px;
+  border: 1px solid oklch(0.16 0.007 248);
+  background: var(--habits-tlo-karta);
+  color: oklch(0.6 0.008 240);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.rady-grzbiet:hover .rady-grzbiet-okladka { color: var(--habits-tekst); border-color: var(--habits-obramowanie-puste); }
+.rady-grzbiet-pasy {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.rady-grzbiet-pasy.gora { padding-top: 14px; }
+.rady-grzbiet-pasy.dol { padding-bottom: 12px; gap: 6px; }
+.rady-grzbiet-pasy > span { width: 72%; height: 3px; background: currentColor; opacity: 0.35; }
+.rady-grzbiet-pasy.gora > span + span { height: 1px; opacity: 0.2; }
+.rady-grzbiet-pasy svg { width: 12px; height: 12px; }
+.rady-grzbiet-tytul {
+  flex: 1;
+  min-height: 0;
+  margin: 10px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.rady-grzbiet.ukonczona .rady-grzbiet-pasy svg { color: var(--habits-zloto); }
+.rady-grzbiet.wybrana { width: 60px; height: 196px; margin-bottom: 18px; }
+.rady-grzbiet.wybrana .rady-grzbiet-okladka {
+  border: none;
+  background: var(--habits-akcent);
+  color: oklch(0.1 0.006 250);
+  transform: rotate(-4deg);
+  box-shadow: 0 24px 40px -14px rgba(0, 0, 0, 0.9), 0 0 60px -10px rgba(var(--habits-akcent-rgb), 0.45);
+}
+.rady-grzbiet.wybrana .rady-grzbiet-pasy > span { opacity: 1; background: var(--habits-zloto); }
+.rady-grzbiet.wybrana .rady-grzbiet-pasy.gora > span + span { background: oklch(0.1 0.006 250); opacity: 0.3; }
+.rady-grzbiet.wybrana .rady-grzbiet-pasy svg { color: oklch(0.1 0.006 250); }
+.rady-grzbiet.wybrana::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -40px;
+  width: 200px;
+  height: 250px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse 50% 60% at 50% 30%, rgba(var(--habits-akcent-rgb), 0.16), transparent 70%);
+  pointer-events: none;
+}
+.rady-grzbiet-zakladka {
+  position: absolute;
+  top: -12px;
+  right: 10px;
+  width: 9px;
+  height: 30px;
+  background: var(--habits-zloto);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
+}
+.rady-grzbiet-nowa {
+  flex: none;
+  width: 46px;
+  height: 172px;
+  padding: 0;
+  border-radius: 5px 5px 3px 3px;
+  border: 1.5px dashed oklch(0.32 0.008 245);
+  background: oklch(0.09 0.005 250);
+  color: oklch(0.6 0.008 240);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.rady-grzbiet-nowa:hover { color: var(--habits-tekst); border-color: var(--habits-tekst-pomocniczy); }
+.rady-grzbiet-nowa svg { width: 16px; height: 16px; }
+.rady-grzbiet-nowa span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.rady-grzbiet-duch {
+  flex: none;
+  border-radius: 4px 4px 2px 2px;
+  background: var(--habits-tlo-karta);
+  border: 1px solid oklch(0.16 0.007 248);
+}
+
+/* Bilet misji (perforacja = przerywana linia + dwa półkoliste wycięcia w kolorze tła) */
+.rady-bilet {
+  position: relative;
+  margin-top: 36px;
+  border-radius: 24px;
+  background: var(--habits-tlo-karta);
+  border: 1px solid var(--habits-obramowanie);
+}
+.rady-bilet.ukonczony { border-color: oklch(0.72 0.08 75 / 0.5); }
+.rady-bilet-gora { position: relative; padding: 24px 24px 26px; overflow: hidden; border-radius: 24px 24px 0 0; }
+.rady-bilet-numer {
+  position: absolute;
+  right: -8px;
+  top: -58px;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 230px;
+  line-height: 1;
+  color: oklch(0.14 0.008 248);
+  pointer-events: none;
+}
+.rady-bilet-status {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--habits-akcent);
+}
+.rady-bilet-status::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+.rady-bilet-status.wyciszony { color: var(--habits-tekst-pomocniczy); }
+.rady-bilet-status.wyciszony::before { box-shadow: none; }
+.rady-bilet-status.zloty { color: var(--habits-zloto); }
+#widok-rady .rady-bilet-tytul {
+  position: relative;
+  margin: 14px 0 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(2rem, 9vw, 2.5rem);
+  line-height: 1.02;
+  color: oklch(0.95 0.004 240);
+  overflow-wrap: anywhere;
+}
+.rady-bilet-tekst {
+  position: relative;
+  margin: 14px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: oklch(0.7 0.006 240);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.rady-moj-plan { position: relative; margin-top: 18px; }
+.rady-moj-plan p { margin: 6px 0 0; font-size: 15px; line-height: 1.55; color: oklch(0.7 0.006 240); overflow-wrap: anywhere; }
+.rady-moj-plan strong { color: var(--habits-akcent); font-weight: 700; }
+.rady-perforacja { position: relative; height: 0; margin: 0 18px; border-top: 2px dashed var(--habits-obramowanie); }
+.rady-perforacja::before,
+.rady-perforacja::after {
+  content: "";
+  position: absolute;
+  top: -13px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--habits-tlo);
+  border: 1px solid var(--habits-obramowanie);
+}
+.rady-perforacja::before { left: -31px; clip-path: inset(0 0 0 50%); }
+.rady-perforacja::after { right: -31px; clip-path: inset(0 50% 0 0); }
+.rady-bilet-dol { padding: 22px 24px 24px; }
+.rady-pieczatki-naglowek { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.rady-nagroda { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 22px; color: var(--habits-zloto); white-space: nowrap; }
+.rady-pieczatki { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+.rady-pieczatka {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--habits-obramowanie);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--habits-tekst-pomocniczy);
+}
+.rady-pieczatka.przybita {
+  border: none;
+  background: var(--habits-akcent);
+  color: oklch(0.1 0.006 250);
+  transform: rotate(var(--obrot, 0deg));
+  box-shadow: inset 0 0 0 3px oklch(0.1 0.006 250 / 0.25);
+}
+.rady-pieczatka.przybita svg { width: 16px; height: 16px; }
+.rady-pieczatka.dzis {
+  border: 1.5px dashed var(--habits-akcent);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--habits-akcent);
+}
+.rady-btn-glowny {
+  margin-top: 22px;
+  width: 100%;
+  min-height: 56px;
+  border-radius: 16px;
+  border: none;
+  background: var(--habits-akcent);
+  color: oklch(0.1 0.006 250);
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 20px;
+  text-align: left;
+  box-shadow: 0 14px 36px -12px rgba(var(--habits-akcent-rgb), 0.5);
+}
+.rady-btn-glowny svg { flex: none; width: 20px; height: 20px; }
+.rady-btn-glowny:disabled {
+  background: transparent;
+  color: var(--habits-tekst-pomocniczy);
+  border: 1px solid var(--habits-obramowanie);
+  box-shadow: none;
+  cursor: default;
+}
+.rady-bilet-akcje { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.rady-btn-dyskretny {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: oklch(0.6 0.008 240);
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.rady-btn-dyskretny:hover:not(:disabled) { color: var(--habits-tekst); background: var(--habits-obramowanie); }
+.rady-btn-dyskretny:disabled { opacity: 0.45; cursor: default; }
+.rady-btn-dyskretny.gotowa { color: var(--habits-zloto); }
+.rady-bilet-info { padding: 32px 24px; text-align: center; }
+.rady-bilet-info .rady-bilet-status { justify-content: center; }
+.rady-bilet-info .rady-btn-dyskretny { margin-top: 16px; border: 1px solid var(--habits-obramowanie); padding: 12px 20px; }
+
+/* Formularz planu Jeśli… / To… w dolnej części biletu */
+#widok-rady form { margin: 0; padding: 0; border: none; box-shadow: none; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+#widok-rady label { margin-top: 0; color: var(--habits-tekst-pomocniczy); }
+#widok-rady label + textarea { margin-bottom: 14px; }
+#widok-rady textarea {
+  background: var(--habits-tlo);
+  border-color: var(--habits-obramowanie);
+  color: var(--habits-tekst);
+  resize: vertical;
+  min-height: 64px;
+}
+#widok-rady textarea::placeholder { color: var(--habits-tekst-pomocniczy); }
+#widok-rady textarea:focus {
+  outline: none;
+  border-color: var(--habits-akcent);
+  box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18);
+}
+.rady-akcje { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.rady-akcje > button { flex: 1 1 140px; margin-top: 0; }
+.btn-rady-drugorzedny {
+  padding: 12px 20px;
+  border: 1px solid var(--habits-obramowanie-puste);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--habits-tekst);
+  font-weight: 600;
+  font-size: 0.92rem;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.btn-rady-drugorzedny:hover { background: var(--habits-obramowanie); }
+#widok-rady .pusto {
+  background: var(--habits-tlo-karta);
+  border-color: var(--habits-obramowanie-puste);
+  color: var(--habits-tekst-pomocniczy);
+}
+
+/* Gwiazdozbiór zasad: pozycje poziome w %, pionowe w px — mapa skaluje się do szerokości ekranu */
+.rady-mapa-naglowek { margin-top: 56px; }
+#widok-rady .rady-mapa-tytul {
+  margin: 6px 0 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 2.5rem;
+  line-height: 1;
+  color: oklch(0.93 0.004 240);
+}
+.rady-mapa-opis { margin: 8px 0 0; font-size: 14px; line-height: 1.5; color: oklch(0.52 0.008 240); }
+.rady-mapa {
+  position: relative;
+  margin: 24px -16px -22px;
+  background: oklch(0.075 0.006 258);
+  border-top: 1px solid oklch(0.14 0.008 248);
+  overflow: hidden;
+}
+.rady-mapa-pusto { padding: 24px 16px; }
+.rady-mapa-linie { position: absolute; left: 0; top: 0; width: 100%; pointer-events: none; z-index: 2; }
+.rady-tlo-gwiazda { position: absolute; width: 1px; height: 1px; border-radius: 50%; background: var(--habits-akcent); }
+.rady-tlo-gwiazda.duza { width: 2px; height: 2px; }
+.rady-migotanie { animation: rady-migotanie 3.2s ease-in-out infinite; }
+.rady-halo {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--habits-akcent-rgb), 0.1), transparent 65%);
+  pointer-events: none;
+  z-index: 1;
+}
+.rady-wezel { position: absolute; transform: translate(-50%, -50%); z-index: 3; }
+.rady-gwiazda {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--habits-akcent);
+  display: grid;
+  place-items: center;
+  cursor: default;
+  filter: drop-shadow(0 0 6px rgba(var(--habits-akcent-rgb), 0.7));
+}
+.rady-gwiazda svg { width: 30px; height: 30px; }
+.rady-aktywny-wezel { position: relative; width: 96px; height: 96px; display: grid; place-items: center; }
+.rady-orbita {
+  position: absolute;
+  inset: 16px;
+  border-radius: 50%;
+  border: 1px dashed rgba(var(--habits-akcent-rgb), 0.45);
+  animation: rady-obrot 18s linear infinite;
+}
+.rady-orbita.zewnetrzna {
+  inset: 0;
+  border: 1px solid rgba(var(--habits-akcent-rgb), 0.14);
+  animation-duration: 30s;
+  animation-direction: reverse;
+}
+.rady-aktywny-btn {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border-radius: 50%;
+  border: none;
+  background: var(--habits-tlo);
+  color: oklch(0.95 0.004 240);
+  display: grid;
+  place-items: center;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 20px;
+  box-shadow: 0 0 0 1px var(--habits-akcent), 0 0 40px rgba(var(--habits-akcent-rgb), 0.55);
+}
+.rady-punkt {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid oklch(0.22 0.008 245);
+  background: var(--habits-tlo);
+  display: grid;
+  place-items: center;
+  transition: border-color 0.15s ease, box-shadow 0.2s ease;
+}
+.rady-punkt::after { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--habits-tekst-pomocniczy); }
+.rady-punkt:not([aria-disabled="true"]):hover,
+.rady-punkt.w-formularzu { border-color: var(--habits-akcent); box-shadow: 0 0 12px rgba(var(--habits-akcent-rgb), 0.35); }
+.rady-punkt:not([aria-disabled="true"]):hover::after,
+.rady-punkt.w-formularzu::after { background: var(--habits-akcent); }
+.rady-punkt[aria-disabled="true"] { cursor: default; }
+.rady-etykieta-wezla {
+  position: absolute;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 3;
+}
+.rady-etykieta-wezla.lewa { text-align: right; align-items: flex-end; }
+.rady-etykieta-wezla.klikalna { cursor: pointer; }
+.rady-wezel-numer { font-family: "Instrument Serif", Georgia, serif; font-size: 15px; line-height: 1; color: var(--habits-tekst-pomocniczy); }
+.rady-wezel-nazwa { font-size: 13px; font-weight: 600; line-height: 1.3; color: var(--habits-tekst-pomocniczy); overflow-wrap: anywhere; }
+.rady-etykieta-wezla.zaliczona .rady-wezel-numer { color: var(--habits-zloto); }
+.rady-etykieta-wezla.zaliczona .rady-wezel-nazwa { color: oklch(0.75 0.006 240); }
+.rady-etykieta-wezla.aktywna .rady-wezel-numer { color: var(--habits-akcent); }
+.rady-etykieta-wezla.aktywna .rady-wezel-nazwa {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.02;
+  color: oklch(0.95 0.004 240);
+}
+.rady-etykieta-wezla.klikalna:hover .rady-wezel-nazwa { color: var(--habits-tekst); }
+.rady-planeta { display: flex; flex-direction: column; align-items: center; gap: 8px; color: oklch(0.3 0.008 245); }
+.rady-planeta svg { width: 64px; height: 40px; }
+.rady-planeta.odkryta { color: var(--habits-zloto); }
+.rady-planeta.odkryta svg { filter: drop-shadow(0 0 12px oklch(0.72 0.08 75 / 0.5)); }
+.rady-planeta-podpis,
+.rady-final-podpis {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--habits-tekst-pomocniczy);
+}
+.rady-planeta.odkryta .rady-planeta-podpis { color: var(--habits-zloto); }
+.rady-final { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.rady-final svg { width: 56px; height: 56px; color: oklch(0.2 0.008 245); }
+.rady-final.ukonczona svg { color: var(--habits-zloto); filter: drop-shadow(0 0 22px oklch(0.72 0.08 75 / 0.8)); }
+.rady-final-nazwa { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 22px; color: oklch(0.7 0.006 240); white-space: nowrap; }
+.rady-final.ukonczona .rady-final-podpis { color: var(--habits-zloto); }
+@keyframes rady-obrot { to { transform: rotate(360deg); } }
+@keyframes rady-migotanie { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.8; } }
+@media (prefers-reduced-motion: reduce) {
+  .rady-orbita,
+  .rady-migotanie { animation: none; }
+}
+
+/* Aktywny przycisk "Nawyki" w panelu bocznym — srebrny akcent */
+.nav-btn.aktywny.nav-habits {
+  background: oklch(0.1 0.006 250);
+  border: 1px solid rgba(214, 208, 192, 0.45);
+  color: #D6D0C0;
+}
+.nav-btn.aktywny.nav-habits svg { color: #D6D0C0; }
+
+/* Panel boczny ciemnieje razem z widokiem "Nawyki"; przycisk aktywny (:not(.aktywny) wyklucza go z wyciszenia) zostaje srebrny jak wyżej */
+#sidebar.motyw-habits {
+  background: oklch(0.045 0.004 250);
+  border-right-color: oklch(0.16 0.008 245);
+}
+#sidebar.motyw-habits h3 { color: oklch(0.4 0.008 240); }
+#sidebar.motyw-habits .nav-btn:not(.aktywny) { color: oklch(0.6 0.008 240); }
+#sidebar.motyw-habits .nav-btn:not(.aktywny) svg { color: oklch(0.6 0.008 240); }
+#sidebar.motyw-habits .nav-btn:not(.aktywny):hover { background: oklch(0.09 0.006 245); }
+
+/* Tło strony poza kontenerem — bez tego widać jasny margines wokół zaokrąglonych rogów kontenera */
+body.motyw-habits,
+html.motyw-habits {
+  background: var(--tekstura-szumu) repeat, oklch(0.07 0.004 250);
+}

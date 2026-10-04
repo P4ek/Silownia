@@ -1,0 +1,362 @@
+/* Ekran "Plan tygodnia" / Kompas tygodnia (#widok-plan) + podsumowanie tygodnia. */
+
+/* ----- Plan tygodnia (motyw różowy, skopowany na #widok-plan) ----- */
+#widok-plan {
+  --accent: var(--accent-pink);
+  --accent-soft: var(--accent-pink-soft);
+}
+#widok-plan .karta { margin-bottom: 18px; }
+
+.rekord-baner-rozowy {
+  background: linear-gradient(135deg, #F2C4CC, #E3A9B4 60%, #C98999);
+  box-shadow: 0 12px 26px -10px rgba(227, 169, 180, 0.55);
+}
+#tydzien-progress-ring {
+  transition: stroke-dashoffset 0.5s ease-out;
+}
+
+.btn-pill {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 9px 18px;
+  border: 1px dashed var(--accent);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.btn-pill:hover { background: #FBDECF; }
+.btn-pill:disabled { opacity: 0.55; cursor: default; }
+
+/* ----- Kompas tygodnia (#widok-plan) ----- */
+.kompas-kicker { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--habits-zloto); }
+#widok-plan .kompas-tytul {
+  margin: 10px 0 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(2.6rem, 13vw, 3.4rem);
+  line-height: 0.95;
+  color: oklch(0.95 0.004 240);
+}
+.kompas-nawigacja {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 16px 0 18px;
+  padding: 4px;
+  border-radius: 14px;
+  border: 1px solid var(--habits-obramowanie);
+}
+.kompas-btn-tydzien {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: oklch(0.7 0.006 240);
+  display: grid;
+  place-items: center;
+}
+.kompas-btn-tydzien svg { width: 16px; height: 16px; }
+.kompas-btn-tydzien:hover { background: var(--habits-obramowanie); }
+.kompas-zakres { padding: 0 6px; font-size: 13px; font-weight: 600; color: var(--habits-tekst); white-space: nowrap; }
+.kompas-wrap { margin-top: 8px; }
+.kompas { position: relative; width: min(100%, 340px); margin: 0 auto; }
+.kompas svg { display: block; width: 100%; height: auto; }
+.kompas-segment { fill: oklch(0.12 0.006 250); stroke: var(--habits-obramowanie); stroke-width: 1; cursor: pointer; transition: fill 0.2s ease; }
+.kompas-segment:hover { fill: oklch(0.15 0.008 248); }
+.kompas-segment:focus { outline: none; }
+.kompas-segment:focus-visible { stroke: var(--habits-akcent); stroke-width: 2; }
+.kompas-segment.wybrany { fill: rgba(var(--habits-akcent-rgb), 0.16); stroke: var(--habits-akcent); stroke-width: 1.5; }
+.kompas-tor { fill: none; stroke: oklch(0.2 0.008 245); stroke-width: 4; stroke-linecap: round; pointer-events: none; }
+.kompas-luk { fill: none; stroke: var(--habits-zloto); stroke-width: 4; stroke-linecap: round; pointer-events: none; filter: drop-shadow(0 0 4px oklch(0.72 0.08 75 / 0.6)); }
+.kompas-ikona { fill: none; stroke: oklch(0.6 0.008 240); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.kompas-segment.wybrany + .kompas-ikona, .kompas-ikona.wybrana { stroke: var(--habits-akcent); }
+.kompas-cwiartka { fill: oklch(0.1 0.006 250); stroke: var(--habits-obramowanie); stroke-width: 1; }
+.kompas-cwiartka.swieci { fill: oklch(0.72 0.08 75 / 0.28); stroke: var(--habits-zloto); filter: drop-shadow(0 0 6px oklch(0.72 0.08 75 / 0.5)); }
+.kompas-ikona.wymiar { stroke: oklch(0.36 0.008 245); }
+.kompas-ikona.wymiar.swieci { stroke: var(--habits-zloto); }
+.kompas-tlo-srodka { fill: var(--habits-tlo); stroke: var(--habits-obramowanie); }
+.kompas-srodek {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+  pointer-events: none;
+}
+.kompas-wynik { font-family: "Instrument Serif", Georgia, serif; font-size: clamp(1.8rem, 9vw, 2.3rem); line-height: 1; color: oklch(0.95 0.004 240); }
+.kompas-rola { max-width: 100%; font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 15px; line-height: 1.1; color: var(--habits-zloto); overflow-wrap: anywhere; }
+.kompas-legenda { margin: 14px 0 0; font-size: 12px; line-height: 1.5; text-align: center; color: oklch(0.52 0.008 240); }
+.kompas-legenda b { color: var(--habits-tekst); font-weight: 600; }
+.kompas-sekcja-naglowek { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 30px; }
+.kompas-etykieta { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: oklch(0.52 0.008 240); }
+.kompas-btn-maly {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--habits-obramowanie);
+  background: transparent;
+  color: oklch(0.75 0.006 240);
+  font-size: 12px;
+  font-weight: 600;
+}
+.kompas-btn-maly[aria-pressed="true"] { border-color: transparent; background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+.kompas-role {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin: 0 -16px;
+  padding: 12px 16px 2px;
+  scrollbar-width: none;
+}
+.kompas-role::-webkit-scrollbar { display: none; }
+.kompas-role::after { content: ""; flex: none; width: 8px; }
+.kompas-role.edycja { flex-direction: column; overflow: visible; margin: 0; padding: 12px 0 0; }
+.kompas-role.edycja::after { display: none; }
+.kompas-role > .pusto { flex: 1; }
+.kompas-chip {
+  flex: none;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--habits-obramowanie);
+  background: oklch(0.08 0.005 250);
+  color: oklch(0.75 0.006 240);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.kompas-chip svg { width: 15px; height: 15px; flex: none; }
+.kompas-chip.aktywny { border-color: transparent; background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+.kompas-chip.nowa { border-style: dashed; border-width: 1.5px; padding: 0 14px; }
+.kompas-chip.nowa[aria-expanded="true"] { border-color: var(--habits-akcent); color: var(--habits-tekst); }
+.kompas-rola-edycja {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  border: 1px solid var(--habits-obramowanie);
+  background: var(--habits-tlo-karta);
+}
+.kompas-rola-edycja-nazwa { flex: 1 1 120px; min-width: 0; font-size: 15px; font-weight: 600; color: oklch(0.93 0.004 240); overflow-wrap: anywhere; }
+.kompas-wymiary { display: flex; flex-wrap: wrap; gap: 6px; }
+.kompas-wymiar {
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--habits-obramowanie);
+  background: oklch(0.08 0.005 250);
+  color: oklch(0.7 0.006 240);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.kompas-wymiar svg { width: 14px; height: 14px; }
+.kompas-wymiar[aria-pressed="true"] { border-color: transparent; background: var(--habits-zloto); color: oklch(0.1 0.006 250); }
+.kompas-btn-kosz {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--habits-tekst-pomocniczy);
+  display: grid;
+  place-items: center;
+}
+.kompas-btn-kosz svg { width: 16px; height: 16px; }
+.kompas-btn-kosz:hover { background: rgba(180, 72, 44, 0.12); color: oklch(0.75 0.13 28); }
+.kompas-btn-kosz:disabled { opacity: 0.5; cursor: default; }
+#widok-plan .kompas-form {
+  margin: 14px 0 0;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid var(--habits-akcent);
+  background: var(--habits-tlo-karta);
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+#widok-plan .kompas-form label, .kompas-pole-etykieta { display: block; margin: 0 0 8px; font-size: 13px; font-weight: 600; color: oklch(0.6 0.008 240); }
+.kompas-pole-etykieta { margin-top: 14px; }
+#widok-plan .kompas-form input[type="text"] {
+  height: 48px;
+  margin-bottom: 10px;
+  border-radius: 14px;
+  border: 1px solid var(--habits-obramowanie);
+  background: oklch(0.08 0.005 250);
+  color: oklch(0.9 0.004 240);
+}
+#widok-plan .kompas-form input[type="text"]::placeholder { color: var(--habits-tekst-pomocniczy); }
+.kompas-form-tytul { margin: 0 0 12px; font-size: 13px; font-weight: 600; color: oklch(0.6 0.008 240); overflow-wrap: anywhere; }
+.kompas-form-tytul b { color: oklch(0.93 0.004 240); }
+.kompas-form-akcje { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 4px; }
+.kompas-form-akcje .kompas-btn-glowny { flex: 1 1 160px; margin-top: 0; }
+.kompas-btn-glowny {
+  width: 100%;
+  height: 48px;
+  margin-top: 14px;
+  border: none;
+  border-radius: 14px;
+  background: var(--habits-akcent);
+  color: oklch(0.1 0.006 250);
+  font-size: 15px;
+  font-weight: 700;
+}
+.kompas-btn-glowny:disabled { opacity: 0.55; cursor: default; }
+/* Tydzień roli */
+.kompas-tydzien-roli { margin-top: 30px; }
+#widok-plan .kompas-tydzien-rola {
+  margin: 6px 0 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 34px;
+  line-height: 1;
+  color: oklch(0.95 0.004 240);
+  overflow-wrap: anywhere;
+}
+.kompas-blok { margin-top: 18px; padding: 14px 16px; border-radius: 20px; border: 1px solid var(--habits-obramowanie); background: var(--habits-tlo-karta); }
+.kompas-blok-tytul { display: block; margin-bottom: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--habits-zloto); }
+.kompas-dni { list-style: none; margin: 14px 0 0; padding: 0; }
+.kompas-dzien { padding: 10px 12px; border-radius: 16px; border-top: 1px solid oklch(0.16 0.007 248); }
+.kompas-dzien:first-child { border-top: none; }
+.kompas-dzien.dzis { background: oklch(0.11 0.008 248); border-top-color: transparent; }
+.kompas-dzien.dzis + .kompas-dzien { border-top-color: transparent; }
+.kompas-dzien-naglowek { display: flex; align-items: center; gap: 10px; min-height: 36px; }
+.kompas-dzien-skrot { width: 28px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: oklch(0.52 0.008 240); }
+.kompas-dzien.dzis .kompas-dzien-skrot { color: var(--habits-akcent); }
+.kompas-dzien-numer { flex: 1; font-family: "Instrument Serif", Georgia, serif; font-size: 22px; line-height: 1; color: oklch(0.85 0.005 240); }
+.kompas-btn-dodaj {
+  flex: none;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px dashed oklch(0.3 0.008 245);
+  background: transparent;
+  color: oklch(0.65 0.006 240);
+  font-size: 12px;
+  font-weight: 600;
+}
+.kompas-btn-dodaj.wybrany { border-style: solid; border-color: transparent; background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+.kompas-cel { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0 4px 38px; }
+.kompas-blok .kompas-cel { padding-left: 0; }
+.kompas-cel-check { position: relative; flex: none; width: 24px; height: 24px; margin-top: 2px; }
+.kompas-cel-check input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.kompas-cel-check span {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  border: 1.5px solid oklch(0.32 0.008 245);
+  display: grid;
+  place-items: center;
+  color: transparent;
+  pointer-events: none;
+}
+.kompas-cel-check span svg { width: 14px; height: 14px; }
+.kompas-cel-check input:checked + span { border-color: transparent; background: var(--habits-zloto); color: oklch(0.1 0.006 250); }
+.kompas-cel-check input:focus-visible + span { box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.3); }
+.kompas-cel-check input:disabled { cursor: progress; }
+.kompas-cel-tresc { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.kompas-cel-glowna { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 19px; line-height: 1.2; color: oklch(0.93 0.004 240); overflow-wrap: anywhere; }
+.kompas-cel-plan { font-size: 13px; color: oklch(0.6 0.008 240); overflow-wrap: anywhere; }
+.kompas-cel.zrealizowany .kompas-cel-glowna { color: oklch(0.52 0.008 240); text-decoration: line-through; text-decoration-color: oklch(0.72 0.08 75 / 0.7); }
+.kompas-cel.zrealizowany .kompas-cel-plan { color: oklch(0.44 0.008 240); }
+#widok-plan .rekord-baner { margin-bottom: 18px; }
+
+/* ----- Zakończ tydzień: podsumowanie + "co mnie powstrzymało" ----- */
+.btn-zakoncz-tydzien {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+  padding: 13px 20px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #EDB8C2, var(--accent-pink) 55%, #C98999);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  box-shadow: 0 12px 24px -10px rgba(227, 169, 180, 0.6);
+  transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease;
+}
+.btn-zakoncz-tydzien:hover { filter: brightness(1.05); }
+.btn-zakoncz-tydzien:active { transform: translateY(1px); }
+
+.wykres-kolowy-wrap { max-width: 220px; margin: 4px auto 18px; }
+
+.przeszkoda-naglowek { margin: 18px 0 10px; }
+.przeszkoda-wiersz {
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #FCFAF4;
+}
+.przeszkoda-tytul { font-weight: 600; font-size: 0.88rem; margin-bottom: 8px; }
+.przeszkoda-form { display: flex; gap: 8px; }
+.przeszkoda-form input { flex: 1; }
+/* Przełącznik "Przenieś na następny tydzień" - ten sam wzorzec co .rola-chip */
+.przeszkoda-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+.przeszkoda-toggle input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 34px;
+  height: 20px;
+  flex: none;
+  border-radius: 999px;
+  background: #E7DCD0;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.przeszkoda-toggle input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease;
+}
+.przeszkoda-toggle input[type="checkbox"]:checked { background: var(--accent); }
+.przeszkoda-toggle input[type="checkbox"]:checked::before { transform: translateX(14px); }
+#btn-zapisz-podsumowanie { margin-top: 6px; }
+@media (max-width: 380px) {
+  .przeszkoda-form { flex-direction: column; }
+}

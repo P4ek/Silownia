@@ -1,0 +1,514 @@
+/* Baza: zmienne (ciemny motyw, kolory partii), typografia, panel boczny, karty i formularze, przyciski, banery, toasty, konfetti, animacje wejścia, puste stany, ekran logowania, responsywność. */
+
+/* Apka ma zawsze ciemny motyw (ten z sekcji Nawyki) — zmienne bazowe mają od razu ciemne wartości, więc także elementy poza .kontener (ekran logowania, okno wylogowania, hamburger) są ciemne */
+:root {
+  --habits-akcent: #D6D0C0;
+  --habits-akcent-rgb: 214, 208, 192;
+  --habits-tlo: oklch(0.07 0.004 250);
+  --habits-tlo-karta: oklch(0.1 0.006 250);
+  --habits-obramowanie: oklch(0.19 0.008 245);
+  --habits-obramowanie-puste: oklch(0.24 0.01 245);
+  --habits-naglowek: oklch(0.97 0.004 240);
+  --habits-tekst: oklch(0.85 0.005 240);
+  --habits-tekst-pomocniczy: oklch(0.44 0.008 240);
+  --habits-zloto: oklch(0.72 0.08 75); /* złoty akcent z "Rad z książek" (PD, poziom, planety) */
+  /* Jaśniejsze tło kart/formularzy poza sekcją "Nawyki" — --habits-tlo-karta zostaje bez zmian dla samej sekcji Nawyki */
+  --tryb-ciemny-tlo-karta: oklch(0.14 0.006 250);
+  --cream: var(--habits-tlo);
+  --card: var(--tryb-ciemny-tlo-karta);
+  --ink: var(--habits-tekst);
+  --muted: oklch(0.6 0.008 240);
+  --border: var(--habits-obramowanie);
+  --accent: var(--habits-akcent);
+  --accent-soft: var(--habits-tlo-karta);
+  --accent-pink: var(--habits-akcent);
+  --accent-pink-soft: var(--habits-tlo-karta);
+  --shadow-warm: 0 14px 34px -16px rgba(0, 0, 0, 0.7);
+  /* Kolory partii — jedna mapa dla całej apki (kropki partii, Mapa ciała) */
+  --partia-klata: #D6D0C0;
+  --partia-plecy: oklch(0.66 0.13 250);
+  --partia-barki: oklch(0.72 0.14 50);
+  --partia-biceps: oklch(0.66 0.15 300);
+  --partia-triceps: oklch(0.7 0.11 180);
+  --partia-brzuch: oklch(0.74 0.13 140);
+  --partia-nogi: oklch(0.7 0.15 25);
+  /* Bardzo subtelna tekstura szumu (film grain) na tło strony — SVG feTurbulence, jak w ikonce PWA; opacity 0.04 wpisane w sam SVG (rect) */
+  --tekstura-szumu: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+* { box-sizing: border-box; }
+/* Gwarantuje, że atrybut [hidden] zawsze ukrywa element, nawet gdy jakaś
+   reguła w tym arkuszu ustawia mu display (np. .rekord-baner{display:flex}) */
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  background:
+    var(--tekstura-szumu) repeat,
+    radial-gradient(1000px 620px at 100% -5%, rgba(226, 100, 63, 0.16), rgba(226, 100, 63, 0) 62%),
+    var(--cream);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+h1, h2, legend, .rekord-baner {
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+h1 { font-size: 2.1rem; margin: 4px 0 20px; padding-left: 52px; line-height: 1.15; }
+h2 { font-size: 1.5rem; margin: 0 0 14px; }
+/* Dłuższy cytat zamiast tytułu (konto AI_UZYTKOWNIK_ID) — mniejszy, żeby nie zajmował pół ekranu */
+h1.app-tytul-cytat { font-size: 1.45rem; }
+
+.kontener {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px 16px 64px;
+}
+.kontener > h1,
+.kontener > section { position: relative; z-index: 1; }
+.habits-poswiata {
+  display: none;
+  position: absolute;
+  top: -220px;
+  right: -120px;
+  z-index: 0;
+  opacity: 0.14;
+  pointer-events: none;
+}
+
+/* ----- Hamburger + przycisk przypomnień ----- */
+.topbar-ikony {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 60;
+  display: flex;
+  gap: 8px;
+}
+.hamburger {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  box-shadow: var(--shadow-warm);
+  cursor: pointer;
+}
+.hamburger span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ink);
+}
+/* Przycisk "Przypomnienia" obok hamburgera — kafelek z ikoną dzwonka (bez tekstu) */
+.topbar-ikony #btn-przypomnienia {
+  width: 42px;
+  height: 42px;
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-warm);
+  color: var(--muted);
+}
+.topbar-ikony #btn-przypomnienia svg { width: 19px; height: 19px; }
+/* Przycisk przypomnień widoczny tylko przy wysuniętym panelu bocznym (klasa ustawiana w otworzPanel/zamknijPanel) */
+.topbar-ikony #btn-przypomnienia {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-6px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s, scale 0.1s ease;
+}
+.topbar-ikony.panel-otwarty #btn-przypomnienia {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s, scale 0.1s ease;
+}
+
+/* ----- Panel boczny ----- */
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  z-index: 50;
+}
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: min(280px, 82vw);
+  background: #fff;
+  border-right: 1px solid var(--border);
+  box-shadow: 6px 0 30px -10px rgba(150, 110, 90, 0.35);
+  transform: translateX(-100%);
+  transition: transform 0.24s ease;
+  z-index: 55;
+  padding: 64px 12px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+#sidebar.open { transform: translateX(0); }
+#sidebar h3 {
+  margin: 0 0 8px;
+  padding: 8px 12px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 13px 14px;
+  margin: 3px 0;
+  background: none;
+  border: none;
+  border-radius: 13px;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.15s ease, scale 0.1s ease;
+}
+.nav-btn svg {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  color: var(--muted);
+  transition: color 0.15s ease;
+}
+.nav-btn:hover { background: oklch(0.09 0.006 245); }
+.nav-btn.aktywny {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+}
+.nav-btn.aktywny svg { color: var(--accent); }
+
+/* Pigułka przy "Plan tygodnia": X/Y celów zrealizowanych w bieżącym tygodniu (niezależna od przeglądanego tygodnia strzałkami) */
+.nav-cele-pigulka {
+  margin-left: auto;
+  flex: none;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.5;
+  border: 1.5px solid var(--accent-pink);
+  color: var(--accent-pink);
+}
+.nav-cele-pigulka.pigulka-kompletna {
+  background: oklch(0.2 0.035 150);
+  border-color: oklch(0.32 0.06 150);
+  color: oklch(0.86 0.08 150);
+}
+.nav-wyloguj {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  padding-top: 17px;
+  color: var(--muted);
+}
+.nav-wyloguj:hover { background: oklch(0.09 0.006 245); color: oklch(0.75 0.13 28); }
+.nav-wyloguj:hover svg { color: oklch(0.75 0.13 28); }
+
+/* ----- Okno potwierdzenia wylogowania ----- */
+#wyloguj-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#wyloguj-modal {
+  width: 100%;
+  max-width: 340px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-warm);
+  padding: 26px 22px 22px;
+  text-align: center;
+}
+#wyloguj-modal h3 {
+  margin: 0 0 8px;
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.35rem;
+}
+#wyloguj-modal p {
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.wyloguj-akcje {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.btn-wyloguj-tak {
+  padding: 13px 20px;
+  border: none;
+  border-radius: 999px;
+  background: var(--habits-akcent);
+  color: oklch(0.07 0.004 250);
+  font-weight: 700;
+  font-size: 0.92rem;
+  box-shadow: 0 0 10px rgba(var(--habits-akcent-rgb), 0.35);
+  transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease;
+}
+.btn-wyloguj-tak:hover { filter: brightness(1.05); }
+.btn-wyloguj-tak:active { transform: translateY(1px); }
+.btn-wyloguj-tak:disabled { opacity: 0.55; box-shadow: none; cursor: default; }
+.btn-wyloguj-nie {
+  padding: 13px 20px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: none;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+.btn-wyloguj-nie:hover { background: var(--habits-obramowanie); }
+
+/* ----- Widoki ----- */
+.widok { display: none; opacity: 1; transition: opacity 150ms ease; }
+.widok.aktywny { display: block; }
+/* Klasa pomocnicza do animacji fade przy przełączaniu widoków (patrz handler .nav-btn) — na aktywnym widoku daje fade-out (krótszy czas), na nowo pokazywanym jest chwilowo dodana i usuwana, żeby wystartować od opacity:0 i przejść do 1 z domyślnym czasem powyżej */
+.widok.widok-znika { opacity: 0; transition-duration: 120ms; }
+
+/* ----- Karty / formularze ----- */
+form,
+.karta {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-warm);
+}
+form, .karta { padding: 20px; }
+
+label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin: 14px 0 5px;
+  color: var(--ink);
+}
+form > label:first-of-type { margin-top: 0; }
+select, input, textarea {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  font: inherit;
+  font-size: 16px; /* min. 16px zapobiega automatycznemu przybliżeniu ekranu przy focusie pola w Safari na iOS */
+  color: var(--ink);
+}
+select:focus, input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18);
+}
+select:disabled { background: var(--habits-tlo-karta); color: var(--muted); }
+
+button { font: inherit; cursor: pointer; }
+
+.btn-submit {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #EF7B50, #E2643F 55%, #CF5330);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.98rem;
+  letter-spacing: 0.01em;
+  box-shadow: 0 12px 26px -8px rgba(226, 100, 63, 0.55);
+  transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease;
+}
+.btn-submit:hover { filter: brightness(1.05); }
+.btn-submit:active { transform: translateY(1px); }
+.btn-submit:disabled { opacity: 0.55; box-shadow: none; cursor: default; }
+
+/* ----- Baner rekordu ----- */
+.rekord-baner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #EF7B50, #E2643F 60%, #CF5330);
+  color: #fff;
+  font-size: 1.05rem;
+  box-shadow: 0 12px 26px -10px rgba(226, 100, 63, 0.5);
+}
+.rekord-baner svg { width: 20px; height: 20px; flex: none; }
+.rekord-baner span { font-style: italic; }
+
+/* Krótki błysk/pulsowanie przy pojawieniu się banera rekordu — klasa dodawana i po chwili usuwana w renderRekord() */
+@keyframes rekord-pulsuj-anim {
+  0% { filter: brightness(1); transform: scale(1); }
+  30% { filter: brightness(1.25); transform: scale(1.03); }
+  100% { filter: brightness(1); transform: scale(1); }
+}
+.rekord-baner.rekord-pulsuj {
+  animation: rekord-pulsuj-anim 600ms ease;
+}
+
+/* ----- Kropki partii ----- */
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex: none;
+  vertical-align: 1px;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+  background: var(--kolor-partii, var(--muted));
+}
+/* Kolor partii z mapy --partia-* w :root — wspólny dla kropek partii i Mapy ciała */
+.dot-Klata,   .mapa-partia[data-partia="Klata"]   { --kolor-partii: var(--partia-klata); }
+.dot-Plecy,   .mapa-partia[data-partia="Plecy"]   { --kolor-partii: var(--partia-plecy); }
+.dot-Barki,   .mapa-partia[data-partia="Barki"]   { --kolor-partii: var(--partia-barki); }
+.dot-Biceps,  .mapa-partia[data-partia="Biceps"]  { --kolor-partii: var(--partia-biceps); }
+.dot-Triceps, .mapa-partia[data-partia="Triceps"] { --kolor-partii: var(--partia-triceps); }
+.dot-Brzuch,  .mapa-partia[data-partia="Brzuch"]  { --kolor-partii: var(--partia-brzuch); }
+.dot-Nogi,    .mapa-partia[data-partia="Nogi"]    { --kolor-partii: var(--partia-nogi); }
+
+/* ----- Responsywność ----- */
+@media (max-width: 560px) {
+  h1 { font-size: 1.8rem; }
+  h1.app-tytul-cytat { font-size: 1.25rem; }
+  h2 { font-size: 1.3rem; }
+  .kontener { padding: 16px 12px 56px; }
+  form, .karta { padding: 16px; }
+  .rekord-baner { font-size: 0.95rem; padding: 11px 16px; }
+}
+
+/* ----- Ekran logowania ----- */
+.ekran-logowania {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+}
+.logowanie-karta { width: 100%; max-width: 380px; }
+.logowanie-karta h1 { padding-left: 0; text-align: center; }
+.logowanie-opis { color: var(--muted); margin: 0 0 4px; text-align: center; }
+.logowanie-karta h1 { color: var(--habits-naglowek); }
+.ekran-logowania form { background: none; border: none; box-shadow: none; }
+.logowanie-status { margin: 14px 0 0; font-size: 0.9rem; font-weight: 600; text-align: center; }
+
+/* ----- Toast (pokazToast) zamiast alert() ----- */
+.toast-kontener {
+  position: fixed;
+  left: 50%;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 100;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  padding: 11px 18px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.toast.widoczny { opacity: 1; transform: none; }
+.toast-sukces { background: oklch(0.2 0.035 150); border-color: oklch(0.32 0.06 150); color: oklch(0.86 0.08 150); }
+.toast-blad   { background: oklch(0.2 0.04 28);   border-color: oklch(0.34 0.08 28);  color: oklch(0.85 0.08 28); }
+
+/* ----- Konfetti po odznaczeniu wszystkich nawyków na dziś ----- */
+.konfetti-warstwa {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  overflow: hidden;
+  pointer-events: none;
+}
+.konfetti {
+  position: absolute;
+  top: -16px;
+  animation: konfetti-spadanie var(--czas, 2s) cubic-bezier(0.3, 0.6, 0.5, 1) forwards;
+}
+@keyframes konfetti-spadanie {
+  to {
+    transform: translate(var(--dx, 0px), 105vh) rotate(var(--obrot, 540deg));
+    opacity: 0.2;
+  }
+}
+
+/* ----- Kaskadowe wejście elementów list (wjazdKarty) — oba motywy -----
+   fill-mode "backwards": przed startem (w trakcie opóźnienia) element jest niewidoczny, a po końcu animacja
+   niczego nie nadpisuje (np. opacity zrealizowanego celu). Animacja startuje też przy ponownym pokazaniu sekcji. */
+.karta-wjazd { animation: karta-wjazd 0.35s ease-out backwards; }
+@keyframes karta-wjazd {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .karta-wjazd { animation: none; }
+}
+
+/* ----- Puste stany z ikoną ----- */
+.pusto.pusto-z-ikona {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 24px 18px;
+  text-align: center;
+}
+.pusto-ikona { font-size: 1.9rem; line-height: 1; font-style: normal; }
+
+/* ----- Feedback dotykowy przy naciśnięciu przycisku (właściwość scale, żeby nie gryzła się z transform) ----- */
+button { transition: scale 0.1s ease; }
+button:not(:disabled):active { scale: 0.96; }
+@media (prefers-reduced-motion: reduce) {
+  .konfetti-warstwa { display: none; }
+}

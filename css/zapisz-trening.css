@@ -1,0 +1,330 @@
+/* Ekran "Zapisz trening" (#widok-dodaj) + baner planu w trakcie. */
+
+/* ----- Baner "plan w trakcie" w widoku Zapisz trening ----- */
+.plan-trakcie-baner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-bottom: 18px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  color: var(--ink);
+}
+.plan-trakcie-tekst { font-weight: 600; font-size: 0.92rem; }
+.plan-trakcie-akcje { display: flex; gap: 8px; flex: none; }
+/* Zasada dnia nad formularzem zapisu treningu (tylko do odczytu, zmienia się raz na dobę) */
+.zasada-dnia {
+  margin: 0 0 16px;
+  padding: 2px 0 2px 12px;
+  border-left: 3px solid var(--accent);
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+.zasada-dnia:empty { display: none; }
+
+.plan-trakcie-info { display: flex; align-items: center; gap: 12px; min-width: 0; }
+
+/* Kolo postepu trwajacego planu (x/N) — obwod luku 2*PI*19 ≈ 119.38 */
+.plan-postep { position: relative; width: 48px; height: 48px; flex: none; }
+.plan-postep svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.plan-postep circle { fill: none; stroke-width: 4; }
+.plan-postep-tlo { stroke: currentColor; opacity: 0.15; }
+.plan-postep-luk {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-dasharray: 119.38;
+  stroke-dashoffset: 119.38;
+  transition: stroke-dashoffset 0.4s ease;
+}
+.plan-postep-liczba {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----- Zapisz trening (#widok-dodaj): wybór ćwiczenia, liczniki, zaliczone serie, dziś zapisane ----- */
+#widok-dodaj .zapis-sesja {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--habits-akcent);
+}
+#widok-dodaj .zapis-sesja::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--habits-akcent);
+  box-shadow: 0 0 10px var(--habits-akcent);
+}
+#widok-dodaj .zasada-dnia { margin: 12px 0 16px; }
+.zapis-szkic-stary {
+  margin-bottom: 16px;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid oklch(0.72 0.08 75 / 0.45);
+  background: oklch(0.12 0.015 75);
+}
+.zapis-szkic-stary-tekst { margin: 0; font-size: 14px; line-height: 1.5; color: var(--habits-tekst); overflow-wrap: anywhere; }
+.zapis-szkic-stary-tekst b { color: var(--habits-zloto); }
+.zapis-szkic-stary-akcje { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.zapis-btn-maly {
+  flex: 1 1 140px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid oklch(0.26 0.008 245);
+  background: transparent;
+  color: var(--habits-tekst);
+  font-size: 13px;
+  font-weight: 700;
+}
+.zapis-btn-maly.zloty { border-color: transparent; background: var(--habits-zloto); color: oklch(0.1 0.006 250); }
+.zapis-btn-maly:disabled { opacity: 0.55; cursor: default; }
+.zapis-chipy { padding-top: 8px; }
+.zapis-cwiczenia {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  margin: 0 -16px;
+  padding: 12px 16px 0;
+  scrollbar-width: none;
+}
+.zapis-cwiczenia::-webkit-scrollbar { display: none; }
+.zapis-cwiczenia::after { content: ""; flex: none; width: 8px; }
+.zapis-cw-karta {
+  flex: none;
+  width: 150px;
+  min-height: 76px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  border: 1px solid var(--habits-obramowanie);
+  background: var(--habits-tlo-karta);
+  color: oklch(0.85 0.005 240);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease, scale 0.1s ease;
+}
+.zapis-cw-karta.aktywna { border-color: transparent; background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+.zapis-cw-nazwa { font-size: 14px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+.zapis-cw-ostatnio { font-size: 12px; color: oklch(0.52 0.008 240); }
+.zapis-cw-karta.aktywna .zapis-cw-ostatnio { color: oklch(0.1 0.006 250 / 0.6); }
+.zapis-brak { margin-top: 16px; }
+.zapis-aktualne { margin-top: 24px; }
+.zapis-partia {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: oklch(0.6 0.008 240);
+}
+.zapis-kropka { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--kolor-partii); }
+#widok-dodaj .zapis-tytul {
+  margin: 8px 0 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(2.3rem, 12vw, 2.9rem);
+  line-height: 0.95;
+  color: oklch(0.95 0.004 240);
+  overflow-wrap: anywhere;
+}
+.zapis-do-pobicia {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 10px 16px 10px 12px;
+  border-radius: 14px;
+  background: oklch(0.12 0.015 75);
+  border: 1px solid oklch(0.72 0.08 75 / 0.4);
+  color: var(--habits-zloto);
+}
+.zapis-do-pobicia svg { flex: none; width: 18px; height: 18px; }
+.zapis-do-pobicia-etykieta { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+.zapis-do-pobicia-wartosc { font-family: "Instrument Serif", Georgia, serif; font-size: 22px; line-height: 1; white-space: nowrap; }
+.zapis-liczniki { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
+.zapis-licznik {
+  min-width: 0;
+  padding: 16px 14px 14px;
+  border-radius: 24px;
+  background: var(--habits-tlo-karta);
+  border: 1px solid var(--habits-obramowanie);
+  text-align: center;
+}
+#widok-dodaj .zapis-licznik-etykieta {
+  display: block;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: oklch(0.52 0.008 240);
+}
+#widok-dodaj .zapis-licznik-wartosc {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: clamp(3.4rem, 17vw, 4.5rem);
+  line-height: 1.05;
+  color: oklch(0.95 0.004 240);
+  outline: none;
+  cursor: text;
+}
+#widok-dodaj .zapis-licznik-wartosc:focus { background: oklch(0.08 0.005 250); box-shadow: 0 0 0 2px rgba(var(--habits-akcent-rgb), 0.35); }
+.zapis-licznik-przyciski { display: flex; gap: 8px; margin-top: 4px; }
+.zapis-licznik-przyciski button {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  padding: 0;
+  border-radius: 14px;
+  border: 1px solid oklch(0.22 0.008 245);
+  background: oklch(0.08 0.005 250);
+  color: oklch(0.9 0.004 240);
+  font-size: 22px;
+}
+.zapis-licznik-przyciski button:hover { background: var(--habits-obramowanie); }
+.zapis-podpowiedz { min-height: 1.4em; margin: 10px 0 0; text-align: center; font-size: 13px; font-weight: 600; color: oklch(0.52 0.008 240); }
+.zapis-podpowiedz.zlota { color: var(--habits-zloto); }
+.zapis-btn-zalicz {
+  width: 100%;
+  height: 64px;
+  margin-top: 14px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 22px;
+  background: var(--habits-akcent);
+  color: oklch(0.1 0.006 250);
+  font-size: 17px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 18px 40px -16px rgba(var(--habits-akcent-rgb), 0.6);
+}
+.zapis-btn-zalicz svg { width: 22px; height: 22px; }
+.zapis-serie-naglowek { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 34px; }
+#widok-dodaj .zapis-serie-tytul { margin: 0; font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-weight: 400; font-size: 28px; color: oklch(0.85 0.005 240); }
+.zapis-serie-licznik { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--habits-tekst-pomocniczy); white-space: nowrap; }
+.zapis-serie { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.zapis-seria {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 8px 10px 12px;
+  border-radius: 18px;
+  background: var(--habits-tlo-karta);
+  border: 1px solid var(--habits-obramowanie);
+}
+.zapis-seria.rekord { border-color: oklch(0.72 0.08 75 / 0.45); }
+.zapis-seria-pieczatka {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--habits-akcent);
+  color: oklch(0.1 0.006 250);
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 20px;
+  transform: rotate(var(--obrot, 0deg));
+}
+.zapis-seria.rekord .zapis-seria-pieczatka { background: var(--habits-zloto); }
+.zapis-seria-opis { flex: 1; min-width: 0; font-family: "Instrument Serif", Georgia, serif; font-size: 24px; color: oklch(0.93 0.004 240); }
+.zapis-pigulka-rekord {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--habits-zloto);
+  color: oklch(0.1 0.006 250);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.zapis-pigulka-rekord svg { width: 11px; height: 11px; }
+.zapis-btn-x {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--habits-tekst-pomocniczy);
+  display: grid;
+  place-items: center;
+}
+.zapis-btn-x svg { width: 16px; height: 16px; }
+.zapis-btn-x:hover { background: var(--habits-obramowanie); color: var(--habits-tekst); }
+.zapis-serie-pusto {
+  margin: 0;
+  padding: 20px;
+  border-radius: 18px;
+  border: 1.5px dashed var(--habits-obramowanie);
+  text-align: center;
+  font-size: 14px;
+  color: oklch(0.52 0.008 240);
+}
+.zapis-btn-zapisz {
+  width: 100%;
+  height: 52px;
+  margin-top: 16px;
+  border-radius: 18px;
+  border: 1px solid oklch(0.26 0.008 245);
+  background: transparent;
+  color: oklch(0.85 0.005 240);
+  font-size: 15px;
+  font-weight: 600;
+}
+.zapis-btn-zapisz:hover:not(:disabled) { background: var(--habits-tlo-karta); }
+.zapis-btn-zapisz:disabled { opacity: 0.55; cursor: default; }
+.zapis-dzis-naglowek { margin-top: 40px; }
+.zapis-dzis { list-style: none; margin: 14px 0 0; padding: 0; }
+.zapis-dzis > .pusto { margin: 0; }
+.zapis-dzis-wiersz {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 8px 0;
+  border-top: 1px solid oklch(0.16 0.007 248);
+}
+.zapis-dzis-opis { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.zapis-dzis-nazwa { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: oklch(0.93 0.004 240); overflow-wrap: anywhere; }
+.zapis-dzis-serie { font-size: 13px; color: oklch(0.6 0.008 240); overflow-wrap: anywhere; }

@@ -1,0 +1,9 @@
+/* Ekran "AI Analiza" (#widok-ai-analiza). */
+
+/* ----- AI Analiza: wynik analizy tygodnia ----- */
+.ai-analiza-wynik {
+  margin-top: 16px;
+  white-space: pre-line;
+  line-height: 1.6;
+}
+.ai-analiza-wynik.ai-analiza-blad { color: #C9433D; }

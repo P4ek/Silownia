@@ -1,0 +1,229 @@
+/* Ekran "Rejestr ćwiczeń" (#widok-rejestr) + pigułka "nowy rekord". */
+
+/* ----- Rejestr ćwiczeń (#widok-rejestr): jeden dzień treningowy (objętość, rozkład serii, karty ze słupkami) + wyszukiwarka ----- */
+.rejestr-gora { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+#widok-rejestr .rejestr-kicker {
+  margin: 0;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--habits-tekst-pomocniczy);
+}
+.rejestr-nawigacja {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 4px;
+  border-radius: 14px;
+  border: 1px solid var(--habits-obramowanie);
+}
+.rejestr-btn-dzien {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: oklch(0.7 0.006 240);
+  display: grid;
+  place-items: center;
+}
+.rejestr-btn-dzien svg { width: 16px; height: 16px; }
+.rejestr-btn-dzien:hover:not(:disabled) { background: var(--habits-obramowanie); }
+.rejestr-btn-dzien:disabled { opacity: 0.3; cursor: default; }
+.rejestr-data {
+  position: relative;
+  padding: 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--habits-tekst);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.rejestr-data:hover, .rejestr-data:focus-within { color: oklch(0.95 0.004 240); }
+/* Natywne pole daty leży przezroczyste na dacie — kliknięcie otwiera systemowy wybór daty */
+#widok-rejestr .rejestr-data-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  opacity: 0;
+  cursor: pointer;
+}
+.rejestr-szukaj { position: relative; margin-top: 18px; }
+.rejestr-szukaj svg {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  transform: translateY(-50%);
+  color: var(--habits-tekst-pomocniczy);
+  pointer-events: none;
+}
+#widok-rejestr .rejestr-szukaj input {
+  height: 48px;
+  padding: 0 14px 0 42px;
+  border-radius: 14px;
+  border: 1px solid var(--habits-obramowanie);
+  background: var(--habits-tlo-karta);
+  color: var(--habits-tekst);
+}
+#widok-rejestr .rejestr-szukaj input::placeholder { color: var(--habits-tekst-pomocniczy); }
+.rejestr-etykieta {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--habits-tekst-pomocniczy);
+}
+.rejestr-dzien { margin-top: 30px; }
+.rejestr-objetosc { display: flex; align-items: baseline; gap: 10px; margin-top: 8px; }
+.rejestr-objetosc-liczba {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: clamp(4.5rem, 26vw, 6.5rem);
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+  color: oklch(0.95 0.004 240);
+  white-space: nowrap;
+}
+.rejestr-objetosc-kg { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 30px; color: oklch(0.52 0.008 240); }
+.rejestr-pigulki { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.rejestr-pigulka {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--habits-obramowanie);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--habits-tekst);
+}
+.rejestr-pigulka.zlota { border-color: transparent; background: var(--habits-zloto); color: oklch(0.1 0.006 250); font-weight: 700; }
+.rejestr-pigulka svg { width: 12px; height: 12px; }
+.rejestr-rozklad { margin-top: 30px; }
+.rejestr-rozklad-pasek { display: flex; gap: 3px; height: 14px; margin-top: 12px; }
+.rejestr-rozklad-pasek > span { min-width: 4px; border-radius: 4px; background: var(--kolor-partii); }
+.rejestr-rozklad-legenda { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; }
+.rejestr-legenda-poz { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: oklch(0.7 0.006 240); }
+.rejestr-legenda-poz b { color: oklch(0.9 0.004 240); }
+.rejestr-kropka { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--kolor-partii); }
+.rejestr-karty { display: flex; flex-direction: column; gap: 12px; margin-top: 30px; }
+.rejestr-karta {
+  padding: 20px;
+  border-radius: 24px;
+  background: var(--habits-tlo-karta);
+  border: 1px solid var(--habits-obramowanie);
+}
+.rejestr-karta.rekord { border-color: oklch(0.72 0.08 75 / 0.4); }
+.rejestr-karta-gora { display: flex; align-items: flex-start; gap: 14px; }
+.rejestr-karta-numer { flex: none; font-family: "Instrument Serif", Georgia, serif; font-size: 44px; line-height: 0.8; color: oklch(0.3 0.008 245); }
+.rejestr-karta-opis { flex: 1; min-width: 0; }
+.rejestr-karta-partia {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: oklch(0.6 0.008 240);
+}
+#widok-rejestr .rejestr-karta-nazwa {
+  margin: 6px 0 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.05;
+  color: oklch(0.95 0.004 240);
+  overflow-wrap: anywhere;
+}
+.rejestr-karta-akcje { flex: none; display: flex; align-items: center; gap: 6px; }
+.rejestr-gwiazda {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--habits-zloto);
+  color: oklch(0.1 0.006 250);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 24px oklch(0.72 0.08 75 / 0.5);
+}
+.rejestr-gwiazda svg { width: 16px; height: 16px; }
+.rejestr-btn-usun {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--habits-tekst-pomocniczy);
+  display: grid;
+  place-items: center;
+  transition: background 0.15s ease, color 0.15s ease, scale 0.1s ease;
+}
+.rejestr-btn-usun svg { width: 16px; height: 16px; }
+.rejestr-btn-usun:hover { background: rgba(180, 72, 44, 0.12); color: oklch(0.75 0.13 28); }
+.rejestr-btn-usun:disabled { opacity: 0.5; cursor: default; }
+/* Słupki serii: wysokość proporcjonalna do ciężar × powtórzenia */
+.rejestr-serie { display: flex; align-items: flex-end; gap: 10px; height: 104px; margin-top: 16px; }
+.rejestr-seria { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; }
+.rejestr-seria-podpis { font-size: 12px; font-weight: 700; line-height: 1.15; text-align: center; color: oklch(0.7 0.006 240); }
+.rejestr-seria-slupek { width: 100%; max-width: 40px; border-radius: 10px 10px 4px 4px; background: var(--kolor-partii); opacity: 0.85; }
+.rejestr-seria.rekord .rejestr-seria-podpis { color: var(--habits-zloto); }
+.rejestr-seria.rekord .rejestr-seria-slupek { background: var(--habits-zloto); opacity: 1; }
+/* Wyniki wyszukiwania: dni z danym ćwiczeniem */
+.rejestr-wyniki { margin-top: 18px; }
+.rejestr-wyniki-lista { list-style: none; margin: 0; padding: 0; }
+.rejestr-wynik {
+  width: 100%;
+  min-height: 64px;
+  padding: 12px 4px;
+  border: none;
+  border-top: 1px solid oklch(0.16 0.007 248);
+  background: transparent;
+  color: var(--habits-tekst);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+}
+.rejestr-wynik:hover { background: var(--habits-tlo-karta); }
+.rejestr-wynik-data { flex: none; width: 92px; font-size: 13px; font-weight: 700; color: oklch(0.9 0.004 240); }
+.rejestr-wynik-opis { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.rejestr-wynik-nazwa { font-size: 12px; color: oklch(0.52 0.008 240); overflow-wrap: anywhere; }
+.rejestr-wynik-serie { font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
+#widok-rejestr .rejestr-wynik .rekord-tag-rejestr { flex: none; margin-left: 0; background: var(--habits-zloto); color: oklch(0.1 0.006 250); }
+
+/* ----- Rejestr: znacznik nowego rekordu ----- */
+.rekord-tag-rejestr {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+.rekord-tag-rejestr svg { width: 11px; height: 11px; flex: none; }
+/* W ciemnym motywie --accent-soft to tło karty (ciemniejsze od komórki tabeli) — pigułka dostaje półprzezroczysty akcent */
+.kontener.motyw-habits .rekord-tag-rejestr {
+  background: rgba(var(--habits-akcent-rgb), 0.14);
+  color: var(--habits-akcent);
+}

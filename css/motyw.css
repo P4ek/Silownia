@@ -1,0 +1,165 @@
+/* Ciemny motyw (zawsze włączony): reguły .kontener.motyw-habits / #sidebar.motyw-habits nakładane na wszystkie ekrany. Ładowany jako ostatni arkusz, bo nadpisuje style ekranów. */
+
+/* ----- Ciemny motyw (zawsze włączony) na .kontener.motyw-habits, obejmuje całą kolumnę (nagłówek + widok); zmienne kolorów są w :root ----- */
+.kontener.motyw-habits {
+  /* Domyslny jasny kolor tekstu dla wszystkiego bez wlasnego koloru "wprost" (np. komorki tabel, li, span w Rejestrze/Wykresie/Zaplanuj trening/Nowe cwiczenie). Elementy z jawnym kolorem (habits-* w #widok-habits, przyciski z wlasnym color nizej) nie sa tym nadpisywane. */
+  color: var(--habits-tekst);
+  background: var(--habits-tlo);
+  border-radius: 20px;
+  padding: 18px 16px 22px;
+  overflow: hidden;
+}
+.kontener.motyw-habits .habits-poswiata { display: block; }
+.kontener.motyw-habits > h1 { color: var(--habits-naglowek); }
+
+/* ----- Tryb ciemny (przełącznik globalny obok hamburgera): pozostałe widoki, poza sekcją "Nawyki" -----
+   Reguły #widok-habits mają wyższą swoistość (selektor z ID), więc wygląd samej sekcji "Nawyki" zostaje bez zmian. */
+.kontener.motyw-habits :is(form, .karta, .pusto, .przeszkoda-wiersz, select, input) {
+  background: var(--tryb-ciemny-tlo-karta);
+  border-color: var(--habits-obramowanie);
+}
+
+/* ----- Szkło mrożone na kartach (tylko motyw ciemny) -----
+   Tylko kontenery najwyższego poziomu (karty, formularze, wpisy/plany) — bez wierszy długich list (rejestr, cele, katalog)
+   i bez elementów zagnieżdżonych w innej karcie, żeby nie mnożyć kosztownych warstw backdrop-filter przy przewijaniu. */
+@supports (background: color-mix(in oklch, red 50%, transparent)) {
+  .kontener.motyw-habits :is(form, .karta):not(.karta *),
+  .kontener.motyw-habits #widok-habits .karta {
+    background: color-mix(in oklch, var(--habits-tlo-karta) 70%, transparent);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(var(--habits-akcent-rgb), 0.15);
+  }
+  /* Formularze w sekcji "Nawyki" są celowo bez tła i ramki */
+  .kontener.motyw-habits #widok-habits form {
+    background: none;
+    border: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* Czytelność tekstu w trybie ciemnym poza sekcją "Nawyki": jaśniejszy --habits-tekst zamiast zbyt ciemnego --habits-tekst-pomocniczy */
+.kontener.motyw-habits :is(h1, h2, legend, label) {
+  color: var(--habits-tekst);
+}
+.kontener.motyw-habits select,
+.kontener.motyw-habits select option {
+  color: var(--habits-tekst);
+}
+.kontener.motyw-habits input::placeholder {
+  color: var(--habits-tekst);
+}
+/* input/select/textarea maja wprost ustawiony color w bazowym CSS (var(--ink)), wiec dziedziczenie go nie nadpisuje — wpisywany tekst (np. nazwa nowego cwiczenia) zostawalby czarny bez tej reguly */
+.kontener.motyw-habits :is(input, select, textarea) {
+  color: var(--habits-tekst);
+}
+
+/* Naglowki/teksty z wlasnym jawnym color: var(--ink), ktorych dziedziczenie z .kontener nie obejmuje */
+.kontener.motyw-habits .plan-trakcie-baner {
+  color: var(--habits-tekst);
+}
+.kontener.motyw-habits .zasada-dnia {
+  color: var(--habits-tekst-pomocniczy);
+  border-left-color: var(--habits-akcent);
+}
+.kontener.motyw-habits .plan-postep-luk {
+  stroke: var(--habits-akcent);
+}
+.kontener.motyw-habits .karta-tytul {
+  color: var(--habits-tekst);
+}
+
+.kontener.motyw-habits .btn-submit,
+.ekran-logowania .btn-submit {
+  background: var(--habits-akcent);
+  color: oklch(0.07 0.004 250);
+  box-shadow: 0 0 10px rgba(var(--habits-akcent-rgb), 0.35);
+}
+.kontener.motyw-habits .btn-submit:hover,
+.ekran-logowania .btn-submit:hover { filter: brightness(1.08); }
+
+.kontener.motyw-habits .btn-pill {
+  border-color: var(--habits-akcent);
+  background: var(--habits-tlo-karta);
+  color: var(--habits-akcent);
+}
+.kontener.motyw-habits .btn-pill:hover { background: var(--habits-obramowanie); }
+
+.kontener.motyw-habits select:focus,
+.kontener.motyw-habits input:focus {
+  border-color: var(--habits-akcent);
+  box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18);
+}
+
+/* ----- Poświata (glow) w kolorze akcentu na aktywnych elementach — tylko motyw ciemny ----- */
+/* #sidebar leży poza .kontener, więc --habits-akcent-rgb ma tam fallback na te same wartości */
+#sidebar.motyw-habits .nav-btn {
+  transition: background 0.15s ease, scale 0.1s ease, box-shadow 0.2s ease;
+}
+#sidebar.motyw-habits .nav-btn.aktywny {
+  box-shadow: 0 0 12px rgba(var(--habits-akcent-rgb, 214, 208, 192), 0.35);
+}
+.kontener.motyw-habits .btn-submit {
+  transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease, box-shadow 0.2s ease;
+}
+.kontener.motyw-habits .btn-submit:not(:disabled):is(:hover, :focus-visible) {
+  box-shadow: 0 0 18px rgba(var(--habits-akcent-rgb), 0.5);
+}
+.kontener.motyw-habits :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.kontener.motyw-habits :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus,
+.kontener.motyw-habits #widok-habits input:focus {
+  border-color: var(--habits-akcent);
+  box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18), 0 0 12px rgba(var(--habits-akcent-rgb), 0.35);
+}
+
+/* Aktywna pozycja w panelu bocznym — poza wariantem .nav-habits, który ma własny, niezależny wygląd; .nav-rozwoj (różowy w jasnym motywie) dostaje ten sam srebrny akcent co reszta, żeby nie zostawiać różu w trybie ciemnym */
+#sidebar.motyw-habits .nav-btn.aktywny:not(.nav-habits) {
+  background: oklch(0.1 0.006 250);
+  color: #D6D0C0;
+}
+#sidebar.motyw-habits .nav-btn.aktywny:not(.nav-habits) svg { color: #D6D0C0; }
+
+/* Elementy z twardo wpisanym pomarańczem/różem (gradienty, cienie, kolory stanu) — podmiana zmiennych --accent* wyżej ich nie obejmuje, więc dopasowujemy je ręcznie do akcentu z Nawyków */
+.kontener.motyw-habits .rekord-baner {
+  background: var(--habits-akcent);
+  color: oklch(0.07 0.004 250);
+  box-shadow: 0 12px 26px -10px rgba(var(--habits-akcent-rgb), 0.35);
+}
+.kontener.motyw-habits .rekord-baner-rozowy {
+  background: var(--habits-akcent);
+  box-shadow: 0 12px 26px -10px rgba(var(--habits-akcent-rgb), 0.35);
+}
+
+.kontener.motyw-habits .btn-usun {
+  border-color: var(--habits-obramowanie);
+  background: transparent;
+  color: var(--habits-tekst-pomocniczy);
+}
+.kontener.motyw-habits .btn-usun:hover {
+  background: rgba(180, 72, 44, 0.12);
+  border-color: #B4482C;
+  color: #B4482C;
+}
+
+.kontener.motyw-habits .btn-zakoncz-tydzien {
+  background: var(--habits-akcent);
+  color: oklch(0.07 0.004 250);
+  box-shadow: 0 12px 24px -10px rgba(var(--habits-akcent-rgb), 0.6);
+}
+.kontener.motyw-habits .btn-zakoncz-tydzien:hover { filter: brightness(1.08); }
+
+
+/* Mapa ciała w ciemnym motywie: progi mieszane z ciemnym tłem karty, szary "nieaktywny" i obrys jaśniejsze od tła */
+.kontener.motyw-habits .karta-mapa {
+  --mapa-poziom-1: color-mix(in srgb, var(--accent) 62%, var(--habits-tlo-karta));
+  --mapa-poziom-2: color-mix(in srgb, var(--accent) 36%, var(--habits-tlo-karta));
+  --mapa-nieaktywna: oklch(0.25 0.008 245);
+  --mapa-cialo: oklch(0.15 0.006 250);
+  --mapa-obrys: oklch(0.52 0.01 245);
+  --mapa-zaznaczenie: var(--habits-naglowek);
+}
+.kontener.motyw-habits .mapa-info { border-color: var(--habits-obramowanie); }
+.kontener.motyw-habits .mapa-info strong { color: var(--habits-naglowek); }
