@@ -1767,8 +1767,6 @@
     --accent-soft: var(--accent-pink-soft);
   }
   #widok-plan .karta { margin-bottom: 18px; }
-  #widok-plan form { margin-top: 16px; padding: 0; border: none; box-shadow: none; background: none; }
-  #widok-plan form > label:first-of-type { margin-top: 0; }
 
   .rekord-baner-rozowy {
     background: linear-gradient(135deg, #F2C4CC, #E3A9B4 60%, #C98999);
@@ -1792,243 +1790,264 @@
   .btn-pill:hover { background: #FBDECF; }
   .btn-pill:disabled { opacity: 0.55; cursor: default; }
 
-  .btn-pill-rola {
-    border: none;
-    background: linear-gradient(135deg, #EDB8C2, var(--accent-pink) 55%, #C98999);
-    color: #fff;
-    box-shadow: 0 12px 24px -10px rgba(227, 169, 180, 0.6);
-    transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease;
-  }
-  .btn-pill-rola:hover { background: linear-gradient(135deg, #EDB8C2, var(--accent-pink) 55%, #C98999); filter: brightness(1.05); }
-  .btn-pill-rola:active { transform: translateY(1px); }
-
-  #role-lista { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
-  .rola-chip {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 7px 14px;
-    border-radius: 999px;
-    background: var(--accent-soft);
-    color: var(--accent);
-    font-weight: 600;
-    font-size: 0.85rem;
-    cursor: pointer;
-  }
-  /* Przełącznik (toggle) widoczności roli na dany tydzień — checkbox ukryty wizualnie (position:absolute + opacity:0), wygląd renderuje siostrzany span (jak w Nawykach), bo appearance:none + tło na natywnym checkboxie nie renderuje się poprawnie we wszystkich przeglądarkach */
-  .rola-toggle {
-    position: relative;
-    width: 34px;
-    height: 20px;
-    flex: none;
-  }
-  .rola-toggle input[type="checkbox"] {
-    position: absolute;
-    inset: 0;
-    margin: 0;
-    opacity: 0;
-    cursor: pointer;
-  }
-  .rola-toggle-wizualny {
-    position: absolute;
-    inset: 0;
-    border-radius: 999px;
-    background: #E7DCD0;
-    pointer-events: none;
-    transition: background 0.15s ease;
-  }
-  .rola-toggle-wizualny::before {
-    content: "";
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
-    transition: transform 0.15s ease;
-  }
-  .rola-toggle input[type="checkbox"]:checked + .rola-toggle-wizualny { background: var(--accent); }
-  .rola-toggle input[type="checkbox"]:checked + .rola-toggle-wizualny::before { transform: translateX(14px); }
-
-  .tydzien-nawigacja {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .btn-tydzien {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: none;
-    width: 40px;
-    height: 40px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--habits-tlo);
-    color: var(--accent);
-  }
-  .btn-tydzien svg { width: 18px; height: 18px; }
-  .btn-tydzien:hover { background: var(--accent-soft); }
-  .tydzien-etykieta { text-align: center; }
-  .tydzien-podpis {
-    display: block;
-    color: var(--muted);
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 2px;
-  }
-  #tydzien-data {
-    font-family: "Instrument Serif", Georgia, serif;
-    font-style: italic;
-    font-size: 1.2rem;
-    color: var(--accent);
-  }
-
-  /* Karta roli: pasek gradientowy na górze + ikonka obok nazwy */
-  .rola-blok {
-    position: relative;
-    overflow: hidden;
-  }
-  .rola-blok::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 6px;
-    background: linear-gradient(90deg, var(--accent), #F2C4CC);
-  }
-  .rola-naglowek {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
-  .rola-ikona {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    flex: none;
-    border-radius: 12px;
-    background: var(--accent-soft);
-    color: var(--accent);
-  }
-  .rola-ikona svg { width: 20px; height: 20px; }
-  .rola-blok h3 {
-    margin: 0;
+  /* ----- Kompas tygodnia (#widok-plan) ----- */
+  .kompas-kicker { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--habits-zloto); }
+  #widok-plan .kompas-tytul {
+    margin: 10px 0 0;
     font-family: "Instrument Serif", Georgia, serif;
     font-style: italic;
     font-weight: 400;
-    font-size: 1.25rem;
-    color: var(--ink);
+    font-size: clamp(2.6rem, 13vw, 3.4rem);
+    line-height: 0.95;
+    color: oklch(0.95 0.004 240);
   }
-  .cele-checklist { display: flex; flex-direction: column; gap: 8px; }
-  .cel-wiersz {
-    display: flex;
+  .kompas-nawigacja {
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: #FCFAF4;
-    cursor: pointer;
+    gap: 4px;
+    margin: 16px 0 18px;
+    padding: 4px;
+    border-radius: 14px;
+    border: 1px solid var(--habits-obramowanie);
   }
-  /* Checkbox celu: kwadrat z zaokrąglonymi rogami, wypełniony po zaznaczeniu — checkbox ukryty wizualnie, wygląd renderuje siostrzany span (jak w Nawykach), bo appearance:none + tło/::before na natywnym checkboxie nie renderuje się poprawnie we wszystkich przeglądarkach */
-  .cel-checkbox {
-    position: relative;
-    width: 20px;
-    height: 20px;
+  .kompas-btn-tydzien {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: oklch(0.7 0.006 240);
+    display: grid;
+    place-items: center;
+  }
+  .kompas-btn-tydzien svg { width: 16px; height: 16px; }
+  .kompas-btn-tydzien:hover { background: var(--habits-obramowanie); }
+  .kompas-zakres { padding: 0 6px; font-size: 13px; font-weight: 600; color: var(--habits-tekst); white-space: nowrap; }
+  .kompas-wrap { margin-top: 8px; }
+  .kompas { position: relative; width: min(100%, 340px); margin: 0 auto; }
+  .kompas svg { display: block; width: 100%; height: auto; }
+  .kompas-segment { fill: oklch(0.12 0.006 250); stroke: var(--habits-obramowanie); stroke-width: 1; cursor: pointer; transition: fill 0.2s ease; }
+  .kompas-segment:hover { fill: oklch(0.15 0.008 248); }
+  .kompas-segment:focus { outline: none; }
+  .kompas-segment:focus-visible { stroke: var(--habits-akcent); stroke-width: 2; }
+  .kompas-segment.wybrany { fill: rgba(var(--habits-akcent-rgb), 0.16); stroke: var(--habits-akcent); stroke-width: 1.5; }
+  .kompas-tor { fill: none; stroke: oklch(0.2 0.008 245); stroke-width: 4; stroke-linecap: round; pointer-events: none; }
+  .kompas-luk { fill: none; stroke: var(--habits-zloto); stroke-width: 4; stroke-linecap: round; pointer-events: none; filter: drop-shadow(0 0 4px oklch(0.72 0.08 75 / 0.6)); }
+  .kompas-ikona { fill: none; stroke: oklch(0.6 0.008 240); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+  .kompas-segment.wybrany + .kompas-ikona, .kompas-ikona.wybrana { stroke: var(--habits-akcent); }
+  .kompas-cwiartka { fill: oklch(0.1 0.006 250); stroke: var(--habits-obramowanie); stroke-width: 1; }
+  .kompas-cwiartka.swieci { fill: oklch(0.72 0.08 75 / 0.28); stroke: var(--habits-zloto); filter: drop-shadow(0 0 6px oklch(0.72 0.08 75 / 0.5)); }
+  .kompas-ikona.wymiar { stroke: oklch(0.36 0.008 245); }
+  .kompas-ikona.wymiar.swieci { stroke: var(--habits-zloto); }
+  .kompas-tlo-srodka { fill: var(--habits-tlo); stroke: var(--habits-obramowanie); }
+  .kompas-srodek {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 34%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    text-align: center;
+    pointer-events: none;
+  }
+  .kompas-wynik { font-family: "Instrument Serif", Georgia, serif; font-size: clamp(1.8rem, 9vw, 2.3rem); line-height: 1; color: oklch(0.95 0.004 240); }
+  .kompas-rola { max-width: 100%; font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 15px; line-height: 1.1; color: var(--habits-zloto); overflow-wrap: anywhere; }
+  .kompas-legenda { margin: 14px 0 0; font-size: 12px; line-height: 1.5; text-align: center; color: oklch(0.52 0.008 240); }
+  .kompas-legenda b { color: var(--habits-tekst); font-weight: 600; }
+  .kompas-sekcja-naglowek { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 30px; }
+  .kompas-etykieta { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: oklch(0.52 0.008 240); }
+  .kompas-btn-maly {
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--habits-obramowanie);
+    background: transparent;
+    color: oklch(0.75 0.006 240);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .kompas-btn-maly[aria-pressed="true"] { border-color: transparent; background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+  .kompas-role {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    margin: 0 -16px;
+    padding: 12px 16px 2px;
+    scrollbar-width: none;
+  }
+  .kompas-role::-webkit-scrollbar { display: none; }
+  .kompas-role::after { content: ""; flex: none; width: 8px; }
+  .kompas-role.edycja { flex-direction: column; overflow: visible; margin: 0; padding: 12px 0 0; }
+  .kompas-role.edycja::after { display: none; }
+  .kompas-role > .pusto { flex: 1; }
+  .kompas-chip {
     flex: none;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid var(--habits-obramowanie);
+    background: oklch(0.08 0.005 250);
+    color: oklch(0.75 0.006 240);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
   }
-  .cel-checkbox input[type="checkbox"] {
+  .kompas-chip svg { width: 15px; height: 15px; flex: none; }
+  .kompas-chip.aktywny { border-color: transparent; background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+  .kompas-chip.nowa { border-style: dashed; border-width: 1.5px; padding: 0 14px; }
+  .kompas-chip.nowa[aria-expanded="true"] { border-color: var(--habits-akcent); color: var(--habits-tekst); }
+  .kompas-rola-edycja {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+    padding: 12px 14px;
+    border-radius: 18px;
+    border: 1px solid var(--habits-obramowanie);
+    background: var(--habits-tlo-karta);
+  }
+  .kompas-rola-edycja-nazwa { flex: 1 1 120px; min-width: 0; font-size: 15px; font-weight: 600; color: oklch(0.93 0.004 240); overflow-wrap: anywhere; }
+  .kompas-wymiary { display: flex; flex-wrap: wrap; gap: 6px; }
+  .kompas-wymiar {
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid var(--habits-obramowanie);
+    background: oklch(0.08 0.005 250);
+    color: oklch(0.7 0.006 240);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .kompas-wymiar svg { width: 14px; height: 14px; }
+  .kompas-wymiar[aria-pressed="true"] { border-color: transparent; background: var(--habits-zloto); color: oklch(0.1 0.006 250); }
+  .kompas-btn-kosz {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--habits-tekst-pomocniczy);
+    display: grid;
+    place-items: center;
+  }
+  .kompas-btn-kosz svg { width: 16px; height: 16px; }
+  .kompas-btn-kosz:hover { background: rgba(180, 72, 44, 0.12); color: oklch(0.75 0.13 28); }
+  .kompas-btn-kosz:disabled { opacity: 0.5; cursor: default; }
+  #widok-plan .kompas-form {
+    margin: 14px 0 0;
+    padding: 18px;
+    border-radius: 22px;
+    border: 1px solid var(--habits-akcent);
+    background: var(--habits-tlo-karta);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  #widok-plan .kompas-form label, .kompas-pole-etykieta { display: block; margin: 0 0 8px; font-size: 13px; font-weight: 600; color: oklch(0.6 0.008 240); }
+  .kompas-pole-etykieta { margin-top: 14px; }
+  #widok-plan .kompas-form input[type="text"] {
+    height: 48px;
+    margin-bottom: 10px;
+    border-radius: 14px;
+    border: 1px solid var(--habits-obramowanie);
+    background: oklch(0.08 0.005 250);
+    color: oklch(0.9 0.004 240);
+  }
+  #widok-plan .kompas-form input[type="text"]::placeholder { color: var(--habits-tekst-pomocniczy); }
+  .kompas-form-tytul { margin: 0 0 12px; font-size: 13px; font-weight: 600; color: oklch(0.6 0.008 240); overflow-wrap: anywhere; }
+  .kompas-form-tytul b { color: oklch(0.93 0.004 240); }
+  .kompas-form-akcje { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 4px; }
+  .kompas-form-akcje .kompas-btn-glowny { flex: 1 1 160px; margin-top: 0; }
+  .kompas-btn-glowny {
+    width: 100%;
+    height: 48px;
+    margin-top: 14px;
+    border: none;
+    border-radius: 14px;
+    background: var(--habits-akcent);
+    color: oklch(0.1 0.006 250);
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .kompas-btn-glowny:disabled { opacity: 0.55; cursor: default; }
+  /* Tydzień roli */
+  .kompas-tydzien-roli { margin-top: 30px; }
+  #widok-plan .kompas-tydzien-rola {
+    margin: 6px 0 0;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 1;
+    color: oklch(0.95 0.004 240);
+    overflow-wrap: anywhere;
+  }
+  .kompas-blok { margin-top: 18px; padding: 14px 16px; border-radius: 20px; border: 1px solid var(--habits-obramowanie); background: var(--habits-tlo-karta); }
+  .kompas-blok-tytul { display: block; margin-bottom: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--habits-zloto); }
+  .kompas-dni { list-style: none; margin: 14px 0 0; padding: 0; }
+  .kompas-dzien { padding: 10px 12px; border-radius: 16px; border-top: 1px solid oklch(0.16 0.007 248); }
+  .kompas-dzien:first-child { border-top: none; }
+  .kompas-dzien.dzis { background: oklch(0.11 0.008 248); border-top-color: transparent; }
+  .kompas-dzien.dzis + .kompas-dzien { border-top-color: transparent; }
+  .kompas-dzien-naglowek { display: flex; align-items: center; gap: 10px; min-height: 36px; }
+  .kompas-dzien-skrot { width: 28px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: oklch(0.52 0.008 240); }
+  .kompas-dzien.dzis .kompas-dzien-skrot { color: var(--habits-akcent); }
+  .kompas-dzien-numer { flex: 1; font-family: "Instrument Serif", Georgia, serif; font-size: 22px; line-height: 1; color: oklch(0.85 0.005 240); }
+  .kompas-btn-dodaj {
+    flex: none;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px dashed oklch(0.3 0.008 245);
+    background: transparent;
+    color: oklch(0.65 0.006 240);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .kompas-btn-dodaj.wybrany { border-style: solid; border-color: transparent; background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+  .kompas-cel { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0 4px 38px; }
+  .kompas-blok .kompas-cel { padding-left: 0; }
+  .kompas-cel-check { position: relative; flex: none; width: 24px; height: 24px; margin-top: 2px; }
+  .kompas-cel-check input {
     position: absolute;
     inset: 0;
+    width: 100%;
+    height: 100%;
     margin: 0;
+    padding: 0;
     opacity: 0;
     cursor: pointer;
   }
-  .cel-checkbox-wizualny {
-    position: absolute;
-    inset: 0;
-    border: 2px solid var(--accent);
-    border-radius: 6px;
-    background: #fff;
-    pointer-events: none;
+  .kompas-cel-check span {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    border: 1.5px solid oklch(0.32 0.008 245);
     display: grid;
-    place-content: center;
-    transition: background 0.15s ease;
+    place-items: center;
+    color: transparent;
+    pointer-events: none;
   }
-  .cel-checkbox-wizualny::before {
-    content: "";
-    width: 10px;
-    height: 10px;
-    background: #fff;
-    transform: scale(0);
-    transition: transform 0.1s ease;
-    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 45% 62%);
-  }
-  .cel-checkbox input[type="checkbox"]:checked + .cel-checkbox-wizualny { background: var(--accent); }
-  .cel-checkbox input[type="checkbox"]:checked + .cel-checkbox-wizualny::before { transform: scale(1); }
-  .cel-tresc { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
-  .cel-plan { font-size: 0.78rem; color: var(--muted); }
-  .cel-wiersz.zrealizowany .cel-tresc-glowna,
-  .cel-wiersz.zrealizowany .cel-plan {
-    text-decoration: line-through;
-  }
-  .cel-wiersz.zrealizowany .cel-tresc-glowna { color: var(--muted); }
-  /* Przycisk usuwania celu: subtelny, pełna widoczność przy najechaniu/focusie */
-  .cel-wiersz .btn-usun {
-    opacity: 0.45;
-    transition: opacity 0.15s ease, scale 0.1s ease;
-  }
-  .cel-wiersz:hover .btn-usun,
-  .cel-wiersz .btn-usun:focus-visible {
-    opacity: 1;
-  }
-  /* Przycisk wyróżniania celu (gwiazdka) - przenosi cel na górę listy i podświetla wiersz */
-  .cel-wiersz .btn-wyroznij {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    flex: none;
-    padding: 0;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--habits-tlo);
-    color: #C9433D;
-    opacity: 0.45;
-    transition: opacity 0.15s ease, background 0.15s ease, scale 0.1s ease;
-  }
-  .cel-wiersz .btn-wyroznij svg { width: 17px; height: 17px; }
-  .cel-wiersz:hover .btn-wyroznij,
-  .cel-wiersz .btn-wyroznij:focus-visible {
-    opacity: 1;
-  }
-  .cel-wiersz .btn-wyroznij.aktywny {
-    opacity: 1;
-    background: #FCE7E3;
-    border-color: #E7B4AC;
-  }
-  .cel-wiersz.wyrozniony {
-    background: #FCEFE9;
-    border-color: #E7B4AC;
-    box-shadow: 0 0 0 1px rgba(201, 67, 61, 0.12);
-  }
-  .form-dodaj-cel {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 14px;
-  }
-  .form-dodaj-cel .btn-pill { margin-top: 2px; align-self: flex-start; }
+  .kompas-cel-check span svg { width: 14px; height: 14px; }
+  .kompas-cel-check input:checked + span { border-color: transparent; background: var(--habits-zloto); color: oklch(0.1 0.006 250); }
+  .kompas-cel-check input:focus-visible + span { box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.3); }
+  .kompas-cel-check input:disabled { cursor: progress; }
+  .kompas-cel-tresc { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .kompas-cel-glowna { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 19px; line-height: 1.2; color: oklch(0.93 0.004 240); overflow-wrap: anywhere; }
+  .kompas-cel-plan { font-size: 13px; color: oklch(0.6 0.008 240); overflow-wrap: anywhere; }
+  .kompas-cel.zrealizowany .kompas-cel-glowna { color: oklch(0.52 0.008 240); text-decoration: line-through; text-decoration-color: oklch(0.72 0.08 75 / 0.7); }
+  .kompas-cel.zrealizowany .kompas-cel-plan { color: oklch(0.44 0.008 240); }
+  #widok-plan .rekord-baner { margin-bottom: 18px; }
 
   /* ----- Zakończ tydzień: podsumowanie + "co mnie powstrzymało" ----- */
   .btn-zakoncz-tydzien {
@@ -2940,7 +2959,7 @@
 
   /* ----- Tryb ciemny (przełącznik globalny obok hamburgera): pozostałe widoki, poza sekcją "Nawyki" -----
      Reguły #widok-habits mają wyższą swoistość (selektor z ID), więc wygląd samej sekcji "Nawyki" zostaje bez zmian. */
-  .kontener.motyw-habits :is(form, .karta, .pusto, .cel-wiersz, .przeszkoda-wiersz, select, input) {
+  .kontener.motyw-habits :is(form, .karta, .pusto, .przeszkoda-wiersz, select, input) {
     background: var(--tryb-ciemny-tlo-karta);
     border-color: var(--habits-obramowanie);
   }
@@ -2995,9 +3014,6 @@
   .kontener.motyw-habits .karta-tytul {
     color: var(--habits-tekst);
   }
-  .kontener.motyw-habits .rola-blok h3 {
-    color: var(--habits-tekst);
-  }
 
   .kontener.motyw-habits .btn-submit,
   .ekran-logowania .btn-submit {
@@ -3008,12 +3024,12 @@
   .kontener.motyw-habits .btn-submit:hover,
   .ekran-logowania .btn-submit:hover { filter: brightness(1.08); }
 
-  .kontener.motyw-habits .btn-pill:not(.btn-pill-rola) {
+  .kontener.motyw-habits .btn-pill {
     border-color: var(--habits-akcent);
     background: var(--habits-tlo-karta);
     color: var(--habits-akcent);
   }
-  .kontener.motyw-habits .btn-pill:not(.btn-pill-rola):hover { background: var(--habits-obramowanie); }
+  .kontener.motyw-habits .btn-pill:hover { background: var(--habits-obramowanie); }
 
   .kontener.motyw-habits select:focus,
   .kontener.motyw-habits input:focus {
@@ -3073,20 +3089,6 @@
     color: #B4482C;
   }
 
-  .kontener.motyw-habits .rola-blok::before {
-    background: var(--habits-akcent);
-  }
-
-  .kontener.motyw-habits .btn-pill-rola {
-    background: var(--habits-akcent);
-    color: oklch(0.07 0.004 250);
-    box-shadow: 0 12px 24px -10px rgba(var(--habits-akcent-rgb), 0.6);
-  }
-  .kontener.motyw-habits .btn-pill-rola:hover {
-    background: var(--habits-akcent);
-    filter: brightness(1.08);
-  }
-
   .kontener.motyw-habits .btn-zakoncz-tydzien {
     background: var(--habits-akcent);
     color: oklch(0.07 0.004 250);
@@ -3094,30 +3096,6 @@
   }
   .kontener.motyw-habits .btn-zakoncz-tydzien:hover { filter: brightness(1.08); }
 
-  .kontener.motyw-habits .btn-wyroznij { color: var(--habits-akcent); }
-  .kontener.motyw-habits .cel-wiersz .btn-usun { color: var(--habits-tekst); }
-  .kontener.motyw-habits .btn-wyroznij.aktywny {
-    color: var(--habits-akcent);
-    background: var(--habits-tlo-karta);
-    border-color: var(--habits-akcent);
-  }
-  .kontener.motyw-habits .cel-wiersz.wyrozniony {
-    background: var(--tryb-ciemny-tlo-karta);
-    border-color: var(--habits-akcent);
-    box-shadow: 0 0 0 1px rgba(var(--habits-akcent-rgb), 0.12);
-  }
-
-  /* Tło "wyłączonego" stanu przełącznika/checkboxa (span-wizualny) — nie jest zamiatane ogólną regułą tła kart/inputów wyżej, więc dociemniamy je osobno; stan "zaznaczone" nadal wygrywa dzięki wyższej swoistości selektora :checked + span */
-  .kontener.motyw-habits .rola-toggle-wizualny {
-    background: var(--habits-obramowanie);
-  }
-  .kontener.motyw-habits .cel-checkbox-wizualny {
-    background: var(--tryb-ciemny-tlo-karta);
-  }
-  /* Ptaszek w zaznaczonym checkboxie celu byłby biały na jasnym srebrnym tle (słaby kontrast) — przyciemniamy go tak jak tekst na innych jasnych przyciskach akcentu */
-  .kontener.motyw-habits .cel-checkbox input[type="checkbox"]:checked + .cel-checkbox-wizualny::before {
-    background: oklch(0.07 0.004 250);
-  }
 
   /* Mapa ciała w ciemnym motywie: progi mieszane z ciemnym tłem karty, szary "nieaktywny" i obrys jaśniejsze od tła */
   .kontener.motyw-habits .karta-mapa {
@@ -3162,14 +3140,6 @@
     .kontener { padding: 16px 12px 56px; }
     form, .karta { padding: 16px; }
     .rekord-baner { font-size: 0.95rem; padding: 11px 16px; }
-    .tydzien-nawigacja { gap: 8px; }
-    .btn-tydzien { width: 36px; height: 36px; }
-    #tydzien-data { font-size: 1.05rem; }
-    .rola-ikona { width: 32px; height: 32px; }
-    .rola-ikona svg { width: 17px; height: 17px; }
-  }
-  @media (max-width: 380px) {
-    .tydzien-podpis { font-size: 0.7rem; }
   }
 
   /* ----- Ekran logowania ----- */
@@ -3672,45 +3642,65 @@
 
   <!-- ===== Widok 5: Plan tygodnia ===== -->
   <section id="widok-plan" class="widok">
-    <h2>Plan tygodnia</h2>
+    <span class="kompas-kicker">Nawyk 3 · Najpierw to, co najważniejsze</span>
+    <h2 class="kompas-tytul">Kompas tygodnia</h2>
+    <div class="kompas-nawigacja">
+      <button type="button" id="tydzien-poprzedni" class="kompas-btn-tydzien" aria-label="Poprzedni tydzień">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <span id="tydzien-data" class="kompas-zakres">—</span>
+      <button type="button" id="tydzien-nastepny" class="kompas-btn-tydzien" aria-label="Następny tydzień">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+    </div>
 
     <div id="tydzien-podsumowanie" class="rekord-baner rekord-baner-rozowy" hidden>
       <svg viewBox="0 0 36 36" aria-hidden="true">
-        <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="3"/>
-        <circle id="tydzien-progress-ring" cx="18" cy="18" r="15.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+        <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="3"/>
+        <circle id="tydzien-progress-ring" cx="18" cy="18" r="15.5" fill="none" stroke="oklch(0.1 0.006 250)" stroke-width="3" stroke-linecap="round" transform="rotate(-90 18 18)"/>
       </svg>
       <span id="tydzien-podsumowanie-tekst"></span>
     </div>
 
-    <div class="karta">
-      <label>Twoje role</label>
-      <div id="role-lista">
-        <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">👤</span><span>Brak ról - dodaj pierwszą poniżej.</span></p>
+    <!-- Kompas: zewnętrzny pierścień = role (złoty łuk = postęp celów), wewnętrzny = 4 wymiary ostrzenia piły -->
+    <div id="kompas-wrap" class="kompas-wrap" hidden>
+      <div class="kompas">
+        <svg id="kompas-svg" viewBox="0 0 300 300" role="group" aria-label="Kompas tygodnia"></svg>
+        <div class="kompas-srodek" aria-live="polite">
+          <span id="kompas-wynik" class="kompas-wynik"></span>
+          <span id="kompas-rola" class="kompas-rola"></span>
+        </div>
       </div>
-
-      <form id="form-rola">
-        <label for="nowa-rola">Nowa rola</label>
-        <input type="text" id="nowa-rola" autocomplete="off" placeholder="np. Pracownik, Rodzic, Sportowiec" required>
-        <button type="submit" class="btn-pill btn-pill-rola">+ dodaj rolę</button>
-      </form>
+      <p id="kompas-legenda" class="kompas-legenda"></p>
     </div>
 
-    <div class="karta tydzien-nawigacja">
-      <button type="button" id="tydzien-poprzedni" class="btn-tydzien" aria-label="Poprzedni tydzień">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
-      </button>
-      <div class="tydzien-etykieta">
-        <span class="tydzien-podpis">Tydzień od poniedziałku</span>
-        <span id="tydzien-data">—</span>
+    <div class="kompas-sekcja-naglowek">
+      <span class="kompas-etykieta">Twoje role</span>
+      <button type="button" id="btn-edytuj-role" class="kompas-btn-maly" aria-pressed="false">Edytuj role</button>
+    </div>
+    <div id="role-lista" class="kompas-role"></div>
+    <form id="form-rola" class="kompas-form" hidden>
+      <label for="nowa-rola">Nowa rola</label>
+      <input type="text" id="nowa-rola" autocomplete="off" placeholder="np. Pracownik, Rodzic, Sportowiec" required>
+      <span class="kompas-pole-etykieta">Wymiar roli</span>
+      <div id="nowa-rola-wymiary" class="kompas-wymiary" role="group" aria-label="Wymiar roli"></div>
+      <button type="submit" class="kompas-btn-glowny">Dodaj rolę</button>
+    </form>
+
+    <!-- Tydzień wybranej roli: "Na cały tydzień" + 7 dni z celami (renderCeleWszystkie) -->
+    <div id="cele-lista"></div>
+
+    <form id="form-cel" class="kompas-form" hidden>
+      <p id="form-cel-tytul" class="kompas-form-tytul"></p>
+      <label for="cel-tresc" class="plan-ukryta-etykieta">Najważniejszy cel tej roli</label>
+      <input type="text" id="cel-tresc" autocomplete="off" required placeholder="Najważniejszy cel tej roli…">
+      <label for="cel-plan" class="plan-ukryta-etykieta">Jak?</label>
+      <input type="text" id="cel-plan" autocomplete="off" placeholder="Jak? np. o 17:00 na siłowni">
+      <div class="kompas-form-akcje">
+        <button type="button" id="cel-caly-tydzien" class="kompas-btn-maly" aria-pressed="true">Cały tydzień</button>
+        <button type="submit" class="kompas-btn-glowny">Wpisz w tydzień</button>
       </div>
-      <button type="button" id="tydzien-nastepny" class="btn-tydzien" aria-label="Następny tydzień">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-      </button>
-    </div>
-
-    <div id="cele-lista">
-      <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">🎯</span><span>Dodaj pierwszą rolę, aby zacząć planować cele tygodniowe.</span></p>
-    </div>
+    </form>
 
     <button type="button" id="btn-zakoncz-tydzien" class="btn-zakoncz-tydzien">Zakończ tydzień</button>
 
@@ -6006,6 +5996,18 @@
   const roleLista = document.getElementById("role-lista");
   const formRola = document.getElementById("form-rola");
   const inputNowaRola = document.getElementById("nowa-rola");
+  const nowaRolaWymiary = document.getElementById("nowa-rola-wymiary");
+  const btnEdytujRole = document.getElementById("btn-edytuj-role");
+  const kompasWrap = document.getElementById("kompas-wrap");
+  const kompasSvg = document.getElementById("kompas-svg");
+  const kompasWynik = document.getElementById("kompas-wynik");
+  const kompasRola = document.getElementById("kompas-rola");
+  const kompasLegenda = document.getElementById("kompas-legenda");
+  const formCel = document.getElementById("form-cel");
+  const formCelTytul = document.getElementById("form-cel-tytul");
+  const inputCelTresc = document.getElementById("cel-tresc");
+  const inputCelPlan = document.getElementById("cel-plan");
+  const btnCelCalyTydzien = document.getElementById("cel-caly-tydzien");
   const tydzienDataEl = document.getElementById("tydzien-data");
   const btnTydzienPoprzedni = document.getElementById("tydzien-poprzedni");
   const btnTydzienNastepny = document.getElementById("tydzien-nastepny");
@@ -6023,10 +6025,13 @@
   let wykresTydzienKolowy = null;
   let wierszeNiezrealizowanychRoboczych = []; // { cel, input, checkbox } - stan roboczy formularza podsumowania
 
-  let role = [];  // wiersze z tabeli "role": { id, nazwa }
-  let cele = [];  // wiersze z tabeli "cele_tygodniowe" dla wybranego tygodnia
-  const roleWidoczne = new Set(); // id ról zaznaczonych do pokazania na dole (checkbox przy chipie)
-  const wyrozenioneCele = new Set(); // id celów wyróżnionych gwiazdką (tylko lokalnie, na ten podgląd)
+  let role = [];  // wiersze z tabeli "role": { id, nazwa, wymiar: "cialo" | "umysl" | "duch" | "relacje" | null }
+  let cele = [];  // wiersze z tabeli "cele_tygodniowe" dla wybranego tygodnia: { ..., dzien: "RRRR-MM-DD" | null (cały tydzień) }
+  let planWybranaRolaId = null;   // rola wybrana w kompasie / chipach
+  let planWybranyDzien = null;    // dzień w formularzu nowego celu (null = cały tydzień)
+  let planEdycjaRol = false;      // "Edytuj role": zmiana wymiaru i usuwanie ról
+  let planNowaRolaWymiar = null;  // wymiar wybrany w formularzu nowej roli
+  const PLAN_WYBRANA_ROLA_KEY = "plan-wybrana-rola";
 
   // Poniedziałek tygodnia zawierającego podaną datę
   function poniedzialekTygodnia(d) {
@@ -6043,80 +6048,241 @@
     return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
   }
 
-  // Data (obiekt Date) -> "DD.MM.RRRR"
-  function formatDataPL(d) {
-    const dd = String(d.getDate()).padStart(2, "0");
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    return dd + "." + mm + "." + d.getFullYear();
-  }
-
   let wybranyPoniedzialek = poniedzialekTygodnia(new Date());
 
-  // Dobór ikonki (SVG) do roli na podstawie słów kluczowych w jej nazwie
-  function ikonaDlaRoli(nazwa) {
-    const n = (nazwa || "").toLowerCase();
-    const ikony = [
-      { slowa: ["stud", "szko", "nauk", "ucze"],
-        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>' },
-      { slowa: ["prac", "biur", "firm", "zawod", "kari"],
-        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' },
-      { slowa: ["rodzic", "dom", "dzieck", "rodzin"],
-        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>' },
-      { slowa: ["sport", "trening", "silow", "bieg", "zawodnik"],
-        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6M7 6v12M17 6v12M20 9v6M7 12h10"/></svg>' },
-      { slowa: ["warsztat", "majster", "mechanik", "napraw", "rzemie"],
-        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.6 5.6L3 18l3 3 6.1-6.1a4 4 0 0 0 5.6-5.6l-2.5 2.5-2-2 2.5-2.5Z"/></svg>' },
-      { slowa: ["finans", "pieni", "budz", "oszcz", "inwest"],
-        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 15c0 1.1 1.1 2 2.5 2s2.5-.9 2.5-2-1.1-1.6-2.5-2-2.5-.9-2.5-2 1.1-2 2.5-2 2.5.9 2.5 2"/></svg>' }
-    ];
-    for (let i = 0; i < ikony.length; i++) {
-      if (ikony[i].slowa.some(function (s) { return n.indexOf(s) !== -1; })) return ikony[i].svg;
-    }
-    // Domyślnie: gwiazda
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.7-6.2 3.7 1.6-7L1.9 9.2l7.1-.6L12 2Z"/></svg>';
+  // Wymiary "ostrzenia piły" (Nawyk 7) z ikonami (ścieżki SVG w układzie 24×24)
+  const WYMIARY_ROL = [
+    { klucz: "cialo", nazwa: "Ciało", ikona: '<path d="M4 9v6M7 6v12M17 6v12M20 9v6M7 12h10"/>' },
+    { klucz: "umysl", nazwa: "Umysł", ikona: '<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2Z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7Z"/>' },
+    { klucz: "duch", nazwa: "Duch", ikona: '<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.9 4.9 7 7M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/>' },
+    { klucz: "relacje", nazwa: "Relacje", ikona: '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5a3 3 0 0 1 0 6M18 14c2 .7 3 2.8 3 6"/>' }
+  ];
+  function wymiarRoli(klucz) {
+    return WYMIARY_ROL.find(function (w) { return w.klucz === klucz; }) || null;
+  }
+  function ikonaWymiaruHTML(klucz) {
+    const w = wymiarRoli(klucz);
+    return w ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + w.ikona + "</svg>" : "";
+  }
+  function wybranaRola() {
+    return role.find(function (r) { return r.id === planWybranaRolaId; }) || null;
+  }
+  function ustawWybranaRole(id) {
+    planWybranaRolaId = id;
+    try { localStorage.setItem(PLAN_WYBRANA_ROLA_KEY, String(id)); } catch (e) {}
+    renderRoleListy();
+    renderCeleWszystkie();
+  }
+  function celeRoli(rolaId) {
+    return cele.filter(function (c) { return c.rola_id === rolaId; });
   }
 
-  // Render listy ról (chipy) w karcie zarządzania rolami
-  function renderRoleListy() {
-    roleLista.innerHTML = "";
-    if (role.length === 0) {
-      roleLista.innerHTML = pustyStanHTML("👤", "Brak ról - dodaj pierwszą poniżej.");
-      return;
-    }
-    role.forEach(function (r) {
-      const chip = document.createElement("label");
-      chip.className = "rola-chip";
+  // ----- Kompas (SVG 300×300, kąty od góry zgodnie z ruchem wskazówek) -----
+  function kompasPunkt(r, kat) {
+    const a = (kat - 90) * Math.PI / 180;
+    return [150 + r * Math.cos(a), 150 + r * Math.sin(a)];
+  }
+  function kompasWycinek(r1, r2, od, doKata) {
+    const p1 = kompasPunkt(r2, od), p2 = kompasPunkt(r2, doKata), p3 = kompasPunkt(r1, doKata), p4 = kompasPunkt(r1, od);
+    const duzy = doKata - od > 180 ? 1 : 0;
+    return "M" + p1.join(" ") + " A" + r2 + " " + r2 + " 0 " + duzy + " 1 " + p2.join(" ") +
+      " L" + p3.join(" ") + " A" + r1 + " " + r1 + " 0 " + duzy + " 0 " + p4.join(" ") + "Z";
+  }
+  function kompasLuk(r, od, doKata) {
+    const p1 = kompasPunkt(r, od), p2 = kompasPunkt(r, doKata);
+    return "M" + p1.join(" ") + " A" + r + " " + r + " 0 " + (doKata - od > 180 ? 1 : 0) + " 1 " + p2.join(" ");
+  }
+  function kompasIkona(klucz, r, kat, rozmiar, klasy) {
+    const w = wymiarRoli(klucz);
+    if (!w) return "";
+    const p = kompasPunkt(r, kat);
+    const skala = rozmiar / 24;
+    return '<g class="kompas-ikona ' + (klasy || "") + '" transform="translate(' + (p[0] - rozmiar / 2).toFixed(1) + " " + (p[1] - rozmiar / 2).toFixed(1) + ") scale(" + skala + ')">' + w.ikona + "</g>";
+  }
 
-      const toggle = document.createElement("span");
-      toggle.className = "rola-toggle";
-
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.checked = roleWidoczne.has(r.id);
-      checkbox.addEventListener("change", function () {
-        if (checkbox.checked) roleWidoczne.add(r.id);
-        else roleWidoczne.delete(r.id);
-        localStorage.setItem("role-widoczne", JSON.stringify(Array.from(roleWidoczne)));
-        renderCeleWszystkie();
+  function renderKompas() {
+    const n = role.length;
+    let html = "";
+    // Zewnętrzny pierścień: segment na rolę, złoty łuk = część zrealizowanych celów roli w tym tygodniu
+    const przerwa = n > 1 ? 2 : 0;
+    const krok = 360 / n;
+    role.forEach(function (r, i) {
+      const od = i * krok + przerwa / 2;
+      const doKata = Math.min((i + 1) * krok - przerwa / 2, od + 359.99);
+      const c = celeRoli(r.id);
+      const zrobione = c.filter(function (x) { return x.zrealizowane; }).length;
+      const wybrana = r.id === planWybranaRolaId;
+      html += '<path class="kompas-segment' + (wybrana ? " wybrany" : "") + '" data-rola="' + r.id + '" d="' + kompasWycinek(104, 146, od, doKata) + '" tabindex="0" role="button"></path>';
+      const torOd = od + 3, torDo = Math.max(torOd + 0.1, doKata - 3);
+      html += '<path class="kompas-tor" d="' + kompasLuk(139, torOd, torDo) + '"/>';
+      if (c.length > 0 && zrobione > 0) {
+        html += '<path class="kompas-luk" d="' + kompasLuk(139, torOd, torOd + (torDo - torOd) * zrobione / c.length) + '"/>';
+      }
+      html += kompasIkona(r.wymiar, 120, (od + doKata) / 2, n > 6 ? 16 : 20, wybrana ? "wybrana" : "");
+    });
+    // Wewnętrzny pierścień: 4 wymiary, ćwiartka świeci przy choć jednym zrealizowanym celu roli o tym wymiarze
+    let swiecace = 0;
+    WYMIARY_ROL.forEach(function (w, i) {
+      const srodek = i * 90;
+      const swieci = cele.some(function (c) {
+        if (!c.zrealizowane) return false;
+        const r = role.find(function (x) { return x.id === c.rola_id; });
+        return r && r.wymiar === w.klucz;
       });
+      if (swieci) swiecace++;
+      html += '<path class="kompas-cwiartka' + (swieci ? " swieci" : "") + '" d="' + kompasWycinek(64, 96, srodek - 43, srodek + 43) + '"><title>' + w.nazwa + (swieci ? " - naostrzone" : "") + "</title></path>";
+      html += kompasIkona(w.klucz, 80, srodek, 14, "wymiar" + (swieci ? " swieci" : ""));
+    });
+    html += '<circle class="kompas-tlo-srodka" cx="150" cy="150" r="60"/>';
+    kompasSvg.innerHTML = html;
 
-      const toggleWizualny = document.createElement("span");
-      toggleWizualny.className = "rola-toggle-wizualny";
+    kompasSvg.querySelectorAll(".kompas-segment").forEach(function (seg) {
+      const r = role.find(function (x) { return String(x.id) === seg.getAttribute("data-rola"); });
+      const c = celeRoli(r.id);
+      const zrobione = c.filter(function (x) { return x.zrealizowane; }).length;
+      seg.setAttribute("aria-label", r.nazwa + ": " + zrobione + " z " + c.length + " celów zrealizowanych");
+      seg.setAttribute("aria-pressed", r.id === planWybranaRolaId ? "true" : "false");
+      seg.addEventListener("click", function () { ustawWybranaRole(r.id); });
+      seg.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); ustawWybranaRole(r.id); }
+      });
+    });
 
-      toggle.appendChild(checkbox);
-      toggle.appendChild(toggleWizualny);
+    const rola = wybranaRola();
+    const c = rola ? celeRoli(rola.id) : [];
+    kompasWynik.textContent = c.filter(function (x) { return x.zrealizowane; }).length + "/" + c.length;
+    kompasRola.textContent = rola ? rola.nazwa : "";
+    kompasLegenda.innerHTML = "";
+    const b1 = document.createElement("b");
+    b1.textContent = "Zewnętrzny pierścień:";
+    const b2 = document.createElement("b");
+    b2.textContent = "Środek:";
+    kompasLegenda.append(b1, document.createTextNode(" Twoje role · złoty łuk: postęp celów. "), b2,
+      document.createTextNode(" Nawyk 7 – ostrzenie piły (" + swiecace + "/4: ciało, umysł, duch, relacje)"));
+  }
 
-      const tekst = document.createElement("span");
-      tekst.textContent = r.nazwa;
-
-      chip.appendChild(toggle);
-      chip.appendChild(tekst);
-      roleLista.appendChild(chip);
+  // Przyciski wyboru wymiaru (4 wymiary + "Brak")
+  function budujWyborWymiaru(kontener, aktualny, poWyborze) {
+    kontener.innerHTML = "";
+    WYMIARY_ROL.concat([{ klucz: null, nazwa: "Brak", ikona: "" }]).forEach(function (w) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "kompas-wymiar";
+      btn.setAttribute("aria-pressed", (aktualny || null) === w.klucz ? "true" : "false");
+      btn.innerHTML = ikonaWymiaruHTML(w.klucz);
+      btn.appendChild(document.createTextNode(w.nazwa));
+      btn.addEventListener("click", function () { poWyborze(w.klucz); });
+      kontener.appendChild(btn);
     });
   }
 
+  // Chipy ról (wybór roli) + "+" nowa rola; w trybie "Edytuj role" lista z wymiarem i koszem
+  function renderRoleListy() {
+    roleLista.innerHTML = "";
+    roleLista.classList.toggle("edycja", planEdycjaRol);
+    btnEdytujRole.hidden = role.length === 0;
+    btnEdytujRole.textContent = planEdycjaRol ? "Gotowe" : "Edytuj role";
+    btnEdytujRole.setAttribute("aria-pressed", planEdycjaRol ? "true" : "false");
+
+    if (planEdycjaRol) {
+      role.forEach(function (r) {
+        const wiersz = document.createElement("div");
+        wiersz.className = "kompas-rola-edycja";
+        const nazwa = document.createElement("span");
+        nazwa.className = "kompas-rola-edycja-nazwa";
+        nazwa.textContent = r.nazwa;
+        const btnUsun = document.createElement("button");
+        btnUsun.type = "button";
+        btnUsun.className = "kompas-btn-kosz";
+        btnUsun.setAttribute("aria-label", "Usuń rolę „" + r.nazwa + "”");
+        btnUsun.innerHTML = IKONA_KOSZ_KATALOG;
+        btnUsun.addEventListener("click", function () { usunRole(r, btnUsun); });
+        const wymiary = document.createElement("div");
+        wymiary.className = "kompas-wymiary";
+        budujWyborWymiaru(wymiary, r.wymiar, function (klucz) { zmienWymiarRoli(r, klucz); });
+        wiersz.append(nazwa, btnUsun, wymiary);
+        roleLista.appendChild(wiersz);
+      });
+      return;
+    }
+
+    role.forEach(function (r) {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "kompas-chip" + (r.id === planWybranaRolaId ? " aktywny" : "");
+      chip.setAttribute("aria-pressed", r.id === planWybranaRolaId ? "true" : "false");
+      chip.innerHTML = ikonaWymiaruHTML(r.wymiar);
+      chip.appendChild(document.createTextNode(r.nazwa));
+      chip.addEventListener("click", function () { ustawWybranaRole(r.id); });
+      roleLista.appendChild(chip);
+    });
+    const nowa = document.createElement("button");
+    nowa.type = "button";
+    nowa.className = "kompas-chip nowa";
+    nowa.setAttribute("aria-label", "Nowa rola");
+    nowa.setAttribute("aria-expanded", formRola.hidden ? "false" : "true");
+    nowa.textContent = role.length === 0 ? "+ Pierwsza rola" : "+";
+    nowa.addEventListener("click", function () { przelaczFormularzRoli(formRola.hidden); });
+    roleLista.appendChild(nowa);
+  }
+
+  function przelaczFormularzRoli(otworz) {
+    formRola.hidden = !otworz;
+    if (otworz) {
+      budujWyborWymiaru(nowaRolaWymiary, planNowaRolaWymiar, function (klucz) {
+        planNowaRolaWymiar = klucz;
+        przelaczFormularzRoli(true);
+      });
+      if (document.activeElement !== inputNowaRola) inputNowaRola.focus();
+    }
+    const chip = roleLista.querySelector(".kompas-chip.nowa");
+    if (chip) chip.setAttribute("aria-expanded", otworz ? "true" : "false");
+  }
+
+  btnEdytujRole.addEventListener("click", function () {
+    planEdycjaRol = !planEdycjaRol;
+    renderRoleListy();
+  });
+
+  async function zmienWymiarRoli(rola, klucz) {
+    if ((rola.wymiar || null) === klucz) return;
+    const { error } = await db.from("role").update({ wymiar: klucz }).eq("id", rola.id);
+    if (error) {
+      console.error(error);
+      pokazToast("Nie udało się zmienić wymiaru roli: " + error.message, "blad");
+      return;
+    }
+    rola.wymiar = klucz;
+    renderRoleListy();
+    renderCeleWszystkie();
+  }
+
+  // Usunięcie roli (cele roli: tak, jak zachowa się baza); po usunięciu pobieramy cele tygodnia na nowo
+  async function usunRole(rola, btn) {
+    if (!window.confirm("Usunąć rolę „" + rola.nazwa + "”?")) return;
+    btn.disabled = true;
+    const { error } = await db.from("role").delete().eq("id", rola.id);
+    if (error) {
+      console.error(error);
+      pokazToast("Nie udało się usunąć roli: " + error.message, "blad");
+      btn.disabled = false;
+      return;
+    }
+    role = role.filter(function (r) { return r.id !== rola.id; });
+    if (planWybranaRolaId === rola.id) planWybranaRolaId = role[0] ? role[0].id : null;
+    if (role.length === 0) planEdycjaRol = false;
+    renderRoleListy();
+    wczytajCeleDlaTygodnia();
+  }
+
+  // Zakres tygodnia przy strzałkach, np. "28 wrz – 4 paź"
   function renderTydzienEtykieta() {
-    tydzienDataEl.textContent = formatDataPL(wybranyPoniedzialek);
+    const pon = wybranyPoniedzialek;
+    const nd = new Date(pon.getFullYear(), pon.getMonth(), pon.getDate() + 6);
+    tydzienDataEl.textContent = (pon.getMonth() === nd.getMonth()
+      ? pon.getDate() + " – " + nd.getDate() + " " + MIESIACE_SKROT[nd.getMonth()]
+      : pon.getDate() + " " + MIESIACE_SKROT[pon.getMonth()] + " – " + nd.getDate() + " " + MIESIACE_SKROT[nd.getMonth()]) +
+      (nd.getFullYear() !== new Date().getFullYear() ? " " + nd.getFullYear() : "");
   }
 
   // Pigułka w panelu bocznym obok "Plan tygodnia": X/Y celów zrealizowanych w BIEŻĄCYM (dzisiejszym) tygodniu,
@@ -6153,159 +6319,149 @@
     renderCeleTydzienPigulkaBocznej();
   }
 
-  // Render bloków "cele wg roli" - checklisty na wybrany tydzień + formularz dodawania celu
+  const IKONA_PTASZEK_CEL =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+  // Cel: checkbox zrealizowania (przelaczCel), treść kursywą, plan "Jak?", kosz (usunCel z potwierdzeniem)
+  function budujCelKompasu(c) {
+    const wiersz = document.createElement("div");
+    wiersz.className = "kompas-cel" + (c.zrealizowane ? " zrealizowany" : "");
+    const check = document.createElement("label");
+    check.className = "kompas-cel-check";
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = !!c.zrealizowane;
+    checkbox.setAttribute("aria-label", "Zrealizowany: " + c.tresc);
+    checkbox.addEventListener("change", function () { przelaczCel(c, checkbox, wiersz); });
+    const wizualny = document.createElement("span");
+    wizualny.innerHTML = IKONA_PTASZEK_CEL;
+    check.append(checkbox, wizualny);
+
+    const tresc = document.createElement("div");
+    tresc.className = "kompas-cel-tresc";
+    const glowna = document.createElement("span");
+    glowna.className = "kompas-cel-glowna";
+    glowna.textContent = c.tresc;
+    tresc.appendChild(glowna);
+    if (c.plan) {
+      const plan = document.createElement("span");
+      plan.className = "kompas-cel-plan";
+      plan.textContent = c.plan;
+      tresc.appendChild(plan);
+    }
+    const btnUsun = document.createElement("button");
+    btnUsun.type = "button";
+    btnUsun.className = "kompas-btn-kosz";
+    btnUsun.setAttribute("aria-label", "Usuń cel „" + c.tresc + "”");
+    btnUsun.innerHTML = IKONA_KOSZ_KATALOG;
+    btnUsun.addEventListener("click", function () { usunCel(c, btnUsun); });
+    wiersz.append(check, tresc, btnUsun);
+    return wiersz;
+  }
+
+  function formatDzienFormularza(d) {
+    const data = new Date(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10));
+    return DNI_TYGODNIA_PELNE[(data.getDay() + 6) % 7] + ", " + data.getDate() + " " + MIESIACE_SKROT[data.getMonth()];
+  }
+  // Tytuł formularza "Nowy cel · [rola] · [dzień albo cały tydzień]"
+  function renderFormularzCelu() {
+    const rola = wybranaRola();
+    formCel.hidden = !rola;
+    if (!rola) return;
+    formCelTytul.innerHTML = "";
+    const b1 = document.createElement("b");
+    b1.textContent = rola.nazwa;
+    const b2 = document.createElement("b");
+    b2.textContent = planWybranyDzien ? formatDzienFormularza(planWybranyDzien) : "cały tydzień";
+    formCelTytul.append(document.createTextNode("Nowy cel · "), b1, document.createTextNode(" · "), b2);
+    btnCelCalyTydzien.setAttribute("aria-pressed", planWybranyDzien ? "false" : "true");
+  }
+  btnCelCalyTydzien.addEventListener("click", function () {
+    planWybranyDzien = null;
+    renderCeleWszystkie();
+  });
+
+  // Render całego ekranu dla wybranej roli: kompas, "Tydzień roli" (cały tydzień + 7 dni), formularz celu
   function renderCeleWszystkie() {
     renderTydzienEtykieta();
     renderPodsumowanieTygodnia();
     celeLista.innerHTML = "";
 
     if (role.length === 0) {
-      celeLista.innerHTML = pustyStanHTML("🎯", "Dodaj pierwszą rolę, aby zacząć planować cele tygodniowe.");
+      kompasWrap.hidden = true;
+      formCel.hidden = true;
+      celeLista.innerHTML = pustyStanHTML("🧭", "Nie masz jeszcze ról - dodaj pierwszą (np. Pracownik, Rodzic, Sportowiec) przyciskiem „+ Pierwsza rola” powyżej.");
       return;
     }
+    if (!wybranaRola()) planWybranaRolaId = role[0].id;
+    const dniTygodnia = [];
+    for (let i = 0; i < 7; i++) {
+      dniTygodnia.push(isoZDaty(new Date(wybranyPoniedzialek.getFullYear(), wybranyPoniedzialek.getMonth(), wybranyPoniedzialek.getDate() + i)));
+    }
+    if (planWybranyDzien && dniTygodnia.indexOf(planWybranyDzien) === -1) planWybranyDzien = null;
 
-    const roleDoPokazania = role.filter(function (r) { return roleWidoczne.has(r.id); });
-    if (roleDoPokazania.length === 0) {
-      celeLista.innerHTML = pustyStanHTML("👆", "Zaznacz rolę powyżej, aby zobaczyć tu jej cele na ten tydzień.");
-      return;
+    kompasWrap.hidden = false;
+    renderKompas();
+
+    const rola = wybranaRola();
+    const celeWybranej = celeRoli(rola.id);
+    const blok = document.createElement("section");
+    blok.className = "kompas-tydzien-roli";
+    const etykieta = document.createElement("span");
+    etykieta.className = "kompas-etykieta";
+    etykieta.textContent = "Tydzień roli";
+    const nazwa = document.createElement("h3");
+    nazwa.className = "kompas-tydzien-rola";
+    nazwa.textContent = rola.nazwa;
+    blok.append(etykieta, nazwa);
+
+    // Cele bez dnia (na cały tydzień) albo z datą spoza tygodnia
+    const naCalyTydzien = celeWybranej.filter(function (c) { return !c.dzien || dniTygodnia.indexOf(c.dzien) === -1; });
+    if (naCalyTydzien.length > 0) {
+      const caly = document.createElement("div");
+      caly.className = "kompas-blok";
+      const tytul = document.createElement("span");
+      tytul.className = "kompas-blok-tytul";
+      tytul.textContent = "Na cały tydzień";
+      caly.appendChild(tytul);
+      naCalyTydzien.forEach(function (c) { caly.appendChild(budujCelKompasu(c)); });
+      blok.appendChild(caly);
     }
 
-    let indeksWjazdu = 0;
-    roleDoPokazania.forEach(function (r) {
-      const blok = document.createElement("div");
-      blok.className = "karta rola-blok";
-
-      const naglowekWrap = document.createElement("div");
-      naglowekWrap.className = "rola-naglowek";
-
-      const ikona = document.createElement("span");
-      ikona.className = "rola-ikona";
-      ikona.innerHTML = ikonaDlaRoli(r.nazwa);
-      naglowekWrap.appendChild(ikona);
-
-      const naglowek = document.createElement("h3");
-      naglowek.textContent = r.nazwa;
-      naglowekWrap.appendChild(naglowek);
-
-      blok.appendChild(naglowekWrap);
-
-      const celeRoli = cele
-        .filter(function (c) { return c.rola_id === r.id; })
-        .slice()
-        .sort(function (a, b) {
-          return (wyrozenioneCele.has(b.id) ? 1 : 0) - (wyrozenioneCele.has(a.id) ? 1 : 0);
-        });
-
-      const lista = document.createElement("div");
-      lista.className = "cele-checklist";
-
-      if (celeRoli.length === 0) {
-        lista.innerHTML = pustyStanHTML("🎯", "Brak celów na ten tydzień - dodaj pierwszy poniżej.");
-      } else {
-        celeRoli.forEach(function (c) {
-          const wiersz = document.createElement("label");
-          wiersz.className = "cel-wiersz"
-            + (c.zrealizowane ? " zrealizowany" : "")
-            + (wyrozenioneCele.has(c.id) ? " wyrozniony" : "");
-
-          const checkboxWrap = document.createElement("span");
-          checkboxWrap.className = "cel-checkbox";
-
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.checked = !!c.zrealizowane;
-          checkbox.addEventListener("change", function () {
-            przelaczCel(c, checkbox, wiersz);
-          });
-
-          const checkboxWizualny = document.createElement("span");
-          checkboxWizualny.className = "cel-checkbox-wizualny";
-
-          checkboxWrap.appendChild(checkbox);
-          checkboxWrap.appendChild(checkboxWizualny);
-
-          const wrapTresc = document.createElement("div");
-          wrapTresc.className = "cel-tresc";
-
-          const tekst = document.createElement("span");
-          tekst.className = "cel-tresc-glowna";
-          tekst.textContent = c.tresc;
-          wrapTresc.appendChild(tekst);
-
-          if (c.plan) {
-            const planEl = document.createElement("span");
-            planEl.className = "cel-plan";
-            planEl.textContent = c.plan;
-            wrapTresc.appendChild(planEl);
-          }
-
-          const btnWyroznij = document.createElement("button");
-          btnWyroznij.type = "button";
-          btnWyroznij.className = "btn-wyroznij" + (wyrozenioneCele.has(c.id) ? " aktywny" : "");
-          btnWyroznij.setAttribute("aria-label", "Wyróżnij cel");
-          btnWyroznij.innerHTML = wyrozenioneCele.has(c.id)
-            ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.26 6.9.86-5.1 4.62 1.4 6.86L12 17.9l-6.1 3.2 1.4-6.86-5.1-4.62 6.9-.86L12 2.5z"/></svg>'
-            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5l2.9 6.26 6.9.86-5.1 4.62 1.4 6.86L12 17.9l-6.1 3.2 1.4-6.86-5.1-4.62 6.9-.86L12 2.5z"/></svg>';
-          btnWyroznij.addEventListener("click", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (wyrozenioneCele.has(c.id)) {
-              wyrozenioneCele.delete(c.id);
-            } else {
-              wyrozenioneCele.add(c.id);
-            }
-            renderCeleWszystkie();
-          });
-
-          const btnUsun = document.createElement("button");
-          btnUsun.type = "button";
-          btnUsun.className = "btn-usun";
-          btnUsun.textContent = "usuń";
-          btnUsun.addEventListener("click", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            usunCel(c, btnUsun);
-          });
-
-          wiersz.appendChild(checkboxWrap);
-          wiersz.appendChild(wrapTresc);
-          wiersz.appendChild(btnWyroznij);
-          wiersz.appendChild(btnUsun);
-          lista.appendChild(wjazdKarty(wiersz, indeksWjazdu++));
-        });
-      }
-      blok.appendChild(lista);
-
-      const formularz = document.createElement("form");
-      formularz.className = "form-dodaj-cel";
-
-      const input = document.createElement("input");
-      input.type = "text";
-      input.placeholder = "Nowy cel na ten tydzień";
-      input.autocomplete = "off";
-      input.required = true;
-
-      const inputPlan = document.createElement("input");
-      inputPlan.type = "text";
-      inputPlan.placeholder = "Jak i kiedy to zrealizujesz?";
-      inputPlan.autocomplete = "off";
-
-      const btn = document.createElement("button");
-      btn.type = "submit";
-      btn.className = "btn-pill";
-      btn.textContent = "+ dodaj cel";
-
-      formularz.appendChild(input);
-      formularz.appendChild(inputPlan);
-      formularz.appendChild(btn);
-      formularz.addEventListener("submit", function (e) {
-        e.preventDefault();
-        dodajCel(r, input, inputPlan, btn);
+    const dzis = dzisiaj();
+    const lista = document.createElement("ol");
+    lista.className = "kompas-dni";
+    dniTygodnia.forEach(function (d, i) {
+      const li = document.createElement("li");
+      li.className = "kompas-dzien" + (d === dzis ? " dzis" : "");
+      const naglowek = document.createElement("div");
+      naglowek.className = "kompas-dzien-naglowek";
+      const skrot = document.createElement("span");
+      skrot.className = "kompas-dzien-skrot";
+      skrot.textContent = DNI_TYGODNIA_ETYKIETY[i];
+      const numer = document.createElement("span");
+      numer.className = "kompas-dzien-numer";
+      numer.textContent = String(+d.slice(8, 10));
+      const btnDodaj = document.createElement("button");
+      btnDodaj.type = "button";
+      const wybrany = planWybranyDzien === d;
+      btnDodaj.className = "kompas-btn-dodaj" + (wybrany ? " wybrany" : "");
+      btnDodaj.textContent = wybrany ? "✓ wybrany dzień" : "+ dodaj";
+      btnDodaj.setAttribute("aria-label", (wybrany ? "Wybrany dzień: " : "Dodaj cel na ") + formatDzienFormularza(d));
+      btnDodaj.addEventListener("click", function () {
+        planWybranyDzien = d;
+        renderCeleWszystkie();
+        formCel.scrollIntoView({ behavior: "smooth", block: "center" });
+        inputCelTresc.focus({ preventScroll: true });
       });
-
-      blok.appendChild(formularz);
-      celeLista.appendChild(blok);
+      naglowek.append(skrot, numer, btnDodaj);
+      li.appendChild(naglowek);
+      celeWybranej.filter(function (c) { return c.dzien === d; }).forEach(function (c) { li.appendChild(budujCelKompasu(c)); });
+      lista.appendChild(wjazdKarty(li, i));
     });
+    blok.appendChild(lista);
+    celeLista.appendChild(blok);
+    renderFormularzCelu();
   }
 
   // Wykres kołowy: ile celów w tygodniu zrealizowano, a ile nie
@@ -6442,6 +6598,7 @@
           .insert({
             rola_id: cel.rola_id,
             tydzien_start: nowyTydzienStart,
+            dzien: cel.dzien ? isoZDaty(new Date(+cel.dzien.slice(0, 4), +cel.dzien.slice(5, 7) - 1, +cel.dzien.slice(8, 10) + 7)) : null,
             tresc: cel.tresc,
             plan: cel.plan || null,
             zrealizowane: false,
@@ -6505,6 +6662,7 @@
     cel.zrealizowane = nowaWartosc;
     wiersz.classList.toggle("zrealizowany", nowaWartosc);
     renderPodsumowanieTygodnia();
+    renderKompas();
     if (!podsumowanieSzczegoly.hidden) renderPodsumowanieSzczegoly();
   }
 
@@ -6532,8 +6690,8 @@
     if (!podsumowanieSzczegoly.hidden) renderPodsumowanieSzczegoly();
   }
 
-  // Dodanie nowego celu dla danej roli na aktualnie wybrany tydzień
-  async function dodajCel(rola, input, inputPlan, btn) {
+  // Dodanie nowego celu dla danej roli na aktualnie wybrany tydzień (dzien = wybrany dzień albo null = cały tydzień)
+  async function dodajCel(rola, input, inputPlan, btn, dzien) {
     const tresc = input.value.trim();
     if (!tresc) return;
     const plan = inputPlan.value.trim();
@@ -6545,6 +6703,7 @@
       .insert({
         rola_id: rola.id,
         tydzien_start: isoZDaty(wybranyPoniedzialek),
+        dzien: dzien || null,
         tresc: tresc,
         plan: plan || null,
         zrealizowane: false,
@@ -6562,8 +6721,10 @@
 
     cele.push(data && data[0] ? data[0] : {
       id: Date.now(), rola_id: rola.id,
-      tydzien_start: isoZDaty(wybranyPoniedzialek), tresc: tresc, plan: plan || null, zrealizowane: false
+      tydzien_start: isoZDaty(wybranyPoniedzialek), dzien: dzien || null, tresc: tresc, plan: plan || null, zrealizowane: false
     });
+    input.value = "";
+    inputPlan.value = "";
     renderCeleWszystkie();
     if (!podsumowanieSzczegoly.hidden) renderPodsumowanieSzczegoly();
   }
@@ -6582,26 +6743,14 @@
     }
     role = data || [];
 
-    let zapisaneRoleWidoczne = null;
-    try {
-      const surowe = localStorage.getItem("role-widoczne");
-      if (surowe) {
-        const sparsowane = JSON.parse(surowe);
-        if (Array.isArray(sparsowane)) zapisaneRoleWidoczne = sparsowane;
-      }
-    } catch (e) {
-      zapisaneRoleWidoczne = null;
-    }
-
-    if (zapisaneRoleWidoczne) {
-      const zapisaneId = new Set(zapisaneRoleWidoczne);
-      role.forEach(function (r) { if (zapisaneId.has(r.id)) roleWidoczne.add(r.id); });
-    } else {
-      role.forEach(function (r) { roleWidoczne.add(r.id); });
-    }
+    let zapisana = null;
+    try { zapisana = localStorage.getItem(PLAN_WYBRANA_ROLA_KEY); } catch (e) {}
+    const rolaZapisana = role.find(function (r) { return String(r.id) === zapisana; });
+    planWybranaRolaId = rolaZapisana ? rolaZapisana.id : (role[0] ? role[0].id : null);
 
     renderRoleListy();
     renderCeleWszystkie();
+    if (role.length === 0) przelaczFormularzRoli(false);
   }
 
   // Pobranie celów tygodniowych dla wybranego tygodnia (wszystkie role naraz)
@@ -6628,12 +6777,12 @@
     const nazwa = inputNowaRola.value.trim();
     if (!nazwa) return;
 
-    const btn = formRola.querySelector(".btn-pill");
+    const btn = formRola.querySelector(".kompas-btn-glowny");
     btn.disabled = true;
 
     const { data, error } = await db
       .from("role")
-      .insert({ nazwa: nazwa, user_id: sesjaUzytkownika.user.id })
+      .insert({ nazwa: nazwa, wymiar: planNowaRolaWymiar, user_id: sesjaUzytkownika.user.id })
       .select();
 
     btn.disabled = false;
@@ -6644,12 +6793,21 @@
       return;
     }
 
-    const nowaRola = data && data[0] ? data[0] : { id: Date.now(), nazwa: nazwa };
+    const nowaRola = data && data[0] ? data[0] : { id: Date.now(), nazwa: nazwa, wymiar: planNowaRolaWymiar };
     role.push(nowaRola);
-    roleWidoczne.add(nowaRola.id);
     formRola.reset();
-    renderRoleListy();
-    renderCeleWszystkie();
+    planNowaRolaWymiar = null;
+    przelaczFormularzRoli(false);
+    ustawWybranaRole(nowaRola.id);
+    pokazToast("Dodano rolę „" + nazwa + "”", "sukces");
+  });
+
+  // Formularz nowego celu wybranej roli ("Wpisz w tydzień")
+  formCel.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const rola = wybranaRola();
+    if (!rola) return;
+    dodajCel(rola, inputCelTresc, inputCelPlan, formCel.querySelector(".kompas-btn-glowny"), planWybranyDzien);
   });
 
   // Nawigacja: poprzedni / następny tydzień
