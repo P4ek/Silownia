@@ -320,7 +320,6 @@
   /* ----- Karty / formularze ----- */
   form,
   .karta,
-  .rejestr-tabela > tbody > tr > td,
   .wpis {
     background: var(--card);
     border: 1px solid var(--border);
@@ -897,58 +896,210 @@
     border-radius: 16px;
   }
 
-  /* ----- Rejestr ćwiczeń ----- */
-  #rejestr { overflow-x: auto; }
-  .rejestr-tabela {
+  /* ----- Rejestr ćwiczeń (#widok-rejestr): jeden dzień treningowy (objętość, rozkład serii, karty ze słupkami) + wyszukiwarka ----- */
+  .rejestr-gora { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  #widok-rejestr .rejestr-kicker {
+    margin: 0;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--habits-tekst-pomocniczy);
+  }
+  .rejestr-nawigacja {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    padding: 4px;
+    border-radius: 14px;
+    border: 1px solid var(--habits-obramowanie);
+  }
+  .rejestr-btn-dzien {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: oklch(0.7 0.006 240);
+    display: grid;
+    place-items: center;
+  }
+  .rejestr-btn-dzien svg { width: 16px; height: 16px; }
+  .rejestr-btn-dzien:hover:not(:disabled) { background: var(--habits-obramowanie); }
+  .rejestr-btn-dzien:disabled { opacity: 0.3; cursor: default; }
+  .rejestr-data {
+    position: relative;
+    padding: 0 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--habits-tekst);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .rejestr-data:hover, .rejestr-data:focus-within { color: oklch(0.95 0.004 240); }
+  /* Natywne pole daty leży przezroczyste na dacie — kliknięcie otwiera systemowy wybór daty */
+  #widok-rejestr .rejestr-data-input {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 12px;
+    height: 100%;
+    padding: 0;
+    border: none;
+    opacity: 0;
+    cursor: pointer;
   }
-  .rejestr-tabela > thead th {
-    text-align: left;
-    padding: 4px 16px;
+  .rejestr-szukaj { position: relative; margin-top: 18px; }
+  .rejestr-szukaj svg {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    transform: translateY(-50%);
+    color: var(--habits-tekst-pomocniczy);
+    pointer-events: none;
+  }
+  #widok-rejestr .rejestr-szukaj input {
+    height: 48px;
+    padding: 0 14px 0 42px;
+    border-radius: 14px;
+    border: 1px solid var(--habits-obramowanie);
+    background: var(--habits-tlo-karta);
+    color: var(--habits-tekst);
+  }
+  #widok-rejestr .rejestr-szukaj input::placeholder { color: var(--habits-tekst-pomocniczy); }
+  .rejestr-etykieta {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--habits-tekst-pomocniczy);
+  }
+  .rejestr-dzien { margin-top: 30px; }
+  .rejestr-objetosc { display: flex; align-items: baseline; gap: 10px; margin-top: 8px; }
+  .rejestr-objetosc-liczba {
+    font-family: "Instrument Serif", Georgia, serif;
+    font-size: clamp(4.5rem, 26vw, 6.5rem);
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    color: oklch(0.95 0.004 240);
+    white-space: nowrap;
+  }
+  .rejestr-objetosc-kg { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 30px; color: oklch(0.52 0.008 240); }
+  .rejestr-pigulki { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .rejestr-pigulka {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--habits-obramowanie);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--habits-tekst);
+  }
+  .rejestr-pigulka.zlota { border-color: transparent; background: var(--habits-zloto); color: oklch(0.1 0.006 250); font-weight: 700; }
+  .rejestr-pigulka svg { width: 12px; height: 12px; }
+  .rejestr-rozklad { margin-top: 30px; }
+  .rejestr-rozklad-pasek { display: flex; gap: 3px; height: 14px; margin-top: 12px; }
+  .rejestr-rozklad-pasek > span { min-width: 4px; border-radius: 4px; background: var(--kolor-partii); }
+  .rejestr-rozklad-legenda { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; }
+  .rejestr-legenda-poz { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: oklch(0.7 0.006 240); }
+  .rejestr-legenda-poz b { color: oklch(0.9 0.004 240); }
+  .rejestr-kropka { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--kolor-partii); }
+  .rejestr-karty { display: flex; flex-direction: column; gap: 12px; margin-top: 30px; }
+  .rejestr-karta {
+    padding: 20px;
+    border-radius: 24px;
+    background: var(--habits-tlo-karta);
+    border: 1px solid var(--habits-obramowanie);
+  }
+  .rejestr-karta.rekord { border-color: oklch(0.72 0.08 75 / 0.4); }
+  .rejestr-karta-gora { display: flex; align-items: flex-start; gap: 14px; }
+  .rejestr-karta-numer { flex: none; font-family: "Instrument Serif", Georgia, serif; font-size: 44px; line-height: 0.8; color: oklch(0.3 0.008 245); }
+  .rejestr-karta-opis { flex: 1; min-width: 0; }
+  .rejestr-karta-partia {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: oklch(0.6 0.008 240);
+  }
+  #widok-rejestr .rejestr-karta-nazwa {
+    margin: 6px 0 0;
     font-family: "Instrument Serif", Georgia, serif;
     font-style: italic;
     font-weight: 400;
-    font-size: 1.05rem;
-    color: var(--muted);
+    font-size: 24px;
+    line-height: 1.05;
+    color: oklch(0.95 0.004 240);
+    overflow-wrap: anywhere;
   }
-  .rejestr-tabela > tbody > tr > td {
-    padding: 14px 16px;
-    vertical-align: top;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
+  .rejestr-karta-akcje { flex: none; display: flex; align-items: center; gap: 6px; }
+  .rejestr-gwiazda {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--habits-zloto);
+    color: oklch(0.1 0.006 250);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 0 24px oklch(0.72 0.08 75 / 0.5);
   }
-  .rejestr-tabela > tbody > tr > td:first-child {
-    border-left: 3px solid var(--accent);
-    border-radius: 18px 0 0 18px;
+  .rejestr-gwiazda svg { width: 16px; height: 16px; }
+  .rejestr-btn-usun {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--habits-tekst-pomocniczy);
+    display: grid;
+    place-items: center;
+    transition: background 0.15s ease, color 0.15s ease, scale 0.1s ease;
   }
-  .rejestr-tabela > tbody > tr > td:last-child {
-    border-right: 1px solid var(--border);
-    border-radius: 0 18px 18px 0;
-  }
-  .rejestr-dzien, .rejestr-partia { white-space: nowrap; }
-  .rejestr-dzien { font-weight: 700; }
-  .rejestr-miesiac {
-    font-family: "Instrument Serif", Georgia, serif;
-    font-style: italic;
-    font-weight: 400;
-    font-size: 1.2rem;
-    color: var(--accent);
-    margin: 24px 4px 10px;
-  }
-  .rejestr-miesiac:first-child { margin-top: 0; }
-  .rejestr-cwiczenia { width: 100%; border-collapse: collapse; }
-  .rejestr-cwiczenia th, .rejestr-cwiczenia td {
+  .rejestr-btn-usun svg { width: 16px; height: 16px; }
+  .rejestr-btn-usun:hover { background: rgba(180, 72, 44, 0.12); color: oklch(0.75 0.13 28); }
+  .rejestr-btn-usun:disabled { opacity: 0.5; cursor: default; }
+  /* Słupki serii: wysokość proporcjonalna do ciężar × powtórzenia */
+  .rejestr-serie { display: flex; align-items: flex-end; gap: 10px; height: 104px; margin-top: 16px; }
+  .rejestr-seria { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; }
+  .rejestr-seria-podpis { font-size: 12px; font-weight: 700; line-height: 1.15; text-align: center; color: oklch(0.7 0.006 240); }
+  .rejestr-seria-slupek { width: 100%; max-width: 40px; border-radius: 10px 10px 4px 4px; background: var(--kolor-partii); opacity: 0.85; }
+  .rejestr-seria.rekord .rejestr-seria-podpis { color: var(--habits-zloto); }
+  .rejestr-seria.rekord .rejestr-seria-slupek { background: var(--habits-zloto); opacity: 1; }
+  /* Wyniki wyszukiwania: dni z danym ćwiczeniem */
+  .rejestr-wyniki { margin-top: 18px; }
+  .rejestr-wyniki-lista { list-style: none; margin: 0; padding: 0; }
+  .rejestr-wynik {
+    width: 100%;
+    min-height: 64px;
+    padding: 12px 4px;
+    border: none;
+    border-top: 1px solid oklch(0.16 0.007 248);
+    background: transparent;
+    color: var(--habits-tekst);
+    display: flex;
+    align-items: center;
+    gap: 14px;
     text-align: left;
-    padding: 6px 10px 6px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.88rem;
   }
-  .rejestr-cwiczenia th { color: var(--muted); font-weight: 600; }
-  .rejestr-cwiczenia tr:last-child td { border-bottom: none; }
-  .rejestr-cwiczenia td.rejestr-podejscia { color: var(--muted); }
-  .rejestr-cwiczenia td.rejestr-akcje { width: 1%; white-space: nowrap; }
+  .rejestr-wynik:hover { background: var(--habits-tlo-karta); }
+  .rejestr-wynik-data { flex: none; width: 92px; font-size: 13px; font-weight: 700; color: oklch(0.9 0.004 240); }
+  .rejestr-wynik-opis { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .rejestr-wynik-nazwa { font-size: 12px; color: oklch(0.52 0.008 240); overflow-wrap: anywhere; }
+  .rejestr-wynik-serie { font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
+  #widok-rejestr .rejestr-wynik .rekord-tag-rejestr { flex: none; margin-left: 0; background: var(--habits-zloto); color: oklch(0.1 0.006 250); }
 
   /* ----- Katalog ćwiczeń (widok #widok-nowe): liczba ćwiczeń, kafle partii, formularz, lista wybranej partii ----- */
   #widok-nowe .katalog-kicker {
@@ -2431,7 +2582,7 @@
 
   /* ----- Tryb ciemny (przełącznik globalny obok hamburgera): pozostałe widoki, poza sekcją "Nawyki" -----
      Reguły #widok-habits mają wyższą swoistość (selektor z ID), więc wygląd samej sekcji "Nawyki" zostaje bez zmian. */
-  .kontener.motyw-habits :is(form, .karta, .rejestr-tabela > tbody > tr > td, .wpis, .pusto, .cel-wiersz, .przeszkoda-wiersz, select, input) {
+  .kontener.motyw-habits :is(form, .karta, .wpis, .pusto, .cel-wiersz, .przeszkoda-wiersz, select, input) {
     background: var(--tryb-ciemny-tlo-karta);
     border-color: var(--habits-obramowanie);
   }
@@ -2928,17 +3079,49 @@
 
   <!-- ===== Widok 2: Rejestr ćwiczeń ===== -->
   <section id="widok-rejestr" class="widok">
-    <h2>Rejestr ćwiczeń</h2>
+    <div class="rejestr-gora">
+      <h2 class="rejestr-kicker">Rejestr ćwiczeń</h2>
+      <!-- Przeskok między dniami z zapisanym treningiem; kliknięcie w datę otwiera wybór daty -->
+      <div id="rejestr-nawigacja" class="rejestr-nawigacja" hidden>
+        <button type="button" id="rejestr-poprzedni" class="rejestr-btn-dzien" aria-label="Poprzedni trening">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <div class="rejestr-data">
+          <span id="rejestr-data-tekst"></span>
+          <label for="rejestr-data" class="plan-ukryta-etykieta">Wybierz dzień treningu</label>
+          <input type="date" id="rejestr-data" class="rejestr-data-input">
+        </div>
+        <button type="button" id="rejestr-nastepny" class="rejestr-btn-dzien" aria-label="Następny trening">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </div>
 
-    <div class="karta" style="margin-bottom:18px">
-      <label for="rejestr-szukaj">Szukaj ćwiczenia</label>
-      <input type="text" id="rejestr-szukaj" list="rejestr-cwiczenia-lista" placeholder="Wszystkie ćwiczenia" autocomplete="off">
+    <div class="rejestr-szukaj">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <label for="rejestr-szukaj" class="plan-ukryta-etykieta">Szukaj ćwiczenia</label>
+      <input type="text" id="rejestr-szukaj" list="rejestr-cwiczenia-lista" placeholder="Szukaj ćwiczenia" autocomplete="off">
       <datalist id="rejestr-cwiczenia-lista"></datalist>
     </div>
 
-    <div id="rejestr">
-      <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">📒</span><span>Brak zapisanych treningów.</span></p>
+    <!-- Widok jednego dnia treningowego (renderRejestrDzien) -->
+    <div id="rejestr-dzien" class="rejestr-dzien" hidden>
+      <span class="rejestr-etykieta">Objętość treningu</span>
+      <div class="rejestr-objetosc">
+        <span id="rejestr-objetosc" class="rejestr-objetosc-liczba">0</span>
+        <span class="rejestr-objetosc-kg">kg</span>
+      </div>
+      <div id="rejestr-pigulki" class="rejestr-pigulki"></div>
+      <section class="rejestr-rozklad">
+        <span class="rejestr-etykieta">Rozkład serii</span>
+        <div id="rejestr-rozklad-pasek" class="rejestr-rozklad-pasek"></div>
+        <div id="rejestr-rozklad-legenda" class="rejestr-rozklad-legenda"></div>
+      </section>
+      <div id="rejestr-karty" class="rejestr-karty"></div>
     </div>
+
+    <!-- Wyniki wyszukiwania / pusty stan -->
+    <div id="rejestr" class="rejestr-wyniki"></div>
   </section>
 
   <!-- ===== Widok 3: Wykres postępu ===== -->
@@ -3317,29 +3500,17 @@
       return;
     }
 
-    const t0 = performance.now();
+    // Start liczony od znacznika pierwszej klatki (bywa wcześniejszy niż performance.now() z chwili wywołania), postęp przycięty do 0–1
+    let t0 = null;
     function klatka(teraz) {
-      const postep = Math.min(1, (teraz - t0) / ANIMACJA_LICZBY_MS);
+      if (t0 === null) t0 = teraz;
+      const postep = Math.min(1, Math.max(0, (teraz - t0) / ANIMACJA_LICZBY_MS));
       const wyhamowanie = 1 - Math.pow(1 - postep, 3);
       element._liczbaBiezaca = Math.round(start + (docelowa - start) * wyhamowanie);
       element.textContent = formatuj(element._liczbaBiezaca);
       element._animacjaLiczby = postep < 1 ? requestAnimationFrame(klatka) : null;
     }
     element._animacjaLiczby = requestAnimationFrame(klatka);
-  }
-
-  // Rejestr: najpierw kaskada dni (szkielet z datami), potem ćwiczenia wewnątrz każdego dnia.
-  // Wszystkie opóźnienia ucięte do REJESTR_MAX_S, więc całość mieści się w około 0.7 s + czas animacji niezależnie od liczby wpisów.
-  const REJESTR_KROK_DNIA_S = 0.06;
-  const REJESTR_MAX_DZIEN_S = 0.4;
-  const REJESTR_START_CWICZEN_S = 0.12;   // ćwiczenia ruszają chwilę po swoim dniu
-  const REJESTR_KROK_CWICZENIA_S = 0.04;
-  const REJESTR_MAX_S = 0.7;
-  function opoznienieDniaRejestru(indeksDnia) {
-    return Math.min(indeksDnia * REJESTR_KROK_DNIA_S, REJESTR_MAX_DZIEN_S);
-  }
-  function opoznienieCwiczeniaRejestru(indeksDnia, indeksCwiczenia) {
-    return Math.min(opoznienieDniaRejestru(indeksDnia) + REJESTR_START_CWICZEN_S + indeksCwiczenia * REJESTR_KROK_CWICZENIA_S, REJESTR_MAX_S);
   }
 
   // Pigułka "nowy rekord" z gwiazdką — wspólna dla Rejestru i "Rekordów osobistych"
@@ -3570,6 +3741,17 @@
   const rejestrBox = document.getElementById("rejestr");
   const rejestrSzukaj = document.getElementById("rejestr-szukaj");
   const rejestrDatalist = document.getElementById("rejestr-cwiczenia-lista");
+  const rejestrNawigacja = document.getElementById("rejestr-nawigacja");
+  const btnRejestrPoprzedni = document.getElementById("rejestr-poprzedni");
+  const btnRejestrNastepny = document.getElementById("rejestr-nastepny");
+  const rejestrDataTekst = document.getElementById("rejestr-data-tekst");
+  const inputRejestrData = document.getElementById("rejestr-data");
+  const rejestrDzien = document.getElementById("rejestr-dzien");
+  const rejestrObjetosc = document.getElementById("rejestr-objetosc");
+  const rejestrPigulki = document.getElementById("rejestr-pigulki");
+  const rejestrRozkladPasek = document.getElementById("rejestr-rozklad-pasek");
+  const rejestrRozkladLegenda = document.getElementById("rejestr-rozklad-legenda");
+  const rejestrKarty = document.getElementById("rejestr-karty");
   const rekordyTygodniaLista = document.getElementById("rekordy-tygodnia-lista");
   const rekordyTygodniaBrak = document.getElementById("rekordy-tygodnia-brak");
   const mapaCiala = document.getElementById("mapa-ciala");
@@ -3910,18 +4092,6 @@
   }
   zaplanujResetOPolnocy();
 
-  // Nazwy miesięcy do nagłówków grupujących rejestr
-  const NAZWY_MIESIECY = [
-    "Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec",
-    "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"
-  ];
-  function etykietaMiesiaca(dataStr) {
-    const czesci = dataStr.split("-");
-    const miesiac = parseInt(czesci[1], 10);
-    return NAZWY_MIESIECY[miesiac - 1] + " " + czesci[0];
-  }
-
-  // Budowa tabeli dni treningowych dla jednej grupy (miesiąca)
   // ===== Rekordy: JEDNA definicja dla całej apki =====
   // Rekord ćwiczenia = pojedyncza seria z najwyższym wynikiem ciężar × powtórzenia w całej historii tego ćwiczenia.
   function wynikSerii(p) {
@@ -3958,113 +4128,270 @@
     return !!seriaRekordowaWpisu(w, rekordy);
   }
 
-  function budujTabeleDni(daty, grupy, rekordy, licznikDni) {
-    const tabela = document.createElement("table");
-    tabela.className = "rejestr-tabela";
-    tabela.innerHTML = "<thead><tr><th>Dzień treningowy</th><th>Ćwiczenia</th></tr></thead>";
+  // ----- Rejestr ćwiczeń: widok jednego dnia treningowego + wyszukiwarka -----
+  let rejestrWybranaData = null; // dzień pokazywany w Rejestrze (RRRR-MM-DD); null = ostatni dzień z treningiem
+  const REJESTR_DNI_SKROT = ["Ndz", "Pon", "Wt", "Śr", "Czw", "Pt", "Sob"];
+  const IKONA_GWIAZDKA_REKORD =
+    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg>';
 
-    const tbody = document.createElement("tbody");
+  // Daty z zapisanym treningiem, od najstarszej
+  function datyTreningow() {
+    return Array.from(new Set(wpisy.map(function (w) { return w.data; }))).sort();
+  }
+  // Najbliższy dzień z treningiem (przy remisie wcześniejszy)
+  function najblizszaDataTreningu(daty, cel) {
+    const dzien = function (d) { return Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)); };
+    let najlepsza = daty[0];
     daty.forEach(function (d) {
-      const indeksDnia = licznikDni.indeks++;
-      const tr = wjazdZOpoznieniem(document.createElement("tr"), opoznienieDniaRejestru(indeksDnia));
-
-      const tdDzien = document.createElement("td");
-      tdDzien.className = "rejestr-dzien";
-      tdDzien.textContent = d;
-
-      const tdCw = document.createElement("td");
-      const wewn = document.createElement("table");
-      wewn.className = "rejestr-cwiczenia";
-      wewn.innerHTML = "<thead><tr><th>Partia</th><th>Ćwiczenie</th><th>Podejścia</th><th></th></tr></thead>";
-
-      const wbody = document.createElement("tbody");
-      grupy[d].forEach(function (w, indeksCwiczenia) {
-        const wr = wjazdZOpoznieniem(document.createElement("tr"), opoznienieCwiczeniaRejestru(indeksDnia, indeksCwiczenia));
-
-        const c1 = document.createElement("td");
-        c1.className = "rejestr-partia";
-        c1.appendChild(kropkaPartii(w.partia));
-        c1.appendChild(document.createTextNode(w.partia));
-
-        const c2 = document.createElement("td");
-        c2.textContent = w.cwiczenie;
-        if (czyWpisMaRekord(w, rekordy)) {
-          c2.appendChild(tagNowyRekord());
-        }
-
-        const c3 = document.createElement("td");
-        c3.className = "rejestr-podejscia";
-        c3.textContent = (w.podejscia || []).map(function (p) {
-          return p["cieżar"] + " kg × " + p.powtorzenia;
-        }).join(", ");
-
-        const c4 = document.createElement("td");
-        c4.className = "rejestr-akcje";
-        const btnUsun = document.createElement("button");
-        btnUsun.type = "button";
-        btnUsun.className = "btn-usun";
-        btnUsun.textContent = "usuń";
-        btnUsun.addEventListener("click", function () { usunWpis(w, btnUsun); });
-        c4.appendChild(btnUsun);
-
-        wr.appendChild(c1);
-        wr.appendChild(c2);
-        wr.appendChild(c3);
-        wr.appendChild(c4);
-        wbody.appendChild(wr);
-      });
-      wewn.appendChild(wbody);
-      tdCw.appendChild(wewn);
-
-      tr.appendChild(tdDzien);
-      tr.appendChild(tdCw);
-      tbody.appendChild(tr);
+      if (Math.abs(dzien(d) - dzien(cel)) < Math.abs(dzien(najlepsza) - dzien(cel))) najlepsza = d;
     });
-    tabela.appendChild(tbody);
-    return tabela;
+    return najlepsza;
+  }
+  // "Czw, 24 wrz" (z rokiem, gdy inny niż bieżący)
+  function formatDatyRejestru(d) {
+    const data = new Date(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10));
+    return REJESTR_DNI_SKROT[data.getDay()] + ", " + data.getDate() + " " + MIESIACE_SKROT[data.getMonth()] +
+      (data.getFullYear() !== new Date().getFullYear() ? " " + data.getFullYear() : "");
+  }
+  function formatKg(n) {
+    return String(n).replace(".", ",");
+  }
+  function opisSerii(podejscia) {
+    return (podejscia || []).map(function (p) { return formatKg(Number(p["cieżar"]) || 0) + "×" + (Number(p.powtorzenia) || 0); }).join(", ");
   }
 
-  // Render widoku "Rejestr ćwiczeń" - wpisy filtrowane wyszukiwarką, pogrupowane po miesiącach i dniach
+  function ustawDzienRejestru(d) {
+    rejestrWybranaData = d;
+    renderRejestr();
+  }
+  btnRejestrPoprzedni.addEventListener("click", function () {
+    const daty = datyTreningow();
+    const i = daty.indexOf(rejestrWybranaData);
+    if (i > 0) ustawDzienRejestru(daty[i - 1]);
+  });
+  btnRejestrNastepny.addEventListener("click", function () {
+    const daty = datyTreningow();
+    const i = daty.indexOf(rejestrWybranaData);
+    if (i !== -1 && i < daty.length - 1) ustawDzienRejestru(daty[i + 1]);
+  });
+  inputRejestrData.addEventListener("click", function () {
+    try { if (inputRejestrData.showPicker) inputRejestrData.showPicker(); } catch (e) {}
+  });
+  inputRejestrData.addEventListener("change", function () {
+    const cel = inputRejestrData.value;
+    const daty = datyTreningow();
+    if (!cel || daty.length === 0) return;
+    if (daty.indexOf(cel) !== -1) {
+      ustawDzienRejestru(cel);
+      return;
+    }
+    const najblizsza = najblizszaDataTreningu(daty, cel);
+    ustawDzienRejestru(najblizsza);
+    pokazToast("W tym dniu nie było treningu - pokazuję najbliższy: " + formatDatyRejestru(najblizsza) + ".", "sukces");
+  });
+
+  // Render "Rejestru ćwiczeń": wyszukiwarka (lista dni z ćwiczeniem) albo widok jednego dnia
   function renderRejestr() {
     const szukane = (rejestrSzukaj.value || "").trim().toLowerCase();
-    const wpisyFiltrowane = szukane
-      ? wpisy.filter(function (w) { return w.cwiczenie.toLowerCase().indexOf(szukane) !== -1; })
-      : wpisy;
-
-    const grupy = {};
-    wpisyFiltrowane.forEach(function (w) {
-      (grupy[w.data] = grupy[w.data] || []).push(w);
-    });
-    const daty = Object.keys(grupy).sort().reverse();
-    const rekordy = obliczRekordy();
-
+    const daty = datyTreningow();
     rejestrBox.innerHTML = "";
+
     if (daty.length === 0) {
-      rejestrBox.innerHTML = szukane
-        ? pustyStanHTML("🔍", "Brak wyników dla „" + rejestrSzukaj.value + "\".")
-        : pustyStanHTML("📒", "Brak zapisanych treningów - dodaj pierwszy w „Zapisz trening”.");
+      rejestrNawigacja.hidden = true;
+      rejestrDzien.hidden = true;
+      rejestrBox.innerHTML = pustyStanHTML("📒", "Brak zapisanych treningów - dodaj pierwszy w „Zapisz trening”.");
       return;
     }
 
-    // Grupowanie dni na miesiące, z zachowaniem malejącej kolejności dat
-    const miesiace = [];
-    let biezacy = null;
-    daty.forEach(function (d) {
-      const klucz = d.slice(0, 7); // "RRRR-MM"
-      if (!biezacy || biezacy.klucz !== klucz) {
-        biezacy = { klucz: klucz, etykieta: etykietaMiesiaca(d), daty: [] };
-        miesiace.push(biezacy);
-      }
-      biezacy.daty.push(d);
+    // Wybrany dzień: domyślnie ostatni z treningiem; gdy zniknął (np. po usunięciu ostatniego wpisu) - najbliższy sąsiedni
+    if (!rejestrWybranaData) rejestrWybranaData = daty[daty.length - 1];
+    else if (daty.indexOf(rejestrWybranaData) === -1) rejestrWybranaData = najblizszaDataTreningu(daty, rejestrWybranaData);
+
+    if (szukane) {
+      rejestrNawigacja.hidden = true;
+      rejestrDzien.hidden = true;
+      renderRejestrWyniki(szukane);
+      return;
+    }
+    rejestrNawigacja.hidden = false;
+    rejestrDzien.hidden = false;
+    renderRejestrDzien(daty);
+  }
+
+  // Lista dni, w których było szukane ćwiczenie: data + serie, najnowsze na górze, złoty znacznik przy rekordzie
+  function renderRejestrWyniki(szukane) {
+    const rekordy = obliczRekordy();
+    const trafienia = wpisy
+      .filter(function (w) { return w.cwiczenie.toLowerCase().indexOf(szukane) !== -1; })
+      .sort(function (a, b) { return a.data < b.data ? 1 : a.data > b.data ? -1 : 0; });
+
+    if (trafienia.length === 0) {
+      rejestrBox.innerHTML = pustyStanHTML("🔍", "Brak wyników dla „" + rejestrSzukaj.value + "\".");
+      return;
+    }
+
+    const lista = document.createElement("ol");
+    lista.className = "rejestr-wyniki-lista";
+    trafienia.forEach(function (w, i) {
+      const li = document.createElement("li");
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "rejestr-wynik";
+      btn.setAttribute("aria-label", "Otwórz dzień " + w.data + ": " + w.cwiczenie);
+
+      const data = document.createElement("span");
+      data.className = "rejestr-wynik-data";
+      data.textContent = formatDatyRejestru(w.data);
+      const opis = document.createElement("span");
+      opis.className = "rejestr-wynik-opis";
+      const nazwa = document.createElement("span");
+      nazwa.className = "rejestr-wynik-nazwa";
+      nazwa.textContent = w.cwiczenie;
+      const serie = document.createElement("span");
+      serie.className = "rejestr-wynik-serie";
+      serie.textContent = opisSerii(w.podejscia);
+      opis.append(nazwa, serie);
+      btn.append(data, opis);
+      if (czyWpisMaRekord(w, rekordy)) btn.appendChild(tagNowyRekord());
+
+      btn.addEventListener("click", function () {
+        rejestrSzukaj.value = "";
+        ustawDzienRejestru(w.data);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      li.appendChild(btn);
+      lista.appendChild(wjazdKarty(li, i));
+    });
+    rejestrBox.appendChild(lista);
+  }
+
+  // Widok dnia: nawigacja, objętość, pigułki, rozkład serii na partie, karty ćwiczeń ze słupkami serii
+  function renderRejestrDzien(daty) {
+    const d = rejestrWybranaData;
+    const indeks = daty.indexOf(d);
+    btnRejestrPoprzedni.disabled = indeks <= 0;
+    btnRejestrNastepny.disabled = indeks >= daty.length - 1;
+    rejestrDataTekst.textContent = formatDatyRejestru(d);
+    inputRejestrData.value = d;
+
+    const wpisyDnia = wpisy.filter(function (w) { return w.data === d; });
+    const rekordy = obliczRekordy();
+    let objetosc = 0;
+    let liczbaSerii = 0;
+    let liczbaRekordow = 0;
+    const seriePartii = {};
+    wpisyDnia.forEach(function (w) {
+      const podejscia = w.podejscia || [];
+      podejscia.forEach(function (p) { objetosc += wynikSerii(p); });
+      liczbaSerii += podejscia.length;
+      seriePartii[w.partia] = (seriePartii[w.partia] || 0) + podejscia.length;
+      if (czyWpisMaRekord(w, rekordy)) liczbaRekordow++;
     });
 
-    const licznikDni = { indeks: 0 }; // wspólny dla wszystkich miesięcy, żeby kaskada dni szła ciągiem
-    miesiace.forEach(function (mies) {
-      const naglowek = document.createElement("h3");
-      naglowek.className = "rejestr-miesiac";
-      naglowek.textContent = mies.etykieta;
-      rejestrBox.appendChild(wjazdZOpoznieniem(naglowek, opoznienieDniaRejestru(licznikDni.indeks)));
-      rejestrBox.appendChild(budujTabeleDni(mies.daty, grupy, rekordy, licznikDni));
+    animujLiczbe(rejestrObjetosc, Math.round(objetosc), function (n) { return n.toLocaleString("pl-PL"); });
+
+    rejestrPigulki.innerHTML = "";
+    const pigulka = function (tekst, zlota) {
+      const el = document.createElement("span");
+      el.className = "rejestr-pigulka" + (zlota ? " zlota" : "");
+      el.innerHTML = zlota ? IKONA_GWIAZDKA_REKORD : "";
+      el.appendChild(document.createTextNode(tekst));
+      rejestrPigulki.appendChild(el);
+    };
+    pigulka(wpisyDnia.length + " " + odmianaLiczby(wpisyDnia.length, "ćwiczenie", "ćwiczenia", "ćwiczeń"));
+    pigulka(liczbaSerii + " " + odmianaLiczby(liczbaSerii, "seria", "serie", "serii"));
+    if (liczbaRekordow > 0) pigulka(liczbaRekordow + " " + odmianaLiczby(liczbaRekordow, "rekord", "rekordy", "rekordów"), true);
+
+    // Rozkład serii: pasek dzielony proporcjonalnie do liczby serii w partiach + legenda
+    rejestrRozkladPasek.innerHTML = "";
+    rejestrRozkladLegenda.innerHTML = "";
+    const partieDnia = PARTIE.concat(Object.keys(seriePartii).filter(function (p) { return PARTIE.indexOf(p) === -1; }))
+      .filter(function (p) { return seriePartii[p]; });
+    partieDnia.forEach(function (partia) {
+      const kolor = kolorPartiiCSS(partia);
+      const odcinek = document.createElement("span");
+      odcinek.style.flex = String(seriePartii[partia]);
+      odcinek.style.setProperty("--kolor-partii", kolor);
+      odcinek.title = partia + ": " + seriePartii[partia];
+      rejestrRozkladPasek.appendChild(odcinek);
+
+      const poz = document.createElement("span");
+      poz.className = "rejestr-legenda-poz";
+      const kropka = document.createElement("span");
+      kropka.className = "rejestr-kropka";
+      kropka.style.setProperty("--kolor-partii", kolor);
+      const liczba = document.createElement("b");
+      liczba.textContent = String(seriePartii[partia]);
+      poz.append(kropka, document.createTextNode(partia + " "), liczba);
+      rejestrRozkladLegenda.appendChild(poz);
+    });
+
+    // Karty ćwiczeń dnia
+    rejestrKarty.innerHTML = "";
+    wpisyDnia.forEach(function (w, i) {
+      const seriaRekordowa = seriaRekordowaWpisu(w, rekordy);
+      const kolor = kolorPartiiCSS(w.partia);
+
+      const karta = document.createElement("article");
+      karta.className = "rejestr-karta" + (seriaRekordowa ? " rekord" : "");
+      karta.style.setProperty("--kolor-partii", kolor);
+
+      const gora = document.createElement("div");
+      gora.className = "rejestr-karta-gora";
+      const numer = document.createElement("span");
+      numer.className = "rejestr-karta-numer";
+      numer.textContent = String(i + 1).padStart(2, "0");
+      const opis = document.createElement("div");
+      opis.className = "rejestr-karta-opis";
+      const partia = document.createElement("span");
+      partia.className = "rejestr-karta-partia";
+      const kropka = document.createElement("span");
+      kropka.className = "rejestr-kropka";
+      partia.append(kropka, document.createTextNode(w.partia));
+      const nazwa = document.createElement("h3");
+      nazwa.className = "rejestr-karta-nazwa";
+      nazwa.textContent = w.cwiczenie;
+      opis.append(partia, nazwa);
+
+      const akcje = document.createElement("div");
+      akcje.className = "rejestr-karta-akcje";
+      if (seriaRekordowa) {
+        const gwiazda = document.createElement("span");
+        gwiazda.className = "rejestr-gwiazda";
+        gwiazda.setAttribute("role", "img");
+        gwiazda.setAttribute("aria-label", "Nowy rekord");
+        gwiazda.innerHTML = IKONA_GWIAZDKA_REKORD;
+        akcje.appendChild(gwiazda);
+      }
+      const btnUsun = document.createElement("button");
+      btnUsun.type = "button";
+      btnUsun.className = "rejestr-btn-usun";
+      btnUsun.setAttribute("aria-label", "Usuń wpis „" + w.cwiczenie + "”");
+      btnUsun.innerHTML = IKONA_KOSZ_KATALOG;
+      btnUsun.addEventListener("click", function () { usunWpis(w, btnUsun); });
+      akcje.appendChild(btnUsun);
+      gora.append(numer, opis, akcje);
+
+      // Słupki serii: wysokość ∝ ciężar × powtórzenia, seria-rekord na złoto
+      const serie = document.createElement("div");
+      serie.className = "rejestr-serie";
+      const podejscia = w.podejscia || [];
+      const maks = Math.max.apply(null, podejscia.map(wynikSerii).concat([0]));
+      podejscia.forEach(function (p) {
+        const kolumna = document.createElement("div");
+        kolumna.className = "rejestr-seria" + (p === seriaRekordowa ? " rekord" : "");
+        const podpis = document.createElement("span");
+        podpis.className = "rejestr-seria-podpis";
+        podpis.textContent = formatKg(Number(p["cieżar"]) || 0) + "×​" + (Number(p.powtorzenia) || 0); // przy wąskich słupkach łamie się tylko po "×"
+        const slupek = document.createElement("div");
+        slupek.className = "rejestr-seria-slupek";
+        slupek.style.height = Math.round(16 + 60 * (maks > 0 ? wynikSerii(p) / maks : 0)) + "px";
+        kolumna.append(podpis, slupek);
+        serie.appendChild(kolumna);
+      });
+
+      karta.append(gora, serie);
+      rejestrKarty.appendChild(wjazdKarty(karta, i));
     });
   }
   rejestrSzukaj.addEventListener("input", renderRejestr);
