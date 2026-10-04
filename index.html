@@ -1240,7 +1240,8 @@
     flex: none;
   }
   .habits-pierscien-wrap svg { width: 100%; height: 100%; }
-  #habits-progress-ring {
+  #habits-progress-ring,
+  #rady-progress-ring {
     filter: drop-shadow(0 0 8px rgba(var(--habits-akcent-rgb), 0.65));
     transition: stroke-dashoffset 0.5s ease-out;
   }
@@ -1349,6 +1350,154 @@
   }
   .btn-usun-nawyk:disabled { opacity: 0.5; cursor: default; }
   .nawyki-linia { grid-column: 1 / -1; border-bottom: 1px solid var(--habits-obramowanie); }
+
+  /* ----- Przełącznik kategorii "Nawyki" / "Rady z książek" (tylko konto AI_UZYTKOWNIK_ID) ----- */
+  .habits-kategorie {
+    display: flex;
+    gap: 4px;
+    margin: 14px 0 22px;
+    padding: 4px;
+    background: var(--habits-tlo-karta);
+    border: 1px solid var(--habits-obramowanie);
+    border-radius: 999px;
+  }
+  .habits-kategoria-btn {
+    flex: 1;
+    min-width: 0;
+    padding: 9px 12px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--habits-tekst-pomocniczy);
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.2s ease;
+  }
+  .habits-kategoria-btn:hover { color: var(--habits-tekst); }
+  .habits-kategoria-btn.aktywna {
+    background: var(--habits-akcent);
+    color: oklch(0.07 0.004 250);
+    box-shadow: 0 0 10px rgba(var(--habits-akcent-rgb), 0.35);
+  }
+
+  /* ----- Rady z książek ----- */
+  #widok-habits :is(select, textarea) {
+    background: var(--habits-tlo);
+    border-color: var(--habits-obramowanie);
+    color: var(--habits-tekst);
+  }
+  #widok-habits textarea { resize: vertical; min-height: 64px; }
+  #widok-habits textarea::placeholder { color: var(--habits-tekst-pomocniczy); }
+  #widok-habits :is(select, textarea):focus {
+    outline: none;
+    border-color: var(--habits-akcent);
+    box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18);
+  }
+  #widok-habits .rady-wybor-ksiazki label { margin-top: 0; }
+  .rady-progress-liczba { font-size: 2.1rem; }
+  #rady-aktywna > .pusto { margin-bottom: 26px; }
+
+  /* Karta aktywnej zasady i formularz planu jeśli–to */
+  #widok-habits .karta.rady-aktywna-karta { border-color: rgba(var(--habits-akcent-rgb), 0.45); box-shadow: 0 0 18px -6px rgba(var(--habits-akcent-rgb), 0.35); }
+  .rady-etykieta {
+    margin: 0 0 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--habits-akcent);
+  }
+  .rady-zasada-nazwa { margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--habits-naglowek); overflow-wrap: anywhere; }
+  .rady-zasada-ksiazka { margin: 4px 0 0; font-size: 0.82rem; color: var(--habits-tekst-pomocniczy); }
+  .rady-zasada-opis { margin: 14px 0 0; font-size: 0.92rem; line-height: 1.55; color: var(--habits-tekst); white-space: pre-line; overflow-wrap: anywhere; }
+  .rady-plan {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border: 1px solid var(--habits-obramowanie);
+    border-radius: 12px;
+    background: var(--habits-tlo);
+    display: grid;
+    gap: 8px;
+  }
+  .rady-plan p { margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--habits-tekst); overflow-wrap: anywhere; }
+  .rady-plan strong { color: var(--habits-akcent); font-weight: 700; }
+  .rady-akcje { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .rady-akcje > button { flex: 1 1 140px; margin-top: 0; }
+  .btn-rady-drugorzedny {
+    padding: 12px 20px;
+    border: 1px solid var(--habits-obramowanie-puste);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--habits-tekst);
+    font-weight: 600;
+    font-size: 0.92rem;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .btn-rady-drugorzedny:hover { background: var(--habits-obramowanie); }
+  .btn-rady-drugorzedny:disabled { opacity: 0.55; cursor: default; }
+
+  /* Plansza zasad: kafelki w siatce, która sama zmniejsza liczbę kolumn na wąskich ekranach */
+  .rady-plansza {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 132px), 1fr));
+    gap: 10px;
+  }
+  .rady-kafelek {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
+    min-height: 96px;
+    padding: 12px;
+    border: 1px solid var(--habits-obramowanie-puste);
+    border-radius: 12px;
+    background: var(--habits-tlo);
+    color: var(--habits-tekst);
+    text-align: left;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.2s ease;
+  }
+  .rady-kafelek-numer {
+    display: grid;
+    place-content: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--habits-obramowanie-puste);
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--habits-tekst-pomocniczy);
+  }
+  .rady-kafelek-numer svg { width: 14px; height: 14px; }
+  .rady-kafelek-nazwa { font-size: 0.86rem; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+  .rady-kafelek-stan {
+    margin-top: auto;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--habits-tekst-pomocniczy);
+  }
+  .rady-kafelek.dostepna:hover { border-color: var(--habits-akcent); background: var(--habits-tlo-karta); }
+  .rady-kafelek.aktywna {
+    border: 2px solid var(--habits-akcent);
+    padding: 11px;
+    box-shadow: 0 0 14px rgba(var(--habits-akcent-rgb), 0.4);
+  }
+  .rady-kafelek.aktywna .rady-kafelek-numer { border-color: var(--habits-akcent); color: var(--habits-akcent); }
+  .rady-kafelek.aktywna .rady-kafelek-stan { color: var(--habits-akcent); }
+  .rady-kafelek.zaliczona {
+    border-color: rgba(var(--habits-akcent-rgb), 0.3);
+    background: rgba(var(--habits-akcent-rgb), 0.1);
+    cursor: default;
+  }
+  .rady-kafelek.zaliczona .rady-kafelek-numer {
+    border-color: var(--habits-akcent);
+    background: var(--habits-akcent);
+    color: oklch(0.07 0.004 250);
+  }
+  .rady-kafelek.zaliczona .rady-kafelek-nazwa { color: var(--habits-tekst-pomocniczy); }
 
   /* Aktywny przycisk "Nawyki" w panelu bocznym — srebrny akcent */
   .nav-btn.aktywny.nav-habits {
@@ -2084,40 +2233,77 @@
   <section id="widok-habits" class="widok">
     <h2>Nawyki</h2>
 
-    <div class="karta tydzien-nawigacja">
-      <button type="button" id="habits-tydzien-poprzedni" class="btn-tydzien" aria-label="Poprzedni tydzień">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
-      </button>
-      <p id="habits-zakres" class="nawyki-podtytul"></p>
-      <button type="button" id="habits-tydzien-nastepny" class="btn-tydzien" aria-label="Następny tydzień">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-      </button>
+    <!-- Przełącznik kategorii — widoczny tylko dla konta AI_UZYTKOWNIK_ID (ustawiane w ustawDostepRadZKsiazek) -->
+    <div id="habits-kategorie" class="habits-kategorie" role="tablist" aria-label="Kategoria" hidden>
+      <button type="button" role="tab" class="habits-kategoria-btn aktywna" data-kategoria="nawyki" aria-selected="true">Nawyki</button>
+      <button type="button" role="tab" class="habits-kategoria-btn" data-kategoria="rady" aria-selected="false">Rady z książek</button>
     </div>
 
-    <div id="habits-podsumowanie" class="habits-pierscien-karta" hidden>
-      <div class="habits-pierscien-wrap">
-        <svg viewBox="0 0 120 120" aria-hidden="true">
-          <circle cx="60" cy="60" r="52" fill="none" stroke="oklch(0.24 0.01 245)" stroke-width="11"/>
-          <circle id="habits-progress-ring" cx="60" cy="60" r="52" fill="none" stroke="#D6D0C0" stroke-width="11" stroke-linecap="round" transform="rotate(-90 60 60)"/>
-        </svg>
-        <span class="habits-pierscien-procent"><span id="habits-progress-procent">0</span><span class="habits-procent-znak">%</span></span>
+    <div id="habits-kategoria-nawyki">
+      <div class="karta tydzien-nawigacja">
+        <button type="button" id="habits-tydzien-poprzedni" class="btn-tydzien" aria-label="Poprzedni tydzień">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <p id="habits-zakres" class="nawyki-podtytul"></p>
+        <button type="button" id="habits-tydzien-nastepny" class="btn-tydzien" aria-label="Następny tydzień">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
       </div>
-      <div class="habits-pierscien-info">
-        <span id="habits-podsumowanie-tekst" class="habits-pierscien-tytul"></span>
-        <span class="habits-pierscien-podtytul">Twoja spójność w tym tygodniu</span>
+
+      <div id="habits-podsumowanie" class="habits-pierscien-karta" hidden>
+        <div class="habits-pierscien-wrap">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="oklch(0.24 0.01 245)" stroke-width="11"/>
+            <circle id="habits-progress-ring" cx="60" cy="60" r="52" fill="none" stroke="#D6D0C0" stroke-width="11" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+          </svg>
+          <span class="habits-pierscien-procent"><span id="habits-progress-procent">0</span><span class="habits-procent-znak">%</span></span>
+        </div>
+        <div class="habits-pierscien-info">
+          <span id="habits-podsumowanie-tekst" class="habits-pierscien-tytul"></span>
+          <span class="habits-pierscien-podtytul">Twoja spójność w tym tygodniu</span>
+        </div>
+      </div>
+
+      <div class="karta">
+        <form id="form-nawyk">
+          <label for="nowy-nawyk">Nowy nawyk</label>
+          <input type="text" id="nowy-nawyk" autocomplete="off" placeholder="np. Pić 2l wody" required>
+          <button type="submit" class="btn-pill btn-pill-rola">+ dodaj nawyk</button>
+        </form>
+      </div>
+
+      <div id="nawyki-lista">
+        <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">✅</span><span>Brak nawyków - dodaj pierwszy powyżej.</span></p>
       </div>
     </div>
 
-    <div class="karta">
-      <form id="form-nawyk">
-        <label for="nowy-nawyk">Nowy nawyk</label>
-        <input type="text" id="nowy-nawyk" autocomplete="off" placeholder="np. Pić 2l wody" required>
-        <button type="submit" class="btn-pill btn-pill-rola">+ dodaj nawyk</button>
-      </form>
-    </div>
+    <!-- Kategoria "Rady z książek" (tylko konto AI_UZYTKOWNIK_ID) -->
+    <div id="habits-kategoria-rady" hidden>
+      <div class="karta rady-wybor-ksiazki">
+        <label for="rady-ksiazka">Książka</label>
+        <select id="rady-ksiazka"></select>
+      </div>
 
-    <div id="nawyki-lista">
-      <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">✅</span><span>Brak nawyków - dodaj pierwszy powyżej.</span></p>
+      <!-- Karta aktywnej zasady / pusty stan / formularz planu jeśli–to -->
+      <div id="rady-aktywna"></div>
+
+      <div id="rady-postep" class="habits-pierscien-karta" hidden>
+        <div class="habits-pierscien-wrap">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="oklch(0.24 0.01 245)" stroke-width="11"/>
+            <circle id="rady-progress-ring" cx="60" cy="60" r="52" fill="none" stroke="#D6D0C0" stroke-width="11" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+          </svg>
+          <span class="habits-pierscien-procent"><span id="rady-progress-zaliczone" class="rady-progress-liczba">0</span><span id="rady-progress-wszystkie" class="habits-procent-znak">/0</span></span>
+        </div>
+        <div class="habits-pierscien-info">
+          <span id="rady-postep-tekst" class="habits-pierscien-tytul"></span>
+          <span id="rady-postep-podtytul" class="habits-pierscien-podtytul"></span>
+        </div>
+      </div>
+
+      <div class="karta">
+        <div id="rady-plansza" class="rady-plansza"></div>
+      </div>
     </div>
   </section>
 
@@ -2263,6 +2449,10 @@
     wczytajNawyki();
     wczytajNawykiWpisy();
     wczytajPlanyTreningowe();
+
+    const kontoAI = !!(sesjaUzytkownika && sesjaUzytkownika.user && sesjaUzytkownika.user.id === AI_UZYTKOWNIK_ID);
+    ustawDostepRadZKsiazek(kontoAI);
+    if (kontoAI) wczytajRadyZKsiazek();
   }
 
   function pokazAplikacje() {
@@ -4647,6 +4837,428 @@
     nawykiWpisy = data || [];
     renderNawykiListy();
     renderHabitsPodsumowanie();
+  }
+
+  // ===================== Nawyki: kategoria "Rady z książek" (tylko konto AI_UZYTKOWNIK_ID) =====================
+
+  const habitsKategorie = document.getElementById("habits-kategorie");
+  const habitsKategoriaNawyki = document.getElementById("habits-kategoria-nawyki");
+  const habitsKategoriaRady = document.getElementById("habits-kategoria-rady");
+  const radySelectKsiazka = document.getElementById("rady-ksiazka");
+  const radyAktywna = document.getElementById("rady-aktywna");
+  const radyPostep = document.getElementById("rady-postep");
+  const radyProgressRing = document.getElementById("rady-progress-ring");
+  const radyProgressZaliczone = document.getElementById("rady-progress-zaliczone");
+  const radyProgressWszystkie = document.getElementById("rady-progress-wszystkie");
+  const radyPostepTekst = document.getElementById("rady-postep-tekst");
+  const radyPostepPodtytul = document.getElementById("rady-postep-podtytul");
+  const radyPlansza = document.getElementById("rady-plansza");
+  const RADY_KOMUNIKAT_JEDNA_AKTYWNA = "Ukończ najpierw wybraną zasadę";
+
+  let radyKsiazki = [];  // wiersze z tabeli "ksiazki": { id, tytul, autor }
+  let radyZasady = [];   // wiersze z tabeli "zasady": { id, ksiazka_id, nazwa, opis, kolejnosc }
+  let radyPostepWiersze = []; // wiersze z tabeli "zasady_postep": { id, zasada_id, status: "aktywna" | "zaliczona", plan_jesli, plan_to, zaliczona_at }
+  let radyWybranaKsiazkaId = null;
+  let radyZasadaWFormularzuId = null; // zasada, dla której jest otwarty formularz planu jeśli–to
+
+  // Przełącznik kategorii widoczny tylko dla konta AI; dla pozostałych sekcja wygląda jak dotąd
+  function ustawDostepRadZKsiazek(kontoAI) {
+    habitsKategorie.hidden = !kontoAI;
+    przelaczKategorieHabits("nawyki");
+    if (!kontoAI) {
+      radyKsiazki = [];
+      radyZasady = [];
+      radyPostepWiersze = [];
+      radyWybranaKsiazkaId = null;
+      radyZasadaWFormularzuId = null;
+    }
+  }
+
+  function przelaczKategorieHabits(kategoria) {
+    habitsKategorie.querySelectorAll(".habits-kategoria-btn").forEach(function (btn) {
+      const aktywna = btn.dataset.kategoria === kategoria;
+      btn.classList.toggle("aktywna", aktywna);
+      btn.setAttribute("aria-selected", aktywna ? "true" : "false");
+    });
+    habitsKategoriaNawyki.hidden = kategoria !== "nawyki";
+    habitsKategoriaRady.hidden = kategoria !== "rady";
+  }
+
+  habitsKategorie.addEventListener("click", function (e) {
+    const btn = e.target.closest(".habits-kategoria-btn");
+    if (btn) przelaczKategorieHabits(btn.dataset.kategoria);
+  });
+
+  radySelectKsiazka.addEventListener("change", function () {
+    radyWybranaKsiazkaId = radySelectKsiazka.value;
+    renderRadyPostep();
+    renderRadyPlansza();
+  });
+
+  function radyPostepZasady(zasadaId) {
+    return radyPostepWiersze.find(function (p) { return String(p.zasada_id) === String(zasadaId); }) || null;
+  }
+  function radyAktywnyPostep() {
+    return radyPostepWiersze.find(function (p) { return p.status === "aktywna"; }) || null;
+  }
+  function radyStanZasady(zasadaId) {
+    const postep = radyPostepZasady(zasadaId);
+    return postep ? postep.status : "dostepna";
+  }
+  function radyZasadyKsiazki(ksiazkaId) {
+    return radyZasady
+      .filter(function (z) { return String(z.ksiazka_id) === String(ksiazkaId); })
+      .sort(function (a, b) { return (a.kolejnosc || 0) - (b.kolejnosc || 0); });
+  }
+  function radyKsiazka(ksiazkaId) {
+    return radyKsiazki.find(function (k) { return String(k.id) === String(ksiazkaId); }) || null;
+  }
+  function radyZasada(zasadaId) {
+    return radyZasady.find(function (z) { return String(z.id) === String(zasadaId); }) || null;
+  }
+
+  // Pobranie książek, zasad i postępu — wywoływane przy starcie tylko dla konta AI
+  async function wczytajRadyZKsiazek() {
+    const [ksiazkiRes, zasadyRes, postepRes] = await Promise.all([
+      db.from("ksiazki").select("id, tytul, autor").order("tytul", { ascending: true }),
+      db.from("zasady").select("id, ksiazka_id, nazwa, opis, kolejnosc").order("kolejnosc", { ascending: true }),
+      db.from("zasady_postep").select("id, zasada_id, status, plan_jesli, plan_to, zaliczona_at")
+    ]);
+    const blad = ksiazkiRes.error || zasadyRes.error || postepRes.error;
+    if (blad) {
+      console.error(blad);
+      pokazToast("Nie udało się pobrać rad z książek: " + blad.message, "blad");
+      return;
+    }
+    radyKsiazki = ksiazkiRes.data || [];
+    radyZasady = zasadyRes.data || [];
+    radyPostepWiersze = postepRes.data || [];
+    renderRadyZKsiazek();
+  }
+
+  // Ponowne pobranie samego postępu — np. gdy baza odrzuci drugą aktywną zasadę ustawioną z innego urządzenia
+  async function odswiezRadyPostep() {
+    const { data, error } = await db
+      .from("zasady_postep")
+      .select("id, zasada_id, status, plan_jesli, plan_to, zaliczona_at");
+    if (error) {
+      console.error(error);
+      return;
+    }
+    radyPostepWiersze = data || [];
+    radyZasadaWFormularzuId = null;
+    renderRadyZKsiazek();
+  }
+
+  function renderRadyZKsiazek() {
+    renderRadyWyborKsiazki();
+    renderRadyAktywna();
+    renderRadyPostep();
+    renderRadyPlansza();
+  }
+
+  function renderRadyWyborKsiazki() {
+    radySelectKsiazka.innerHTML = "";
+    if (radyKsiazki.length === 0) {
+      const opcja = document.createElement("option");
+      opcja.value = "";
+      opcja.textContent = "Brak książek";
+      radySelectKsiazka.appendChild(opcja);
+      radySelectKsiazka.disabled = true;
+      radyWybranaKsiazkaId = null;
+      return;
+    }
+    radySelectKsiazka.disabled = false;
+    // Domyślnie książka z aktywną zasadą, a jeśli jej nie ma — pierwsza z listy
+    if (!radyKsiazka(radyWybranaKsiazkaId)) {
+      const aktywny = radyAktywnyPostep();
+      const zasadaAktywna = aktywny ? radyZasada(aktywny.zasada_id) : null;
+      radyWybranaKsiazkaId = zasadaAktywna && radyKsiazka(zasadaAktywna.ksiazka_id)
+        ? String(zasadaAktywna.ksiazka_id)
+        : String(radyKsiazki[0].id);
+    }
+    radyKsiazki.forEach(function (k) {
+      const opcja = document.createElement("option");
+      opcja.value = String(k.id);
+      opcja.textContent = k.autor ? k.tytul + " — " + k.autor : k.tytul;
+      radySelectKsiazka.appendChild(opcja);
+    });
+    radySelectKsiazka.value = String(radyWybranaKsiazkaId);
+  }
+
+  // Nagłówek karty zasady (etykieta, nazwa, książka, opis) — wspólny dla karty aktywnej zasady i formularza
+  function radyNaglowekZasady(karta, etykieta, zasada) {
+    const ksiazka = radyKsiazka(zasada.ksiazka_id);
+    const etykietaEl = document.createElement("p");
+    etykietaEl.className = "rady-etykieta";
+    etykietaEl.textContent = etykieta;
+    const nazwaEl = document.createElement("h3");
+    nazwaEl.className = "rady-zasada-nazwa";
+    nazwaEl.textContent = zasada.nazwa;
+    karta.append(etykietaEl, nazwaEl);
+    if (ksiazka) {
+      const ksiazkaEl = document.createElement("p");
+      ksiazkaEl.className = "rady-zasada-ksiazka";
+      ksiazkaEl.textContent = "z książki „" + ksiazka.tytul + "”" + (ksiazka.autor ? ", " + ksiazka.autor : "");
+      karta.appendChild(ksiazkaEl);
+    }
+    if (zasada.opis) {
+      const opisEl = document.createElement("p");
+      opisEl.className = "rady-zasada-opis";
+      opisEl.textContent = zasada.opis;
+      karta.appendChild(opisEl);
+    }
+  }
+
+  // Miejsce na górze: formularz planu (gdy wybieram zasadę) / karta aktywnej zasady / pusty stan
+  function renderRadyAktywna() {
+    radyAktywna.innerHTML = "";
+    const aktywny = radyAktywnyPostep();
+    const zasadaAktywna = aktywny ? radyZasada(aktywny.zasada_id) : null;
+
+    if (!aktywny && radyZasadaWFormularzuId && radyZasada(radyZasadaWFormularzuId)) {
+      radyAktywna.appendChild(radyFormularzPlanu(radyZasada(radyZasadaWFormularzuId)));
+      return;
+    }
+    radyZasadaWFormularzuId = null;
+
+    if (!aktywny || !zasadaAktywna) {
+      radyAktywna.innerHTML = pustyStanHTML("📖", "Nie masz aktywnej zasady — wybierz jedną z planszy poniżej i zaplanuj, jak ją zastosujesz.");
+      return;
+    }
+
+    const karta = document.createElement("div");
+    karta.className = "karta rady-aktywna-karta";
+    radyNaglowekZasady(karta, "Aktywna zasada", zasadaAktywna);
+
+    const plan = document.createElement("div");
+    plan.className = "rady-plan";
+    [["Jeśli", aktywny.plan_jesli], ["To", aktywny.plan_to]].forEach(function (para) {
+      const p = document.createElement("p");
+      const s = document.createElement("strong");
+      s.textContent = para[0] + "… ";
+      p.append(s, document.createTextNode(para[1] || ""));
+      plan.appendChild(p);
+    });
+    karta.appendChild(plan);
+
+    const akcje = document.createElement("div");
+    akcje.className = "rady-akcje";
+    const btnZaliczona = document.createElement("button");
+    btnZaliczona.type = "button";
+    btnZaliczona.className = "btn-submit";
+    btnZaliczona.textContent = "Zaliczona";
+    const btnRezygnuje = document.createElement("button");
+    btnRezygnuje.type = "button";
+    btnRezygnuje.className = "btn-rady-drugorzedny";
+    btnRezygnuje.textContent = "Rezygnuję";
+    btnZaliczona.addEventListener("click", function () { zaliczZasade(aktywny, [btnZaliczona, btnRezygnuje]); });
+    btnRezygnuje.addEventListener("click", function () { zrezygnujZZasady(aktywny, zasadaAktywna, [btnZaliczona, btnRezygnuje]); });
+    akcje.append(btnZaliczona, btnRezygnuje);
+    karta.appendChild(akcje);
+
+    radyAktywna.appendChild(karta);
+  }
+
+  // Formularz planu jeśli–to dla wybranej (dostępnej) zasady
+  function radyFormularzPlanu(zasada) {
+    const karta = document.createElement("div");
+    karta.className = "karta rady-aktywna-karta";
+    radyNaglowekZasady(karta, "Wybierasz zasadę", zasada);
+
+    const form = document.createElement("form");
+    form.className = "rady-plan-form";
+    form.innerHTML =
+      '<label for="rady-plan-jesli">Jeśli…</label>' +
+      '<textarea id="rady-plan-jesli" rows="2" required placeholder="np. jeśli zaczynam odkładać trudne zadanie"></textarea>' +
+      '<label for="rady-plan-to">To…</label>' +
+      '<textarea id="rady-plan-to" rows="2" required placeholder="np. to robię pierwsze 2 minuty od razu"></textarea>' +
+      '<div class="rady-akcje">' +
+        '<button type="submit" class="btn-submit">Zapisz plan</button>' +
+        '<button type="button" class="btn-rady-drugorzedny">Anuluj</button>' +
+      '</div>';
+    const poleJesli = form.querySelector("#rady-plan-jesli");
+    const poleTo = form.querySelector("#rady-plan-to");
+    const btnZapisz = form.querySelector(".btn-submit");
+
+    form.querySelector(".btn-rady-drugorzedny").addEventListener("click", function () {
+      radyZasadaWFormularzuId = null;
+      renderRadyAktywna();
+    });
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const planJesli = poleJesli.value.trim();
+      const planTo = poleTo.value.trim();
+      if (!planJesli || !planTo) {
+        pokazToast("Uzupełnij oba pola: „Jeśli…” i „To…”.", "blad");
+        return;
+      }
+      if (radyAktywnyPostep()) {
+        pokazToast(RADY_KOMUNIKAT_JEDNA_AKTYWNA, "blad");
+        return;
+      }
+
+      btnZapisz.disabled = true;
+      const { data, error } = await db
+        .from("zasady_postep")
+        .insert({
+          zasada_id: zasada.id,
+          user_id: sesjaUzytkownika.user.id,
+          status: "aktywna",
+          plan_jesli: planJesli,
+          plan_to: planTo
+        })
+        .select();
+      btnZapisz.disabled = false;
+
+      if (error) {
+        console.error(error);
+        // 23505 = naruszenie unikalności (baza pozwala na jedną aktywną zasadę), P0001 = wyjątek z triggera
+        if (error.code === "23505" || error.code === "P0001") {
+          pokazToast(RADY_KOMUNIKAT_JEDNA_AKTYWNA, "blad");
+          odswiezRadyPostep();
+        } else {
+          pokazToast("Nie udało się zapisać zasady: " + error.message, "blad");
+        }
+        return;
+      }
+
+      radyPostepWiersze.push(data && data[0] ? data[0] : {
+        id: Date.now(), zasada_id: zasada.id, status: "aktywna", plan_jesli: planJesli, plan_to: planTo, zaliczona_at: null
+      });
+      radyZasadaWFormularzuId = null;
+      renderRadyAktywna();
+      renderRadyPostep();
+      renderRadyPlansza();
+      pokazToast("Zasada wybrana — powodzenia!", "sukces");
+    });
+
+    karta.appendChild(form);
+    return karta;
+  }
+
+  async function zaliczZasade(postep, przyciski) {
+    przyciski.forEach(function (b) { b.disabled = true; });
+    const zaliczonaAt = new Date().toISOString();
+    const { error } = await db
+      .from("zasady_postep")
+      .update({ status: "zaliczona", zaliczona_at: zaliczonaAt })
+      .eq("id", postep.id);
+    przyciski.forEach(function (b) { b.disabled = false; });
+
+    if (error) {
+      console.error(error);
+      pokazToast("Nie udało się zaliczyć zasady: " + error.message, "blad");
+      return;
+    }
+    postep.status = "zaliczona";
+    postep.zaliczona_at = zaliczonaAt;
+    renderRadyAktywna();
+    renderRadyPostep();
+    renderRadyPlansza();
+    pokazToast("Zasada zaliczona!", "sukces");
+  }
+
+  async function zrezygnujZZasady(postep, zasada, przyciski) {
+    const potwierdzenie = window.confirm('Zrezygnować z zasady „' + zasada.nazwa + '"? Twój plan jeśli–to zostanie usunięty.');
+    if (!potwierdzenie) return;
+
+    przyciski.forEach(function (b) { b.disabled = true; });
+    const { error } = await db
+      .from("zasady_postep")
+      .delete()
+      .eq("id", postep.id);
+    przyciski.forEach(function (b) { b.disabled = false; });
+
+    if (error) {
+      console.error(error);
+      pokazToast("Nie udało się zrezygnować z zasady: " + error.message, "blad");
+      return;
+    }
+    radyPostepWiersze = radyPostepWiersze.filter(function (p) { return p.id !== postep.id; });
+    renderRadyAktywna();
+    renderRadyPostep();
+    renderRadyPlansza();
+  }
+
+  // Kołowy licznik: zaliczone / wszystkie zasady wybranej książki
+  function renderRadyPostep() {
+    const zasadyKsiazki = radyZasadyKsiazki(radyWybranaKsiazkaId);
+    if (!radyWybranaKsiazkaId || zasadyKsiazki.length === 0) {
+      radyPostep.hidden = true;
+      return;
+    }
+    const zaliczone = zasadyKsiazki.filter(function (z) { return radyStanZasady(z.id) === "zaliczona"; }).length;
+    const udzial = zaliczone / zasadyKsiazki.length;
+    const ksiazka = radyKsiazka(radyWybranaKsiazkaId);
+
+    radyProgressZaliczone.textContent = String(zaliczone);
+    radyProgressWszystkie.textContent = "/" + zasadyKsiazki.length;
+    radyPostepTekst.textContent = zaliczone + " z " + zasadyKsiazki.length + " zasad zaliczonych";
+    radyPostepPodtytul.textContent = ksiazka ? "Postęp w książce „" + ksiazka.tytul + "”" : "";
+    radyProgressRing.style.strokeDasharray = String(OBWOD_PIERSCIENIA_HABITS);
+    radyProgressRing.style.strokeDashoffset = String(OBWOD_PIERSCIENIA_HABITS * (1 - udzial));
+    radyPostep.hidden = false;
+  }
+
+  const IKONA_PTASZEK =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  const RADY_ETYKIETY_STANU = { dostepna: "Dostępna", aktywna: "Aktywna", zaliczona: "Zaliczona" };
+
+  // Plansza zasad wybranej książki, w kolejności z kolumny "kolejnosc"
+  function renderRadyPlansza() {
+    radyPlansza.innerHTML = "";
+    if (radyKsiazki.length === 0) {
+      radyPlansza.innerHTML = pustyStanHTML("📚", "Brak książek w bazie.");
+      return;
+    }
+    const zasadyKsiazki = radyZasadyKsiazki(radyWybranaKsiazkaId);
+    if (zasadyKsiazki.length === 0) {
+      radyPlansza.innerHTML = pustyStanHTML("📚", "Ta książka nie ma jeszcze zasad.");
+      return;
+    }
+
+    zasadyKsiazki.forEach(function (zasada, indeks) {
+      const stan = radyStanZasady(zasada.id);
+      const kafelek = document.createElement("button");
+      kafelek.type = "button";
+      kafelek.className = "rady-kafelek " + stan;
+      kafelek.setAttribute("aria-label", zasada.nazwa + " — " + RADY_ETYKIETY_STANU[stan]);
+      if (stan === "zaliczona") kafelek.setAttribute("aria-disabled", "true");
+
+      const numer = document.createElement("span");
+      numer.className = "rady-kafelek-numer";
+      if (stan === "zaliczona") numer.innerHTML = IKONA_PTASZEK;
+      else numer.textContent = String(indeks + 1);
+      const nazwa = document.createElement("span");
+      nazwa.className = "rady-kafelek-nazwa";
+      nazwa.textContent = zasada.nazwa;
+      const stanEl = document.createElement("span");
+      stanEl.className = "rady-kafelek-stan";
+      stanEl.textContent = RADY_ETYKIETY_STANU[stan];
+      kafelek.append(numer, nazwa, stanEl);
+
+      kafelek.addEventListener("click", function () { kliknietoZasade(zasada, stan); });
+      radyPlansza.appendChild(wjazdKarty(kafelek, indeks));
+    });
+  }
+
+  function kliknietoZasade(zasada, stan) {
+    if (stan === "zaliczona") return;
+    if (stan === "aktywna") {
+      radyAktywna.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (radyAktywnyPostep()) {
+      pokazToast(RADY_KOMUNIKAT_JEDNA_AKTYWNA, "blad");
+      return;
+    }
+    radyZasadaWFormularzuId = zasada.id;
+    renderRadyAktywna();
+    radyAktywna.scrollIntoView({ behavior: "smooth", block: "start" });
+    const poleJesli = document.getElementById("rady-plan-jesli");
+    if (poleJesli) poleJesli.focus({ preventScroll: true });
   }
 
   // ===================== Widok: Wnioski (czysta matematyka w przeglądarce, bez AI) =====================
