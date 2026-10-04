@@ -5314,12 +5314,15 @@
   function radyPieczatkiZasady(zasadaId) {
     return radyWpisy.filter(function (w) { return String(w.zasada_id) === String(zasadaId) && w.zadzialalo !== false; });
   }
-  // Odmiana: 1 pieczątka, 2–4 pieczątki, 5+ (i 12–14) pieczątek
-  function radyOdmianaPieczatek(n) {
-    if (n === 1) return "pieczątka";
+  // Odmiana liczebnika: 1 gwiazda, 2–4 (22–24…) gwiazdy, 5+ (i 12–14) gwiazd
+  function radyOdmiana(n, jeden, kilka, wiele) {
+    if (n === 1) return jeden;
     const r10 = n % 10;
     const r100 = n % 100;
-    return r10 >= 2 && r10 <= 4 && (r100 < 12 || r100 > 14) ? "pieczątki" : "pieczątek";
+    return r10 >= 2 && r10 <= 4 && (r100 < 12 || r100 > 14) ? kilka : wiele;
+  }
+  function radyOdmianaPieczatek(n) {
+    return radyOdmiana(n, "pieczątka", "pieczątki", "pieczątek");
   }
   function radyPieczatkaDzis(zasadaId) {
     const dzis = dataSprzedDni(0);
@@ -5339,14 +5342,14 @@
     return radyZasadyKsiazki(zasada.ksiazka_id).findIndex(function (z) { return String(z.id) === String(zasada.id); }) + 1;
   }
 
-  // Zaliczone zasady, planety (co 4 zasady, gdy po nich zostają jeszcze co najmniej 2 zasady — jak w makiecie: 13 zasad = 2 planety) i ukończenie książki
+  // Zaliczone zasady, planety (co 4 zasady przez całą książkę, zawsze między zasadami — po ostatniej jest Gwiazda polarna) i ukończenie książki
   function radyStatystykiKsiazki(ksiazkaId) {
     const zasady = radyZasadyKsiazki(ksiazkaId);
     const zaliczoneFlagi = zasady.map(function (z) { return radyStanZasady(z.id) === "zaliczona"; });
     const zaliczone = zaliczoneFlagi.filter(Boolean).length;
     let planety = 0;
     let odkrytePlanety = 0;
-    for (let k = RADY_ZASAD_NA_PLANETE; k < zasady.length - 1; k += RADY_ZASAD_NA_PLANETE) {
+    for (let k = RADY_ZASAD_NA_PLANETE; k < zasady.length; k += RADY_ZASAD_NA_PLANETE) {
       planety++;
       if (zaliczoneFlagi.slice(0, k).every(Boolean)) odkrytePlanety++;
     }
@@ -5571,7 +5574,7 @@
     const stat = radyStatystykiKsiazki(radyWybranaKsiazkaId);
     if (stat.ukonczona) {
       bilet.className = "rady-bilet ukonczony";
-      const info = radyBiletGora("Gwiazdozbiór ukończony", "zloty", "", "Wszystkie " + stat.zasady.length + " gwiazd zapalone");
+      const info = radyBiletGora("Gwiazdozbiór ukończony", "zloty", "", (stat.zasady.length === 1 ? "Gwiazda zapalona" : "Wszystkie " + stat.zasady.length + " " + radyOdmiana(stat.zasady.length, "gwiazda", "gwiazdy", "gwiazd") + " zapalone"));
       info.className = "rady-bilet-info";
       info.appendChild(radyTekstBiletu("Ta książka jest już na półce jako ukończona. Wybierz kolejną książkę z półki i zacznij nowy gwiazdozbiór."));
       bilet.appendChild(info);
@@ -5856,10 +5859,10 @@
     const stat = radyStatystykiKsiazki(radyWybranaKsiazkaId);
     const n = stat.zasady.length;
 
-    radyMapaLicznik.textContent = stat.zaliczone + " z " + n + " gwiazd" +
+    radyMapaLicznik.textContent = stat.zaliczone + " z " + n + (n === 1 ? " gwiazdy" : " gwiazd") +
       (stat.planety > 0 ? " · " + stat.odkrytePlanety + " z " + stat.planety + (stat.planety === 1 ? " planety" : " planet") : "");
     radyMapaOpis.textContent = n > 0
-      ? "Każda zaliczona zasada zapala gwiazdę — w dowolnej kolejności. Zapal wszystkie " + n + ", a książka trafi na półkę jako ukończona."
+      ? "Każda zaliczona zasada zapala gwiazdę — w dowolnej kolejności. " + (n === 1 ? "Zapal ją" : "Zapal wszystkie " + n) + ", a książka trafi na półkę jako ukończona."
       : "";
 
     if (radyKsiazki.length === 0 || n === 0) {
@@ -5880,7 +5883,7 @@
     const punkty = [];
     let y = 90;
     stat.zasady.forEach(function (zasada, i) {
-      if (i > 0 && i % RADY_ZASAD_NA_PLANETE === 0 && i < n - 1) {
+      if (i > 0 && i % RADY_ZASAD_NA_PLANETE === 0) {
         const nr = i / RADY_ZASAD_NA_PLANETE;
         y += 18;
         punkty.push({ typ: "planeta", nr: nr, po: i, x: RADY_X_PLANET[(nr - 1) % RADY_X_PLANET.length], y: y, swieci: stat.zaliczoneFlagi.slice(0, i).every(Boolean) });
