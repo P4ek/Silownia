@@ -1153,6 +1153,7 @@
     --habits-naglowek: oklch(0.97 0.004 240);
     --habits-tekst: oklch(0.85 0.005 240);
     --habits-tekst-pomocniczy: oklch(0.44 0.008 240);
+    --habits-zloto: oklch(0.72 0.08 75); /* złoty akcent z "Rad z książek" (PD, poziom, planety) */
     /* Jaśniejsze tło kart/formularzy używane tylko w trybie ciemnym poza sekcją "Nawyki" — --habits-tlo-karta zostaje bez zmian dla samej sekcji Nawyki */
     --tryb-ciemny-tlo-karta: oklch(0.14 0.006 250);
     /* Podmiana palety pomarańczowej/różowej na akcent z Nawyków dla wszystkiego poza #widok-habits (tam wyższa swoistość ID zachowuje oryginalny wygląd) — obejmuje każdy element używający var(--accent)/var(--accent-soft)/var(--accent-pink)/var(--accent-pink-soft), w tym wewnątrz #widok-plan, który nadpisuje --accent na --accent-pink */
@@ -1240,8 +1241,7 @@
     flex: none;
   }
   .habits-pierscien-wrap svg { width: 100%; height: 100%; }
-  #habits-progress-ring,
-  #rady-progress-ring {
+  #habits-progress-ring {
     filter: drop-shadow(0 0 8px rgba(var(--habits-akcent-rgb), 0.65));
     transition: stroke-dashoffset 0.5s ease-out;
   }
@@ -1351,77 +1351,385 @@
   .btn-usun-nawyk:disabled { opacity: 0.5; cursor: default; }
   .nawyki-linia { grid-column: 1 / -1; border-bottom: 1px solid var(--habits-obramowanie); }
 
-  /* ----- Przełącznik kategorii "Nawyki" / "Rady z książek" (tylko konto AI_UZYTKOWNIK_ID) ----- */
-  .habits-kategorie {
+  /* ----- Rady z książek: osobna sekcja (tylko konto AI_UZYTKOWNIK_ID), zawsze w ciemnym motywie Nawyków ----- */
+  #widok-rady { color: var(--habits-tekst); }
+  .rady-naglowek {
     display: flex;
-    gap: 4px;
-    margin: 14px 0 22px;
-    padding: 4px;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  #widok-rady .rady-tytul {
+    margin: 0;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(3rem, 15vw, 4rem);
+    line-height: 0.9;
+    letter-spacing: -0.01em;
+    color: oklch(0.95 0.004 240);
+  }
+  .rady-statystyki {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    font-size: 13px;
+    color: oklch(0.52 0.008 240);
+  }
+  .rady-ranga { color: var(--habits-zloto); font-weight: 700; }
+  .rady-kropka { width: 3px; height: 3px; border-radius: 50%; background: var(--habits-tekst-pomocniczy); }
+  /* Odznaka poziomu: pierścień (conic-gradient) wypełniony w --postep procentach do następnego poziomu */
+  .rady-odznaka {
+    flex: none;
+    width: 56px;
+    height: 56px;
+    margin-top: 4px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: conic-gradient(var(--habits-zloto) calc(var(--postep, 0) * 1%), var(--habits-obramowanie) 0);
+  }
+  .rady-odznaka-srodek {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--habits-tlo);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--habits-zloto);
+  }
+  .rady-odznaka-etykieta { font-size: 8px; font-weight: 700; letter-spacing: 0.14em; }
+  .rady-odznaka-poziom { font-family: "Instrument Serif", Georgia, serif; font-size: 22px; line-height: 1; }
+  .rady-kicker {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--habits-tekst-pomocniczy);
+  }
+
+  /* Półka z grzbietami książek */
+  .rady-polka-naglowek {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-top: 40px;
+  }
+  .rady-polka-wrap { position: relative; margin: 0 -16px; }
+  .rady-polka {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 30px 24px 0;
+    height: 236px;
+    box-sizing: border-box;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, #000 80%, transparent);
+    mask-image: linear-gradient(90deg, #000 80%, transparent);
+  }
+  .rady-polka::-webkit-scrollbar { display: none; }
+  .rady-polka-deska {
+    height: 10px;
+    margin: 0 8px;
+    border-radius: 3px;
+    background: oklch(0.14 0.008 248);
+    border-top: 1px solid oklch(0.26 0.008 245);
+    box-shadow: 0 18px 30px -8px rgba(0, 0, 0, 0.95);
+  }
+  /* Przycisk to sam "slot" na półce; obrót i kolory ma okładka w środku, żeby reflektor (::before) mógł leżeć pod nią */
+  .rady-grzbiet {
+    position: relative;
+    flex: none;
+    width: 52px;
+    height: var(--wysokosc, 176px);
+    padding: 0;
+    border: none;
+    background: transparent;
+  }
+  .rady-grzbiet-okladka {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    border-radius: 5px 5px 3px 3px;
+    border: 1px solid oklch(0.16 0.007 248);
+    background: var(--habits-tlo-karta);
+    color: oklch(0.6 0.008 240);
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  }
+  .rady-grzbiet:hover .rady-grzbiet-okladka { color: var(--habits-tekst); border-color: var(--habits-obramowanie-puste); }
+  .rady-grzbiet-pasy {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .rady-grzbiet-pasy.gora { padding-top: 14px; }
+  .rady-grzbiet-pasy.dol { padding-bottom: 12px; gap: 6px; }
+  .rady-grzbiet-pasy > span { width: 72%; height: 3px; background: currentColor; opacity: 0.35; }
+  .rady-grzbiet-pasy.gora > span + span { height: 1px; opacity: 0.2; }
+  .rady-grzbiet-pasy svg { width: 12px; height: 12px; }
+  .rady-grzbiet-tytul {
+    flex: 1;
+    min-height: 0;
+    margin: 10px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-size: 18px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .rady-grzbiet.ukonczona .rady-grzbiet-pasy svg { color: var(--habits-zloto); }
+  .rady-grzbiet.wybrana { width: 60px; height: 196px; margin-bottom: 18px; }
+  .rady-grzbiet.wybrana .rady-grzbiet-okladka {
+    border: none;
+    background: var(--habits-akcent);
+    color: oklch(0.1 0.006 250);
+    transform: rotate(-4deg);
+    box-shadow: 0 24px 40px -14px rgba(0, 0, 0, 0.9), 0 0 60px -10px rgba(var(--habits-akcent-rgb), 0.45);
+  }
+  .rady-grzbiet.wybrana .rady-grzbiet-pasy > span { opacity: 1; background: var(--habits-zloto); }
+  .rady-grzbiet.wybrana .rady-grzbiet-pasy.gora > span + span { background: oklch(0.1 0.006 250); opacity: 0.3; }
+  .rady-grzbiet.wybrana .rady-grzbiet-pasy svg { color: oklch(0.1 0.006 250); }
+  .rady-grzbiet.wybrana::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -40px;
+    width: 200px;
+    height: 250px;
+    transform: translateX(-50%);
+    background: radial-gradient(ellipse 50% 60% at 50% 30%, rgba(var(--habits-akcent-rgb), 0.16), transparent 70%);
+    pointer-events: none;
+  }
+  .rady-grzbiet-zakladka {
+    position: absolute;
+    top: -12px;
+    right: 10px;
+    width: 9px;
+    height: 30px;
+    background: var(--habits-zloto);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
+  }
+  .rady-grzbiet-nowa {
+    flex: none;
+    width: 46px;
+    height: 172px;
+    padding: 0;
+    border-radius: 5px 5px 3px 3px;
+    border: 1.5px dashed oklch(0.32 0.008 245);
+    background: oklch(0.09 0.005 250);
+    color: oklch(0.6 0.008 240);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .rady-grzbiet-nowa:hover { color: var(--habits-tekst); border-color: var(--habits-tekst-pomocniczy); }
+  .rady-grzbiet-nowa svg { width: 16px; height: 16px; }
+  .rady-grzbiet-nowa span {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  .rady-grzbiet-duch {
+    flex: none;
+    border-radius: 4px 4px 2px 2px;
+    background: var(--habits-tlo-karta);
+    border: 1px solid oklch(0.16 0.007 248);
+  }
+
+  /* Bilet misji (perforacja = przerywana linia + dwa półkoliste wycięcia w kolorze tła) */
+  .rady-bilet {
+    position: relative;
+    margin-top: 36px;
+    border-radius: 24px;
     background: var(--habits-tlo-karta);
     border: 1px solid var(--habits-obramowanie);
-    border-radius: 999px;
   }
-  .habits-kategoria-btn {
-    flex: 1;
-    min-width: 0;
-    padding: 9px 12px;
+  .rady-bilet.ukonczony { border-color: oklch(0.72 0.08 75 / 0.5); }
+  .rady-bilet-gora { position: relative; padding: 24px 24px 26px; overflow: hidden; border-radius: 24px 24px 0 0; }
+  .rady-bilet-numer {
+    position: absolute;
+    right: -8px;
+    top: -58px;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-size: 230px;
+    line-height: 1;
+    color: oklch(0.14 0.008 248);
+    pointer-events: none;
+  }
+  .rady-bilet-status {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--habits-akcent);
+  }
+  .rady-bilet-status::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 10px currentColor;
+  }
+  .rady-bilet-status.wyciszony { color: var(--habits-tekst-pomocniczy); }
+  .rady-bilet-status.wyciszony::before { box-shadow: none; }
+  .rady-bilet-status.zloty { color: var(--habits-zloto); }
+  #widok-rady .rady-bilet-tytul {
+    position: relative;
+    margin: 14px 0 0;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(2rem, 9vw, 2.5rem);
+    line-height: 1.02;
+    color: oklch(0.95 0.004 240);
+    overflow-wrap: anywhere;
+  }
+  .rady-bilet-tekst {
+    position: relative;
+    margin: 14px 0 0;
+    font-size: 15px;
+    line-height: 1.55;
+    color: oklch(0.7 0.006 240);
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+  }
+  .rady-moj-plan { position: relative; margin-top: 18px; }
+  .rady-moj-plan p { margin: 6px 0 0; font-size: 15px; line-height: 1.55; color: oklch(0.7 0.006 240); overflow-wrap: anywhere; }
+  .rady-moj-plan strong { color: var(--habits-akcent); font-weight: 700; }
+  .rady-perforacja { position: relative; height: 0; margin: 0 18px; border-top: 2px dashed var(--habits-obramowanie); }
+  .rady-perforacja::before,
+  .rady-perforacja::after {
+    content: "";
+    position: absolute;
+    top: -13px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--habits-tlo);
+    border: 1px solid var(--habits-obramowanie);
+  }
+  .rady-perforacja::before { left: -31px; clip-path: inset(0 0 0 50%); }
+  .rady-perforacja::after { right: -31px; clip-path: inset(0 50% 0 0); }
+  .rady-bilet-dol { padding: 22px 24px 24px; }
+  .rady-pieczatki-naglowek { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .rady-nagroda { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 22px; color: var(--habits-zloto); white-space: nowrap; }
+  .rady-pieczatki { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+  .rady-pieczatka {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--habits-obramowanie);
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--habits-tekst-pomocniczy);
+  }
+  .rady-pieczatka.przybita {
+    border: none;
+    background: var(--habits-akcent);
+    color: oklch(0.1 0.006 250);
+    transform: rotate(var(--obrot, 0deg));
+    box-shadow: inset 0 0 0 3px oklch(0.1 0.006 250 / 0.25);
+  }
+  .rady-pieczatka.przybita svg { width: 16px; height: 16px; }
+  .rady-pieczatka.dzis {
+    border: 1.5px dashed var(--habits-akcent);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--habits-akcent);
+  }
+  .rady-btn-glowny {
+    margin-top: 22px;
+    width: 100%;
+    min-height: 56px;
+    border-radius: 16px;
+    border: none;
+    background: var(--habits-akcent);
+    color: oklch(0.1 0.006 250);
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 20px;
+    text-align: left;
+    box-shadow: 0 14px 36px -12px rgba(var(--habits-akcent-rgb), 0.5);
+  }
+  .rady-btn-glowny svg { flex: none; width: 20px; height: 20px; }
+  .rady-btn-glowny:disabled {
+    background: transparent;
+    color: var(--habits-tekst-pomocniczy);
+    border: 1px solid var(--habits-obramowanie);
+    box-shadow: none;
+    cursor: default;
+  }
+  .rady-bilet-akcje { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .rady-btn-dyskretny {
+    padding: 8px 14px;
     border: none;
     border-radius: 999px;
     background: transparent;
-    color: var(--habits-tekst-pomocniczy);
+    color: oklch(0.6 0.008 240);
+    font-size: 13px;
     font-weight: 600;
-    font-size: 0.88rem;
-    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.2s ease;
+    transition: background 0.15s ease, color 0.15s ease;
   }
-  .habits-kategoria-btn:hover { color: var(--habits-tekst); }
-  .habits-kategoria-btn.aktywna {
-    background: var(--habits-akcent);
-    color: oklch(0.07 0.004 250);
-    box-shadow: 0 0 10px rgba(var(--habits-akcent-rgb), 0.35);
-  }
+  .rady-btn-dyskretny:hover:not(:disabled) { color: var(--habits-tekst); background: var(--habits-obramowanie); }
+  .rady-btn-dyskretny:disabled { opacity: 0.45; cursor: default; }
+  .rady-btn-dyskretny.gotowa { color: var(--habits-zloto); }
+  .rady-bilet-info { padding: 32px 24px; text-align: center; }
+  .rady-bilet-info .rady-bilet-status { justify-content: center; }
+  .rady-bilet-info .rady-btn-dyskretny { margin-top: 16px; border: 1px solid var(--habits-obramowanie); padding: 12px 20px; }
 
-  /* ----- Rady z książek ----- */
-  #widok-habits :is(select, textarea) {
+  /* Formularz planu Jeśli… / To… w dolnej części biletu */
+  #widok-rady form { margin: 0; padding: 0; border: none; box-shadow: none; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  #widok-rady label { margin-top: 0; color: var(--habits-tekst-pomocniczy); }
+  #widok-rady label + textarea { margin-bottom: 14px; }
+  #widok-rady textarea {
     background: var(--habits-tlo);
     border-color: var(--habits-obramowanie);
     color: var(--habits-tekst);
+    resize: vertical;
+    min-height: 64px;
   }
-  #widok-habits textarea { resize: vertical; min-height: 64px; }
-  #widok-habits textarea::placeholder { color: var(--habits-tekst-pomocniczy); }
-  #widok-habits :is(select, textarea):focus {
+  #widok-rady textarea::placeholder { color: var(--habits-tekst-pomocniczy); }
+  #widok-rady textarea:focus {
     outline: none;
     border-color: var(--habits-akcent);
     box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18);
   }
-  #widok-habits .rady-wybor-ksiazki label { margin-top: 0; }
-  .rady-progress-liczba { font-size: 2.1rem; }
-  #rady-aktywna > .pusto { margin-bottom: 26px; }
-
-  /* Karta aktywnej zasady i formularz planu jeśli–to */
-  #widok-habits .karta.rady-aktywna-karta { border-color: rgba(var(--habits-akcent-rgb), 0.45); box-shadow: 0 0 18px -6px rgba(var(--habits-akcent-rgb), 0.35); }
-  .rady-etykieta {
-    margin: 0 0 8px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--habits-akcent);
-  }
-  .rady-zasada-nazwa { margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--habits-naglowek); overflow-wrap: anywhere; }
-  .rady-zasada-ksiazka { margin: 4px 0 0; font-size: 0.82rem; color: var(--habits-tekst-pomocniczy); }
-  .rady-zasada-opis { margin: 14px 0 0; font-size: 0.92rem; line-height: 1.55; color: var(--habits-tekst); white-space: pre-line; overflow-wrap: anywhere; }
-  .rady-plan {
-    margin-top: 16px;
-    padding: 14px 16px;
-    border: 1px solid var(--habits-obramowanie);
-    border-radius: 12px;
-    background: var(--habits-tlo);
-    display: grid;
-    gap: 8px;
-  }
-  .rady-plan p { margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--habits-tekst); overflow-wrap: anywhere; }
-  .rady-plan strong { color: var(--habits-akcent); font-weight: 700; }
-  .rady-akcje { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .rady-akcje { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
   .rady-akcje > button { flex: 1 1 140px; margin-top: 0; }
   .btn-rady-drugorzedny {
     padding: 12px 20px;
@@ -1434,70 +1742,156 @@
     transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
   }
   .btn-rady-drugorzedny:hover { background: var(--habits-obramowanie); }
-  .btn-rady-drugorzedny:disabled { opacity: 0.55; cursor: default; }
-
-  /* Plansza zasad: kafelki w siatce, która sama zmniejsza liczbę kolumn na wąskich ekranach */
-  .rady-plansza {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 132px), 1fr));
-    gap: 10px;
+  #widok-rady .pusto {
+    background: var(--habits-tlo-karta);
+    border-color: var(--habits-obramowanie-puste);
+    color: var(--habits-tekst-pomocniczy);
   }
-  .rady-kafelek {
+
+  /* Gwiazdozbiór zasad: pozycje poziome w %, pionowe w px — mapa skaluje się do szerokości ekranu */
+  .rady-mapa-naglowek { margin-top: 56px; }
+  #widok-rady .rady-mapa-tytul {
+    margin: 6px 0 0;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 2.5rem;
+    line-height: 1;
+    color: oklch(0.93 0.004 240);
+  }
+  .rady-mapa-opis { margin: 8px 0 0; font-size: 14px; line-height: 1.5; color: oklch(0.52 0.008 240); }
+  .rady-mapa {
     position: relative;
+    margin: 24px -16px -22px;
+    background: oklch(0.075 0.006 258);
+    border-top: 1px solid oklch(0.14 0.008 248);
+    overflow: hidden;
+  }
+  .rady-mapa-pusto { padding: 24px 16px; }
+  .rady-mapa-linie { position: absolute; left: 0; top: 0; width: 100%; pointer-events: none; z-index: 2; }
+  .rady-tlo-gwiazda { position: absolute; width: 1px; height: 1px; border-radius: 50%; background: var(--habits-akcent); }
+  .rady-tlo-gwiazda.duza { width: 2px; height: 2px; }
+  .rady-migotanie { animation: rady-migotanie 3.2s ease-in-out infinite; }
+  .rady-halo {
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(var(--habits-akcent-rgb), 0.1), transparent 65%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .rady-wezel { position: absolute; transform: translate(-50%, -50%); z-index: 3; }
+  .rady-gwiazda {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--habits-akcent);
+    display: grid;
+    place-items: center;
+    cursor: default;
+    filter: drop-shadow(0 0 6px rgba(var(--habits-akcent-rgb), 0.7));
+  }
+  .rady-gwiazda svg { width: 30px; height: 30px; }
+  .rady-aktywny-wezel { position: relative; width: 96px; height: 96px; display: grid; place-items: center; }
+  .rady-orbita {
+    position: absolute;
+    inset: 16px;
+    border-radius: 50%;
+    border: 1px dashed rgba(var(--habits-akcent-rgb), 0.45);
+    animation: rady-obrot 18s linear infinite;
+  }
+  .rady-orbita.zewnetrzna {
+    inset: 0;
+    border: 1px solid rgba(var(--habits-akcent-rgb), 0.14);
+    animation-duration: 30s;
+    animation-direction: reverse;
+  }
+  .rady-aktywny-btn {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: 50%;
+    border: none;
+    background: var(--habits-tlo);
+    color: oklch(0.95 0.004 240);
+    display: grid;
+    place-items: center;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-size: 20px;
+    box-shadow: 0 0 0 1px var(--habits-akcent), 0 0 40px rgba(var(--habits-akcent-rgb), 0.55);
+  }
+  .rady-punkt {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid oklch(0.22 0.008 245);
+    background: var(--habits-tlo);
+    display: grid;
+    place-items: center;
+    transition: border-color 0.15s ease, box-shadow 0.2s ease;
+  }
+  .rady-punkt::after { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--habits-tekst-pomocniczy); }
+  .rady-punkt:not([aria-disabled="true"]):hover,
+  .rady-punkt.w-formularzu { border-color: var(--habits-akcent); box-shadow: 0 0 12px rgba(var(--habits-akcent-rgb), 0.35); }
+  .rady-punkt:not([aria-disabled="true"]):hover::after,
+  .rady-punkt.w-formularzu::after { background: var(--habits-akcent); }
+  .rady-punkt[aria-disabled="true"] { cursor: default; }
+  .rady-etykieta-wezla {
+    position: absolute;
+    transform: translateY(-50%);
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    min-width: 0;
-    min-height: 96px;
-    padding: 12px;
-    border: 1px solid var(--habits-obramowanie-puste);
-    border-radius: 12px;
-    background: var(--habits-tlo);
-    color: var(--habits-tekst);
-    text-align: left;
-    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.2s ease;
+    gap: 4px;
+    z-index: 3;
   }
-  .rady-kafelek-numer {
-    display: grid;
-    place-content: center;
-    width: 26px;
-    height: 26px;
-    border: 1px solid var(--habits-obramowanie-puste);
-    border-radius: 50%;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--habits-tekst-pomocniczy);
+  .rady-etykieta-wezla.lewa { text-align: right; align-items: flex-end; }
+  .rady-etykieta-wezla.klikalna { cursor: pointer; }
+  .rady-wezel-numer { font-family: "Instrument Serif", Georgia, serif; font-size: 15px; line-height: 1; color: var(--habits-tekst-pomocniczy); }
+  .rady-wezel-nazwa { font-size: 13px; font-weight: 600; line-height: 1.3; color: var(--habits-tekst-pomocniczy); overflow-wrap: anywhere; }
+  .rady-etykieta-wezla.zaliczona .rady-wezel-numer { color: var(--habits-zloto); }
+  .rady-etykieta-wezla.zaliczona .rady-wezel-nazwa { color: oklch(0.75 0.006 240); }
+  .rady-etykieta-wezla.aktywna .rady-wezel-numer { color: var(--habits-akcent); }
+  .rady-etykieta-wezla.aktywna .rady-wezel-nazwa {
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 26px;
+    line-height: 1.02;
+    color: oklch(0.95 0.004 240);
   }
-  .rady-kafelek-numer svg { width: 14px; height: 14px; }
-  .rady-kafelek-nazwa { font-size: 0.86rem; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
-  .rady-kafelek-stan {
-    margin-top: auto;
-    font-size: 0.68rem;
+  .rady-etykieta-wezla.klikalna:hover .rady-wezel-nazwa { color: var(--habits-tekst); }
+  .rady-planeta { display: flex; flex-direction: column; align-items: center; gap: 8px; color: oklch(0.3 0.008 245); }
+  .rady-planeta svg { width: 64px; height: 40px; }
+  .rady-planeta.odkryta { color: var(--habits-zloto); }
+  .rady-planeta.odkryta svg { filter: drop-shadow(0 0 12px oklch(0.72 0.08 75 / 0.5)); }
+  .rady-planeta-podpis,
+  .rady-final-podpis {
+    font-size: 11px;
     font-weight: 700;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    text-align: center;
+    white-space: nowrap;
     color: var(--habits-tekst-pomocniczy);
   }
-  .rady-kafelek.dostepna:hover { border-color: var(--habits-akcent); background: var(--habits-tlo-karta); }
-  .rady-kafelek.aktywna {
-    border: 2px solid var(--habits-akcent);
-    padding: 11px;
-    box-shadow: 0 0 14px rgba(var(--habits-akcent-rgb), 0.4);
+  .rady-planeta.odkryta .rady-planeta-podpis { color: var(--habits-zloto); }
+  .rady-final { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .rady-final svg { width: 56px; height: 56px; color: oklch(0.2 0.008 245); }
+  .rady-final.ukonczona svg { color: var(--habits-zloto); filter: drop-shadow(0 0 22px oklch(0.72 0.08 75 / 0.8)); }
+  .rady-final-nazwa { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 22px; color: oklch(0.7 0.006 240); white-space: nowrap; }
+  .rady-final.ukonczona .rady-final-podpis { color: var(--habits-zloto); }
+  @keyframes rady-obrot { to { transform: rotate(360deg); } }
+  @keyframes rady-migotanie { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.8; } }
+  @media (prefers-reduced-motion: reduce) {
+    .rady-orbita,
+    .rady-migotanie { animation: none; }
   }
-  .rady-kafelek.aktywna .rady-kafelek-numer { border-color: var(--habits-akcent); color: var(--habits-akcent); }
-  .rady-kafelek.aktywna .rady-kafelek-stan { color: var(--habits-akcent); }
-  .rady-kafelek.zaliczona {
-    border-color: rgba(var(--habits-akcent-rgb), 0.3);
-    background: rgba(var(--habits-akcent-rgb), 0.1);
-    cursor: default;
-  }
-  .rady-kafelek.zaliczona .rady-kafelek-numer {
-    border-color: var(--habits-akcent);
-    background: var(--habits-akcent);
-    color: oklch(0.07 0.004 250);
-  }
-  .rady-kafelek.zaliczona .rady-kafelek-nazwa { color: var(--habits-tekst-pomocniczy); }
 
   /* Aktywny przycisk "Nawyki" w panelu bocznym — srebrny akcent */
   .nav-btn.aktywny.nav-habits {
@@ -1935,6 +2329,10 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M8 15l2 2 4-4"/></svg>
     <span>Nawyki</span>
   </button>
+  <button class="nav-btn nav-habits" id="nav-rady" data-widok="widok-rady" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2Z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7Z"/></svg>
+    <span>Rady z książek</span>
+  </button>
   <button class="nav-btn" data-widok="widok-wnioski">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3Z"/></svg>
     <span>Wnioski</span>
@@ -2233,78 +2631,82 @@
   <section id="widok-habits" class="widok">
     <h2>Nawyki</h2>
 
-    <!-- Przełącznik kategorii — widoczny tylko dla konta AI_UZYTKOWNIK_ID (ustawiane w ustawDostepRadZKsiazek) -->
-    <div id="habits-kategorie" class="habits-kategorie" role="tablist" aria-label="Kategoria" hidden>
-      <button type="button" role="tab" class="habits-kategoria-btn aktywna" data-kategoria="nawyki" aria-selected="true">Nawyki</button>
-      <button type="button" role="tab" class="habits-kategoria-btn" data-kategoria="rady" aria-selected="false">Rady z książek</button>
+    <div class="karta tydzien-nawigacja">
+      <button type="button" id="habits-tydzien-poprzedni" class="btn-tydzien" aria-label="Poprzedni tydzień">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <p id="habits-zakres" class="nawyki-podtytul"></p>
+      <button type="button" id="habits-tydzien-nastepny" class="btn-tydzien" aria-label="Następny tydzień">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
     </div>
 
-    <div id="habits-kategoria-nawyki">
-      <div class="karta tydzien-nawigacja">
-        <button type="button" id="habits-tydzien-poprzedni" class="btn-tydzien" aria-label="Poprzedni tydzień">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
-        </button>
-        <p id="habits-zakres" class="nawyki-podtytul"></p>
-        <button type="button" id="habits-tydzien-nastepny" class="btn-tydzien" aria-label="Następny tydzień">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-        </button>
+    <div id="habits-podsumowanie" class="habits-pierscien-karta" hidden>
+      <div class="habits-pierscien-wrap">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="oklch(0.24 0.01 245)" stroke-width="11"/>
+          <circle id="habits-progress-ring" cx="60" cy="60" r="52" fill="none" stroke="#D6D0C0" stroke-width="11" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+        </svg>
+        <span class="habits-pierscien-procent"><span id="habits-progress-procent">0</span><span class="habits-procent-znak">%</span></span>
       </div>
-
-      <div id="habits-podsumowanie" class="habits-pierscien-karta" hidden>
-        <div class="habits-pierscien-wrap">
-          <svg viewBox="0 0 120 120" aria-hidden="true">
-            <circle cx="60" cy="60" r="52" fill="none" stroke="oklch(0.24 0.01 245)" stroke-width="11"/>
-            <circle id="habits-progress-ring" cx="60" cy="60" r="52" fill="none" stroke="#D6D0C0" stroke-width="11" stroke-linecap="round" transform="rotate(-90 60 60)"/>
-          </svg>
-          <span class="habits-pierscien-procent"><span id="habits-progress-procent">0</span><span class="habits-procent-znak">%</span></span>
-        </div>
-        <div class="habits-pierscien-info">
-          <span id="habits-podsumowanie-tekst" class="habits-pierscien-tytul"></span>
-          <span class="habits-pierscien-podtytul">Twoja spójność w tym tygodniu</span>
-        </div>
-      </div>
-
-      <div class="karta">
-        <form id="form-nawyk">
-          <label for="nowy-nawyk">Nowy nawyk</label>
-          <input type="text" id="nowy-nawyk" autocomplete="off" placeholder="np. Pić 2l wody" required>
-          <button type="submit" class="btn-pill btn-pill-rola">+ dodaj nawyk</button>
-        </form>
-      </div>
-
-      <div id="nawyki-lista">
-        <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">✅</span><span>Brak nawyków - dodaj pierwszy powyżej.</span></p>
+      <div class="habits-pierscien-info">
+        <span id="habits-podsumowanie-tekst" class="habits-pierscien-tytul"></span>
+        <span class="habits-pierscien-podtytul">Twoja spójność w tym tygodniu</span>
       </div>
     </div>
 
-    <!-- Kategoria "Rady z książek" (tylko konto AI_UZYTKOWNIK_ID) -->
-    <div id="habits-kategoria-rady" hidden>
-      <div class="karta rady-wybor-ksiazki">
-        <label for="rady-ksiazka">Książka</label>
-        <select id="rady-ksiazka"></select>
-      </div>
-
-      <!-- Karta aktywnej zasady / pusty stan / formularz planu jeśli–to -->
-      <div id="rady-aktywna"></div>
-
-      <div id="rady-postep" class="habits-pierscien-karta" hidden>
-        <div class="habits-pierscien-wrap">
-          <svg viewBox="0 0 120 120" aria-hidden="true">
-            <circle cx="60" cy="60" r="52" fill="none" stroke="oklch(0.24 0.01 245)" stroke-width="11"/>
-            <circle id="rady-progress-ring" cx="60" cy="60" r="52" fill="none" stroke="#D6D0C0" stroke-width="11" stroke-linecap="round" transform="rotate(-90 60 60)"/>
-          </svg>
-          <span class="habits-pierscien-procent"><span id="rady-progress-zaliczone" class="rady-progress-liczba">0</span><span id="rady-progress-wszystkie" class="habits-procent-znak">/0</span></span>
-        </div>
-        <div class="habits-pierscien-info">
-          <span id="rady-postep-tekst" class="habits-pierscien-tytul"></span>
-          <span id="rady-postep-podtytul" class="habits-pierscien-podtytul"></span>
-        </div>
-      </div>
-
-      <div class="karta">
-        <div id="rady-plansza" class="rady-plansza"></div>
-      </div>
+    <div class="karta">
+      <form id="form-nawyk">
+        <label for="nowy-nawyk">Nowy nawyk</label>
+        <input type="text" id="nowy-nawyk" autocomplete="off" placeholder="np. Pić 2l wody" required>
+        <button type="submit" class="btn-pill btn-pill-rola">+ dodaj nawyk</button>
+      </form>
     </div>
+
+    <div id="nawyki-lista">
+      <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">✅</span><span>Brak nawyków - dodaj pierwszy powyżej.</span></p>
+    </div>
+  </section>
+
+  <!-- ===== Widok: Rady z książek (tylko konto AI_UZYTKOWNIK_ID) ===== -->
+  <section id="widok-rady" class="widok">
+    <header class="rady-naglowek">
+      <div>
+        <h2 class="rady-tytul">Rady<br>z książek</h2>
+        <div class="rady-statystyki">
+          <span id="rady-ranga" class="rady-ranga"></span>
+          <span class="rady-kropka" aria-hidden="true"></span>
+          <span id="rady-pd"></span>
+          <span class="rady-kropka" aria-hidden="true"></span>
+          <span id="rady-do-poziomu"></span>
+        </div>
+      </div>
+      <div id="rady-odznaka" class="rady-odznaka" role="img">
+        <div class="rady-odznaka-srodek">
+          <span class="rady-odznaka-etykieta">POZ.</span>
+          <span id="rady-poziom" class="rady-odznaka-poziom">1</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="rady-polka-naglowek">
+      <span class="rady-kicker">Twoja półka</span>
+      <span id="rady-polka-licznik" class="rady-kicker"></span>
+    </div>
+    <div class="rady-polka-wrap">
+      <div id="rady-polka" class="rady-polka"></div>
+      <div class="rady-polka-deska" aria-hidden="true"></div>
+    </div>
+
+    <!-- Bilet misji: aktywna zasada / formularz planu jeśli–to / zachęta / gwiazdozbiór ukończony -->
+    <div id="rady-aktywna"></div>
+
+    <div class="rady-mapa-naglowek">
+      <span id="rady-mapa-licznik" class="rady-kicker"></span>
+      <h3 class="rady-mapa-tytul">Gwiazdozbiór zasad</h3>
+      <p id="rady-mapa-opis" class="rady-mapa-opis"></p>
+    </div>
+    <div id="rady-mapa" class="rady-mapa"></div>
   </section>
 
   <!-- ===== Widok: AI Analiza ===== -->
@@ -2663,7 +3065,7 @@
   function zastosujMotyw() {
     const aktywnyBtn = document.querySelector(".nav-btn.aktywny");
     const cel = aktywnyBtn ? aktywnyBtn.dataset.widok : null;
-    const habitsWlaczony = motywGlobalny === "habits" || cel === "widok-habits";
+    const habitsWlaczony = motywGlobalny === "habits" || cel === "widok-habits" || cel === "widok-rady";
     kontener.classList.toggle("motyw-habits", habitsWlaczony);
     sidebar.classList.toggle("motyw-habits", habitsWlaczony);
     document.body.classList.toggle("motyw-habits", habitsWlaczony);
@@ -4839,61 +5241,54 @@
     renderHabitsPodsumowanie();
   }
 
-  // ===================== Nawyki: kategoria "Rady z książek" (tylko konto AI_UZYTKOWNIK_ID) =====================
+  // ===================== Rady z książek: osobna sekcja (tylko konto AI_UZYTKOWNIK_ID) =====================
 
-  const habitsKategorie = document.getElementById("habits-kategorie");
-  const habitsKategoriaNawyki = document.getElementById("habits-kategoria-nawyki");
-  const habitsKategoriaRady = document.getElementById("habits-kategoria-rady");
-  const radySelectKsiazka = document.getElementById("rady-ksiazka");
+  const navRady = document.getElementById("nav-rady");
+  const radyRanga = document.getElementById("rady-ranga");
+  const radyPd = document.getElementById("rady-pd");
+  const radyDoPoziomu = document.getElementById("rady-do-poziomu");
+  const radyOdznaka = document.getElementById("rady-odznaka");
+  const radyPoziom = document.getElementById("rady-poziom");
+  const radyPolka = document.getElementById("rady-polka");
+  const radyPolkaLicznik = document.getElementById("rady-polka-licznik");
   const radyAktywna = document.getElementById("rady-aktywna");
-  const radyPostep = document.getElementById("rady-postep");
-  const radyProgressRing = document.getElementById("rady-progress-ring");
-  const radyProgressZaliczone = document.getElementById("rady-progress-zaliczone");
-  const radyProgressWszystkie = document.getElementById("rady-progress-wszystkie");
-  const radyPostepTekst = document.getElementById("rady-postep-tekst");
-  const radyPostepPodtytul = document.getElementById("rady-postep-podtytul");
-  const radyPlansza = document.getElementById("rady-plansza");
+  const radyMapaLicznik = document.getElementById("rady-mapa-licznik");
+  const radyMapaOpis = document.getElementById("rady-mapa-opis");
+  const radyMapa = document.getElementById("rady-mapa");
   const RADY_KOMUNIKAT_JEDNA_AKTYWNA = "Ukończ najpierw wybraną zasadę";
+
+  // Punkty doświadczenia (PD) — liczone w apce z danych w bazie, bez osobnej tabeli
+  const RADY_PIECZATKI_WYMAGANE = 5;
+  const RADY_PD_PIECZATKA = 20;
+  const RADY_PD_ZASADA = 100;
+  const RADY_PD_PLANETA = 50;
+  const RADY_PD_KSIAZKA = 200;
+  const RADY_PD_NA_POZIOM = 100;
+  const RADY_ZASAD_NA_PLANETE = 4;
+  const RADY_RANGI = ["Nowicjusz", "Uczeń", "Czytelnik", "Praktyk", "Mistrz"]; // poziom 6+ = "Mędrzec"
 
   let radyKsiazki = [];  // wiersze z tabeli "ksiazki": { id, tytul, autor }
   let radyZasady = [];   // wiersze z tabeli "zasady": { id, ksiazka_id, nazwa, opis, kolejnosc }
   let radyPostepWiersze = []; // wiersze z tabeli "zasady_postep": { id, zasada_id, status: "aktywna" | "zaliczona", plan_jesli, plan_to, zaliczona_at }
+  let radyWpisy = [];    // wiersze z tabeli "zasady_wpisy" (pieczątki): { id, zasada_id, data, zadzialalo }
   let radyWybranaKsiazkaId = null;
   let radyZasadaWFormularzuId = null; // zasada, dla której jest otwarty formularz planu jeśli–to
 
-  // Przełącznik kategorii widoczny tylko dla konta AI; dla pozostałych sekcja wygląda jak dotąd
+  // Pozycja w menu i dane widoczne tylko dla konta AI; pozostałym kontom nic się nie wczytuje
   function ustawDostepRadZKsiazek(kontoAI) {
-    habitsKategorie.hidden = !kontoAI;
-    przelaczKategorieHabits("nawyki");
+    navRady.hidden = !kontoAI;
     if (!kontoAI) {
       radyKsiazki = [];
       radyZasady = [];
       radyPostepWiersze = [];
+      radyWpisy = [];
       radyWybranaKsiazkaId = null;
       radyZasadaWFormularzuId = null;
+      if (navRady.classList.contains("aktywny")) {
+        document.querySelector('.nav-btn[data-widok="widok-dodaj"]').click();
+      }
     }
   }
-
-  function przelaczKategorieHabits(kategoria) {
-    habitsKategorie.querySelectorAll(".habits-kategoria-btn").forEach(function (btn) {
-      const aktywna = btn.dataset.kategoria === kategoria;
-      btn.classList.toggle("aktywna", aktywna);
-      btn.setAttribute("aria-selected", aktywna ? "true" : "false");
-    });
-    habitsKategoriaNawyki.hidden = kategoria !== "nawyki";
-    habitsKategoriaRady.hidden = kategoria !== "rady";
-  }
-
-  habitsKategorie.addEventListener("click", function (e) {
-    const btn = e.target.closest(".habits-kategoria-btn");
-    if (btn) przelaczKategorieHabits(btn.dataset.kategoria);
-  });
-
-  radySelectKsiazka.addEventListener("change", function () {
-    radyWybranaKsiazkaId = radySelectKsiazka.value;
-    renderRadyPostep();
-    renderRadyPlansza();
-  });
 
   function radyPostepZasady(zasadaId) {
     return radyPostepWiersze.find(function (p) { return String(p.zasada_id) === String(zasadaId); }) || null;
@@ -4916,15 +5311,82 @@
   function radyZasada(zasadaId) {
     return radyZasady.find(function (z) { return String(z.id) === String(zasadaId); }) || null;
   }
+  function radyPieczatkiZasady(zasadaId) {
+    return radyWpisy.filter(function (w) { return String(w.zasada_id) === String(zasadaId) && w.zadzialalo !== false; });
+  }
+  function radyPieczatkaDzis(zasadaId) {
+    const dzis = dataSprzedDni(0);
+    return radyPieczatkiZasady(zasadaId).some(function (w) { return w.data === dzis; });
+  }
 
-  // Pobranie książek, zasad i postępu — wywoływane przy starcie tylko dla konta AI
+  function rzymska(n) {
+    const tabela = [[1000, "M"], [900, "CM"], [500, "D"], [400, "CD"], [100, "C"], [90, "XC"], [50, "L"], [40, "XL"], [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]];
+    let wynik = "";
+    tabela.forEach(function (para) {
+      while (n >= para[0]) { wynik += para[1]; n -= para[0]; }
+    });
+    return wynik;
+  }
+  // Numer zasady w obrębie jej książki (wg kolumny "kolejnosc"), liczony od 1
+  function radyNumerZasady(zasada) {
+    return radyZasadyKsiazki(zasada.ksiazka_id).findIndex(function (z) { return String(z.id) === String(zasada.id); }) + 1;
+  }
+
+  // Zaliczone zasady, planety (co 4 zasady, gdy po nich zostają jeszcze co najmniej 2 zasady — jak w makiecie: 13 zasad = 2 planety) i ukończenie książki
+  function radyStatystykiKsiazki(ksiazkaId) {
+    const zasady = radyZasadyKsiazki(ksiazkaId);
+    const zaliczoneFlagi = zasady.map(function (z) { return radyStanZasady(z.id) === "zaliczona"; });
+    const zaliczone = zaliczoneFlagi.filter(Boolean).length;
+    let planety = 0;
+    let odkrytePlanety = 0;
+    for (let k = RADY_ZASAD_NA_PLANETE; k < zasady.length - 1; k += RADY_ZASAD_NA_PLANETE) {
+      planety++;
+      if (zaliczoneFlagi.slice(0, k).every(Boolean)) odkrytePlanety++;
+    }
+    return {
+      zasady: zasady,
+      zaliczoneFlagi: zaliczoneFlagi,
+      zaliczone: zaliczone,
+      planety: planety,
+      odkrytePlanety: odkrytePlanety,
+      ukonczona: zasady.length > 0 && zaliczone === zasady.length
+    };
+  }
+
+  function radyObliczPD() {
+    let pd = radyWpisy.filter(function (w) { return w.zadzialalo !== false; }).length * RADY_PD_PIECZATKA;
+    radyKsiazki.forEach(function (k) {
+      const s = radyStatystykiKsiazki(k.id);
+      pd += s.zaliczone * RADY_PD_ZASADA + s.odkrytePlanety * RADY_PD_PLANETA + (s.ukonczona ? RADY_PD_KSIAZKA : 0);
+    });
+    return pd;
+  }
+  function radyPoziomZPD(pd) {
+    return Math.floor(pd / RADY_PD_NA_POZIOM) + 1;
+  }
+  function radyRangaPoziomu(poziom) {
+    return RADY_RANGI[poziom - 1] || "Mędrzec";
+  }
+
+  // Toast z liczbą zdobytych PD (różnica przed/po zapisie) i ewentualnym awansem
+  function radyPokazZysk(tekst, pdPrzed) {
+    const pdPo = radyObliczPD();
+    const zysk = pdPo - pdPrzed;
+    let komunikat = tekst + (zysk > 0 ? " +" + zysk + " PD" : "");
+    const poziomPo = radyPoziomZPD(pdPo);
+    if (poziomPo > radyPoziomZPD(pdPrzed)) komunikat += " · Poziom " + poziomPo + ": " + radyRangaPoziomu(poziomPo) + "!";
+    pokazToast(komunikat, "sukces");
+  }
+
+  // Pobranie książek, zasad, postępu i pieczątek — wywoływane przy starcie tylko dla konta AI
   async function wczytajRadyZKsiazek() {
-    const [ksiazkiRes, zasadyRes, postepRes] = await Promise.all([
+    const [ksiazkiRes, zasadyRes, postepRes, wpisyRes] = await Promise.all([
       db.from("ksiazki").select("id, tytul, autor").order("tytul", { ascending: true }),
       db.from("zasady").select("id, ksiazka_id, nazwa, opis, kolejnosc").order("kolejnosc", { ascending: true }),
-      db.from("zasady_postep").select("id, zasada_id, status, plan_jesli, plan_to, zaliczona_at")
+      db.from("zasady_postep").select("id, zasada_id, status, plan_jesli, plan_to, zaliczona_at"),
+      db.from("zasady_wpisy").select("id, zasada_id, data, zadzialalo")
     ]);
-    const blad = ksiazkiRes.error || zasadyRes.error || postepRes.error;
+    const blad = ksiazkiRes.error || zasadyRes.error || postepRes.error || wpisyRes.error;
     if (blad) {
       console.error(blad);
       pokazToast("Nie udało się pobrać rad z książek: " + blad.message, "blad");
@@ -4933,84 +5395,155 @@
     radyKsiazki = ksiazkiRes.data || [];
     radyZasady = zasadyRes.data || [];
     radyPostepWiersze = postepRes.data || [];
+    radyWpisy = wpisyRes.data || [];
     renderRadyZKsiazek();
   }
 
-  // Ponowne pobranie samego postępu — np. gdy baza odrzuci drugą aktywną zasadę ustawioną z innego urządzenia
+  // Ponowne pobranie postępu i pieczątek — np. gdy baza odrzuci drugą aktywną zasadę ustawioną z innego urządzenia
   async function odswiezRadyPostep() {
-    const { data, error } = await db
-      .from("zasady_postep")
-      .select("id, zasada_id, status, plan_jesli, plan_to, zaliczona_at");
-    if (error) {
-      console.error(error);
+    const [postepRes, wpisyRes] = await Promise.all([
+      db.from("zasady_postep").select("id, zasada_id, status, plan_jesli, plan_to, zaliczona_at"),
+      db.from("zasady_wpisy").select("id, zasada_id, data, zadzialalo")
+    ]);
+    if (postepRes.error || wpisyRes.error) {
+      console.error(postepRes.error || wpisyRes.error);
       return;
     }
-    radyPostepWiersze = data || [];
+    radyPostepWiersze = postepRes.data || [];
+    radyWpisy = wpisyRes.data || [];
     radyZasadaWFormularzuId = null;
     renderRadyZKsiazek();
   }
 
   function renderRadyZKsiazek() {
-    renderRadyWyborKsiazki();
-    renderRadyAktywna();
-    renderRadyPostep();
-    renderRadyPlansza();
-  }
-
-  function renderRadyWyborKsiazki() {
-    radySelectKsiazka.innerHTML = "";
-    if (radyKsiazki.length === 0) {
-      const opcja = document.createElement("option");
-      opcja.value = "";
-      opcja.textContent = "Brak książek";
-      radySelectKsiazka.appendChild(opcja);
-      radySelectKsiazka.disabled = true;
-      radyWybranaKsiazkaId = null;
-      return;
-    }
-    radySelectKsiazka.disabled = false;
-    // Domyślnie książka z aktywną zasadą, a jeśli jej nie ma — pierwsza z listy
+    // Domyślnie książka z aktywną zasadą, a jeśli jej nie ma — pierwsza z półki
     if (!radyKsiazka(radyWybranaKsiazkaId)) {
       const aktywny = radyAktywnyPostep();
       const zasadaAktywna = aktywny ? radyZasada(aktywny.zasada_id) : null;
       radyWybranaKsiazkaId = zasadaAktywna && radyKsiazka(zasadaAktywna.ksiazka_id)
         ? String(zasadaAktywna.ksiazka_id)
-        : String(radyKsiazki[0].id);
+        : (radyKsiazki[0] ? String(radyKsiazki[0].id) : null);
     }
-    radyKsiazki.forEach(function (k) {
-      const opcja = document.createElement("option");
-      opcja.value = String(k.id);
-      opcja.textContent = k.autor ? k.tytul + " — " + k.autor : k.tytul;
-      radySelectKsiazka.appendChild(opcja);
+    renderRadyNaglowek();
+    renderRadyPolka();
+    renderRadyAktywna();
+    renderRadyMapa();
+  }
+
+  // Ranga, PD, brakujące PD i odznaka "POZ. X" z pierścieniem postępu do kolejnego poziomu
+  function renderRadyNaglowek() {
+    const pd = radyObliczPD();
+    const poziom = radyPoziomZPD(pd);
+    const wPoziomie = pd % RADY_PD_NA_POZIOM;
+    radyRanga.textContent = radyRangaPoziomu(poziom);
+    radyPd.textContent = pd + " PD";
+    radyDoPoziomu.textContent = (RADY_PD_NA_POZIOM - wPoziomie) + " PD do poz. " + (poziom + 1);
+    radyPoziom.textContent = String(poziom);
+    radyOdznaka.style.setProperty("--postep", String(wPoziomie));
+    radyOdznaka.setAttribute("aria-label", "Poziom " + poziom + ", " + wPoziomie + " z " + RADY_PD_NA_POZIOM + " PD do następnego");
+  }
+
+  const IKONA_GWIAZDA_4 =
+    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C13 8 16 11 24 12C16 13 13 16 12 24C11 16 8 13 0 12C8 11 11 8 12 0Z"/></svg>';
+  const IKONA_PTASZEK =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  const IKONA_STRZALKA =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  const RADY_WYSOKOSCI_GRZBIETOW = [176, 162, 184, 168, 156];
+  // Dekoracyjne, puste grzbiety za placeholderem: [szerokość, wysokość, przezroczystość]
+  const RADY_GRZBIETY_DUCHY = [[34, 148, 1], [52, 180, 0.75], [40, 136, 0.6], [44, 160, 0.45], [38, 150, 0.3]];
+
+  // Półka: grzbiety książek (kliknięcie wybiera książkę) + "Następna książka" + puste grzbiety dla ozdoby
+  function renderRadyPolka() {
+    radyPolka.innerHTML = "";
+    const ukonczone = radyKsiazki.filter(function (k) { return radyStatystykiKsiazki(k.id).ukonczona; }).length;
+    radyPolkaLicznik.textContent = ukonczone + " / " + radyKsiazki.length;
+    radyPolkaLicznik.setAttribute("aria-label", "Ukończone książki: " + ukonczone + " z " + radyKsiazki.length);
+
+    radyKsiazki.forEach(function (k, i) {
+      const wybrana = String(k.id) === String(radyWybranaKsiazkaId);
+      const ukonczona = radyStatystykiKsiazki(k.id).ukonczona;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "rady-grzbiet" + (wybrana ? " wybrana" : "") + (ukonczona ? " ukonczona" : "");
+      btn.style.setProperty("--wysokosc", RADY_WYSOKOSCI_GRZBIETOW[i % RADY_WYSOKOSCI_GRZBIETOW.length] + "px");
+      btn.setAttribute("aria-pressed", wybrana ? "true" : "false");
+      btn.setAttribute("aria-label", k.tytul + (k.autor ? ", " + k.autor : "") + (ukonczona ? " – ukończona" : ""));
+      btn.title = k.autor ? k.tytul + " — " + k.autor : k.tytul;
+      btn.innerHTML =
+        '<span class="rady-grzbiet-okladka">' +
+          '<span class="rady-grzbiet-pasy gora"><span></span><span></span></span>' +
+          '<span class="rady-grzbiet-tytul"></span>' +
+          '<span class="rady-grzbiet-pasy dol">' + (wybrana || ukonczona ? IKONA_GWIAZDA_4 : "") + '<span></span></span>' +
+          (wybrana ? '<span class="rady-grzbiet-zakladka"></span>' : "") +
+        '</span>';
+      btn.querySelector(".rady-grzbiet-tytul").textContent = k.tytul;
+      btn.addEventListener("click", function () {
+        if (String(k.id) === String(radyWybranaKsiazkaId)) return;
+        radyWybranaKsiazkaId = String(k.id);
+        renderRadyPolka();
+        renderRadyAktywna();
+        renderRadyMapa();
+      });
+      radyPolka.appendChild(btn);
     });
-    radySelectKsiazka.value = String(radyWybranaKsiazkaId);
+
+    const nowa = document.createElement("button");
+    nowa.type = "button";
+    nowa.className = "rady-grzbiet-nowa";
+    nowa.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>' +
+      "<span>Następna książka</span>";
+    nowa.addEventListener("click", function () {
+      pokazToast("Nowe książki będzie można dodawać później.", "sukces");
+    });
+    radyPolka.appendChild(nowa);
+
+    RADY_GRZBIETY_DUCHY.forEach(function (d) {
+      const duch = document.createElement("div");
+      duch.className = "rady-grzbiet-duch";
+      duch.setAttribute("aria-hidden", "true");
+      duch.style.width = d[0] + "px";
+      duch.style.height = d[1] + "px";
+      duch.style.opacity = String(d[2]);
+      radyPolka.appendChild(duch);
+    });
   }
 
-  // Nagłówek karty zasady (etykieta, nazwa, książka, opis) — wspólny dla karty aktywnej zasady i formularza
-  function radyNaglowekZasady(karta, etykieta, zasada) {
-    const ksiazka = radyKsiazka(zasada.ksiazka_id);
-    const etykietaEl = document.createElement("p");
-    etykietaEl.className = "rady-etykieta";
-    etykietaEl.textContent = etykieta;
-    const nazwaEl = document.createElement("h3");
-    nazwaEl.className = "rady-zasada-nazwa";
-    nazwaEl.textContent = zasada.nazwa;
-    karta.append(etykietaEl, nazwaEl);
-    if (ksiazka) {
-      const ksiazkaEl = document.createElement("p");
-      ksiazkaEl.className = "rady-zasada-ksiazka";
-      ksiazkaEl.textContent = "z książki „" + ksiazka.tytul + "”" + (ksiazka.autor ? ", " + ksiazka.autor : "");
-      karta.appendChild(ksiazkaEl);
+  // Górna część biletu: status, wielki numer rzymski w tle, tytuł i treść
+  function radyBiletGora(status, klasaStatusu, numer, tytul) {
+    const gora = document.createElement("div");
+    gora.className = "rady-bilet-gora";
+    if (numer) {
+      const numerEl = document.createElement("span");
+      numerEl.className = "rady-bilet-numer";
+      numerEl.setAttribute("aria-hidden", "true");
+      numerEl.textContent = numer;
+      gora.appendChild(numerEl);
     }
-    if (zasada.opis) {
-      const opisEl = document.createElement("p");
-      opisEl.className = "rady-zasada-opis";
-      opisEl.textContent = zasada.opis;
-      karta.appendChild(opisEl);
-    }
+    const statusEl = document.createElement("div");
+    statusEl.className = "rady-bilet-status" + (klasaStatusu ? " " + klasaStatusu : "");
+    statusEl.textContent = status;
+    const tytulEl = document.createElement("h3");
+    tytulEl.className = "rady-bilet-tytul";
+    tytulEl.textContent = tytul;
+    gora.append(statusEl, tytulEl);
+    return gora;
+  }
+  function radyPerforacja() {
+    const p = document.createElement("div");
+    p.className = "rady-perforacja";
+    p.setAttribute("aria-hidden", "true");
+    return p;
+  }
+  function radyTekstBiletu(tekst) {
+    const p = document.createElement("p");
+    p.className = "rady-bilet-tekst";
+    p.textContent = tekst;
+    return p;
   }
 
-  // Miejsce na górze: formularz planu (gdy wybieram zasadę) / karta aktywnej zasady / pusty stan
+  // Miejsce pod półką: formularz planu (gdy wybieram zasadę) / bilet misji / gwiazdozbiór ukończony / zachęta
   function renderRadyAktywna() {
     radyAktywna.innerHTML = "";
     const aktywny = radyAktywnyPostep();
@@ -5022,17 +5555,51 @@
     }
     radyZasadaWFormularzuId = null;
 
-    if (!aktywny || !zasadaAktywna) {
-      radyAktywna.innerHTML = pustyStanHTML("📖", "Nie masz aktywnej zasady — wybierz jedną z planszy poniżej i zaplanuj, jak ją zastosujesz.");
+    if (aktywny && zasadaAktywna) {
+      radyAktywna.appendChild(radyBiletMisji(aktywny, zasadaAktywna));
       return;
     }
 
-    const karta = document.createElement("div");
-    karta.className = "karta rady-aktywna-karta";
-    radyNaglowekZasady(karta, "Aktywna zasada", zasadaAktywna);
+    const bilet = document.createElement("section");
+    const stat = radyStatystykiKsiazki(radyWybranaKsiazkaId);
+    if (stat.ukonczona) {
+      bilet.className = "rady-bilet ukonczony";
+      const info = radyBiletGora("Gwiazdozbiór ukończony", "zloty", "", "Wszystkie " + stat.zasady.length + " gwiazd zapalone");
+      info.className = "rady-bilet-info";
+      info.appendChild(radyTekstBiletu("Ta książka jest już na półce jako ukończona. Wybierz kolejną książkę z półki i zacznij nowy gwiazdozbiór."));
+      bilet.appendChild(info);
+    } else {
+      bilet.className = "rady-bilet";
+      const info = radyBiletGora("Brak misji", "wyciszony", "", "Wybierz gwiazdę na mapie");
+      info.className = "rady-bilet-info";
+      info.appendChild(radyTekstBiletu(stat.zasady.length > 0
+        ? "Kliknij dowolną niezaliczoną zasadę w gwiazdozbiorze poniżej i zaplanuj, jak ją zastosujesz: Jeśli… / To…"
+        : "Wybierz z półki książkę, która ma zasady."));
+      if (stat.zasady.length > 0) {
+        const btnMapa = document.createElement("button");
+        btnMapa.type = "button";
+        btnMapa.className = "rady-btn-dyskretny";
+        btnMapa.textContent = "Przejdź do mapy ↓";
+        btnMapa.addEventListener("click", function () {
+          radyMapa.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        info.appendChild(btnMapa);
+      }
+      bilet.appendChild(info);
+    }
+    radyAktywna.appendChild(bilet);
+  }
+
+  // Bilet "Misja w toku": nazwa zasady, plan jeśli–to, pieczątki X/5 i przyciski
+  function radyBiletMisji(aktywny, zasada) {
+    const numer = rzymska(radyNumerZasady(zasada));
+    const bilet = document.createElement("section");
+    bilet.className = "rady-bilet";
+    const gora = radyBiletGora("Misja w toku", "", numer, zasada.nazwa);
 
     const plan = document.createElement("div");
-    plan.className = "rady-plan";
+    plan.className = "rady-moj-plan";
+    plan.innerHTML = '<span class="rady-kicker">Mój plan</span>';
     [["Jeśli", aktywny.plan_jesli], ["To", aktywny.plan_to]].forEach(function (para) {
       const p = document.createElement("p");
       const s = document.createElement("strong");
@@ -5040,32 +5607,85 @@
       p.append(s, document.createTextNode(para[1] || ""));
       plan.appendChild(p);
     });
-    karta.appendChild(plan);
+    gora.appendChild(plan);
+
+    const pieczatki = radyPieczatkiZasady(zasada.id);
+    const liczba = Math.min(pieczatki.length, RADY_PIECZATKI_WYMAGANE);
+    const dzisPrzybita = radyPieczatkaDzis(zasada.id);
+    const komplet = pieczatki.length >= RADY_PIECZATKI_WYMAGANE;
+
+    const dol = document.createElement("div");
+    dol.className = "rady-bilet-dol";
+    const naglowek = document.createElement("div");
+    naglowek.className = "rady-pieczatki-naglowek";
+    naglowek.innerHTML =
+      '<span class="rady-kicker">Pieczątki · ' + liczba + "/" + RADY_PIECZATKI_WYMAGANE + "</span>" +
+      '<span class="rady-nagroda">+' + RADY_PD_ZASADA + " PD</span>";
+
+    const rzad = document.createElement("div");
+    rzad.className = "rady-pieczatki";
+    rzad.setAttribute("aria-label", "Pieczątki: " + liczba + " z " + RADY_PIECZATKI_WYMAGANE);
+    const OBROTY = [-8, 5, -3, 9, -6];
+    for (let i = 0; i < RADY_PIECZATKI_WYMAGANE; i++) {
+      const p = document.createElement("div");
+      if (i < liczba) {
+        p.className = "rady-pieczatka przybita";
+        p.style.setProperty("--obrot", OBROTY[i % OBROTY.length] + "deg");
+        p.innerHTML = IKONA_PTASZEK;
+      } else if (i === liczba && !dzisPrzybita) {
+        p.className = "rady-pieczatka dzis";
+        p.textContent = "DZIŚ";
+      } else {
+        p.className = "rady-pieczatka";
+        p.textContent = String(i + 1);
+      }
+      rzad.appendChild(p);
+    }
+
+    const btnPieczatka = document.createElement("button");
+    btnPieczatka.type = "button";
+    btnPieczatka.className = "rady-btn-glowny";
+    const etykieta = komplet
+      ? "Wszystkie pieczątki przybite"
+      : dzisPrzybita ? "Dzisiejsza pieczątka przybita — wróć jutro" : "Przybij dzisiejszą pieczątkę";
+    btnPieczatka.innerHTML = "<span></span>" + (komplet || dzisPrzybita ? IKONA_PTASZEK : IKONA_STRZALKA);
+    btnPieczatka.firstChild.textContent = etykieta;
+    btnPieczatka.disabled = komplet || dzisPrzybita;
 
     const akcje = document.createElement("div");
-    akcje.className = "rady-akcje";
+    akcje.className = "rady-bilet-akcje";
     const btnZaliczona = document.createElement("button");
     btnZaliczona.type = "button";
-    btnZaliczona.className = "btn-submit";
+    btnZaliczona.className = "rady-btn-dyskretny" + (komplet ? " gotowa" : "");
     btnZaliczona.textContent = "Zaliczona";
+    btnZaliczona.disabled = !komplet;
+    if (!komplet) btnZaliczona.title = "Najpierw zbierz " + RADY_PIECZATKI_WYMAGANE + " pieczątek";
     const btnRezygnuje = document.createElement("button");
     btnRezygnuje.type = "button";
-    btnRezygnuje.className = "btn-rady-drugorzedny";
+    btnRezygnuje.className = "rady-btn-dyskretny";
     btnRezygnuje.textContent = "Rezygnuję";
-    btnZaliczona.addEventListener("click", function () { zaliczZasade(aktywny, [btnZaliczona, btnRezygnuje]); });
-    btnRezygnuje.addEventListener("click", function () { zrezygnujZZasady(aktywny, zasadaAktywna, [btnZaliczona, btnRezygnuje]); });
     akcje.append(btnZaliczona, btnRezygnuje);
-    karta.appendChild(akcje);
 
-    radyAktywna.appendChild(karta);
+    const przyciski = [btnPieczatka, btnZaliczona, btnRezygnuje];
+    btnPieczatka.addEventListener("click", function () { przybijPieczatke(aktywny, przyciski); });
+    btnZaliczona.addEventListener("click", function () { zaliczZasade(aktywny, przyciski); });
+    btnRezygnuje.addEventListener("click", function () { zrezygnujZZasady(aktywny, zasada, przyciski); });
+
+    dol.append(naglowek, rzad, btnPieczatka, akcje);
+    bilet.append(gora, radyPerforacja(), dol);
+    return bilet;
   }
 
-  // Formularz planu jeśli–to dla wybranej (dostępnej) zasady
+  // Formularz planu jeśli–to dla wybranej (dostępnej) zasady — w formie biletu
   function radyFormularzPlanu(zasada) {
-    const karta = document.createElement("div");
-    karta.className = "karta rady-aktywna-karta";
-    radyNaglowekZasady(karta, "Wybierasz zasadę", zasada);
+    const bilet = document.createElement("section");
+    bilet.className = "rady-bilet";
+    const numer = rzymska(radyNumerZasady(zasada));
+    const gora = radyBiletGora("Wybierasz zasadę", "", numer, zasada.nazwa);
+    if (zasada.opis) gora.appendChild(radyTekstBiletu(zasada.opis));
 
+    const dol = document.createElement("div");
+    dol.className = "rady-bilet-dol";
     const form = document.createElement("form");
     form.className = "rady-plan-form";
     form.innerHTML =
@@ -5084,6 +5704,7 @@
     form.querySelector(".btn-rady-drugorzedny").addEventListener("click", function () {
       radyZasadaWFormularzuId = null;
       renderRadyAktywna();
+      renderRadyMapa();
     });
 
     form.addEventListener("submit", async function (e) {
@@ -5128,119 +5749,286 @@
         id: Date.now(), zasada_id: zasada.id, status: "aktywna", plan_jesli: planJesli, plan_to: planTo, zaliczona_at: null
       });
       radyZasadaWFormularzuId = null;
-      renderRadyAktywna();
-      renderRadyPostep();
-      renderRadyPlansza();
-      pokazToast("Zasada wybrana — powodzenia!", "sukces");
+      renderRadyZKsiazek();
+      pokazToast("Misja rozpoczęta — powodzenia!", "sukces");
     });
 
-    karta.appendChild(form);
-    return karta;
+    dol.appendChild(form);
+    bilet.append(gora, radyPerforacja(), dol);
+    return bilet;
+  }
+
+  // Jedna pieczątka dziennie dla aktywnej zasady (wiersz w "zasady_wpisy" z dzisiejszą datą)
+  async function przybijPieczatke(postep, przyciski) {
+    if (radyPieczatkaDzis(postep.zasada_id)) {
+      pokazToast("Dzisiejsza pieczątka jest już przybita — wróć jutro.", "blad");
+      return;
+    }
+    if (radyPieczatkiZasady(postep.zasada_id).length >= RADY_PIECZATKI_WYMAGANE) return;
+
+    const pdPrzed = radyObliczPD();
+    const dzis = dataSprzedDni(0);
+    przyciski.forEach(function (b) { b.disabled = true; });
+    const { data, error } = await db
+      .from("zasady_wpisy")
+      .insert({ zasada_id: postep.zasada_id, user_id: sesjaUzytkownika.user.id, data: dzis, zadzialalo: true })
+      .select("id, zasada_id, data, zadzialalo");
+
+    if (error) {
+      console.error(error);
+      pokazToast("Nie udało się przybić pieczątki: " + error.message, "blad");
+      renderRadyAktywna();
+      return;
+    }
+    radyWpisy.push(data && data[0] ? data[0] : { id: Date.now(), zasada_id: postep.zasada_id, data: dzis, zadzialalo: true });
+    renderRadyZKsiazek();
+    const komplet = radyPieczatkiZasady(postep.zasada_id).length >= RADY_PIECZATKI_WYMAGANE;
+    radyPokazZysk(komplet ? "Komplet pieczątek — możesz zaliczyć zasadę!" : "Pieczątka przybita!", pdPrzed);
   }
 
   async function zaliczZasade(postep, przyciski) {
+    if (radyPieczatkiZasady(postep.zasada_id).length < RADY_PIECZATKI_WYMAGANE) {
+      pokazToast("Zbierz najpierw " + RADY_PIECZATKI_WYMAGANE + " pieczątek.", "blad");
+      return;
+    }
+    const pdPrzed = radyObliczPD();
     przyciski.forEach(function (b) { b.disabled = true; });
     const zaliczonaAt = new Date().toISOString();
     const { error } = await db
       .from("zasady_postep")
       .update({ status: "zaliczona", zaliczona_at: zaliczonaAt })
       .eq("id", postep.id);
-    przyciski.forEach(function (b) { b.disabled = false; });
 
     if (error) {
       console.error(error);
       pokazToast("Nie udało się zaliczyć zasady: " + error.message, "blad");
+      renderRadyAktywna();
       return;
     }
     postep.status = "zaliczona";
     postep.zaliczona_at = zaliczonaAt;
-    renderRadyAktywna();
-    renderRadyPostep();
-    renderRadyPlansza();
-    pokazToast("Zasada zaliczona!", "sukces");
+    const zasada = radyZasada(postep.zasada_id);
+    if (zasada) radyWybranaKsiazkaId = String(zasada.ksiazka_id);
+    renderRadyZKsiazek();
+    const ukonczona = zasada && radyStatystykiKsiazki(zasada.ksiazka_id).ukonczona;
+    radyPokazZysk(ukonczona ? "Gwiazdozbiór ukończony!" : "Zasada zaliczona — gwiazda zapalona!", pdPrzed);
   }
 
   async function zrezygnujZZasady(postep, zasada, przyciski) {
-    const potwierdzenie = window.confirm('Zrezygnować z zasady „' + zasada.nazwa + '"? Twój plan jeśli–to zostanie usunięty.');
+    const liczba = radyPieczatkiZasady(zasada.id).length;
+    const potwierdzenie = window.confirm(
+      'Zrezygnować z zasady „' + zasada.nazwa + '"? Twój plan jeśli–to' +
+      (liczba > 0 ? " i " + liczba + " " + (liczba === 1 ? "pieczątka" : liczba < 5 ? "pieczątki" : "pieczątek") + " zostaną usunięte." : " zostanie usunięty.")
+    );
     if (!potwierdzenie) return;
 
     przyciski.forEach(function (b) { b.disabled = true; });
-    const { error } = await db
-      .from("zasady_postep")
-      .delete()
-      .eq("id", postep.id);
-    przyciski.forEach(function (b) { b.disabled = false; });
+    const wpisyRes = await db.from("zasady_wpisy").delete().eq("zasada_id", zasada.id);
+    const postepRes = wpisyRes.error ? null : await db.from("zasady_postep").delete().eq("id", postep.id);
+    const blad = wpisyRes.error || (postepRes && postepRes.error);
 
-    if (error) {
-      console.error(error);
-      pokazToast("Nie udało się zrezygnować z zasady: " + error.message, "blad");
+    if (blad) {
+      console.error(blad);
+      pokazToast("Nie udało się zrezygnować z zasady: " + blad.message, "blad");
+      // Pieczątki mogły już zniknąć, a postęp nie — pobierz aktualny stan z bazy
+      odswiezRadyPostep();
       return;
     }
+    radyWpisy = radyWpisy.filter(function (w) { return String(w.zasada_id) !== String(zasada.id); });
     radyPostepWiersze = radyPostepWiersze.filter(function (p) { return p.id !== postep.id; });
-    renderRadyAktywna();
-    renderRadyPostep();
-    renderRadyPlansza();
+    renderRadyZKsiazek();
   }
 
-  // Kołowy licznik: zaliczone / wszystkie zasady wybranej książki
-  function renderRadyPostep() {
-    const zasadyKsiazki = radyZasadyKsiazki(radyWybranaKsiazkaId);
-    if (!radyWybranaKsiazkaId || zasadyKsiazki.length === 0) {
-      radyPostep.hidden = true;
-      return;
-    }
-    const zaliczone = zasadyKsiazki.filter(function (z) { return radyStanZasady(z.id) === "zaliczona"; }).length;
-    const udzial = zaliczone / zasadyKsiazki.length;
-    const ksiazka = radyKsiazka(radyWybranaKsiazkaId);
+  // Poziome położenia węzłów w % szerokości mapy (zygzak jak w makiecie), pionowe w px
+  const RADY_X_ZASAD = [28, 64, 77, 44, 23, 38, 74, 55, 18, 51, 79, 59, 26];
+  const RADY_X_PLANET = [62, 36];
 
-    radyProgressZaliczone.textContent = String(zaliczone);
-    radyProgressWszystkie.textContent = "/" + zasadyKsiazki.length;
-    radyPostepTekst.textContent = zaliczone + " z " + zasadyKsiazki.length + " zasad zaliczonych";
-    radyPostepPodtytul.textContent = ksiazka ? "Postęp w książce „" + ksiazka.tytul + "”" : "";
-    radyProgressRing.style.strokeDasharray = String(OBWOD_PIERSCIENIA_HABITS);
-    radyProgressRing.style.strokeDashoffset = String(OBWOD_PIERSCIENIA_HABITS * (1 - udzial));
-    radyPostep.hidden = false;
-  }
+  // Gwiazdozbiór zasad wybranej książki: pionowa, zygzakowata konstelacja z planetami i Gwiazdą polarną
+  function renderRadyMapa() {
+    radyMapa.innerHTML = "";
+    const stat = radyStatystykiKsiazki(radyWybranaKsiazkaId);
+    const n = stat.zasady.length;
 
-  const IKONA_PTASZEK =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
-  const RADY_ETYKIETY_STANU = { dostepna: "Dostępna", aktywna: "Aktywna", zaliczona: "Zaliczona" };
+    radyMapaLicznik.textContent = stat.zaliczone + " z " + n + " gwiazd" +
+      (stat.planety > 0 ? " · " + stat.odkrytePlanety + " z " + stat.planety + (stat.planety === 1 ? " planety" : " planet") : "");
+    radyMapaOpis.textContent = n > 0
+      ? "Każda zaliczona zasada zapala gwiazdę — w dowolnej kolejności. Zapal wszystkie " + n + ", a książka trafi na półkę jako ukończona."
+      : "";
 
-  // Plansza zasad wybranej książki, w kolejności z kolumny "kolejnosc"
-  function renderRadyPlansza() {
-    radyPlansza.innerHTML = "";
-    if (radyKsiazki.length === 0) {
-      radyPlansza.innerHTML = pustyStanHTML("📚", "Brak książek w bazie.");
-      return;
-    }
-    const zasadyKsiazki = radyZasadyKsiazki(radyWybranaKsiazkaId);
-    if (zasadyKsiazki.length === 0) {
-      radyPlansza.innerHTML = pustyStanHTML("📚", "Ta książka nie ma jeszcze zasad.");
+    if (radyKsiazki.length === 0 || n === 0) {
+      radyMapaLicznik.textContent = "";
+      const pusto = document.createElement("div");
+      pusto.className = "rady-mapa-pusto";
+      pusto.innerHTML = radyKsiazki.length === 0
+        ? pustyStanHTML("📚", "Brak książek w bazie.")
+        : pustyStanHTML("📚", "Ta książka nie ma jeszcze zasad.");
+      radyMapa.appendChild(pusto);
       return;
     }
 
-    zasadyKsiazki.forEach(function (zasada, indeks) {
+    const aktywny = radyAktywnyPostep();
+    const jestAktywna = !!aktywny;
+
+    // Punkty mapy po kolei: zasady, co 4 zasady planeta, na końcu Gwiazda polarna
+    const punkty = [];
+    let y = 90;
+    stat.zasady.forEach(function (zasada, i) {
+      if (i > 0 && i % RADY_ZASAD_NA_PLANETE === 0 && i < n - 1) {
+        const nr = i / RADY_ZASAD_NA_PLANETE;
+        y += 18;
+        punkty.push({ typ: "planeta", nr: nr, po: i, x: RADY_X_PLANET[(nr - 1) % RADY_X_PLANET.length], y: y, swieci: stat.zaliczoneFlagi.slice(0, i).every(Boolean) });
+        y += 120;
+      }
       const stan = radyStanZasady(zasada.id);
-      const kafelek = document.createElement("button");
-      kafelek.type = "button";
-      kafelek.className = "rady-kafelek " + stan;
-      kafelek.setAttribute("aria-label", zasada.nazwa + " — " + RADY_ETYKIETY_STANU[stan]);
-      if (stan === "zaliczona") kafelek.setAttribute("aria-disabled", "true");
+      if (stan === "aktywna" && i > 0) y += 22;
+      punkty.push({ typ: "zasada", zasada: zasada, i: i, stan: stan, x: RADY_X_ZASAD[i % RADY_X_ZASAD.length], y: y, swieci: stan === "zaliczona" });
+      y += stan === "aktywna" ? 114 : 92;
+    });
+    y += 38;
+    punkty.push({ typ: "final", x: 50, y: y, swieci: stat.ukonczona });
+    const wysokosc = y + 150;
+    radyMapa.style.height = wysokosc + "px";
 
-      const numer = document.createElement("span");
-      numer.className = "rady-kafelek-numer";
-      if (stan === "zaliczona") numer.innerHTML = IKONA_PTASZEK;
-      else numer.textContent = String(indeks + 1);
-      const nazwa = document.createElement("span");
-      nazwa.className = "rady-kafelek-nazwa";
-      nazwa.textContent = zasada.nazwa;
-      const stanEl = document.createElement("span");
-      stanEl.className = "rady-kafelek-stan";
-      stanEl.textContent = RADY_ETYKIETY_STANU[stan];
-      kafelek.append(numer, nazwa, stanEl);
+    // Tło: deterministyczne gwiazdy (to samo ułożenie przy każdym renderze), co 9. migocze
+    let ziarno = 7;
+    function losowa() { ziarno = (ziarno * 16807) % 2147483647; return (ziarno - 1) / 2147483646; }
+    const tlo = document.createDocumentFragment();
+    const ileGwiazd = Math.round(wysokosc / 16);
+    for (let i = 0; i < ileGwiazd; i++) {
+      const g = document.createElement("span");
+      g.className = "rady-tlo-gwiazda" + (losowa() < 0.15 ? " duza" : "") + (i % 9 === 0 ? " rady-migotanie" : "");
+      g.setAttribute("aria-hidden", "true");
+      g.style.opacity = (0.12 + losowa() * 0.4).toFixed(2);
+      g.style.left = (losowa() * 99.5).toFixed(2) + "%";
+      g.style.top = Math.round(losowa() * (wysokosc - 4)) + "px";
+      g.style.animationDelay = (losowa() * 3).toFixed(1) + "s";
+      tlo.appendChild(g);
+    }
+    radyMapa.appendChild(tlo);
 
-      kafelek.addEventListener("click", function () { kliknietoZasade(zasada, stan); });
-      radyPlansza.appendChild(wjazdKarty(kafelek, indeks));
+    // Poświata wokół aktywnej zasady (albo Gwiazdy polarnej po ukończeniu książki)
+    const wyrozniony = punkty.find(function (p) { return p.typ === "zasada" && p.stan === "aktywna"; }) ||
+      (stat.ukonczona ? punkty[punkty.length - 1] : null);
+    if (wyrozniony) {
+      const halo = document.createElement("div");
+      halo.className = "rady-halo";
+      halo.style.left = wyrozniony.x + "%";
+      halo.style.top = wyrozniony.y + "px";
+      radyMapa.appendChild(halo);
+    }
+
+    // Linie: cała trasa przerywana, a jasne odcinki tylko między dwoma sąsiednimi zapalonymi punktami.
+    // viewBox w jednostkach "% szerokości × px wysokości"; non-scaling-stroke trzyma grubość linii mimo rozciągania.
+    const trasa = punkty.map(function (p, i) { return (i ? "L" : "M") + p.x + " " + p.y; }).join(" ");
+    let jasne = "";
+    for (let i = 1; i < punkty.length; i++) {
+      if (punkty[i - 1].swieci && punkty[i].swieci) {
+        jasne += "M" + punkty[i - 1].x + " " + punkty[i - 1].y + " L" + punkty[i].x + " " + punkty[i].y + " ";
+      }
+    }
+    radyMapa.insertAdjacentHTML("beforeend",
+      '<svg class="rady-mapa-linie" viewBox="0 0 100 ' + wysokosc + '" preserveAspectRatio="none" style="height:' + wysokosc + 'px" aria-hidden="true">' +
+        '<path d="' + trasa + '" fill="none" stroke="oklch(0.26 0.008 245)" stroke-width="1" stroke-dasharray="3 5" vector-effect="non-scaling-stroke"/>' +
+        (jasne ? '<path d="' + jasne.trim() + '" fill="none" stroke="#D6D0C0" stroke-width="1.5" stroke-linecap="round" vector-effect="non-scaling-stroke" style="filter: drop-shadow(0 0 4px rgba(214,208,192,0.6))"/>' : "") +
+      "</svg>");
+
+    punkty.forEach(function (p) {
+      const wezel = document.createElement("div");
+      wezel.className = "rady-wezel";
+      wezel.style.left = p.x + "%";
+      wezel.style.top = p.y + "px";
+
+      if (p.typ === "planeta") {
+        wezel.innerHTML =
+          '<div class="rady-planeta' + (p.swieci ? " odkryta" : "") + '">' +
+            '<svg viewBox="0 0 64 40" fill="none" aria-hidden="true">' +
+              '<circle cx="32" cy="20" r="12" fill="currentColor" opacity="' + (p.swieci ? 0.9 : 0.15) + '"/>' +
+              '<ellipse cx="32" cy="20" rx="28" ry="7" stroke="currentColor" stroke-width="1.5" transform="rotate(-14 32 20)"/>' +
+            "</svg>" +
+            '<span class="rady-planeta-podpis">Planeta ' + rzymska(p.nr) +
+              (p.swieci ? " · odkryta · +" + RADY_PD_PLANETA + " PD" : " · zalicz " + rzymska(1) + "–" + rzymska(p.po)) +
+            "</span>" +
+          "</div>";
+        radyMapa.appendChild(wezel);
+        return;
+      }
+
+      if (p.typ === "final") {
+        wezel.innerHTML =
+          '<div class="rady-final' + (p.swieci ? " ukonczona" : "") + '">' +
+            IKONA_GWIAZDA_4 +
+            '<span class="rady-final-nazwa">Gwiazda polarna</span>' +
+            '<span class="rady-final-podpis">' + (p.swieci ? "Książka ukończona" : "Ukończ książkę") + " · +" + RADY_PD_KSIAZKA + " PD</span>" +
+          "</div>";
+        radyMapa.appendChild(wezel);
+        return;
+      }
+
+      const zasada = p.zasada;
+      const numer = rzymska(p.i + 1);
+      const opisStanu = { zaliczona: "zaliczona", aktywna: "aktywna", dostepna: "dostępna" }[p.stan];
+      const etykietaAria = "Zasada " + numer + ": " + zasada.nazwa + " — " + opisStanu;
+      let klik = null;
+
+      if (p.stan === "zaliczona") {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "rady-gwiazda";
+        btn.setAttribute("aria-label", etykietaAria);
+        btn.setAttribute("aria-disabled", "true");
+        btn.innerHTML = IKONA_GWIAZDA_4;
+        wezel.appendChild(btn);
+      } else if (p.stan === "aktywna") {
+        const wrap = document.createElement("div");
+        wrap.className = "rady-aktywny-wezel";
+        wrap.innerHTML = '<span class="rady-orbita zewnetrzna" aria-hidden="true"></span><span class="rady-orbita" aria-hidden="true"></span>';
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "rady-aktywny-btn";
+        btn.setAttribute("aria-label", etykietaAria);
+        btn.textContent = numer;
+        klik = function () { kliknietoZasade(zasada, p.stan); };
+        btn.addEventListener("click", klik);
+        wrap.appendChild(btn);
+        wezel.appendChild(wrap);
+      } else {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "rady-punkt" + (String(zasada.id) === String(radyZasadaWFormularzuId) ? " w-formularzu" : "");
+        btn.setAttribute("aria-label", etykietaAria);
+        if (jestAktywna) btn.setAttribute("aria-disabled", "true");
+        klik = function () { kliknietoZasade(zasada, p.stan); };
+        btn.addEventListener("click", klik);
+        wezel.appendChild(btn);
+      }
+      radyMapa.appendChild(wezel);
+
+      // Podpis po przeciwnej stronie niż bliższa krawędź; długie nazwy się zawijają
+      const odstep = p.stan === "aktywna" ? 54 : 30;
+      const podpis = document.createElement("div");
+      podpis.className = "rady-etykieta-wezla " + p.stan;
+      podpis.setAttribute("aria-hidden", "true");
+      podpis.style.top = p.y + "px";
+      if (p.x > 50) {
+        podpis.classList.add("lewa");
+        podpis.style.left = "16px";
+        podpis.style.right = "calc(" + (100 - p.x) + "% + " + odstep + "px)";
+      } else {
+        podpis.style.left = "calc(" + p.x + "% + " + odstep + "px)";
+        podpis.style.right = "16px";
+      }
+      const numerEl = document.createElement("span");
+      numerEl.className = "rady-wezel-numer";
+      numerEl.textContent = (p.stan === "aktywna" ? "TERAZ · " : "") + numer;
+      const nazwaEl = document.createElement("span");
+      nazwaEl.className = "rady-wezel-nazwa";
+      nazwaEl.textContent = zasada.nazwa;
+      podpis.append(numerEl, nazwaEl);
+      if (klik && !(p.stan === "dostepna" && jestAktywna)) {
+        podpis.classList.add("klikalna");
+        podpis.addEventListener("click", klik);
+      }
+      radyMapa.appendChild(podpis);
     });
   }
 
@@ -5256,6 +6044,7 @@
     }
     radyZasadaWFormularzuId = zasada.id;
     renderRadyAktywna();
+    renderRadyMapa();
     radyAktywna.scrollIntoView({ behavior: "smooth", block: "start" });
     const poleJesli = document.getElementById("rady-plan-jesli");
     if (poleJesli) poleJesli.focus({ preventScroll: true });
