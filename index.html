@@ -319,8 +319,7 @@
 
   /* ----- Karty / formularze ----- */
   form,
-  .karta,
-  .wpis {
+  .karta {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 20px;
@@ -353,44 +352,7 @@
   }
   select:disabled { background: var(--habits-tlo-karta); color: var(--muted); }
 
-  fieldset {
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    margin-top: 16px;
-    padding: 12px 14px 14px;
-  }
-  legend { padding: 0 8px; font-size: 1.05rem; }
-
-  .set-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    gap: 8px;
-    margin-bottom: 10px;
-    align-items: end;
-  }
-  .set-row label { margin: 0 0 4px; font-weight: 500; font-size: 0.78rem; color: var(--muted); }
-  .set-row .field-weight, .set-row .field-reps { min-width: 0; }
-
   button { font: inherit; cursor: pointer; }
-  #dodaj-podejscie {
-    padding: 9px 16px;
-    border: 1px dashed var(--accent);
-    border-radius: 999px;
-    background: var(--accent-soft);
-    color: var(--accent);
-    font-weight: 600;
-    font-size: 0.85rem;
-  }
-  #dodaj-podejscie:hover { background: #FBDECF; }
-  .btn-remove {
-    padding: 10px 12px;
-    border: 1px solid #E7C3B4;
-    border-radius: 11px;
-    background: #F8E7E0;
-    color: #B4482C;
-    font-size: 0.82rem;
-  }
-  .btn-remove:hover { background: #F3D7CC; }
 
   .btn-submit {
     display: block;
@@ -411,12 +373,6 @@
   .btn-submit:active { transform: translateY(1px); }
   .btn-submit:disabled { opacity: 0.55; box-shadow: none; cursor: default; }
 
-  /* ----- Adnotacja z ostatnio branym ciężarem dla wybranego ćwiczenia ----- */
-  .cwiczenie-ostatnio {
-    margin: 6px 2px 0;
-    font-size: 0.82rem;
-    color: var(--muted);
-  }
 
   /* ----- AI Analiza: wynik analizy tygodnia ----- */
   .ai-analiza-wynik {
@@ -527,25 +483,280 @@
   .dot-Brzuch,  .mapa-partia[data-partia="Brzuch"]  { --kolor-partii: var(--partia-brzuch); }
   .dot-Nogi,    .mapa-partia[data-partia="Nogi"]    { --kolor-partii: var(--partia-nogi); }
 
-  /* ----- Ostatnio dodane ----- */
-  #lista { margin-top: 14px; }
-  .wpis {
-    padding: 14px 16px;
-    margin-bottom: 12px;
-    border-left: 3px solid var(--accent);
+  /* ----- Zapisz trening (#widok-dodaj): wybór ćwiczenia, liczniki, zaliczone serie, dziś zapisane ----- */
+  #widok-dodaj .zapis-sesja {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--habits-akcent);
   }
-  .wpis-naglowek {
+  #widok-dodaj .zapis-sesja::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--habits-akcent);
+    box-shadow: 0 0 10px var(--habits-akcent);
+  }
+  #widok-dodaj .zasada-dnia { margin: 12px 0 16px; }
+  .zapis-szkic-stary {
+    margin-bottom: 16px;
+    padding: 16px;
+    border-radius: 20px;
+    border: 1px solid oklch(0.72 0.08 75 / 0.45);
+    background: oklch(0.12 0.015 75);
+  }
+  .zapis-szkic-stary-tekst { margin: 0; font-size: 14px; line-height: 1.5; color: var(--habits-tekst); overflow-wrap: anywhere; }
+  .zapis-szkic-stary-tekst b { color: var(--habits-zloto); }
+  .zapis-szkic-stary-akcje { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .zapis-btn-maly {
+    flex: 1 1 140px;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border: 1px solid oklch(0.26 0.008 245);
+    background: transparent;
+    color: var(--habits-tekst);
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .zapis-btn-maly.zloty { border-color: transparent; background: var(--habits-zloto); color: oklch(0.1 0.006 250); }
+  .zapis-btn-maly:disabled { opacity: 0.55; cursor: default; }
+  .zapis-chipy { padding-top: 8px; }
+  .zapis-cwiczenia {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    margin: 0 -16px;
+    padding: 12px 16px 0;
+    scrollbar-width: none;
+  }
+  .zapis-cwiczenia::-webkit-scrollbar { display: none; }
+  .zapis-cwiczenia::after { content: ""; flex: none; width: 8px; }
+  .zapis-cw-karta {
+    flex: none;
+    width: 150px;
+    min-height: 76px;
+    padding: 12px 14px;
+    border-radius: 18px;
+    border: 1px solid var(--habits-obramowanie);
+    background: var(--habits-tlo-karta);
+    color: oklch(0.85 0.005 240);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 6px;
+    text-align: left;
+    transition: background 0.15s ease, color 0.15s ease, scale 0.1s ease;
+  }
+  .zapis-cw-karta.aktywna { border-color: transparent; background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+  .zapis-cw-nazwa { font-size: 14px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+  .zapis-cw-ostatnio { font-size: 12px; color: oklch(0.52 0.008 240); }
+  .zapis-cw-karta.aktywna .zapis-cw-ostatnio { color: oklch(0.1 0.006 250 / 0.6); }
+  .zapis-brak { margin-top: 16px; }
+  .zapis-aktualne { margin-top: 24px; }
+  .zapis-partia {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: oklch(0.6 0.008 240);
+  }
+  .zapis-kropka { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--kolor-partii); }
+  #widok-dodaj .zapis-tytul {
+    margin: 8px 0 0;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(2.3rem, 12vw, 2.9rem);
+    line-height: 0.95;
+    color: oklch(0.95 0.004 240);
+    overflow-wrap: anywhere;
+  }
+  .zapis-do-pobicia {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 10px 16px 10px 12px;
+    border-radius: 14px;
+    background: oklch(0.12 0.015 75);
+    border: 1px solid oklch(0.72 0.08 75 / 0.4);
+    color: var(--habits-zloto);
+  }
+  .zapis-do-pobicia svg { flex: none; width: 18px; height: 18px; }
+  .zapis-do-pobicia-etykieta { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+  .zapis-do-pobicia-wartosc { font-family: "Instrument Serif", Georgia, serif; font-size: 22px; line-height: 1; white-space: nowrap; }
+  .zapis-liczniki { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
+  .zapis-licznik {
+    min-width: 0;
+    padding: 16px 14px 14px;
+    border-radius: 24px;
+    background: var(--habits-tlo-karta);
+    border: 1px solid var(--habits-obramowanie);
+    text-align: center;
+  }
+  #widok-dodaj .zapis-licznik-etykieta {
+    display: block;
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: oklch(0.52 0.008 240);
+  }
+  #widok-dodaj .zapis-licznik-wartosc {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    box-shadow: none;
+    text-align: center;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-size: clamp(3.4rem, 17vw, 4.5rem);
+    line-height: 1.05;
+    color: oklch(0.95 0.004 240);
+    outline: none;
+    cursor: text;
+  }
+  #widok-dodaj .zapis-licznik-wartosc:focus { background: oklch(0.08 0.005 250); box-shadow: 0 0 0 2px rgba(var(--habits-akcent-rgb), 0.35); }
+  .zapis-licznik-przyciski { display: flex; gap: 8px; margin-top: 4px; }
+  .zapis-licznik-przyciski button {
+    flex: 1;
+    min-width: 0;
+    height: 48px;
+    padding: 0;
+    border-radius: 14px;
+    border: 1px solid oklch(0.22 0.008 245);
+    background: oklch(0.08 0.005 250);
+    color: oklch(0.9 0.004 240);
+    font-size: 22px;
+  }
+  .zapis-licznik-przyciski button:hover { background: var(--habits-obramowanie); }
+  .zapis-podpowiedz { min-height: 1.4em; margin: 10px 0 0; text-align: center; font-size: 13px; font-weight: 600; color: oklch(0.52 0.008 240); }
+  .zapis-podpowiedz.zlota { color: var(--habits-zloto); }
+  .zapis-btn-zalicz {
+    width: 100%;
+    height: 64px;
+    margin-top: 14px;
+    padding: 0 24px;
+    border: none;
+    border-radius: 22px;
+    background: var(--habits-akcent);
+    color: oklch(0.1 0.006 250);
+    font-size: 17px;
+    font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    font-weight: 700;
-    margin-bottom: 3px;
+    box-shadow: 0 18px 40px -16px rgba(var(--habits-akcent-rgb), 0.6);
   }
-  .wpis-tytul { display: flex; align-items: center; }
-  .wpis-data { color: var(--muted); font-size: 0.82rem; margin-bottom: 8px; }
-  .wpis ul { margin: 0; padding-left: 20px; }
-  .wpis li { margin: 2px 0; }
+  .zapis-btn-zalicz svg { width: 22px; height: 22px; }
+  .zapis-serie-naglowek { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 34px; }
+  #widok-dodaj .zapis-serie-tytul { margin: 0; font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-weight: 400; font-size: 28px; color: oklch(0.85 0.005 240); }
+  .zapis-serie-licznik { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--habits-tekst-pomocniczy); white-space: nowrap; }
+  .zapis-serie { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+  .zapis-seria {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 8px 10px 12px;
+    border-radius: 18px;
+    background: var(--habits-tlo-karta);
+    border: 1px solid var(--habits-obramowanie);
+  }
+  .zapis-seria.rekord { border-color: oklch(0.72 0.08 75 / 0.45); }
+  .zapis-seria-pieczatka {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--habits-akcent);
+    color: oklch(0.1 0.006 250);
+    font-family: "Instrument Serif", Georgia, serif;
+    font-size: 20px;
+    transform: rotate(var(--obrot, 0deg));
+  }
+  .zapis-seria.rekord .zapis-seria-pieczatka { background: var(--habits-zloto); }
+  .zapis-seria-opis { flex: 1; min-width: 0; font-family: "Instrument Serif", Georgia, serif; font-size: 24px; color: oklch(0.93 0.004 240); }
+  .zapis-pigulka-rekord {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--habits-zloto);
+    color: oklch(0.1 0.006 250);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+  .zapis-pigulka-rekord svg { width: 11px; height: 11px; }
+  .zapis-btn-x {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--habits-tekst-pomocniczy);
+    display: grid;
+    place-items: center;
+  }
+  .zapis-btn-x svg { width: 16px; height: 16px; }
+  .zapis-btn-x:hover { background: var(--habits-obramowanie); color: var(--habits-tekst); }
+  .zapis-serie-pusto {
+    margin: 0;
+    padding: 20px;
+    border-radius: 18px;
+    border: 1.5px dashed var(--habits-obramowanie);
+    text-align: center;
+    font-size: 14px;
+    color: oklch(0.52 0.008 240);
+  }
+  .zapis-btn-zapisz {
+    width: 100%;
+    height: 52px;
+    margin-top: 16px;
+    border-radius: 18px;
+    border: 1px solid oklch(0.26 0.008 245);
+    background: transparent;
+    color: oklch(0.85 0.005 240);
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .zapis-btn-zapisz:hover:not(:disabled) { background: var(--habits-tlo-karta); }
+  .zapis-btn-zapisz:disabled { opacity: 0.55; cursor: default; }
+  .zapis-dzis-naglowek { margin-top: 40px; }
+  .zapis-dzis { list-style: none; margin: 14px 0 0; padding: 0; }
+  .zapis-dzis > .pusto { margin: 0; }
+  .zapis-dzis-wiersz {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+    padding: 8px 0;
+    border-top: 1px solid oklch(0.16 0.007 248);
+  }
+  .zapis-dzis-opis { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .zapis-dzis-nazwa { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: oklch(0.93 0.004 240); overflow-wrap: anywhere; }
+  .zapis-dzis-serie { font-size: 13px; color: oklch(0.6 0.008 240); overflow-wrap: anywhere; }
 
   /* ----- Zaplanuj trening (#widok-zaplanuj): okładka planu, lista ćwiczeń, dodawanie z katalogu, Notion, zapisane plany ----- */
   #widok-zaplanuj .zaplanuj-kicker {
@@ -2582,7 +2793,7 @@
 
   /* ----- Tryb ciemny (przełącznik globalny obok hamburgera): pozostałe widoki, poza sekcją "Nawyki" -----
      Reguły #widok-habits mają wyższą swoistość (selektor z ID), więc wygląd samej sekcji "Nawyki" zostaje bez zmian. */
-  .kontener.motyw-habits :is(form, .karta, .wpis, .pusto, .cel-wiersz, .przeszkoda-wiersz, select, input) {
+  .kontener.motyw-habits :is(form, .karta, .pusto, .cel-wiersz, .przeszkoda-wiersz, select, input) {
     background: var(--tryb-ciemny-tlo-karta);
     border-color: var(--habits-obramowanie);
   }
@@ -2591,7 +2802,7 @@
      Tylko kontenery najwyższego poziomu (karty, formularze, wpisy/plany) — bez wierszy długich list (rejestr, cele, katalog)
      i bez elementów zagnieżdżonych w innej karcie, żeby nie mnożyć kosztownych warstw backdrop-filter przy przewijaniu. */
   @supports (background: color-mix(in oklch, red 50%, transparent)) {
-    .kontener.motyw-habits :is(form, .karta, .wpis):not(.karta *),
+    .kontener.motyw-habits :is(form, .karta):not(.karta *),
     .kontener.motyw-habits #widok-habits .karta {
       background: color-mix(in oklch, var(--habits-tlo-karta) 70%, transparent);
       -webkit-backdrop-filter: blur(16px);
@@ -2704,14 +2915,12 @@
     box-shadow: 0 12px 26px -10px rgba(var(--habits-akcent-rgb), 0.35);
   }
 
-  .kontener.motyw-habits #dodaj-podejscie:hover { background: var(--habits-obramowanie); }
-
-  .kontener.motyw-habits :is(.btn-usun, .btn-remove) {
+  .kontener.motyw-habits .btn-usun {
     border-color: var(--habits-obramowanie);
     background: transparent;
     color: var(--habits-tekst-pomocniczy);
   }
-  .kontener.motyw-habits :is(.btn-usun, .btn-remove):hover {
+  .kontener.motyw-habits .btn-usun:hover {
     background: rgba(180, 72, 44, 0.12);
     border-color: #B4482C;
     color: #B4482C;
@@ -2813,8 +3022,6 @@
     .rola-ikona svg { width: 17px; height: 17px; }
   }
   @media (max-width: 380px) {
-    .set-row { grid-template-columns: 1fr 1fr; }
-    .set-row .btn-remove { grid-column: 1 / -1; }
     .tydzien-podpis { font-size: 0.7rem; }
   }
 
@@ -3021,7 +3228,8 @@
 
   <!-- ===== Widok 1: Zapisz trening ===== -->
   <section id="widok-dodaj" class="widok aktywny">
-    <h2>Zapisz trening</h2>
+    <h2 id="zapis-sesja" class="zapis-sesja">Sesja</h2>
+    <p id="zasada-dnia" class="zasada-dnia"></p>
 
     <div id="rekord-baner" class="rekord-baner" hidden>
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 1.5c.6 3.6-1.4 5.6-3 7.2-1.6 1.6-3 3.2-3 6.1a5.5 5.5 0 0 0 11 .3c.1-2.3-1-4.2-2-5.4-.6.9-1.4 1.2-2.2 1.2 1.3-2.8 1-7-.8-9.4z"/></svg>
@@ -3045,36 +3253,70 @@
       </div>
     </div>
 
-    <p id="zasada-dnia" class="zasada-dnia"></p>
-
-    <form id="form-treningu">
-      <label for="partia">Partia mięśniowa</label>
-      <select id="partia" name="partia" required>
-        <option value="">-- wybierz partię --</option>
-      </select>
-
-      <label for="cwiczenie">Ćwiczenie</label>
-      <select id="cwiczenie" name="cwiczenie" required disabled>
-        <option value="">-- najpierw wybierz partię --</option>
-      </select>
-      <p id="cwiczenie-ostatni-ciezar" class="cwiczenie-ostatnio" hidden></p>
-
-      <label for="data">Data</label>
-      <input type="date" id="data" name="data" required>
-
-      <fieldset>
-        <legend>Podejścia</legend>
-        <div id="podejscia"></div>
-        <button type="button" id="dodaj-podejscie">+ dodaj podejście</button>
-      </fieldset>
-
-      <button type="submit" class="btn-submit">Dodaj ćwiczenie</button>
-    </form>
-
-    <h2 style="margin-top:28px">Ostatnio dodane</h2>
-    <div id="lista">
-      <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">📒</span><span>Brak zapisanych treningów.</span></p>
+    <!-- Wersja robocza z wcześniejszego dnia: zapisz z tamtą datą albo odrzuć -->
+    <div id="zapis-szkic-stary" class="zapis-szkic-stary" hidden>
+      <p id="zapis-szkic-stary-tekst" class="zapis-szkic-stary-tekst"></p>
+      <div class="zapis-szkic-stary-akcje">
+        <button type="button" id="zapis-szkic-stary-zapisz" class="zapis-btn-maly zloty"></button>
+        <button type="button" id="zapis-szkic-stary-odrzuc" class="zapis-btn-maly">Odrzuć</button>
+      </div>
     </div>
+
+    <!-- Wybór ćwiczenia: chipy partii + karty ćwiczeń wybranej partii -->
+    <div id="zapis-chipy" class="plan-chipy zapis-chipy" role="group" aria-label="Partia mięśniowa"></div>
+    <div id="zapis-cwiczenia" class="zapis-cwiczenia"></div>
+    <div id="zapis-brak" class="zapis-brak" hidden></div>
+
+    <div id="zapis-panel" class="zapis-panel">
+      <section class="zapis-aktualne">
+        <span class="zapis-partia"><span id="zapis-partia-kropka" class="zapis-kropka"></span><span id="zapis-partia-nazwa"></span></span>
+        <h3 id="zapis-tytul" class="zapis-tytul"></h3>
+        <div id="zapis-do-pobicia" class="zapis-do-pobicia" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+          <span class="zapis-do-pobicia-etykieta">Do pobicia</span>
+          <span id="zapis-rekord" class="zapis-do-pobicia-wartosc"></span>
+        </div>
+      </section>
+
+      <!-- Liczniki: kliknięcie w liczbę pozwala wpisać wartość z klawiatury -->
+      <div class="zapis-liczniki">
+        <div class="zapis-licznik">
+          <label for="zapis-kg" class="zapis-licznik-etykieta">Ciężar · kg</label>
+          <input type="text" id="zapis-kg" class="zapis-licznik-wartosc" inputmode="decimal" autocomplete="off" enterkeyhint="done">
+          <div class="zapis-licznik-przyciski">
+            <button type="button" id="zapis-kg-minus" aria-label="Zmniejsz ciężar o 2,5 kg">−</button>
+            <button type="button" id="zapis-kg-plus" aria-label="Zwiększ ciężar o 2,5 kg">+</button>
+          </div>
+        </div>
+        <div class="zapis-licznik">
+          <label for="zapis-powt" class="zapis-licznik-etykieta">Powtórzenia</label>
+          <input type="text" id="zapis-powt" class="zapis-licznik-wartosc" inputmode="numeric" autocomplete="off" enterkeyhint="done">
+          <div class="zapis-licznik-przyciski">
+            <button type="button" id="zapis-powt-minus" aria-label="Mniej powtórzeń">−</button>
+            <button type="button" id="zapis-powt-plus" aria-label="Więcej powtórzeń">+</button>
+          </div>
+        </div>
+      </div>
+      <p id="zapis-podpowiedz" class="zapis-podpowiedz" aria-live="polite"></p>
+
+      <button type="button" id="zapis-zalicz" class="zapis-btn-zalicz">
+        <span id="zapis-zalicz-tekst">Zalicz serię 1</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      </button>
+
+      <div class="zapis-serie-naglowek">
+        <h3 class="zapis-serie-tytul">Zaliczone serie</h3>
+        <span id="zapis-serie-licznik" class="zapis-serie-licznik"></span>
+      </div>
+      <div id="zapis-serie" class="zapis-serie"></div>
+      <button type="button" id="zapis-zapisz" class="zapis-btn-zapisz">Zapisz ćwiczenie i wybierz kolejne</button>
+    </div>
+
+    <div class="zapis-serie-naglowek zapis-dzis-naglowek">
+      <h3 class="zapis-serie-tytul">Dziś zapisane</h3>
+      <span id="zapis-dzis-licznik" class="zapis-serie-licznik"></span>
+    </div>
+    <ul id="lista" class="zapis-dzis"></ul>
   </section>
 
   <!-- ===== Widok 2: Rejestr ćwiczeń ===== -->
@@ -3577,6 +3819,7 @@
   function inicjalizujDaneAplikacji() {
     wczytajKatalog();
     wczytajWpisy();
+    wczytajSzkicTreningu();
     renderTydzienEtykieta();
     wczytajRole();
     wczytajCeleDlaTygodnia();
@@ -3724,19 +3967,35 @@
       .sort(function (a, b) { return a.localeCompare(b, "pl"); });
   }
 
-  const form = document.getElementById("form-treningu");
-  const selPartia = document.getElementById("partia");
-  const selCwiczenie = document.getElementById("cwiczenie");
-  const cwiczenieOstatniCiezar = document.getElementById("cwiczenie-ostatni-ciezar");
-  const inputData = document.getElementById("data");
+  const zapisSesja = document.getElementById("zapis-sesja");
+  const zapisSzkicStary = document.getElementById("zapis-szkic-stary");
+  const zapisSzkicStaryTekst = document.getElementById("zapis-szkic-stary-tekst");
+  const btnSzkicStaryZapisz = document.getElementById("zapis-szkic-stary-zapisz");
+  const btnSzkicStaryOdrzuc = document.getElementById("zapis-szkic-stary-odrzuc");
+  const zapisChipy = document.getElementById("zapis-chipy");
+  const zapisCwiczeniaPasek = document.getElementById("zapis-cwiczenia");
+  const zapisBrak = document.getElementById("zapis-brak");
+  const zapisPanel = document.getElementById("zapis-panel");
+  const zapisPartiaKropka = document.getElementById("zapis-partia-kropka");
+  const zapisPartiaNazwa = document.getElementById("zapis-partia-nazwa");
+  const zapisTytul = document.getElementById("zapis-tytul");
+  const zapisDoPobicia = document.getElementById("zapis-do-pobicia");
+  const zapisRekord = document.getElementById("zapis-rekord");
+  const inputZapisKg = document.getElementById("zapis-kg");
+  const inputZapisPowt = document.getElementById("zapis-powt");
+  const zapisPodpowiedz = document.getElementById("zapis-podpowiedz");
+  const btnZapisZalicz = document.getElementById("zapis-zalicz");
+  const zapisZaliczTekst = document.getElementById("zapis-zalicz-tekst");
+  const zapisSerieLicznik = document.getElementById("zapis-serie-licznik");
+  const zapisSerieBox = document.getElementById("zapis-serie");
+  const btnZapisZapisz = document.getElementById("zapis-zapisz");
+  const zapisDzisLicznik = document.getElementById("zapis-dzis-licznik");
   const planTrakcieBaner = document.getElementById("plan-trakcie-baner");
   const planPostepLiczba = document.getElementById("plan-postep-liczba");
   const planPostepLuk = document.getElementById("plan-postep-luk");
   const planTrakcieTekst = document.getElementById("plan-trakcie-tekst");
   const btnPlanPomin = document.getElementById("btn-plan-pomin");
   const btnPlanZakoncz = document.getElementById("btn-plan-zakoncz");
-  const podejsciaBox = document.getElementById("podejscia");
-  const btnDodaj = document.getElementById("dodaj-podejscie");
   const lista = document.getElementById("lista");
   const rejestrBox = document.getElementById("rejestr");
   const rejestrSzukaj = document.getElementById("rejestr-szukaj");
@@ -3839,33 +4098,6 @@
     });
   });
 
-  // Wypełnienie selecta partii w formularzu treningu
-  PARTIE.forEach(function (partia) {
-    selPartia.appendChild(new Option(partia, partia));
-  });
-
-  // Odbudowa selecta ćwiczeń w formularzu treningu (zależny od wybranej partii)
-  function odbudujSelectCwiczenie() {
-    const partia = selPartia.value;
-    const poprzednie = selCwiczenie.value;
-    selCwiczenie.innerHTML = "";
-
-    if (!partia) {
-      selCwiczenie.disabled = true;
-      selCwiczenie.appendChild(new Option("-- najpierw wybierz partię --", ""));
-      renderOstatniCiezarDlaCwiczenia();
-      return;
-    }
-
-    selCwiczenie.disabled = false;
-    selCwiczenie.appendChild(new Option("-- wybierz ćwiczenie --", ""));
-    cwiczeniaDlaPartii(partia).forEach(function (nazwa) {
-      selCwiczenie.appendChild(new Option(nazwa, nazwa));
-    });
-    if (poprzednie) selCwiczenie.value = poprzednie;
-    renderOstatniCiezarDlaCwiczenia();
-  }
-
   // Ostatni (najświeższy, wg daty) zapisany wpis z tabeli "treningi" dla danego ćwiczenia
   function ostatniWpisDlaCwiczenia(cwiczenie) {
     let ostatni = null;
@@ -3875,26 +4107,6 @@
     });
     return ostatni;
   }
-
-  // Adnotacja przy polu ćwiczenia: jaki ciężar (z "podejścia") był ostatnio brany na tym ćwiczeniu + rekord ćwiczenia (obliczRekordy)
-  function renderOstatniCiezarDlaCwiczenia() {
-    const cwiczenie = selCwiczenie.value;
-    const ostatni = cwiczenie ? ostatniWpisDlaCwiczenia(cwiczenie) : null;
-
-    if (!ostatni || !(ostatni.podejscia || []).length) {
-      cwiczenieOstatniCiezar.hidden = true;
-      return;
-    }
-
-    const opis = ostatni.podejscia
-      .map(function (p) { return p["cieżar"] + " kg × " + p.powtorzenia; })
-      .join(", ");
-    const rekord = obliczRekordy()[cwiczenie];
-    cwiczenieOstatniCiezar.textContent = "Ostatnio (" + ostatni.data + "): " + opis +
-      (rekord ? " · Rekord: " + rekord.ciezar + " kg × " + rekord.powtorzenia : "");
-    cwiczenieOstatniCiezar.hidden = false;
-  }
-  selCwiczenie.addEventListener("change", renderOstatniCiezarDlaCwiczenia);
 
   // Odbudowa listy podpowiedzi do wyszukiwarki w rejestrze (wszystkie ćwiczenia z katalogu)
   function odbudujDatalistRejestr() {
@@ -3907,7 +4119,7 @@
 
   // Odświeżenie wszystkich list ćwiczeń na stronie
   function odswiezSelectyCwiczen() {
-    odbudujSelectCwiczenie();
+    renderZapisTrening();
     renderPlanKatalog();
     odbudujDatalistRejestr();
     renderKatalogListy();
@@ -3936,70 +4148,8 @@
     const off = d.getTimezoneOffset();
     return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
   }
-  inputData.value = dzisiaj();
   inputPlanData.value = dzisiaj();
   renderPlanData();
-
-  // Aktualizacja listy ćwiczeń po wyborze partii
-  selPartia.addEventListener("change", odbudujSelectCwiczenie);
-
-  // Wiersz podejścia
-  function stworzWiersz() {
-    const row = document.createElement("div");
-    row.className = "set-row";
-
-    const wrapW = document.createElement("div");
-    wrapW.className = "field-weight";
-    const labW = document.createElement("label");
-    labW.textContent = "Ciężar (kg)";
-    const inpW = document.createElement("input");
-    inpW.type = "number";
-    inpW.name = "ciezar";
-    inpW.min = "0";
-    inpW.step = "0.5";
-    inpW.required = true;
-    wrapW.appendChild(labW);
-    wrapW.appendChild(inpW);
-
-    const wrapR = document.createElement("div");
-    wrapR.className = "field-reps";
-    const labR = document.createElement("label");
-    labR.textContent = "Powtórzenia";
-    const inpR = document.createElement("input");
-    inpR.type = "number";
-    inpR.name = "powtorzenia";
-    inpR.min = "1";
-    inpR.step = "1";
-    inpR.required = true;
-    wrapR.appendChild(labR);
-    wrapR.appendChild(inpR);
-
-    const btnDel = document.createElement("button");
-    btnDel.type = "button";
-    btnDel.className = "btn-remove";
-    btnDel.textContent = "usuń";
-    btnDel.addEventListener("click", function () {
-      row.remove();
-      if (podejsciaBox.children.length === 0) {
-        podejsciaBox.appendChild(stworzWiersz());
-      }
-    });
-
-    row.appendChild(wrapW);
-    row.appendChild(wrapR);
-    row.appendChild(btnDel);
-    return row;
-  }
-
-  function resetPodejscia() {
-    podejsciaBox.innerHTML = "";
-    podejsciaBox.appendChild(stworzWiersz());
-  }
-  resetPodejscia();
-
-  btnDodaj.addEventListener("click", function () {
-    podejsciaBox.appendChild(stworzWiersz());
-  });
 
   // Kolorowa kropka danej partii
   function kropkaPartii(partia) {
@@ -4008,42 +4158,29 @@
     return s;
   }
 
-  // Budowa kafelka pojedynczego wpisu
-  function budujWpis(row) {
-    const wpis = document.createElement("div");
-    wpis.className = "wpis";
-
-    const naglowek = document.createElement("div");
-    naglowek.className = "wpis-naglowek";
-
-    const tytul = document.createElement("span");
-    tytul.className = "wpis-tytul";
-    tytul.appendChild(kropkaPartii(row.partia));
-    tytul.appendChild(document.createTextNode(row.partia + " — " + row.cwiczenie));
-    naglowek.appendChild(tytul);
+  // Wiersz listy "Dziś zapisane": partia z kropką, nazwa, serie, kosz (usuwanie z potwierdzeniem w usunWpis)
+  function budujWpisDzis(row) {
+    const li = document.createElement("li");
+    li.className = "zapis-dzis-wiersz";
+    const opis = document.createElement("div");
+    opis.className = "zapis-dzis-opis";
+    const nazwa = document.createElement("span");
+    nazwa.className = "zapis-dzis-nazwa";
+    nazwa.appendChild(kropkaPartii(row.partia));
+    nazwa.appendChild(document.createTextNode(row.cwiczenie));
+    const serie = document.createElement("span");
+    serie.className = "zapis-dzis-serie";
+    serie.textContent = (row.podejscia || []).map(function (p) { return formatKg(Number(p["cieżar"]) || 0) + " kg × " + (Number(p.powtorzenia) || 0); }).join(", ");
+    opis.append(nazwa, serie);
 
     const btnUsun = document.createElement("button");
     btnUsun.type = "button";
-    btnUsun.className = "btn-usun";
-    btnUsun.textContent = "usuń";
+    btnUsun.className = "rejestr-btn-usun";
+    btnUsun.setAttribute("aria-label", "Usuń zapis „" + row.cwiczenie + "”");
+    btnUsun.innerHTML = IKONA_KOSZ_KATALOG;
     btnUsun.addEventListener("click", function () { usunWpis(row, btnUsun); });
-    naglowek.appendChild(btnUsun);
-
-    const dataEl = document.createElement("div");
-    dataEl.className = "wpis-data";
-    dataEl.textContent = row.data;
-
-    const ul = document.createElement("ul");
-    (row.podejscia || []).forEach(function (p, i) {
-      const li = document.createElement("li");
-      li.textContent = "Podejście " + (i + 1) + ": " + p["cieżar"] + " kg × " + p.powtorzenia;
-      ul.appendChild(li);
-    });
-
-    wpis.appendChild(naglowek);
-    wpis.appendChild(dataEl);
-    wpis.appendChild(ul);
-    return wpis;
+    li.append(opis, btnUsun);
+    return li;
   }
 
   // Baner z rekordem (obliczRekordy) o najwyższym wyniku ciężar × powtórzenia; przy remisie nowszy
@@ -4064,18 +4201,20 @@
     setTimeout(function () { rekordBaner.classList.remove("rekord-pulsuj"); }, 600);
   }
 
-  // Render listy "Ostatnio dodane" - tylko wpisy z dzisiejszą datą (reset o północy)
+  // Render listy "Dziś zapisane" - tylko wpisy z dzisiejszą datą (reset o północy) + nagłówek "SESJA · 4 PAŹ"
   function renderOstatnio() {
     const dzis = dzisiaj();
     const dzisiejsze = wpisy.filter(function (w) { return w.data === dzis; });
+    renderZapisSesja();
+    zapisDzisLicznik.textContent = dzisiejsze.length + " " + odmianaLiczby(dzisiejsze.length, "ćwiczenie", "ćwiczenia", "ćwiczeń");
 
     lista.innerHTML = "";
     if (dzisiejsze.length === 0) {
-      lista.innerHTML = pustyStanHTML("🏋️", "Dziś jeszcze nic - zapisz pierwsze ćwiczenie powyżej.");
+      lista.innerHTML = pustyStanHTML("🏋️", "Dziś jeszcze nic - zalicz serie i zapisz pierwsze ćwiczenie powyżej.");
       return;
     }
     dzisiejsze.slice().reverse().forEach(function (row, i) {
-      lista.appendChild(wjazdKarty(budujWpis(row), i));
+      lista.appendChild(wjazdKarty(budujWpisDzis(row), i));
     });
   }
 
@@ -4413,7 +4552,7 @@
     renderRekord();
     renderRejestr();
     renderWykresPostepu();
-    renderOstatniCiezarDlaCwiczenia();
+    odswiezZapisPoZmianieWpisow();
   }
 
   // ----- Wykres postępu: karta "Mapa ciała" + karta "Rekordy osobiste" -----
@@ -4566,13 +4705,10 @@
   // ----- Trening rozpoczęty z zapisanego planu (widok "Zapisz trening") -----
   let planWTrakcie = null; // gdy aktywny: { nazwa, cwiczenia, indeks }
 
-  // Ustawienie pól #partia/#cwiczenie na bieżącą pozycję trwającego planu + tekst banera
+  // Podsunięcie bieżącej pozycji trwającego planu w "Zapisz trening" + tekst banera
   function ustawFormularzNaCwiczeniePlanu() {
     const poz = planWTrakcie.cwiczenia[planWTrakcie.indeks];
-    selPartia.value = poz.partia;
-    selPartia.dispatchEvent(new Event("change"));
-    selCwiczenie.value = poz.cwiczenie;
-    renderOstatniCiezarDlaCwiczenia();
+    wybierzCwiczenie(poz.partia, poz.cwiczenie);
 
     planTrakcieTekst.textContent =
       "Plan: " + planWTrakcie.nazwa + " — ćwiczenie " + (planWTrakcie.indeks + 1) + " z " +
@@ -4618,35 +4754,378 @@
     zakonczPlanWTrakcie();
   });
 
-  // Submit
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault();
+  // ===== Zapisz trening: wybór ćwiczenia, liczniki, zaliczone serie (wersja robocza w localStorage), zapis do "treningi" =====
+  let zapisPartia = PARTIE[0];
+  let zapisCwiczenie = null;   // nazwa wybranego ćwiczenia
+  let zapisKg = 20;
+  let zapisPowt = 10;
+  let zapisSerie = [];         // zaliczone serie, w formacie "treningi.podejscia": [{ "cieżar", powtorzenia }]
+  let zapisDataSzkicu = null;  // data wersji roboczej (dzień pierwszej zaliczonej serii)
+  let zapisWartosciRecznie = false; // użytkownik zmienił liczniki - nie nadpisuj ich wartościami startowymi
+  let zapisTrwa = false;
+  let zapisStareSzkice = [];   // wersje robocze z wcześniejszych dni, czekające na decyzję
+  const ZAPIS_KROK_KG = 2.5;
+  const ZAPIS_OBROTY_PIECZATEK = [-6, 5, -3, 8, -5];
 
-    const partia = selPartia.value;
-    const cwiczenie = selCwiczenie.value;
-    const data = inputData.value;
+  function kluczSzkicu(stare) {
+    return "silownia-szkic-treningu-" + (stare ? "stare-" : "") + (sesjaUzytkownika ? sesjaUzytkownika.user.id : "anon");
+  }
+  // Wersja robocza zapisywana na bieżąco (osobno dla konta), żeby serie przetrwały zamknięcie apki
+  function zapiszSzkic() {
+    try {
+      if (zapisSerie.length === 0) localStorage.removeItem(kluczSzkicu());
+      else localStorage.setItem(kluczSzkicu(), JSON.stringify({
+        partia: zapisPartia, cwiczenie: zapisCwiczenie, data: zapisDataSzkicu || dzisiaj(), podejscia: zapisSerie
+      }));
+    } catch (e) {}
+  }
+  function zapiszStareSzkice() {
+    try {
+      if (zapisStareSzkice.length === 0) localStorage.removeItem(kluczSzkicu(true));
+      else localStorage.setItem(kluczSzkicu(true), JSON.stringify(zapisStareSzkice));
+    } catch (e) {}
+  }
 
-    const podejscia = [];
-    podejsciaBox.querySelectorAll(".set-row").forEach(function (row) {
-      const ciezar = row.querySelector('input[name="ciezar"]').value;
-      const powt = row.querySelector('input[name="powtorzenia"]').value;
-      podejscia.push({ "cieżar": Number(ciezar), powtorzenia: Number(powt) });
+  // Po zalogowaniu: dzisiejsza wersja robocza wraca do edycji, wcześniejsza trafia do "starych" (zapisz z tamtą datą / odrzuć)
+  function wczytajSzkicTreningu() {
+    zapisSerie = [];
+    zapisDataSzkicu = null;
+    zapisCwiczenie = null;
+    zapisWartosciRecznie = false;
+    let szkic = null;
+    zapisStareSzkice = [];
+    try {
+      szkic = JSON.parse(localStorage.getItem(kluczSzkicu()) || "null");
+      zapisStareSzkice = JSON.parse(localStorage.getItem(kluczSzkicu(true)) || "[]") || [];
+    } catch (e) {}
+    if (szkic && szkic.cwiczenie && (szkic.podejscia || []).length) {
+      if (szkic.data === dzisiaj()) {
+        zapisPartia = szkic.partia;
+        zapisCwiczenie = szkic.cwiczenie;
+        zapisSerie = szkic.podejscia;
+        zapisDataSzkicu = szkic.data;
+      } else {
+        zapisStareSzkice.push(szkic);
+        zapiszStareSzkice();
+        try { localStorage.removeItem(kluczSzkicu()); } catch (e) {}
+      }
+    }
+    ustawWartosciStartowe();
+    renderZapisTrening();
+    renderStarySzkic();
+  }
+
+  function renderStarySzkic() {
+    const szkic = zapisStareSzkice[0];
+    zapisSzkicStary.hidden = !szkic;
+    if (!szkic) return;
+    zapisSzkicStaryTekst.innerHTML = "";
+    const b = document.createElement("b");
+    b.textContent = formatDatyRejestru(szkic.data);
+    zapisSzkicStaryTekst.append(
+      document.createTextNode("Niezapisane serie z "), b,
+      document.createTextNode(": " + szkic.cwiczenie + " - " + opisSerii(szkic.podejscia) + ".")
+    );
+    btnSzkicStaryZapisz.textContent = "Zapisz z datą " + formatDatyRejestru(szkic.data);
+  }
+  btnSzkicStaryZapisz.addEventListener("click", async function () {
+    const szkic = zapisStareSzkice[0];
+    if (!szkic) return;
+    btnSzkicStaryZapisz.disabled = true;
+    const wpis = await zapiszWpisTreningu(szkic.partia, szkic.cwiczenie, szkic.data, szkic.podejscia);
+    btnSzkicStaryZapisz.disabled = false;
+    if (!wpis) return;
+    zapisStareSzkice.shift();
+    zapiszStareSzkice();
+    renderStarySzkic();
+    pokazToast("Zapisano: " + szkic.cwiczenie + " (" + formatDatyRejestru(szkic.data) + ")", "sukces");
+  });
+  btnSzkicStaryOdrzuc.addEventListener("click", function () {
+    const szkic = zapisStareSzkice[0];
+    if (!szkic) return;
+    if (!window.confirm("Odrzucić niezapisane serie „" + szkic.cwiczenie + "” z dnia " + szkic.data + "?")) return;
+    zapisStareSzkice.shift();
+    zapiszStareSzkice();
+    renderStarySzkic();
+  });
+
+  // Nagłówek "SESJA · 4 PAŹ" - trening zawsze zapisuje się z dzisiejszą datą
+  function renderZapisSesja() {
+    const d = new Date();
+    zapisSesja.textContent = "Sesja · " + d.getDate() + " " + MIESIACE_SKROT[d.getMonth()];
+  }
+
+  // Najlepsza seria (ciężar × powtórzenia) z ostatniego treningu ćwiczenia - podpis na karcie ćwiczenia
+  function najlepszaSeriaOstatnio(cwiczenie) {
+    const ostatni = ostatniWpisDlaCwiczenia(cwiczenie);
+    let najlepsza = null;
+    ((ostatni && ostatni.podejscia) || []).forEach(function (p) {
+      if (!najlepsza || wynikSerii(p) > wynikSerii(najlepsza)) najlepsza = p;
+    });
+    return najlepsza;
+  }
+  // Wartości startowe: ciężar z rekordu, powtórzenia z rekordu + 1; pierwszy raz 20 kg × 10
+  function ustawWartosciStartowe() {
+    const rekord = zapisCwiczenie ? obliczRekordy()[zapisCwiczenie] : null;
+    zapisKg = rekord ? rekord.ciezar : 20;
+    zapisPowt = rekord ? rekord.powtorzenia + 1 : 10;
+    zapisWartosciRecznie = false;
+  }
+  // Wynik do pobicia: rekord ćwiczenia albo lepsza seria zaliczona już dziś
+  function wynikDoPobicia() {
+    const rekord = zapisCwiczenie ? obliczRekordy()[zapisCwiczenie] : null;
+    let najlepszy = rekord ? rekord.wynik : 0;
+    zapisSerie.forEach(function (p) { najlepszy = Math.max(najlepszy, wynikSerii(p)); });
+    return najlepszy;
+  }
+
+  // Po wczytaniu/usunięciu wpisów: zmienia się rekord i "ostatnio", więc odśwież panel (i wartości startowe, jeśli nietknięte)
+  function odswiezZapisPoZmianieWpisow() {
+    if (!zapisWartosciRecznie && zapisSerie.length === 0) ustawWartosciStartowe();
+    renderZapisTrening();
+  }
+
+  // Zmiana ćwiczenia/partii; niezapisane serie zapisują się wtedy automatycznie
+  async function wybierzCwiczenie(partia, cwiczenie) {
+    if (partia === zapisPartia && cwiczenie === zapisCwiczenie) return;
+    if (zapisSerie.length > 0) {
+      const ok = await zapiszBiezaceCwiczenie(true);
+      if (!ok) return;
+    }
+    zapisPartia = partia;
+    zapisCwiczenie = cwiczenie;
+    ustawWartosciStartowe();
+    renderZapisTrening();
+  }
+
+  function renderZapisTrening() {
+    renderZapisSesja();
+    const cwiczenia = cwiczeniaDlaPartii(zapisPartia);
+    if (!zapisCwiczenie && cwiczenia.length > 0) {
+      zapisCwiczenie = cwiczenia[0];
+      ustawWartosciStartowe();
+    }
+
+    // Chipy partii
+    zapisChipy.innerHTML = "";
+    PARTIE.forEach(function (partia) {
+      const aktywny = partia === zapisPartia;
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "plan-chip" + (aktywny ? " aktywny" : "");
+      chip.setAttribute("aria-pressed", aktywny ? "true" : "false");
+      const kropka = document.createElement("span");
+      kropka.className = "plan-kropka";
+      kropka.style.setProperty("--kolor-partii", kolorPartiiCSS(partia));
+      chip.append(kropka, document.createTextNode(partia));
+      chip.addEventListener("click", function () {
+        if (partia === zapisPartia) return;
+        wybierzCwiczenie(partia, cwiczeniaDlaPartii(partia)[0] || null);
+      });
+      zapisChipy.appendChild(chip);
     });
 
-    const btn = form.querySelector(".btn-submit");
-    btn.disabled = true;
+    // Karty ćwiczeń wybranej partii z podpisem "ostatnio X×Y" / "pierwszy raz"
+    zapisCwiczeniaPasek.innerHTML = "";
+    let aktywnaKarta = null;
+    cwiczenia.forEach(function (nazwa) {
+      const aktywna = nazwa === zapisCwiczenie;
+      const karta = document.createElement("button");
+      karta.type = "button";
+      karta.className = "zapis-cw-karta" + (aktywna ? " aktywna" : "");
+      karta.setAttribute("aria-pressed", aktywna ? "true" : "false");
+      const nazwaEl = document.createElement("span");
+      nazwaEl.className = "zapis-cw-nazwa";
+      nazwaEl.textContent = nazwa;
+      const ostatnio = document.createElement("span");
+      ostatnio.className = "zapis-cw-ostatnio";
+      const seria = najlepszaSeriaOstatnio(nazwa);
+      ostatnio.textContent = seria ? "ostatnio " + formatKg(Number(seria["cieżar"]) || 0) + "×" + (Number(seria.powtorzenia) || 0) : "pierwszy raz";
+      karta.append(nazwaEl, ostatnio);
+      karta.addEventListener("click", function () { wybierzCwiczenie(zapisPartia, nazwa); });
+      zapisCwiczeniaPasek.appendChild(karta);
+      if (aktywna) aktywnaKarta = karta;
+    });
+    if (aktywnaKarta) {
+      const lewa = aktywnaKarta.offsetLeft - 16;
+      if (lewa < zapisCwiczeniaPasek.scrollLeft || lewa + aktywnaKarta.offsetWidth > zapisCwiczeniaPasek.scrollLeft + zapisCwiczeniaPasek.clientWidth) {
+        zapisCwiczeniaPasek.scrollLeft = Math.max(0, lewa);
+      }
+    }
 
+    // Brak ćwiczeń w partii (i nic wybranego z planu) - pusty stan zamiast panelu
+    const brak = !zapisCwiczenie;
+    zapisBrak.hidden = !brak;
+    zapisPanel.hidden = brak;
+    zapisCwiczeniaPasek.hidden = cwiczenia.length === 0;
+    if (brak) {
+      zapisBrak.innerHTML = pustyStanHTML("💪", "Brak ćwiczeń w partii " + zapisPartia + " - dodaj je w Katalogu ćwiczeń.");
+      return;
+    }
+
+    // Aktualne ćwiczenie + "DO POBICIA"
+    zapisPartiaKropka.style.setProperty("--kolor-partii", kolorPartiiCSS(zapisPartia));
+    zapisPartiaNazwa.textContent = zapisPartia;
+    zapisTytul.textContent = zapisCwiczenie.charAt(0).toUpperCase() + zapisCwiczenie.slice(1);
+    const rekord = obliczRekordy()[zapisCwiczenie];
+    zapisDoPobicia.hidden = !rekord;
+    if (rekord) zapisRekord.textContent = formatKg(rekord.ciezar) + " kg × " + rekord.powtorzenia;
+
+    renderZapisLiczniki();
+    renderZapisSerie();
+  }
+
+  function renderZapisLiczniki() {
+    if (document.activeElement !== inputZapisKg) inputZapisKg.value = formatKg(zapisKg);
+    if (document.activeElement !== inputZapisPowt) inputZapisPowt.value = String(zapisPowt);
+
+    const doPobicia = wynikDoPobicia();
+    const wynik = zapisKg * zapisPowt;
+    let tekst;
+    let zlota = false;
+    if (doPobicia <= 0) {
+      tekst = "Pierwsza seria ustawi rekord";
+      zlota = true;
+    } else if (wynik > doPobicia) {
+      tekst = "Ta seria pobije rekord!";
+      zlota = true;
+    } else if (zapisKg <= 0) {
+      tekst = "Ustaw ciężar, żeby powalczyć o rekord";
+    } else {
+      const brakuje = Math.floor(doPobicia / zapisKg) + 1 - zapisPowt;
+      tekst = "Brakuje " + brakuje + " powt. do rekordu";
+    }
+    zapisPodpowiedz.textContent = tekst;
+    zapisPodpowiedz.classList.toggle("zlota", zlota);
+  }
+
+  const IKONA_X =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+  // Lista "Zaliczone serie": seria jest rekordowa, gdy bije rekord ćwiczenia i wszystkie wcześniejsze serie dnia
+  function renderZapisSerie() {
+    const n = zapisSerie.length;
+    zapisZaliczTekst.textContent = "Zalicz serię " + (n + 1);
+    zapisSerieLicznik.textContent = n + " " + odmianaLiczby(n, "seria", "serie", "serii");
+    btnZapisZapisz.disabled = n === 0;
+
+    zapisSerieBox.innerHTML = "";
+    if (n === 0) {
+      const pusto = document.createElement("p");
+      pusto.className = "zapis-serie-pusto";
+      pusto.textContent = "Ustaw ciężar i powtórzenia, potem zalicz pierwszą serię.";
+      zapisSerieBox.appendChild(pusto);
+      return;
+    }
+    const rekord = obliczRekordy()[zapisCwiczenie];
+    let najlepszy = rekord ? rekord.wynik : 0;
+    zapisSerie.forEach(function (p, i) {
+      const wynik = wynikSerii(p);
+      const czyRekord = wynik > najlepszy;
+      if (czyRekord) najlepszy = wynik;
+
+      const wiersz = document.createElement("div");
+      wiersz.className = "zapis-seria" + (czyRekord ? " rekord" : "");
+      const pieczatka = document.createElement("span");
+      pieczatka.className = "zapis-seria-pieczatka";
+      pieczatka.style.setProperty("--obrot", ZAPIS_OBROTY_PIECZATEK[i % ZAPIS_OBROTY_PIECZATEK.length] + "deg");
+      pieczatka.textContent = String(i + 1);
+      const opis = document.createElement("span");
+      opis.className = "zapis-seria-opis";
+      opis.textContent = formatKg(Number(p["cieżar"]) || 0) + " kg × " + (Number(p.powtorzenia) || 0);
+      wiersz.append(pieczatka, opis);
+      if (czyRekord) {
+        const pigulka = document.createElement("span");
+        pigulka.className = "zapis-pigulka-rekord";
+        pigulka.innerHTML = IKONA_GWIAZDKA_REKORD + "Rekord";
+        wiersz.appendChild(pigulka);
+      }
+      const btnX = document.createElement("button");
+      btnX.type = "button";
+      btnX.className = "zapis-btn-x";
+      btnX.setAttribute("aria-label", "Usuń serię " + (i + 1));
+      btnX.innerHTML = IKONA_X;
+      btnX.addEventListener("click", function () {
+        if (!window.confirm("Usunąć serię " + (i + 1) + " (" + opis.textContent + ")?")) return;
+        zapisSerie.splice(i, 1);
+        if (zapisSerie.length === 0) zapisDataSzkicu = null;
+        zapiszSzkic();
+        renderZapisLiczniki();
+        renderZapisSerie();
+      });
+      wiersz.appendChild(btnX);
+      zapisSerieBox.appendChild(wiersz);
+    });
+  }
+
+  // Liczniki: − / + (ciężar co 2,5 kg, powtórzenia co 1) i wpisywanie z klawiatury (bez wartości ujemnych)
+  function ustawKg(kg) {
+    zapisKg = Math.max(0, Math.round(kg * 100) / 100);
+    zapisWartosciRecznie = true;
+    renderZapisLiczniki();
+  }
+  function ustawPowt(powt) {
+    zapisPowt = Math.max(1, Math.round(powt));
+    zapisWartosciRecznie = true;
+    renderZapisLiczniki();
+  }
+  document.getElementById("zapis-kg-minus").addEventListener("click", function () { ustawKg(zapisKg - ZAPIS_KROK_KG); });
+  document.getElementById("zapis-kg-plus").addEventListener("click", function () { ustawKg(zapisKg + ZAPIS_KROK_KG); });
+  document.getElementById("zapis-powt-minus").addEventListener("click", function () { ustawPowt(zapisPowt - 1); });
+  document.getElementById("zapis-powt-plus").addEventListener("click", function () { ustawPowt(zapisPowt + 1); });
+
+  inputZapisKg.addEventListener("input", function () {
+    const czyste = inputZapisKg.value.replace(/[^0-9.,]/g, "");
+    if (czyste !== inputZapisKg.value) inputZapisKg.value = czyste;
+  });
+  inputZapisPowt.addEventListener("input", function () {
+    const czyste = inputZapisPowt.value.replace(/[^0-9]/g, "");
+    if (czyste !== inputZapisPowt.value) inputZapisPowt.value = czyste;
+  });
+  inputZapisKg.addEventListener("focus", function () { inputZapisKg.select(); });
+  inputZapisPowt.addEventListener("focus", function () { inputZapisPowt.select(); });
+  inputZapisKg.addEventListener("change", function () {
+    const kg = parseFloat(inputZapisKg.value.replace(",", "."));
+    if (isNaN(kg) || kg < 0) inputZapisKg.value = formatKg(zapisKg);
+    else ustawKg(kg);
+  });
+  inputZapisPowt.addEventListener("change", function () {
+    const powt = parseInt(inputZapisPowt.value, 10);
+    if (isNaN(powt) || powt < 1) inputZapisPowt.value = String(zapisPowt);
+    else ustawPowt(powt);
+  });
+  [inputZapisKg, inputZapisPowt].forEach(function (pole) {
+    pole.addEventListener("keydown", function (e) { if (e.key === "Enter") pole.blur(); });
+    pole.addEventListener("blur", function () { renderZapisLiczniki(); });
+  });
+
+  // "Zalicz serię N": dopisanie serii do wersji roboczej
+  btnZapisZalicz.addEventListener("click", function () {
+    if (!zapisCwiczenie) return;
+    // Wartość wpisana z klawiatury, a jeszcze niezatwierdzona (pole nadal aktywne)
+    if (document.activeElement === inputZapisKg || document.activeElement === inputZapisPowt) document.activeElement.blur();
+    const doPobicia = wynikDoPobicia();
+    const seria = { "cieżar": zapisKg, powtorzenia: zapisPowt };
+    if (zapisSerie.length === 0) zapisDataSzkicu = dzisiaj();
+    zapisSerie.push(seria);
+    zapiszSzkic();
+    const rekord = wynikSerii(seria) > doPobicia && wynikSerii(seria) > 0;
+    if (navigator.vibrate) navigator.vibrate(rekord ? [20, 40, 20] : 15);
+    renderZapisLiczniki();
+    renderZapisSerie();
+  });
+
+  // Zapis jednego wiersza do "treningi" (ten sam format podejść co dotąd) + odświeżenie widoków jak po starym zapisie
+  async function zapiszWpisTreningu(partia, cwiczenie, data, podejscia) {
     const { data: wstawione, error } = await db
       .from("treningi")
       .insert({ partia: partia, cwiczenie: cwiczenie, data: data, podejscia: podejscia, user_id: sesjaUzytkownika.user.id })
       .select();
 
-    btn.disabled = false;
-
     if (error) {
       console.error(error);
       pokazToast("Nie udało się zapisać: " + error.message, "blad");
-      return;
+      return null;
     }
 
     const nowyWpis = wstawione && wstawione[0] ? wstawione[0] : { partia, cwiczenie, data, podejscia };
@@ -4655,16 +5134,38 @@
     renderRekord();
     renderRejestr();
     renderWykresPostepu();
+    return nowyWpis;
+  }
 
-    form.reset();
-    odbudujSelectCwiczenie();
-    inputData.value = dzisiaj();
-    resetPodejscia();
+  // "Zapisz ćwiczenie i wybierz kolejne" (auto = true przy zmianie ćwiczenia/partii z niezapisanymi seriami)
+  async function zapiszBiezaceCwiczenie(auto) {
+    if (zapisTrwa) return false;
+    if (!zapisCwiczenie || zapisSerie.length === 0) {
+      if (!auto) pokazToast("Zalicz najpierw przynajmniej jedną serię.", "blad");
+      return auto;
+    }
+    zapisTrwa = true;
+    btnZapisZapisz.disabled = true;
+    const nazwa = zapisCwiczenie;
+    const liczba = zapisSerie.length;
+    const wpis = await zapiszWpisTreningu(zapisPartia, zapisCwiczenie, zapisDataSzkicu || dzisiaj(), zapisSerie.slice());
+    zapisTrwa = false;
+    btnZapisZapisz.disabled = false;
+    if (!wpis) return false;
 
-    if (planWTrakcie) {
+    zapisSerie = [];
+    zapisDataSzkicu = null;
+    zapiszSzkic();
+    pokazToast((auto ? "Zapisano automatycznie: " : "Zapisano: ") + nazwa + " (" + liczba + " " + odmianaLiczby(liczba, "seria", "serie", "serii") + ")", "sukces");
+
+    ustawWartosciStartowe();
+    renderZapisTrening();
+    if (!auto && planWTrakcie) {
       przejdzDoNastepnegoCwiczeniaPlanu();
     }
-  });
+    return true;
+  }
+  btnZapisZapisz.addEventListener("click", function () { zapiszBiezaceCwiczenie(false); });
 
   // ----- Katalog ćwiczeń: kafle partii, formularz nowego ćwiczenia, lista wybranej partii -----
   let katalogWybranaPartia = PARTIE[0];
@@ -4849,6 +5350,7 @@
     renderRekord();
     renderRejestr();
     renderWykresPostepu();
+    odswiezZapisPoZmianieWpisow();
   }
 
   // Usunięcie ćwiczenia z tabeli "cwiczenia"
