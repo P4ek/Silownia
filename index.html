@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="pl" class="motyw-habits">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dziennik treningowy</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="logo/icon-180.png">
-<meta name="theme-color" content="#E2643F">
+<meta name="theme-color" content="#08090B">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Silownia">
@@ -14,17 +14,38 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  /* Apka ma zawsze ciemny motyw (ten z sekcji Nawyki) — zmienne bazowe mają od razu ciemne wartości, więc także elementy poza .kontener (ekran logowania, okno wylogowania, hamburger) są ciemne */
   :root {
-    --cream: #FAF3E7;
-    --card: #FFFDF8;
-    --ink: #2A2320;
-    --muted: #8C8073;
-    --border: #ECE1CF;
-    --accent: #E2643F;
-    --accent-soft: #FCEAE2;
-    --accent-pink: #E3A9B4;
-    --accent-pink-soft: #FBEEF1;
-    --shadow-warm: 0 14px 34px -16px rgba(226, 100, 63, 0.30), 0 2px 8px rgba(180, 150, 120, 0.12);
+    --habits-akcent: #D6D0C0;
+    --habits-akcent-rgb: 214, 208, 192;
+    --habits-tlo: oklch(0.07 0.004 250);
+    --habits-tlo-karta: oklch(0.1 0.006 250);
+    --habits-obramowanie: oklch(0.19 0.008 245);
+    --habits-obramowanie-puste: oklch(0.24 0.01 245);
+    --habits-naglowek: oklch(0.97 0.004 240);
+    --habits-tekst: oklch(0.85 0.005 240);
+    --habits-tekst-pomocniczy: oklch(0.44 0.008 240);
+    --habits-zloto: oklch(0.72 0.08 75); /* złoty akcent z "Rad z książek" (PD, poziom, planety) */
+    /* Jaśniejsze tło kart/formularzy poza sekcją "Nawyki" — --habits-tlo-karta zostaje bez zmian dla samej sekcji Nawyki */
+    --tryb-ciemny-tlo-karta: oklch(0.14 0.006 250);
+    --cream: var(--habits-tlo);
+    --card: var(--tryb-ciemny-tlo-karta);
+    --ink: var(--habits-tekst);
+    --muted: oklch(0.6 0.008 240);
+    --border: var(--habits-obramowanie);
+    --accent: var(--habits-akcent);
+    --accent-soft: var(--habits-tlo-karta);
+    --accent-pink: var(--habits-akcent);
+    --accent-pink-soft: var(--habits-tlo-karta);
+    --shadow-warm: 0 14px 34px -16px rgba(0, 0, 0, 0.7);
+    /* Kolory partii — jedna mapa dla całej apki (kropki partii, Mapa ciała) */
+    --partia-klata: #D6D0C0;
+    --partia-plecy: oklch(0.66 0.13 250);
+    --partia-barki: oklch(0.72 0.14 50);
+    --partia-biceps: oklch(0.66 0.15 300);
+    --partia-triceps: oklch(0.7 0.11 180);
+    --partia-brzuch: oklch(0.74 0.13 140);
+    --partia-nogi: oklch(0.7 0.15 25);
     /* Bardzo subtelna tekstura szumu (film grain) na tło strony — SVG feTurbulence, jak w ikonce PWA; opacity 0.04 wpisane w sam SVG (rect) */
     --tekstura-szumu: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
   }
@@ -66,23 +87,6 @@
   }
   .kontener > h1,
   .kontener > section { position: relative; z-index: 1; }
-  .blob {
-    position: absolute;
-    width: 340px;
-    height: 340px;
-    right: -70px;
-    top: -60px;
-    background: radial-gradient(circle at 32% 30%, #E2643F, #F2A576);
-    border-radius: 46% 54% 62% 38% / 52% 44% 56% 48%;
-    filter: blur(64px);
-    opacity: 0.11;
-    pointer-events: none;
-    z-index: 0;
-    transition: background 0.2s ease;
-  }
-  .kontener.motyw-rozwoj .blob {
-    background: radial-gradient(circle at 32% 30%, #E3A9B4, #F2CFD6);
-  }
   .habits-poswiata {
     display: none;
     position: absolute;
@@ -93,7 +97,7 @@
     pointer-events: none;
   }
 
-  /* ----- Hamburger + przełącznik motywu ----- */
+  /* ----- Hamburger + przycisk przypomnień ----- */
   .topbar-ikony {
     position: fixed;
     top: 14px;
@@ -123,22 +127,7 @@
     border-radius: 2px;
     background: var(--ink);
   }
-  .motyw-btn {
-    width: 42px;
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 13px;
-    box-shadow: var(--shadow-warm);
-    color: var(--muted);
-    cursor: pointer;
-  }
-  .motyw-btn svg { width: 19px; height: 19px; }
-  /* Przycisk "Przypomnienia" obok przełącznika motywu — wygląd kafelka jak .motyw-btn, tylko z ikoną dzwonka (bez tekstu) */
+  /* Przycisk "Przypomnienia" obok hamburgera — kafelek z ikoną dzwonka (bez tekstu) */
   .topbar-ikony #btn-przypomnienia {
     width: 42px;
     height: 42px;
@@ -151,37 +140,25 @@
     color: var(--muted);
   }
   .topbar-ikony #btn-przypomnienia svg { width: 19px; height: 19px; }
-  /* Przyciski motywu i przypomnień widoczne tylko przy wysuniętym panelu bocznym (klasa ustawiana w otworzPanel/zamknijPanel) */
-  .topbar-ikony .motyw-btn,
+  /* Przycisk przypomnień widoczny tylko przy wysuniętym panelu bocznym (klasa ustawiana w otworzPanel/zamknijPanel) */
   .topbar-ikony #btn-przypomnienia {
     opacity: 0;
     visibility: hidden;
     transform: translateX(-6px);
     transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s, scale 0.1s ease;
   }
-  .topbar-ikony.panel-otwarty #btn-przypomnienia,
-  .topbar-ikony.panel-otwarty .motyw-btn {
+  .topbar-ikony.panel-otwarty #btn-przypomnienia {
     opacity: 1;
     visibility: visible;
     transform: none;
     transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s, scale 0.1s ease;
-  }
-  .motyw-btn.aktywny {
-    color: var(--accent);
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--accent-soft), var(--shadow-warm);
-  }
-  .motyw-btn.motyw-btn-habits.aktywny {
-    color: #D6D0C0;
-    border-color: #D6D0C0;
-    box-shadow: 0 0 0 2px rgba(214, 208, 192, 0.35), var(--shadow-warm);
   }
 
   /* ----- Panel boczny ----- */
   #overlay {
     position: fixed;
     inset: 0;
-    background: rgba(42, 35, 32, 0.38);
+    background: rgba(0, 0, 0, 0.5);
     -webkit-backdrop-filter: blur(2px);
     backdrop-filter: blur(2px);
     z-index: 50;
@@ -236,18 +213,13 @@
     color: var(--muted);
     transition: color 0.15s ease;
   }
-  .nav-btn:hover { background: #F7F1E6; }
+  .nav-btn:hover { background: oklch(0.09 0.006 245); }
   .nav-btn.aktywny {
     background: var(--accent-soft);
     color: var(--accent);
     font-weight: 700;
   }
   .nav-btn.aktywny svg { color: var(--accent); }
-  .nav-btn.aktywny.nav-rozwoj {
-    background: var(--accent-pink-soft);
-    color: var(--accent-pink);
-  }
-  .nav-btn.aktywny.nav-rozwoj svg { color: var(--accent-pink); }
 
   /* Pigułka przy "Plan tygodnia": X/Y celów zrealizowanych w bieżącym tygodniu (niezależna od przeglądanego tygodnia strzałkami) */
   .nav-cele-pigulka {
@@ -262,15 +234,6 @@
     color: var(--accent-pink);
   }
   .nav-cele-pigulka.pigulka-kompletna {
-    background: #E6F3E4;
-    border-color: #BCDDB6;
-    color: #2F6B2A;
-  }
-  #sidebar.motyw-habits .nav-cele-pigulka {
-    border-color: var(--habits-akcent, #D6D0C0);
-    color: var(--habits-akcent, #D6D0C0);
-  }
-  html.motyw-habits .nav-cele-pigulka.pigulka-kompletna {
     background: oklch(0.2 0.035 150);
     border-color: oklch(0.32 0.06 150);
     color: oklch(0.86 0.08 150);
@@ -282,14 +245,14 @@
     padding-top: 17px;
     color: var(--muted);
   }
-  .nav-wyloguj:hover { background: #F7F1E6; color: #b00020; }
-  .nav-wyloguj:hover svg { color: #b00020; }
+  .nav-wyloguj:hover { background: oklch(0.09 0.006 245); color: oklch(0.75 0.13 28); }
+  .nav-wyloguj:hover svg { color: oklch(0.75 0.13 28); }
 
   /* ----- Okno potwierdzenia wylogowania ----- */
   #wyloguj-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(42, 35, 32, 0.45);
+    background: rgba(0, 0, 0, 0.6);
     z-index: 90;
     display: flex;
     align-items: center;
@@ -327,11 +290,11 @@
     padding: 13px 20px;
     border: none;
     border-radius: 999px;
-    background: linear-gradient(135deg, #EF7B50, #E2643F 55%, #CF5330);
-    color: #fff;
+    background: var(--habits-akcent);
+    color: oklch(0.07 0.004 250);
     font-weight: 700;
     font-size: 0.92rem;
-    box-shadow: 0 12px 26px -8px rgba(226, 100, 63, 0.55);
+    box-shadow: 0 0 10px rgba(var(--habits-akcent-rgb), 0.35);
     transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease;
   }
   .btn-wyloguj-tak:hover { filter: brightness(1.05); }
@@ -346,7 +309,7 @@
     font-weight: 600;
     font-size: 0.92rem;
   }
-  .btn-wyloguj-nie:hover { background: #F7F1E6; }
+  .btn-wyloguj-nie:hover { background: var(--habits-obramowanie); }
 
   /* ----- Widoki ----- */
   .widok { display: none; opacity: 1; transition: opacity 150ms ease; }
@@ -379,7 +342,7 @@
     padding: 11px 12px;
     border: 1px solid var(--border);
     border-radius: 12px;
-    background: #fff;
+    background: var(--card);
     font: inherit;
     font-size: 16px; /* min. 16px zapobiega automatycznemu przybliżeniu ekranu przy focusie pola w Safari na iOS */
     color: var(--ink);
@@ -387,9 +350,9 @@
   select:focus, input:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(226, 100, 63, 0.16);
+    box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18);
   }
-  select:disabled { background: #F4EEE2; color: var(--muted); }
+  select:disabled { background: var(--habits-tlo-karta); color: var(--muted); }
 
   fieldset {
     border: 1px solid var(--border);
@@ -553,15 +516,17 @@
     margin-right: 8px;
     flex: none;
     vertical-align: 1px;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+    background: var(--kolor-partii, var(--muted));
   }
-  .dot-Klata   { background: #E2643F; }
-  .dot-Plecy   { background: #3F7DE2; }
-  .dot-Biceps  { background: #8B5CF6; }
-  .dot-Triceps { background: #12A594; }
-  .dot-Barki   { background: #E0A82E; }
-  .dot-Brzuch  { background: #D6409F; }
-  .dot-Nogi    { background: #5B8C2A; }
+  /* Kolor partii z mapy --partia-* w :root — wspólny dla kropek partii i Mapy ciała */
+  .dot-Klata,   .mapa-partia[data-partia="Klata"]   { --kolor-partii: var(--partia-klata); }
+  .dot-Plecy,   .mapa-partia[data-partia="Plecy"]   { --kolor-partii: var(--partia-plecy); }
+  .dot-Barki,   .mapa-partia[data-partia="Barki"]   { --kolor-partii: var(--partia-barki); }
+  .dot-Biceps,  .mapa-partia[data-partia="Biceps"]  { --kolor-partii: var(--partia-biceps); }
+  .dot-Triceps, .mapa-partia[data-partia="Triceps"] { --kolor-partii: var(--partia-triceps); }
+  .dot-Brzuch,  .mapa-partia[data-partia="Brzuch"]  { --kolor-partii: var(--partia-brzuch); }
+  .dot-Nogi,    .mapa-partia[data-partia="Nogi"]    { --kolor-partii: var(--partia-nogi); }
 
   /* ----- Ostatnio dodane ----- */
   #lista { margin-top: 14px; }
@@ -765,9 +730,10 @@
     stroke: var(--mapa-zaznaczenie);
     stroke-width: 2;
   }
-  .mapa-partia.poziom-0 { fill: var(--mapa-poziom-0); }
-  .mapa-partia.poziom-1 { fill: var(--mapa-poziom-1); }
-  .mapa-partia.poziom-2 { fill: var(--mapa-poziom-2); }
+  /* Każda partia we własnym kolorze (--kolor-partii); im dawniej trenowana, tym bardziej zlana z tłem karty */
+  .mapa-partia.poziom-0 { fill: var(--kolor-partii); }
+  .mapa-partia.poziom-1 { fill: color-mix(in srgb, var(--kolor-partii) 62%, var(--habits-tlo-karta)); }
+  .mapa-partia.poziom-2 { fill: color-mix(in srgb, var(--kolor-partii) 36%, var(--habits-tlo-karta)); }
   .mapa-legenda {
     display: flex;
     flex-wrap: wrap;
@@ -906,7 +872,7 @@
     height: 40px;
     border: 1px solid var(--border);
     border-radius: 12px;
-    background: #fff;
+    background: var(--habits-tlo);
     color: var(--accent);
   }
   .btn-tydzien svg { width: 18px; height: 18px; }
@@ -1041,7 +1007,7 @@
     padding: 0;
     border: 1px solid var(--border);
     border-radius: 10px;
-    background: #fff;
+    background: var(--habits-tlo);
     color: #C9433D;
     opacity: 0.45;
     transition: opacity 0.15s ease, background 0.15s ease, scale 0.1s ease;
@@ -1142,25 +1108,8 @@
     .przeszkoda-form { flex-direction: column; }
   }
 
-  /* ----- Nawyki: ciemny motyw ze srebrnym akcentem na .kontener.motyw-habits, obejmuje całą kolumnę (nagłówek + widok) ----- */
+  /* ----- Ciemny motyw (zawsze włączony) na .kontener.motyw-habits, obejmuje całą kolumnę (nagłówek + widok); zmienne kolorów są w :root ----- */
   .kontener.motyw-habits {
-    --habits-akcent: #D6D0C0;
-    --habits-akcent-rgb: 214, 208, 192;
-    --habits-tlo: oklch(0.07 0.004 250);
-    --habits-tlo-karta: oklch(0.1 0.006 250);
-    --habits-obramowanie: oklch(0.19 0.008 245);
-    --habits-obramowanie-puste: oklch(0.24 0.01 245);
-    --habits-naglowek: oklch(0.97 0.004 240);
-    --habits-tekst: oklch(0.85 0.005 240);
-    --habits-tekst-pomocniczy: oklch(0.44 0.008 240);
-    --habits-zloto: oklch(0.72 0.08 75); /* złoty akcent z "Rad z książek" (PD, poziom, planety) */
-    /* Jaśniejsze tło kart/formularzy używane tylko w trybie ciemnym poza sekcją "Nawyki" — --habits-tlo-karta zostaje bez zmian dla samej sekcji Nawyki */
-    --tryb-ciemny-tlo-karta: oklch(0.14 0.006 250);
-    /* Podmiana palety pomarańczowej/różowej na akcent z Nawyków dla wszystkiego poza #widok-habits (tam wyższa swoistość ID zachowuje oryginalny wygląd) — obejmuje każdy element używający var(--accent)/var(--accent-soft)/var(--accent-pink)/var(--accent-pink-soft), w tym wewnątrz #widok-plan, który nadpisuje --accent na --accent-pink */
-    --accent: var(--habits-akcent);
-    --accent-soft: var(--habits-tlo-karta);
-    --accent-pink: var(--habits-akcent);
-    --accent-pink-soft: var(--habits-tlo-karta);
     /* Domyslny jasny kolor tekstu dla wszystkiego bez wlasnego koloru "wprost" (np. komorki tabel, li, span w Rejestrze/Wykresie/Zaplanuj trening/Nowe cwiczenie). Elementy z jawnym kolorem (habits-* w #widok-habits, przyciski z wlasnym color nizej) nie sa tym nadpisywane. */
     color: var(--habits-tekst);
     background: var(--habits-tlo);
@@ -1978,12 +1927,14 @@
     color: var(--habits-tekst);
   }
 
-  .kontener.motyw-habits .btn-submit {
+  .kontener.motyw-habits .btn-submit,
+  .ekran-logowania .btn-submit {
     background: var(--habits-akcent);
     color: oklch(0.07 0.004 250);
     box-shadow: 0 0 10px rgba(var(--habits-akcent-rgb), 0.35);
   }
-  .kontener.motyw-habits .btn-submit:hover { filter: brightness(1.08); }
+  .kontener.motyw-habits .btn-submit:hover,
+  .ekran-logowania .btn-submit:hover { filter: brightness(1.08); }
 
   .kontener.motyw-habits .btn-pill:not(.btn-pill-rola) {
     border-color: var(--habits-akcent);
@@ -2029,8 +1980,6 @@
   #sidebar.motyw-habits .nav-btn.aktywny:not(.nav-habits) svg { color: #D6D0C0; }
 
   /* Elementy z twardo wpisanym pomarańczem/różem (gradienty, cienie, kolory stanu) — podmiana zmiennych --accent* wyżej ich nie obejmuje, więc dopasowujemy je ręcznie do akcentu z Nawyków */
-  .kontener.motyw-habits .blob { display: none; }
-
   .kontener.motyw-habits .rekord-baner {
     background: var(--habits-akcent);
     color: oklch(0.07 0.004 250);
@@ -2100,9 +2049,6 @@
     background: oklch(0.07 0.004 250);
   }
 
-  .kontener.motyw-habits .dot-Klata {
-    background: var(--habits-akcent);
-  }
   /* Mapa ciała w ciemnym motywie: progi mieszane z ciemnym tłem karty, szary "nieaktywny" i obrys jaśniejsze od tła */
   .kontener.motyw-habits .karta-mapa {
     --mapa-poziom-1: color-mix(in srgb, var(--accent) 62%, var(--habits-tlo-karta));
@@ -2169,6 +2115,8 @@
   .logowanie-karta { width: 100%; max-width: 380px; }
   .logowanie-karta h1 { padding-left: 0; text-align: center; }
   .logowanie-opis { color: var(--muted); margin: 0 0 4px; text-align: center; }
+  .logowanie-karta h1 { color: var(--habits-naglowek); }
+  .ekran-logowania form { background: none; border: none; box-shadow: none; }
   .logowanie-status { margin: 14px 0 0; font-size: 0.9rem; font-weight: 600; text-align: center; }
 
   /* ----- Toast (pokazToast) zamiast alert() ----- */
@@ -2194,17 +2142,14 @@
     font-weight: 600;
     line-height: 1.4;
     text-align: center;
-    box-shadow: 0 12px 28px -12px rgba(42, 35, 32, 0.35);
+    box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.7);
     opacity: 0;
     transform: translateY(16px);
     transition: opacity 0.25s ease, transform 0.25s ease;
   }
   .toast.widoczny { opacity: 1; transform: none; }
-  .toast-sukces { background: #E6F3E4; border-color: #BCDDB6; color: #2F6B2A; }
-  .toast-blad   { background: #F8E7E0; border-color: #E7C3B4; color: #B4482C; }
-  html.motyw-habits .toast-sukces { background: oklch(0.2 0.035 150); border-color: oklch(0.32 0.06 150); color: oklch(0.86 0.08 150); }
-  html.motyw-habits .toast-blad   { background: oklch(0.2 0.04 28);   border-color: oklch(0.34 0.08 28);  color: oklch(0.85 0.08 28); }
-  html.motyw-habits .toast { box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.7); }
+  .toast-sukces { background: oklch(0.2 0.035 150); border-color: oklch(0.32 0.06 150); color: oklch(0.86 0.08 150); }
+  .toast-blad   { background: oklch(0.2 0.04 28);   border-color: oklch(0.34 0.08 28);  color: oklch(0.85 0.08 28); }
 
   /* ----- Konfetti po odznaczeniu wszystkich nawyków na dziś ----- */
   .konfetti-warstwa {
@@ -2257,7 +2202,7 @@
   }
 </style>
 </head>
-<body>
+<body class="motyw-habits">
 
 <div id="ekran-logowania" class="ekran-logowania">
   <div class="karta logowanie-karta">
@@ -2283,12 +2228,6 @@
   <button class="hamburger" id="hamburger" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
-  <button class="motyw-btn motyw-btn-auto aktywny" id="motyw-btn-auto" aria-label="Domyślny wygląd" title="Domyślny wygląd">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-  </button>
-  <button class="motyw-btn motyw-btn-habits" id="motyw-btn-habits" aria-label="Motyw Nawyki (ciemny)" title="Motyw Nawyki (ciemny)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
-  </button>
   <button type="button" id="btn-przypomnienia" class="nav-btn" aria-label="Przypomnienia" title="Przypomnienia">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
   </button>
@@ -2296,7 +2235,7 @@
 
 <div id="overlay" hidden></div>
 
-<nav id="sidebar">
+<nav id="sidebar" class="motyw-habits">
   <h3>Siłownia</h3>
   <button class="nav-btn aktywny" data-widok="widok-dodaj">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
@@ -2359,8 +2298,7 @@
   </div>
 </div>
 
-<div class="kontener">
-  <div class="blob" aria-hidden="true"></div>
+<div class="kontener motyw-habits">
   <svg class="habits-poswiata" width="620" height="620" viewBox="0 0 620 620" aria-hidden="true">
     <circle cx="310" cy="310" r="280" fill="#D6D0C0"/>
   </svg>
@@ -2917,14 +2855,14 @@
     if (error) {
       console.error(error);
       logowanieStatus.textContent = "Nie udało się wysłać linku: " + error.message;
-      logowanieStatus.style.color = "#b00020";
+      logowanieStatus.style.color = "oklch(0.78 0.12 28)";
       logowanieStatus.hidden = false;
       return;
     }
 
     logowanieEmail = email;
     logowanieStatus.textContent = "Sprawdź maila";
-    logowanieStatus.style.color = "#2b7a2b";
+    logowanieStatus.style.color = "oklch(0.8 0.1 150)";
     logowanieStatus.hidden = false;
     formLogowania.hidden = true;
     formKodu.hidden = false;
@@ -2950,7 +2888,7 @@
     if (error) {
       console.error(error);
       logowanieStatus.textContent = "Nie udało się zalogować: " + error.message;
-      logowanieStatus.style.color = "#b00020";
+      logowanieStatus.style.color = "oklch(0.78 0.12 28)";
       logowanieStatus.hidden = false;
     }
   });
@@ -3039,7 +2977,6 @@
   const overlay = document.getElementById("overlay");
   const widoki = document.querySelectorAll(".widok");
   const navBtns = document.querySelectorAll(".nav-btn");
-  const kontener = document.querySelector(".kontener");
 
   const topbarIkony = document.querySelector(".topbar-ikony");
 
@@ -3055,35 +2992,6 @@
   }
   hamburger.addEventListener("click", otworzPanel);
   overlay.addEventListener("click", zamknijPanel);
-
-  // ----- Przełącznik motywu (obok hamburgera): domyślny wygląd vs. ciemny motyw z sekcji "Nawyki" wszędzie -----
-  const motywBtnAuto = document.getElementById("motyw-btn-auto");
-  const motywBtnHabits = document.getElementById("motyw-btn-habits");
-  const MOTYW_KEY = "silownia-motyw-globalny";
-  let motywGlobalny = localStorage.getItem(MOTYW_KEY) === "habits" ? "habits" : "auto";
-
-  function zastosujMotyw() {
-    const aktywnyBtn = document.querySelector(".nav-btn.aktywny");
-    const cel = aktywnyBtn ? aktywnyBtn.dataset.widok : null;
-    const habitsWlaczony = motywGlobalny === "habits" || cel === "widok-habits" || cel === "widok-rady";
-    kontener.classList.toggle("motyw-habits", habitsWlaczony);
-    sidebar.classList.toggle("motyw-habits", habitsWlaczony);
-    document.body.classList.toggle("motyw-habits", habitsWlaczony);
-    document.documentElement.classList.toggle("motyw-habits", habitsWlaczony);
-    kontener.classList.toggle("motyw-rozwoj", !habitsWlaczony && cel === "widok-plan");
-    motywBtnAuto.classList.toggle("aktywny", motywGlobalny === "auto");
-    motywBtnHabits.classList.toggle("aktywny", motywGlobalny === "habits");
-  }
-
-  function ustawMotywGlobalny(nowyMotyw) {
-    motywGlobalny = nowyMotyw;
-    localStorage.setItem(MOTYW_KEY, motywGlobalny);
-    zastosujMotyw();
-  }
-
-  motywBtnAuto.addEventListener("click", function () { ustawMotywGlobalny("auto"); });
-  motywBtnHabits.addEventListener("click", function () { ustawMotywGlobalny("habits"); });
-  zastosujMotyw();
 
   navBtns.forEach(function (btn) {
     btn.addEventListener("click", function () {
@@ -3104,7 +3012,6 @@
           void nowyWidok.offsetWidth; // wymuszenie przeliczenia stylów, żeby przejście z opacity:0 na 1 faktycznie się zanimowało
           nowyWidok.classList.remove("widok-znika");
         }
-        zastosujMotyw();
         if (cel === "widok-rejestr") renderRejestr();
         if (cel === "widok-wykres") renderWykresPostepu();
         if (cel === "widok-wnioski") renderWnioski();
@@ -3159,7 +3066,7 @@
     return ostatni;
   }
 
-  // Adnotacja przy polu ćwiczenia: jaki ciężar (z "podejścia") był ostatnio brany na tym ćwiczeniu
+  // Adnotacja przy polu ćwiczenia: jaki ciężar (z "podejścia") był ostatnio brany na tym ćwiczeniu + rekord ćwiczenia (obliczRekordy)
   function renderOstatniCiezarDlaCwiczenia() {
     const cwiczenie = selCwiczenie.value;
     const ostatni = cwiczenie ? ostatniWpisDlaCwiczenia(cwiczenie) : null;
@@ -3172,7 +3079,9 @@
     const opis = ostatni.podejscia
       .map(function (p) { return p["cieżar"] + " kg × " + p.powtorzenia; })
       .join(", ");
-    cwiczenieOstatniCiezar.textContent = "Ostatnio (" + ostatni.data + "): " + opis;
+    const rekord = obliczRekordy()[cwiczenie];
+    cwiczenieOstatniCiezar.textContent = "Ostatnio (" + ostatni.data + "): " + opis +
+      (rekord ? " · Rekord: " + rekord.ciezar + " kg × " + rekord.powtorzenia : "");
     cwiczenieOstatniCiezar.hidden = false;
   }
   selCwiczenie.addEventListener("change", renderOstatniCiezarDlaCwiczenia);
@@ -3326,21 +3235,17 @@
     return wpis;
   }
 
-  // Baner z najcięższym zanotowanym podejściem
+  // Baner z rekordem (obliczRekordy) o najwyższym wyniku ciężar × powtórzenia; przy remisie nowszy
   function renderRekord() {
     let best = null;
-    wpisy.forEach(function (w) {
-      (w.podejscia || []).forEach(function (p) {
-        const c = Number(p["cieżar"]) || 0;
-        const r = Number(p.powtorzenia) || 0;
-        if (!best || c > best.c || (c === best.c && r > best.r)) {
-          best = { c: c, r: r, cw: w.cwiczenie };
-        }
-      });
+    const rekordy = obliczRekordy();
+    Object.keys(rekordy).forEach(function (cw) {
+      const r = rekordy[cw];
+      if (!best || r.wynik > best.wynik || (r.wynik === best.wynik && r.data > best.data)) best = r;
     });
-    if (!best || best.c <= 0) { rekordBaner.hidden = true; return; }
+    if (!best) { rekordBaner.hidden = true; return; }
     rekordTekst.textContent =
-      "Ostatni rekord: " + best.cw + " — " + best.c + " kg × " + best.r;
+      "Ostatni rekord: " + best.cwiczenie + " — " + best.ciezar + " kg × " + best.powtorzenia;
     rekordBaner.hidden = false;
     rekordBaner.classList.remove("rekord-pulsuj");
     void rekordBaner.offsetWidth; // wymuszenie przeliczenia stylów, żeby animacja odpaliła się ponownie przy każdym pokazaniu
@@ -3388,28 +3293,43 @@
   }
 
   // Budowa tabeli dni treningowych dla jednej grupy (miesiąca)
-  // Historycznie największy zapisany ciężar dla każdego ćwiczenia (po wszystkich podejściach, wszystkich wpisach)
-  function obliczMaksymalneCiezary() {
-    const maks = {};
+  // ===== Rekordy: JEDNA definicja dla całej apki =====
+  // Rekord ćwiczenia = pojedyncza seria z najwyższym wynikiem ciężar × powtórzenia w całej historii tego ćwiczenia.
+  function wynikSerii(p) {
+    return (Number(p["cieżar"]) || 0) * (Number(p.powtorzenia) || 0);
+  }
+
+  // Jedyna funkcja licząca rekordy: { [cwiczenie]: { cwiczenie, partia, ciezar, powtorzenia, wynik, data } }.
+  // Przy remisie rekordem jest seria zrobiona najwcześniej (pierwsza, która osiągnęła ten wynik).
+  function obliczRekordy() {
+    const rekordy = {};
     wpisy.forEach(function (w) {
       (w.podejscia || []).forEach(function (p) {
-        const c = Number(p["cieżar"]) || 0;
-        if (!(w.cwiczenie in maks) || c > maks[w.cwiczenie]) {
-          maks[w.cwiczenie] = c;
+        const wynik = wynikSerii(p);
+        if (wynik <= 0) return;
+        const r = rekordy[w.cwiczenie];
+        if (!r || wynik > r.wynik || (wynik === r.wynik && w.data < r.data)) {
+          rekordy[w.cwiczenie] = {
+            cwiczenie: w.cwiczenie, partia: w.partia, data: w.data, wynik: wynik,
+            ciezar: Number(p["cieżar"]) || 0, powtorzenia: Number(p.powtorzenia) || 0
+          };
         }
       });
     });
-    return maks;
+    return rekordy;
   }
 
-  // Czy dany wpis zawiera podejście z historycznie maksymalnym ciężarem dla swojego ćwiczenia
-  function czyWpisMaRekord(w, maksymalneCiezary) {
-    const maks = maksymalneCiezary[w.cwiczenie];
-    if (!maks || maks <= 0) return false;
-    return (w.podejscia || []).some(function (p) { return (Number(p["cieżar"]) || 0) === maks; });
+  // Seria z wpisu, która wyrównuje rekord swojego ćwiczenia (null, gdy wpis nie zawiera rekordu)
+  function seriaRekordowaWpisu(w, rekordy) {
+    const r = rekordy[w.cwiczenie];
+    if (!r) return null;
+    return (w.podejscia || []).find(function (p) { return wynikSerii(p) === r.wynik; }) || null;
+  }
+  function czyWpisMaRekord(w, rekordy) {
+    return !!seriaRekordowaWpisu(w, rekordy);
   }
 
-  function budujTabeleDni(daty, grupy, maksymalneCiezary, licznikDni) {
+  function budujTabeleDni(daty, grupy, rekordy, licznikDni) {
     const tabela = document.createElement("table");
     tabela.className = "rejestr-tabela";
     tabela.innerHTML = "<thead><tr><th>Dzień treningowy</th><th>Ćwiczenia</th></tr></thead>";
@@ -3439,7 +3359,7 @@
 
         const c2 = document.createElement("td");
         c2.textContent = w.cwiczenie;
-        if (czyWpisMaRekord(w, maksymalneCiezary)) {
+        if (czyWpisMaRekord(w, rekordy)) {
           c2.appendChild(tagNowyRekord());
         }
 
@@ -3487,7 +3407,7 @@
       (grupy[w.data] = grupy[w.data] || []).push(w);
     });
     const daty = Object.keys(grupy).sort().reverse();
-    const maksymalneCiezary = obliczMaksymalneCiezary();
+    const rekordy = obliczRekordy();
 
     rejestrBox.innerHTML = "";
     if (daty.length === 0) {
@@ -3515,7 +3435,7 @@
       naglowek.className = "rejestr-miesiac";
       naglowek.textContent = mies.etykieta;
       rejestrBox.appendChild(wjazdZOpoznieniem(naglowek, opoznienieDniaRejestru(licznikDni.indeks)));
-      rejestrBox.appendChild(budujTabeleDni(mies.daty, grupy, maksymalneCiezary, licznikDni));
+      rejestrBox.appendChild(budujTabeleDni(mies.daty, grupy, rekordy, licznikDni));
     });
   }
   rejestrSzukaj.addEventListener("input", renderRejestr);
@@ -3543,31 +3463,27 @@
   // ----- Wykres postępu: karta "Mapa ciała" + karta "Rekordy osobiste" -----
 
   // Karta 1: ćwiczenia, dla których wpis z bieżącego tygodnia (poniedziałek-niedziela)
-  // trafia w historycznie maksymalny ciężar tego ćwiczenia - czyli w tym tygodniu padł rekord
+  // zawiera rekordową serię tego ćwiczenia (obliczRekordy) - czyli w tym tygodniu padł rekord
   function renderRekordyTygodnia() {
     const poniedzialek = poniedzialekTygodnia(new Date());
     const poczatekTygodnia = isoZDaty(poniedzialek);
     const niedziela = new Date(poniedzialek.getFullYear(), poniedzialek.getMonth(), poniedzialek.getDate() + 6);
     const koniecTygodnia = isoZDaty(niedziela);
 
-    const maksymalneCiezary = obliczMaksymalneCiezary();
+    const rekordyWszystkie = obliczRekordy();
 
     // Najlepszy (najświeższy) pobity rekord w tygodniu, per ćwiczenie
     const rekordyPerCwiczenie = {};
     wpisy.forEach(function (w) {
       if (w.data < poczatekTygodnia || w.data > koniecTygodnia) return;
-      if (!czyWpisMaRekord(w, maksymalneCiezary)) return;
-
-      const maks = maksymalneCiezary[w.cwiczenie];
-      const powtorzeniaPrzyRekordzie = (w.podejscia || []).reduce(function (m, p) {
-        return (Number(p["cieżar"]) || 0) === maks ? Math.max(m, Number(p.powtorzenia) || 0) : m;
-      }, 0);
+      const seria = seriaRekordowaWpisu(w, rekordyWszystkie);
+      if (!seria) return;
 
       const istniejacy = rekordyPerCwiczenie[w.cwiczenie];
       if (!istniejacy || w.data > istniejacy.data) {
         rekordyPerCwiczenie[w.cwiczenie] = {
           partia: w.partia, cwiczenie: w.cwiczenie, data: w.data,
-          ciezar: maks, powtorzenia: powtorzeniaPrzyRekordzie
+          ciezar: Number(seria["cieżar"]) || 0, powtorzenia: Number(seria.powtorzenia) || 0
         };
       }
     });
@@ -4510,12 +4426,12 @@
         labels: ["Zrealizowane", "Niezrealizowane"],
         datasets: [{
           data: [zrealizowane, wszystkie - zrealizowane],
-          backgroundColor: ["#E3A9B4", "#ECE1CF"],
+          backgroundColor: ["#D6D0C0", "oklch(0.24 0.01 245)"],
           borderWidth: 0
         }]
       },
       options: {
-        plugins: { legend: { position: "bottom" } }
+        plugins: { legend: { position: "bottom", labels: { color: "oklch(0.85 0.005 240)" } } }
       }
     });
   }
