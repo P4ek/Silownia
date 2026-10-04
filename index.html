@@ -1605,35 +1605,237 @@
   }
   .kontener.motyw-habits .habits-poswiata { display: block; }
   .kontener.motyw-habits > h1 { color: var(--habits-naglowek); }
-  #widok-habits h2 { color: var(--habits-naglowek); margin-bottom: 4px; }
-  .nawyki-podtytul {
+  /* ----- Nawyki (#widok-habits): dziś jako bohater, kafle na dziś, karta tygodnia z siatką gwiazd, dodawanie ----- */
+  #widok-habits .habits-kicker {
     margin: 0;
-    font-size: 0.76rem;
-    font-weight: 600;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
+    color: var(--habits-tekst-pomocniczy);
+  }
+  .habits-dzis-data { display: flex; align-items: flex-end; gap: 14px; margin-top: 18px; }
+  .habits-dzis-liczba {
+    flex: none;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-size: clamp(6.5rem, 38vw, 9.4rem);
+    line-height: 0.78;
+    letter-spacing: -0.03em;
+    color: oklch(0.95 0.004 240);
+  }
+  .habits-dzis-opis { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding-bottom: 6px; }
+  .habits-dzis-dzien { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: clamp(1.7rem, 8.5vw, 2.1rem); line-height: 1; color: oklch(0.93 0.004 240); }
+  .habits-dzis-miesiac { font-size: 14px; color: oklch(0.52 0.008 240); }
+  .habits-sekcja-naglowek { display: flex; align-items: baseline; gap: 12px; margin-top: 34px; }
+  .habits-etykieta {
+    flex: 1;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: oklch(0.52 0.008 240);
+  }
+  .habits-dzis-licznik { font-size: 13px; font-weight: 600; color: var(--habits-akcent); }
+  .habits-btn-edytuj {
+    align-self: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--habits-obramowanie);
+    background: transparent;
+    color: oklch(0.7 0.006 240);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .habits-btn-edytuj[aria-pressed="true"] { border-color: var(--habits-akcent); background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+  .habits-kafle { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+  .habits-kafle > .pusto { grid-column: 1 / -1; }
+  .habits-kafel { position: relative; min-width: 0; display: flex; }
+  .habits-kafel-btn {
+    width: 100%;
+    min-height: 128px;
+    padding: 62px 16px 16px; /* góra zarezerwowana na pieczątkę/kosz, nazwa ma całą szerokość kafla */
+    border-radius: 22px;
+    border: 1px solid var(--habits-obramowanie);
+    background: var(--habits-tlo-karta);
+    color: oklch(0.9 0.004 240);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 4px;
+    text-align: left;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, scale 0.1s ease;
+  }
+  .habits-kafel-btn:disabled { cursor: progress; }
+  .habits-kafel-nazwa { max-width: 100%; font-size: 16px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+  .habits-kafel-pod { font-size: 12px; color: oklch(0.52 0.008 240); }
+  .habits-pieczatka {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1.5px dashed oklch(0.3 0.008 245);
+    display: grid;
+    place-items: center;
+    transform: rotate(var(--obrot, 0deg));
+    pointer-events: none;
+  }
+  .habits-pieczatka svg { width: 18px; height: 18px; }
+  .habits-kafel.zrobiony .habits-kafel-btn {
+    border-color: transparent;
+    background: var(--habits-akcent);
+    color: oklch(0.1 0.006 250);
+    box-shadow: 0 18px 40px -18px rgba(var(--habits-akcent-rgb), 0.6);
+  }
+  .habits-kafel.zrobiony .habits-kafel-pod { color: oklch(0.1 0.006 250 / 0.65); }
+  .habits-kafel.zrobiony .habits-pieczatka { border: none; background: oklch(0.1 0.006 250); color: var(--habits-akcent); }
+  /* Tryb edycji: kosz zamiast pieczątki, kafel nie odhacza */
+  .habits-kafle.edycja .habits-kafel-btn { cursor: default; }
+  .habits-kafle.edycja .habits-pieczatka { display: none; }
+  .habits-kafel-kosz {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 14px;
+    border: 1px solid var(--habits-obramowanie);
+    background: var(--habits-tlo);
+    color: oklch(0.75 0.13 28);
+    display: grid;
+    place-items: center;
+  }
+  .habits-kafel-kosz svg { width: 17px; height: 17px; }
+  .habits-kafel-kosz:hover { background: rgba(180, 72, 44, 0.16); }
+  .habits-kafel-kosz:disabled { opacity: 0.5; cursor: default; }
+  .habits-tydzien {
+    margin-top: 28px;
+    padding: 22px;
+    border-radius: 28px;
+    background: var(--habits-tlo-karta);
+    border: 1px solid var(--habits-obramowanie);
+  }
+  .habits-tydzien-gora { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+  .habits-procent { display: flex; align-items: flex-start; }
+  .habits-procent-liczba { font-family: "Instrument Serif", Georgia, serif; font-size: clamp(4.5rem, 24vw, 6rem); line-height: 0.8; color: oklch(0.95 0.004 240); }
+  .habits-procent-znak { font-family: "Instrument Serif", Georgia, serif; font-size: 32px; color: oklch(0.52 0.008 240); }
+  .habits-tydzien-opis { display: flex; flex-direction: column; gap: 4px; padding-bottom: 4px; text-align: right; }
+  .habits-tydzien-gwiazdy { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 24px; color: oklch(0.93 0.004 240); }
+  .habits-tydzien-podpis { font-size: 12px; color: oklch(0.52 0.008 240); }
+  /* Siatka: kolumna nazw (stała szerokość, nazwy skracane wielokropkiem) + 7 dni; pas "dziś" pod kolumną bieżącego dnia */
+  .habits-niebo { position: relative; margin-top: 24px; --kolumna-nazw: 70px; }
+  .habits-niebo-dzis {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--kolumna-nazw) + (100% - var(--kolumna-nazw)) / 7 * var(--dzien));
+    width: calc((100% - var(--kolumna-nazw)) / 7);
+    border-radius: 14px;
+    background: oklch(0.14 0.008 248);
+  }
+  .habits-niebo-siatka {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--kolumna-nazw) repeat(7, minmax(0, 1fr));
+    row-gap: 6px;
+    align-items: center;
+  }
+  .habits-niebo-dzien {
+    padding: 6px 0 4px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
     letter-spacing: 0.08em;
     color: var(--habits-tekst-pomocniczy);
   }
-  #widok-habits .btn-tydzien {
-    background: var(--habits-tlo);
-    border-color: var(--habits-obramowanie);
-    color: var(--habits-akcent);
+  .habits-niebo-dzien.dzis { color: var(--habits-akcent); }
+  .habits-niebo-nazwa {
+    min-width: 0;
+    padding-right: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: oklch(0.6 0.008 240);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  #widok-habits .btn-tydzien:hover { background: var(--habits-tlo-karta); }
-  #widok-habits .karta { margin-bottom: 26px; }
-  #widok-habits form { margin-top: 0; padding: 0; border: none; box-shadow: none; background: none; }
-
-  #widok-habits .karta {
-    background: var(--habits-tlo-karta);
+  .habits-niebo-komorka {
+    height: 40px;
+    min-width: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    display: grid;
+    place-items: center;
+  }
+  .habits-niebo-komorka:disabled { cursor: progress; }
+  .habits-niebo-komorka svg { width: 22px; height: 22px; color: var(--habits-akcent); filter: drop-shadow(0 0 6px rgba(var(--habits-akcent-rgb), 0.7)); }
+  .habits-niebo-kropka { width: 4px; height: 4px; border-radius: 50%; background: oklch(0.3 0.008 245); }
+  .habits-niebo-komorka.dzis .habits-niebo-kropka { background: var(--habits-akcent); }
+  .habits-niebo-komorka:hover .habits-niebo-kropka { width: 8px; height: 8px; }
+  .habits-tydzien-nawigacja {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid oklch(0.16 0.007 248);
+  }
+  .habits-btn-tydzien {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 12px;
     border: 1px solid var(--habits-obramowanie);
-    border-radius: 16px;
-    padding: 26px;
-    box-shadow: none;
+    background: transparent;
+    color: oklch(0.7 0.006 240);
+    display: grid;
+    place-items: center;
   }
-  #widok-habits label { color: var(--habits-tekst-pomocniczy); }
+  .habits-btn-tydzien svg { width: 18px; height: 18px; }
+  .habits-btn-tydzien:hover { background: var(--habits-obramowanie); }
+  .habits-zakres { font-size: 14px; font-weight: 600; color: oklch(0.7 0.006 240); text-align: center; }
+  .habits-nowy-btn {
+    width: 100%;
+    height: 64px;
+    margin-top: 16px;
+    border-radius: 22px;
+    border: 1.5px dashed oklch(0.3 0.008 245);
+    background: transparent;
+    color: oklch(0.7 0.006 240);
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .habits-nowy-btn svg { width: 18px; height: 18px; }
+  .habits-nowy-btn[aria-expanded="true"] { border-color: var(--habits-akcent); color: var(--habits-tekst); }
+  .habits-nowy-panel {
+    margin-top: 12px;
+    padding: 18px;
+    border-radius: 22px;
+    background: var(--habits-tlo-karta);
+    border: 1px solid var(--habits-akcent);
+  }
+  #widok-habits form { margin: 0; padding: 0; border: none; box-shadow: none; background: none; }
+  #widok-habits label { margin: 0; font-size: 13px; font-weight: 600; color: oklch(0.6 0.008 240); }
+  .habits-nowy-rzad { display: flex; gap: 8px; margin-top: 10px; }
   #widok-habits input {
-    background: var(--habits-tlo);
+    flex: 1;
+    min-width: 0;
+    height: 48px;
+    background: oklch(0.08 0.005 250);
     border-color: var(--habits-obramowanie);
+    border-radius: 14px;
     color: var(--habits-tekst);
   }
   #widok-habits input::placeholder { color: var(--habits-tekst-pomocniczy); }
@@ -1641,150 +1843,25 @@
     border-color: var(--habits-akcent);
     box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18);
   }
+  #widok-habits .habits-btn-dodaj {
+    flex: none;
+    height: 48px;
+    margin: 0;
+    padding: 0 18px;
+    border: none;
+    border-radius: 14px;
+    background: var(--habits-akcent);
+    color: oklch(0.1 0.006 250);
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: none;
+  }
+  #widok-habits .habits-btn-dodaj:disabled { opacity: 0.55; cursor: default; }
   #widok-habits .pusto {
     background: var(--habits-tlo-karta);
     border-color: var(--habits-obramowanie-puste);
     color: var(--habits-tekst-pomocniczy);
   }
-
-  /* Przycisk "+ dodaj nawyk" — srebrny akcent zamiast różowego gradientu */
-  #widok-habits .btn-pill-rola {
-    background: var(--habits-akcent);
-    color: oklch(0.07 0.004 250);
-    box-shadow: 0 0 10px rgba(var(--habits-akcent-rgb), 0.35);
-  }
-  #widok-habits .btn-pill-rola:hover {
-    background: var(--habits-akcent);
-    filter: brightness(1.08);
-  }
-
-  /* Karta z dużym pierścieniem tygodniowego postępu (procent na środku) + opisem obok */
-  .habits-pierscien-karta {
-    display: flex;
-    align-items: center;
-    gap: 22px;
-    margin-bottom: 26px;
-    padding: 26px;
-    background: var(--habits-tlo-karta);
-    border: 1px solid var(--habits-obramowanie);
-    border-radius: 16px;
-  }
-  .habits-pierscien-wrap {
-    position: relative;
-    width: 128px;
-    height: 128px;
-    flex: none;
-  }
-  .habits-pierscien-wrap svg { width: 100%; height: 100%; }
-  #habits-progress-ring {
-    filter: drop-shadow(0 0 8px rgba(var(--habits-akcent-rgb), 0.65));
-    transition: stroke-dashoffset 0.5s ease-out;
-  }
-  .habits-pierscien-procent {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    color: var(--habits-naglowek);
-  }
-  #habits-progress-procent { font-size: 2.1rem; }
-  .habits-procent-znak { font-size: 1.15rem; margin-left: 1px; color: var(--habits-tekst-pomocniczy); }
-  .habits-pierscien-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  .habits-pierscien-tytul { font-weight: 700; font-size: 1.15rem; color: var(--habits-naglowek); }
-  .habits-pierscien-podtytul { font-size: 0.85rem; color: var(--habits-tekst-pomocniczy); }
-  @media (max-width: 420px) {
-    .habits-pierscien-karta { flex-direction: column; text-align: center; }
-    .habits-pierscien-info { align-items: center; }
-  }
-
-  /* Karta z listą nawyków: siatka (nazwa + 7 kolumn dni + seria) z jednym wspólnym wierszem nagłówka */
-  #widok-habits .nawyki-karta { overflow-x: auto; }
-  .nawyki-siatka {
-    display: grid;
-    grid-template-columns: minmax(70px, 130px) repeat(7, 34px) auto auto;
-    column-gap: 10px;
-    row-gap: 14px;
-    align-items: center;
-    min-width: 500px;
-  }
-  .nawyki-naglowek-dzien {
-    justify-self: center;
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--habits-tekst-pomocniczy);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  #widok-habits .nawyk-nazwa { color: var(--habits-tekst); font-weight: 600; }
-  .nawyk-kwadrat {
-    justify-self: center;
-    position: relative;
-    width: 34px;
-    height: 34px;
-    display: flex;
-  }
-  .nawyk-kwadrat input[type="checkbox"] {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    opacity: 0;
-    cursor: pointer;
-  }
-  .nawyk-kwadrat input[type="checkbox"]:disabled { cursor: default; }
-  .nawyk-kwadrat-wizualny {
-    width: 34px;
-    height: 34px;
-    border: 2px solid var(--habits-obramowanie-puste);
-    border-radius: 9px;
-    background: transparent;
-    display: grid;
-    place-content: center;
-    pointer-events: none;
-    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-  }
-  .nawyk-kwadrat input[type="checkbox"]:checked + .nawyk-kwadrat-wizualny {
-    background: var(--habits-akcent);
-    border-color: var(--habits-akcent);
-    box-shadow: 0 0 8px rgba(var(--habits-akcent-rgb), 0.55);
-  }
-  .nawyk-kwadrat input[type="checkbox"]:disabled + .nawyk-kwadrat-wizualny { opacity: 0.55; }
-  #widok-habits .nawyk-streak {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    justify-self: end;
-    color: var(--habits-akcent);
-    font-size: 0.82rem;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-  .nawyk-streak svg { width: 13px; height: 13px; flex: none; }
-  .btn-usun-nawyk {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    justify-self: end;
-    flex: none;
-    width: 28px;
-    height: 28px;
-    border: 1px solid var(--habits-obramowanie);
-    border-radius: 8px;
-    background: transparent;
-    color: var(--habits-tekst-pomocniczy);
-    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, scale 0.1s ease;
-  }
-  .btn-usun-nawyk svg { width: 14px; height: 14px; }
-  .btn-usun-nawyk:hover {
-    background: rgba(180, 72, 44, 0.12);
-    border-color: #B4482C;
-    color: #B4482C;
-  }
-  .btn-usun-nawyk:disabled { opacity: 0.5; cursor: default; }
-  .nawyki-linia { grid-column: 1 / -1; border-bottom: 1px solid var(--habits-obramowanie); }
 
   /* ----- Rady z książek: osobna sekcja (tylko konto AI_UZYTKOWNIK_ID), zawsze w ciemnym motywie Nawyków ----- */
   #widok-rady { color: var(--habits-tekst); }
@@ -3065,42 +3142,61 @@
 
   <!-- ===== Widok 6: Nawyki ===== -->
   <section id="widok-habits" class="widok">
-    <h2>Nawyki</h2>
-
-    <div class="karta tydzien-nawigacja">
-      <button type="button" id="habits-tydzien-poprzedni" class="btn-tydzien" aria-label="Poprzedni tydzień">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
-      </button>
-      <p id="habits-zakres" class="nawyki-podtytul"></p>
-      <button type="button" id="habits-tydzien-nastepny" class="btn-tydzien" aria-label="Następny tydzień">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-      </button>
-    </div>
-
-    <div id="habits-podsumowanie" class="habits-pierscien-karta" hidden>
-      <div class="habits-pierscien-wrap">
-        <svg viewBox="0 0 120 120" aria-hidden="true">
-          <circle cx="60" cy="60" r="52" fill="none" stroke="oklch(0.24 0.01 245)" stroke-width="11"/>
-          <circle id="habits-progress-ring" cx="60" cy="60" r="52" fill="none" stroke="#D6D0C0" stroke-width="11" stroke-linecap="round" transform="rotate(-90 60 60)"/>
-        </svg>
-        <span class="habits-pierscien-procent"><span id="habits-progress-procent">0</span><span class="habits-procent-znak">%</span></span>
+    <!-- Dziś jako bohater ekranu (renderHabitsNaglowek) -->
+    <header class="habits-dzis">
+      <h2 id="habits-kicker" class="habits-kicker">Nawyki</h2>
+      <div class="habits-dzis-data">
+        <span id="habits-dzis-liczba" class="habits-dzis-liczba"></span>
+        <div class="habits-dzis-opis">
+          <span id="habits-dzis-dzien" class="habits-dzis-dzien"></span>
+          <span id="habits-dzis-miesiac" class="habits-dzis-miesiac"></span>
+        </div>
       </div>
-      <div class="habits-pierscien-info">
-        <span id="habits-podsumowanie-tekst" class="habits-pierscien-tytul"></span>
-        <span class="habits-pierscien-podtytul">Twoja spójność w tym tygodniu</span>
-      </div>
-    </div>
+    </header>
 
-    <div class="karta">
+    <!-- Dzisiejsze kafle: zawsze dotyczą dzisiaj, niezależnie od tygodnia oglądanego niżej -->
+    <div class="habits-sekcja-naglowek">
+      <span class="habits-etykieta">Dziś do odhaczenia</span>
+      <span id="habits-dzis-licznik" class="habits-dzis-licznik"></span>
+      <button type="button" id="habits-edytuj" class="habits-btn-edytuj" aria-pressed="false">Edytuj</button>
+    </div>
+    <div id="nawyki-lista" class="habits-kafle"></div>
+
+    <!-- Karta tygodnia: procent + siatka nawyki × dni (Pn–Nd) + nawigacja tygodni -->
+    <section id="habits-podsumowanie" class="habits-tydzien" hidden>
+      <div class="habits-tydzien-gora">
+        <div class="habits-procent">
+          <span id="habits-progress-procent" class="habits-procent-liczba">0</span><span class="habits-procent-znak">%</span>
+        </div>
+        <div class="habits-tydzien-opis">
+          <span id="habits-podsumowanie-tekst" class="habits-tydzien-gwiazdy"></span>
+          <span id="habits-podsumowanie-podpis" class="habits-tydzien-podpis"></span>
+        </div>
+      </div>
+      <div id="habits-niebo" class="habits-niebo"></div>
+      <div class="habits-tydzien-nawigacja">
+        <button type="button" id="habits-tydzien-poprzedni" class="habits-btn-tydzien" aria-label="Poprzedni tydzień">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <span id="habits-zakres" class="habits-zakres"></span>
+        <button type="button" id="habits-tydzien-nastepny" class="habits-btn-tydzien" aria-label="Następny tydzień">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <button type="button" id="habits-nowy-btn" class="habits-nowy-btn" aria-expanded="false" aria-controls="habits-nowy-panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      Nowy nawyk – nowa gwiazda
+    </button>
+    <div id="habits-nowy-panel" class="habits-nowy-panel" hidden>
       <form id="form-nawyk">
         <label for="nowy-nawyk">Nowy nawyk</label>
-        <input type="text" id="nowy-nawyk" autocomplete="off" placeholder="np. Pić 2l wody" required>
-        <button type="submit" class="btn-pill btn-pill-rola">+ dodaj nawyk</button>
+        <div class="habits-nowy-rzad">
+          <input type="text" id="nowy-nawyk" autocomplete="off" placeholder="np. Pić 2l wody" required>
+          <button type="submit" class="btn-pill habits-btn-dodaj">Dodaj</button>
+        </div>
       </form>
-    </div>
-
-    <div id="nawyki-lista">
-      <p class="pusto pusto-z-ikona"><span class="pusto-ikona" aria-hidden="true">✅</span><span>Brak nawyków - dodaj pierwszy powyżej.</span></p>
     </div>
   </section>
 
@@ -5449,56 +5545,94 @@
 
   // ===================== Widok 6: Nawyki =====================
 
+  const habitsKicker = document.getElementById("habits-kicker");
+  const habitsDzisLiczba = document.getElementById("habits-dzis-liczba");
+  const habitsDzisDzien = document.getElementById("habits-dzis-dzien");
+  const habitsDzisMiesiac = document.getElementById("habits-dzis-miesiac");
+  const habitsDzisLicznik = document.getElementById("habits-dzis-licznik");
+  const btnHabitsEdytuj = document.getElementById("habits-edytuj");
   const habitsZakres = document.getElementById("habits-zakres");
   const habitsPodsumowanie = document.getElementById("habits-podsumowanie");
   const habitsPodsumowanieTekst = document.getElementById("habits-podsumowanie-tekst");
-  const habitsProgressRing = document.getElementById("habits-progress-ring");
+  const habitsPodsumowaniePodpis = document.getElementById("habits-podsumowanie-podpis");
   const habitsProgressProcent = document.getElementById("habits-progress-procent");
-  const OBWOD_PIERSCIENIA_HABITS = 2 * Math.PI * 52;
+  const habitsNiebo = document.getElementById("habits-niebo");
+  const btnHabitsNowy = document.getElementById("habits-nowy-btn");
+  const habitsNowyPanel = document.getElementById("habits-nowy-panel");
   const formNawyk = document.getElementById("form-nawyk");
   const inputNowyNawyk = document.getElementById("nowy-nawyk");
   const nawykiLista = document.getElementById("nawyki-lista");
   const btnHabitsTydzienPoprzedni = document.getElementById("habits-tydzien-poprzedni");
   const btnHabitsTydzienNastepny = document.getElementById("habits-tydzien-nastepny");
-  const DNI_TYGODNIA_ETYKIETY = ["Pn", "Wt", "Śr", "Cz", "Pt", "So", "Nd"];
+  const DNI_TYGODNIA_ETYKIETY = ["PN", "WT", "ŚR", "CZ", "PT", "SO", "ND"];
+  const DNI_TYGODNIA_PELNE = ["poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota", "niedziela"];
   const MIESIACE_DOPELNIACZ = [
     "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
     "lipca", "sierpnia", "września", "października", "listopada", "grudnia"
   ];
+  const MIESIACE_SKROT = ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"];
 
   let nawyki = [];      // wiersze z tabeli "nawyki": { id, nazwa, user_id }
   let nawykiWpisy = [];  // wiersze z tabeli "nawyki_wpisy": { id, nawyk_id, data, user_id }
   let habitsWybranyPoniedzialek = poniedzialekTygodnia(new Date()); // poniedziałek przeglądanego tygodnia (nawigacja strzałkami)
+  let habitsTrybEdycji = false; // "Edytuj": kosz na kaflach, kliknięcie kafla nie odhacza
 
-  // 7 dat (RRRR-MM-DD) przeglądanego tygodnia, od poniedziałku do niedzieli
-  function habitsDniTygodnia() {
-    const poniedzialek = habitsWybranyPoniedzialek;
+  // 7 dat (RRRR-MM-DD) tygodnia zaczynającego się w danym poniedziałku (domyślnie: przeglądany tydzień)
+  function habitsDniTygodnia(poniedzialek) {
+    poniedzialek = poniedzialek || habitsWybranyPoniedzialek;
     const dni = [];
     for (let i = 0; i < 7; i++) {
       dni.push(isoZDaty(new Date(poniedzialek.getFullYear(), poniedzialek.getMonth(), poniedzialek.getDate() + i)));
     }
     return dni;
   }
+  function czyNawykZrobiony(nawykId, data) {
+    return nawykiWpisy.some(function (w) { return w.nawyk_id === nawykId && w.data === data; });
+  }
 
-  // Nagłówek "8 – 14 września 2026 · Trzymaj się planu" nad kartami
+  // Numer tygodnia wg ISO 8601 (tydzień z pierwszym czwartkiem roku = 1)
+  function numerTygodniaISO(d) {
+    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dzienTyg = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - dzienTyg);
+    const poczatekRoku = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+    return Math.ceil(((t - poczatekRoku) / 86400000 + 1) / 7);
+  }
+
+  // Nagłówek: "NAWYKI · TYDZIEŃ 40", duża liczba dnia, nazwa dnia, miesiąc + dopisek
+  function renderHabitsNaglowek() {
+    const dzis = new Date();
+    const indeksDnia = (dzis.getDay() + 6) % 7; // 0 = poniedziałek
+    const nazwa = DNI_TYGODNIA_PELNE[indeksDnia];
+    const doKonca = 6 - indeksDnia;
+    let dopisek;
+    if (indeksDnia === 0) dopisek = "pierwszy dzień tygodnia";
+    else if (doKonca === 0) dopisek = "ostatni dzień tygodnia";
+    else dopisek = "jeszcze " + doKonca + (doKonca === 1 ? " dzień" : " dni") + " do końca tygodnia";
+    habitsKicker.textContent = "Nawyki · Tydzień " + numerTygodniaISO(dzis);
+    habitsDzisLiczba.textContent = String(dzis.getDate());
+    habitsDzisDzien.textContent = nazwa.charAt(0).toUpperCase() + nazwa.slice(1);
+    habitsDzisMiesiac.textContent = MIESIACE_DOPELNIACZ[dzis.getMonth()] + " · " + dopisek;
+  }
+  renderHabitsNaglowek();
+
+  // Zakres przeglądanego tygodnia na dole karty, np. "28 wrz – 4 paź"
   function renderHabitsZakresTygodnia() {
     const poniedzialek = habitsWybranyPoniedzialek;
     const niedziela = new Date(poniedzialek.getFullYear(), poniedzialek.getMonth(), poniedzialek.getDate() + 6);
-    const rok = niedziela.getFullYear();
-    const zakresDat = poniedzialek.getMonth() === niedziela.getMonth()
-      ? poniedzialek.getDate() + " – " + niedziela.getDate() + " " + MIESIACE_DOPELNIACZ[niedziela.getMonth()]
-      : poniedzialek.getDate() + " " + MIESIACE_DOPELNIACZ[poniedzialek.getMonth()] + " – " + niedziela.getDate() + " " + MIESIACE_DOPELNIACZ[niedziela.getMonth()];
-    habitsZakres.textContent = zakresDat + " " + rok + " · Trzymaj się planu";
+    const zakres = poniedzialek.getMonth() === niedziela.getMonth()
+      ? poniedzialek.getDate() + " – " + niedziela.getDate() + " " + MIESIACE_SKROT[niedziela.getMonth()]
+      : poniedzialek.getDate() + " " + MIESIACE_SKROT[poniedzialek.getMonth()] + " – " + niedziela.getDate() + " " + MIESIACE_SKROT[niedziela.getMonth()];
+    habitsZakres.textContent = zakres + (niedziela.getFullYear() !== new Date().getFullYear() ? " " + niedziela.getFullYear() : "");
   }
   renderHabitsZakresTygodnia();
 
-  // Nawigacja: poprzedni / następny tydzień - nawyki i ich zaznaczenia zostają, zmienia się tylko przeglądany zakres dat
+  // Nawigacja: poprzedni / następny tydzień - zmienia się tylko przeglądany zakres dat w karcie tygodnia
   btnHabitsTydzienPoprzedni.addEventListener("click", function () {
     habitsWybranyPoniedzialek = new Date(
       habitsWybranyPoniedzialek.getFullYear(), habitsWybranyPoniedzialek.getMonth(), habitsWybranyPoniedzialek.getDate() - 7
     );
     renderHabitsZakresTygodnia();
-    renderNawykiListy();
     renderHabitsPodsumowanie();
   });
   btnHabitsTydzienNastepny.addEventListener("click", function () {
@@ -5506,28 +5640,24 @@
       habitsWybranyPoniedzialek.getFullYear(), habitsWybranyPoniedzialek.getMonth(), habitsWybranyPoniedzialek.getDate() + 7
     );
     renderHabitsZakresTygodnia();
-    renderNawykiListy();
     renderHabitsPodsumowanie();
   });
 
-  // Ile kolejnych dni wstecz (licząc od dziś) dany nawyk ma zaznaczenie bez przerwy
-  function obliczStreakNawyku(nawykId) {
-    const zaznaczoneDaty = new Set(
-      nawykiWpisy
-        .filter(function (w) { return w.nawyk_id === nawykId; })
-        .map(function (w) { return w.data; })
-    );
-    let streak = 0;
-    let d = new Date();
-    d.setHours(0, 0, 0, 0);
-    while (zaznaczoneDaty.has(isoZDaty(d))) {
-      streak++;
-      d = new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1);
-    }
-    return streak;
-  }
+  // "Edytuj" / "Gotowe": tryb usuwania nawyków z kafli
+  btnHabitsEdytuj.addEventListener("click", function () {
+    habitsTrybEdycji = !habitsTrybEdycji;
+    renderNawykiListy(true);
+  });
 
-  // Koło postępu na górze: suma zaznaczeń w tygodniu / (liczba nawyków x 7)
+  // "Nowy nawyk – nowa gwiazda": rozwija/zwija formularz dodawania
+  function przelaczPanelNowegoNawyku(otworz) {
+    habitsNowyPanel.hidden = !otworz;
+    btnHabitsNowy.setAttribute("aria-expanded", otworz ? "true" : "false");
+    if (otworz) inputNowyNawyk.focus();
+  }
+  btnHabitsNowy.addEventListener("click", function () { przelaczPanelNowegoNawyku(habitsNowyPanel.hidden); });
+
+  // Karta tygodnia: procent i "X z Y gwiazd" dla przeglądanego tygodnia + siatka nawyki × dni
   function renderHabitsPodsumowanie() {
     if (nawyki.length === 0) {
       habitsPodsumowanie.hidden = true;
@@ -5536,116 +5666,143 @@
     const dni = habitsDniTygodnia();
     let sumaZaznaczonych = 0;
     nawyki.forEach(function (n) {
-      dni.forEach(function (d) {
-        if (nawykiWpisy.some(function (w) { return w.nawyk_id === n.id && w.data === d; })) {
-          sumaZaznaczonych++;
-        }
-      });
+      dni.forEach(function (d) { if (czyNawykZrobiony(n.id, d)) sumaZaznaczonych++; });
     });
     const mianownik = nawyki.length * 7;
-    const udzial = mianownik > 0 ? sumaZaznaczonych / mianownik : 0;
+    const biezacy = isoZDaty(habitsWybranyPoniedzialek) === isoZDaty(poniedzialekTygodnia(new Date()));
 
-    habitsPodsumowanieTekst.textContent =
-      sumaZaznaczonych + " z " + mianownik + " nawyków odhaczonych";
-    habitsProgressProcent.textContent = String(Math.round(udzial * 100));
-    habitsProgressRing.style.strokeDasharray = String(OBWOD_PIERSCIENIA_HABITS);
-    habitsProgressRing.style.strokeDashoffset = String(OBWOD_PIERSCIENIA_HABITS * (1 - udzial));
+    habitsProgressProcent.textContent = String(Math.round(mianownik > 0 ? sumaZaznaczonych / mianownik * 100 : 0));
+    habitsPodsumowanieTekst.textContent = sumaZaznaczonych + " z " + mianownik;
+    habitsPodsumowaniePodpis.textContent = "gwiazd zapalonych " + (biezacy ? "w tym tygodniu" : "w tamtym tygodniu");
+    renderHabitsNiebo(dni, biezacy);
     habitsPodsumowanie.hidden = false;
   }
 
-  // Ikona "płomyka" przy liczniku serii (ten sam kształt co w banerze rekordu)
-  const IKONA_STREAK =
-    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 1.5c.6 3.6-1.4 5.6-3 7.2-1.6 1.6-3 3.2-3 6.1a5.5 5.5 0 0 0 11 .3c.1-2.3-1-4.2-2-5.4-.6.9-1.4 1.2-2.2 1.2 1.3-2.8 1-7-.8-9.4z"/></svg>';
+  const IKONA_GWIAZDA_NAWYK =
+    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C13 8 16 11 24 12C16 13 13 16 12 24C11 16 8 13 0 12C8 11 11 8 12 0Z"/></svg>';
+  const IKONA_PTASZEK_NAWYK =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+  // Siatka "niebo tygodnia": wiersz na nawyk, kolumny Pn–Nd; zrobione = świecąca gwiazdka, niezrobione = kropka
+  function renderHabitsNiebo(dni, biezacy) {
+    habitsNiebo.innerHTML = "";
+    const dzis = dzisiaj();
+    const indeksDzis = biezacy ? dni.indexOf(dzis) : -1;
+
+    if (indeksDzis !== -1) {
+      const pas = document.createElement("div");
+      pas.className = "habits-niebo-dzis";
+      pas.style.setProperty("--dzien", String(indeksDzis));
+      habitsNiebo.appendChild(pas);
+    }
+
+    const siatka = document.createElement("div");
+    siatka.className = "habits-niebo-siatka";
+    siatka.appendChild(document.createElement("span"));
+    DNI_TYGODNIA_ETYKIETY.forEach(function (etykieta, i) {
+      const naglowekDnia = document.createElement("span");
+      naglowekDnia.className = "habits-niebo-dzien" + (i === indeksDzis ? " dzis" : "");
+      naglowekDnia.textContent = etykieta;
+      siatka.appendChild(naglowekDnia);
+    });
+
+    nawyki.forEach(function (n) {
+      const nazwa = document.createElement("span");
+      nazwa.className = "habits-niebo-nazwa";
+      nazwa.textContent = n.nazwa;
+      nazwa.title = n.nazwa;
+      siatka.appendChild(nazwa);
+
+      dni.forEach(function (data, i) {
+        const zrobiony = czyNawykZrobiony(n.id, data);
+        const komorka = document.createElement("button");
+        komorka.type = "button";
+        komorka.className = "habits-niebo-komorka" + (i === indeksDzis ? " dzis" : "");
+        komorka.setAttribute("aria-pressed", zrobiony ? "true" : "false");
+        komorka.setAttribute("aria-label", n.nazwa + ", " + DNI_TYGODNIA_PELNE[i] + " " + data + (zrobiony ? " – zrobione" : ""));
+        komorka.innerHTML = zrobiony ? IKONA_GWIAZDA_NAWYK : '<span class="habits-niebo-kropka"></span>';
+        komorka.addEventListener("click", function () { przelaczNawykDzien(n, data, komorka); });
+        siatka.appendChild(komorka);
+      });
+    });
+    habitsNiebo.appendChild(siatka);
+  }
 
   // Ikona kosza przy przycisku usuwania nawyku
   const IKONA_KOSZ =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+  const HABITS_OBROTY_PIECZATEK = [-6, 4, -3, 7];
 
-  // Render listy nawyków: jedna karta z siatką (nazwa + 7 kwadracików Pn-Nd + seria),
-  // wspólny wiersz nagłówka z dniami tygodnia u góry
-  // bezWjazdu: true przy samym odznaczaniu dnia — siatka przerysowuje się wtedy po każdym kliknięciu i kaskada by migała
+  // Kafle "Dziś do odhaczenia" (zawsze dzisiejsza data) + nagłówek z datą
+  // bezWjazdu: true przy samym odhaczaniu — kafle przerysowują się po każdym kliknięciu i kaskada by migała
   function renderNawykiListy(bezWjazdu) {
+    renderHabitsNaglowek();
     nawykiLista.innerHTML = "";
+    nawykiLista.classList.toggle("edycja", habitsTrybEdycji);
+    btnHabitsEdytuj.textContent = habitsTrybEdycji ? "Gotowe" : "Edytuj";
+    btnHabitsEdytuj.setAttribute("aria-pressed", habitsTrybEdycji ? "true" : "false");
+
     if (nawyki.length === 0) {
-      nawykiLista.innerHTML = pustyStanHTML("✅", "Brak nawyków - dodaj pierwszy powyżej.");
+      habitsTrybEdycji = false;
+      nawykiLista.classList.remove("edycja");
+      btnHabitsEdytuj.hidden = true;
+      habitsDzisLicznik.hidden = true;
+      nawykiLista.innerHTML = pustyStanHTML("✨", "Nie masz jeszcze nawyków - dodaj pierwszy przyciskiem „Nowy nawyk – nowa gwiazda” poniżej.");
       return;
     }
+    btnHabitsEdytuj.hidden = false;
+    habitsDzisLicznik.hidden = false;
 
-    const dni = habitsDniTygodnia();
-
-    const karta = document.createElement("div");
-    karta.className = "karta nawyki-karta";
-
-    const siatka = document.createElement("div");
-    siatka.className = "nawyki-siatka";
-
-    siatka.appendChild(document.createElement("span"));
-    DNI_TYGODNIA_ETYKIETY.forEach(function (etykieta) {
-      const naglowekDnia = document.createElement("span");
-      naglowekDnia.className = "nawyki-naglowek-dzien";
-      naglowekDnia.textContent = etykieta;
-      siatka.appendChild(naglowekDnia);
-    });
-    siatka.appendChild(document.createElement("span"));
-    siatka.appendChild(document.createElement("span"));
+    const dzis = dzisiaj();
+    const dniBiezacegoTygodnia = habitsDniTygodnia(poniedzialekTygodnia(new Date()));
+    habitsDzisLicznik.textContent = nawyki.filter(function (n) { return czyNawykZrobiony(n.id, dzis); }).length + "/" + nawyki.length;
 
     nawyki.forEach(function (n, indeks) {
-      // Wiersz nawyku to kilka komórek siatki — wszystkie dostają to samo opóźnienie
-      const wjazdWiersza = function (el) { return bezWjazdu ? el : wjazdKarty(el, indeks); };
+      const zrobiony = czyNawykZrobiony(n.id, dzis);
+      const wTygodniu = dniBiezacegoTygodnia.filter(function (d) { return czyNawykZrobiony(n.id, d); }).length;
 
+      const kafel = document.createElement("div");
+      kafel.className = "habits-kafel" + (zrobiony ? " zrobiony" : "");
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "habits-kafel-btn";
+      btn.setAttribute("aria-pressed", zrobiony ? "true" : "false");
+      if (habitsTrybEdycji) btn.setAttribute("aria-disabled", "true");
+      const pieczatka = document.createElement("span");
+      pieczatka.className = "habits-pieczatka";
+      pieczatka.style.setProperty("--obrot", HABITS_OBROTY_PIECZATEK[indeks % HABITS_OBROTY_PIECZATEK.length] + "deg");
+      if (zrobiony) pieczatka.innerHTML = IKONA_PTASZEK_NAWYK;
       const nazwa = document.createElement("span");
-      nazwa.className = "nawyk-nazwa";
+      nazwa.className = "habits-kafel-nazwa";
       nazwa.textContent = n.nazwa;
-      siatka.appendChild(wjazdWiersza(nazwa));
+      const pod = document.createElement("span");
+      pod.className = "habits-kafel-pod";
+      pod.textContent = zrobiony ? "zrobione dziś" : wTygodniu + "/7 w tym tygodniu";
+      btn.append(pieczatka, nazwa, pod);
+      btn.addEventListener("click", function () {
+        if (habitsTrybEdycji) return;
+        przelaczNawykDzien(n, dzis, btn);
+      });
+      kafel.appendChild(btn);
 
-      dni.forEach(function (data) {
-        const kwadrat = document.createElement("label");
-        kwadrat.className = "nawyk-kwadrat";
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.checked = nawykiWpisy.some(function (w) { return w.nawyk_id === n.id && w.data === data; });
-        checkbox.addEventListener("change", function () {
-          przelaczNawykDzien(n, data, checkbox);
+      if (habitsTrybEdycji) {
+        const btnUsunNawyk = document.createElement("button");
+        btnUsunNawyk.type = "button";
+        btnUsunNawyk.className = "habits-kafel-kosz";
+        btnUsunNawyk.setAttribute("aria-label", "Usuń nawyk „" + n.nazwa + "”");
+        btnUsunNawyk.innerHTML = IKONA_KOSZ;
+        btnUsunNawyk.addEventListener("click", function () {
+          usunNawyk(n, btnUsunNawyk);
         });
-
-        const wizualny = document.createElement("span");
-        wizualny.className = "nawyk-kwadrat-wizualny";
-
-        kwadrat.appendChild(checkbox);
-        kwadrat.appendChild(wizualny);
-        siatka.appendChild(wjazdWiersza(kwadrat));
-      });
-
-      const streakDni = obliczStreakNawyku(n.id);
-      const streak = document.createElement("span");
-      streak.className = "nawyk-streak";
-      streak.setAttribute("aria-label", streakDni + " dni z rzędu");
-      streak.innerHTML = IKONA_STREAK + "<span>" + streakDni + "</span>";
-      siatka.appendChild(wjazdWiersza(streak));
-
-      const btnUsunNawyk = document.createElement("button");
-      btnUsunNawyk.type = "button";
-      btnUsunNawyk.className = "btn-usun-nawyk";
-      btnUsunNawyk.setAttribute("aria-label", "Usuń nawyk „" + n.nazwa + "”");
-      btnUsunNawyk.innerHTML = IKONA_KOSZ;
-      btnUsunNawyk.addEventListener("click", function () {
-        usunNawyk(n, btnUsunNawyk);
-      });
-      siatka.appendChild(wjazdWiersza(btnUsunNawyk));
-
-      if (indeks < nawyki.length - 1) {
-        const linia = document.createElement("div");
-        linia.className = "nawyki-linia";
-        siatka.appendChild(linia);
+        kafel.appendChild(btnUsunNawyk);
       }
-    });
 
-    karta.appendChild(siatka);
-    nawykiLista.appendChild(karta);
+      nawykiLista.appendChild(bezWjazdu ? kafel : wjazdKarty(kafel, indeks));
+    });
   }
 
-  // Zaznaczenie/odznaczenie kwadracika dnia dla nawyku - wstawia lub usuwa wiersz w "nawyki_wpisy"
+  // Czy wszystkie nawyki mają zaznaczenie w danym dniu (konfetti)
   function wszystkieNawykiOdznaczone(data) {
     return nawyki.length > 0 && nawyki.every(function (n) {
       return nawykiWpisy.some(function (w) { return w.nawyk_id === n.id && w.data === data; });
@@ -5688,27 +5845,22 @@
     setTimeout(function () { warstwa.remove(); }, 2500);
   }
 
-  async function przelaczNawykDzien(nawyk, data, checkbox) {
-    checkbox.disabled = true;
+  // Odhaczenie/odznaczenie dnia (kafel na dziś albo komórka siatki) - wstawia lub usuwa wiersz w "nawyki_wpisy"
+  async function przelaczNawykDzien(nawyk, data, przycisk) {
+    if (przycisk.disabled) return;
+    przycisk.disabled = true;
 
-    if (checkbox.checked) {
-      const istnieje = nawykiWpisy.some(function (w) { return w.nawyk_id === nawyk.id && w.data === data; });
-      if (istnieje) {
-        checkbox.disabled = false;
-        return;
-      }
-
+    if (!czyNawykZrobiony(nawyk.id, data)) {
       const { data: wstawione, error } = await db
         .from("nawyki_wpisy")
         .insert({ nawyk_id: nawyk.id, data: data, user_id: sesjaUzytkownika.user.id })
         .select();
 
-      checkbox.disabled = false;
+      przycisk.disabled = false;
 
       if (error) {
         console.error(error);
         pokazToast("Nie udało się zapisać zaznaczenia: " + error.message, "blad");
-        checkbox.checked = false;
         return;
       }
 
@@ -5718,22 +5870,17 @@
       if (data === dzisiaj() && wszystkieNawykiOdznaczone(data)) odpalKonfettiRazDziennie(data);
     } else {
       const wpis = nawykiWpisy.find(function (w) { return w.nawyk_id === nawyk.id && w.data === data; });
-      if (!wpis) {
-        checkbox.disabled = false;
-        return;
-      }
 
       const { error } = await db
         .from("nawyki_wpisy")
         .delete()
         .eq("id", wpis.id);
 
-      checkbox.disabled = false;
+      przycisk.disabled = false;
 
       if (error) {
         console.error(error);
         pokazToast("Nie udało się usunąć zaznaczenia: " + error.message, "blad");
-        checkbox.checked = true;
         return;
       }
 
@@ -5806,6 +5953,7 @@
 
     nawyki.push(data && data[0] ? data[0] : { id: Date.now(), nazwa: nazwa });
     formNawyk.reset();
+    przelaczPanelNowegoNawyku(false);
     renderNawykiListy();
     renderHabitsPodsumowanie();
   });
