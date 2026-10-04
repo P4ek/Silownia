@@ -3299,6 +3299,35 @@
     return el;
   }
 
+  // Płynna zmiana licznika: odliczanie od wartości wyświetlanej do docelowej przez ~400 ms z wyhamowaniem (ease-out cubic).
+  // formatuj (opcjonalnie) buduje tekst z liczby, np. function (n) { return n + "/" + wszystkie; }.
+  // Pierwsze ustawienie elementu i prefers-reduced-motion: wartość od razu, bez animacji.
+  const ANIMACJA_LICZBY_MS = 400;
+  function animujLiczbe(element, docelowa, formatuj) {
+    formatuj = formatuj || String;
+    const start = element._liczbaBiezaca;
+    if (element._animacjaLiczby) cancelAnimationFrame(element._animacjaLiczby);
+    element._animacjaLiczby = null;
+
+    const bezAnimacji = typeof start !== "number" || start === docelowa ||
+      (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    if (bezAnimacji) {
+      element._liczbaBiezaca = docelowa;
+      element.textContent = formatuj(docelowa);
+      return;
+    }
+
+    const t0 = performance.now();
+    function klatka(teraz) {
+      const postep = Math.min(1, (teraz - t0) / ANIMACJA_LICZBY_MS);
+      const wyhamowanie = 1 - Math.pow(1 - postep, 3);
+      element._liczbaBiezaca = Math.round(start + (docelowa - start) * wyhamowanie);
+      element.textContent = formatuj(element._liczbaBiezaca);
+      element._animacjaLiczby = postep < 1 ? requestAnimationFrame(klatka) : null;
+    }
+    element._animacjaLiczby = requestAnimationFrame(klatka);
+  }
+
   // Rejestr: najpierw kaskada dni (szkielet z datami), potem ćwiczenia wewnątrz każdego dnia.
   // Wszystkie opóźnienia ucięte do REJESTR_MAX_S, więc całość mieści się w około 0.7 s + czas animacji niezależnie od liczby wpisów.
   const REJESTR_KROK_DNIA_S = 0.06;
@@ -5671,8 +5700,8 @@
     const mianownik = nawyki.length * 7;
     const biezacy = isoZDaty(habitsWybranyPoniedzialek) === isoZDaty(poniedzialekTygodnia(new Date()));
 
-    habitsProgressProcent.textContent = String(Math.round(mianownik > 0 ? sumaZaznaczonych / mianownik * 100 : 0));
-    habitsPodsumowanieTekst.textContent = sumaZaznaczonych + " z " + mianownik;
+    animujLiczbe(habitsProgressProcent, Math.round(mianownik > 0 ? sumaZaznaczonych / mianownik * 100 : 0));
+    animujLiczbe(habitsPodsumowanieTekst, sumaZaznaczonych, function (n) { return n + " z " + mianownik; });
     habitsPodsumowaniePodpis.textContent = "gwiazd zapalonych " + (biezacy ? "w tym tygodniu" : "w tamtym tygodniu");
     renderHabitsNiebo(dni, biezacy);
     habitsPodsumowanie.hidden = false;
@@ -5755,7 +5784,7 @@
 
     const dzis = dzisiaj();
     const dniBiezacegoTygodnia = habitsDniTygodnia(poniedzialekTygodnia(new Date()));
-    habitsDzisLicznik.textContent = nawyki.filter(function (n) { return czyNawykZrobiony(n.id, dzis); }).length + "/" + nawyki.length;
+    animujLiczbe(habitsDzisLicznik, nawyki.filter(function (n) { return czyNawykZrobiony(n.id, dzis); }).length, function (n) { return n + "/" + nawyki.length; });
 
     nawyki.forEach(function (n, indeks) {
       const zrobiony = czyNawykZrobiony(n.id, dzis);
