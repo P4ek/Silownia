@@ -1,6 +1,6 @@
-// Ekran "Rady z książek" (#widok-rady, tylko konto AI_UZYTKOWNIK_ID): półka, misja, pieczątki, PD, gwiazdozbiór.
+// Ekran "Rady z książek" (#widok-rady, tylko konta z RADY_DOSTEP_IDS): półka, misja, pieczątki, PD, gwiazdozbiór.
 
-// ===================== Rady z książek: osobna sekcja (tylko konto AI_UZYTKOWNIK_ID) =====================
+// ===================== Rady z książek: osobna sekcja (tylko konta z RADY_DOSTEP_IDS) =====================
 
 const navRady = document.getElementById("nav-rady");
 const radyRanga = document.getElementById("rady-ranga");
@@ -33,10 +33,10 @@ let radyWpisy = [];    // wiersze z tabeli "zasady_wpisy" (pieczątki): { id, za
 let radyWybranaKsiazkaId = null;
 let radyZasadaWFormularzuId = null; // zasada, dla której jest otwarty formularz planu jeśli–to
 
-// Pozycja w menu i dane widoczne tylko dla konta AI; pozostałym kontom nic się nie wczytuje
-function ustawDostepRadZKsiazek(kontoAI) {
-  navRady.hidden = !kontoAI;
-  if (!kontoAI) {
+// Pozycja w menu i dane widoczne tylko dla kont z RADY_DOSTEP_IDS; pozostałym kontom nic się nie wczytuje
+function ustawDostepRadZKsiazek(dostep) {
+  navRady.hidden = !dostep;
+  if (!dostep) {
     radyKsiazki = [];
     radyZasady = [];
     radyPostepWiersze = [];
@@ -147,13 +147,13 @@ function radyPokazZysk(tekst, pdPrzed) {
   pokazToast(komunikat, "sukces");
 }
 
-// Pobranie książek, zasad, postępu i pieczątek — wywoływane przy starcie tylko dla konta AI
+// Pobranie książek, zasad, postępu i pieczątek — wywoływane przy starcie tylko dla kont z RADY_DOSTEP_IDS
 async function wczytajRadyZKsiazek() {
   const [ksiazkiRes, zasadyRes, postepRes, wpisyRes] = await Promise.all([
     db.from("ksiazki").select("id, tytul, autor").order("tytul", { ascending: true }),
     db.from("zasady").select("id, ksiazka_id, nazwa, opis, kolejnosc").order("kolejnosc", { ascending: true }),
-    db.from("zasady_postep").select("id, zasada_id, status, plan_jesli, plan_to, zaliczona_at"),
-    db.from("zasady_wpisy").select("id, zasada_id, data, zadzialalo")
+    db.from("zasady_postep").select("id, zasada_id, status, plan_jesli, plan_to, zaliczona_at").eq("user_id", sesjaUzytkownika.user.id),
+    db.from("zasady_wpisy").select("id, zasada_id, data, zadzialalo").eq("user_id", sesjaUzytkownika.user.id)
   ]);
   const blad = ksiazkiRes.error || zasadyRes.error || postepRes.error || wpisyRes.error;
   if (blad) {
@@ -171,8 +171,8 @@ async function wczytajRadyZKsiazek() {
 // Ponowne pobranie postępu i pieczątek — np. gdy baza odrzuci drugą aktywną zasadę ustawioną z innego urządzenia
 async function odswiezRadyPostep() {
   const [postepRes, wpisyRes] = await Promise.all([
-    db.from("zasady_postep").select("id, zasada_id, status, plan_jesli, plan_to, zaliczona_at"),
-    db.from("zasady_wpisy").select("id, zasada_id, data, zadzialalo")
+    db.from("zasady_postep").select("id, zasada_id, status, plan_jesli, plan_to, zaliczona_at").eq("user_id", sesjaUzytkownika.user.id),
+    db.from("zasady_wpisy").select("id, zasada_id, data, zadzialalo").eq("user_id", sesjaUzytkownika.user.id)
   ]);
   if (postepRes.error || wpisyRes.error) {
     console.error(postepRes.error || wpisyRes.error);
@@ -592,7 +592,7 @@ async function zrezygnujZZasady(postep, zasada, przyciski) {
   if (!potwierdzenie) return;
 
   przyciski.forEach(function (b) { b.disabled = true; });
-  const wpisyRes = await db.from("zasady_wpisy").delete().eq("zasada_id", zasada.id);
+  const wpisyRes = await db.from("zasady_wpisy").delete().eq("zasada_id", zasada.id).eq("user_id", sesjaUzytkownika.user.id);
   const postepRes = wpisyRes.error ? null : await db.from("zasady_postep").delete().eq("id", postep.id);
   const blad = wpisyRes.error || (postepRes && postepRes.error);
 

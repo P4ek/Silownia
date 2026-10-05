@@ -12,9 +12,9 @@ function inicjalizujDaneAplikacji() {
   wczytajNawykiWpisy();
   wczytajPlanyTreningowe();
 
-  const kontoAI = !!(sesjaUzytkownika && sesjaUzytkownika.user && sesjaUzytkownika.user.id === AI_UZYTKOWNIK_ID);
-  ustawDostepRadZKsiazek(kontoAI);
-  if (kontoAI) wczytajRadyZKsiazek();
+  const dostepRady = !!(sesjaUzytkownika && sesjaUzytkownika.user && RADY_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));
+  ustawDostepRadZKsiazek(dostepRady);
+  if (dostepRady) wczytajRadyZKsiazek();
 
   const dostepJedzenie = !!(sesjaUzytkownika && sesjaUzytkownika.user && JEDZENIE_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));
   ustawDostepJedzenia(dostepJedzenie);

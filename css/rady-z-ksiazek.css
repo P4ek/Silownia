@@ -1,6 +1,6 @@
 /* Ekran "Rady z książek" (#widok-rady). */
 
-/* ----- Rady z książek: osobna sekcja (tylko konto AI_UZYTKOWNIK_ID), zawsze w ciemnym motywie Nawyków ----- */
+/* ----- Rady z książek: osobna sekcja (tylko konta z RADY_DOSTEP_IDS), zawsze w ciemnym motywie Nawyków ----- */
 #widok-rady { color: var(--habits-tekst); }
 .rady-naglowek {
   display: flex;

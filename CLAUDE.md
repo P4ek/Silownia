@@ -19,12 +19,12 @@ Bez bundlera, npm i kroku build. Dane w Supabase (`js/konfiguracja.js`), wykresy
 | Jedzenie (tylko konta z `JEDZENIE_DOSTEP_IDS`) | `#widok-jedzenie` | `js/jedzenie.js` | `css/jedzenie.css` |
 | Plan tygodnia (Kompas) | `#widok-plan` | `js/plan-tygodnia.js` | `css/plan-tygodnia.css` |
 | Nawyki | `#widok-habits` | `js/nawyki.js` | `css/nawyki.css` |
-| Rady z książek (tylko konto `AI_UZYTKOWNIK_ID`) | `#widok-rady` | `js/rady-z-ksiazek.js` | `css/rady-z-ksiazek.css` |
+| Rady z książek (tylko konta z `RADY_DOSTEP_IDS`) | `#widok-rady` | `js/rady-z-ksiazek.js` | `css/rady-z-ksiazek.css` |
 | Wnioski | `#widok-wnioski` | `js/wnioski.js` | `css/wnioski.css` |
 | AI Analiza | `#widok-ai-analiza` | `js/ai-analiza.js` | `css/ai-analiza.css` |
 
 Pozostałe:
-- `js/konfiguracja.js` – klient Supabase (`db`), `AI_UZYTKOWNIK_ID`, `JEDZENIE_DOSTEP_IDS` (konta z sekcją Jedzenie: tabele `posilki`, `jedzenie_cele`, Edge Function `analizuj-posliek`), stan sesji (`sesjaUzytkownika`).
+- `js/konfiguracja.js` – klient Supabase (`db`), `AI_UZYTKOWNIK_ID`, `JEDZENIE_DOSTEP_IDS` (konta z sekcją Jedzenie: tabele `posilki`, `jedzenie_cele`, Edge Function `analizuj-posliek`), `RADY_DOSTEP_IDS` (konta z sekcją Rady z książek), stan sesji (`sesjaUzytkownika`).
 - `js/wspolne.js` – funkcje używane przez wiele ekranów: `pokazToast`, `pustyStanHTML`, `wjazdKarty`, `animujLiczbe`, daty (`dzisiaj`, `isoZDaty`, `poniedzialekTygodnia`, `formatDatyRejestru`, nazwy dni/miesięcy), partie (`PARTIE`, `kolorPartiiCSS`, `kropkaPartii`), odmiana (`odmianaLiczby`), wspólne dane (`wpisy` – treningi, `katalog` – ćwiczenia) i JEDNA definicja rekordu (`obliczRekordy`, `wynikSerii`, `seriaRekordowaWpisu`, `czyWpisMaRekord`).
 - `js/logowanie.js` – formularze logowania (kod z maila) i wylogowanie.
 - `js/powiadomienia.js` – subskrypcja push (przycisk z dzwonkiem).
@@ -56,4 +56,5 @@ Nowy ekran: HTML w `index.html`, plik w `js/` (przed `nawigacja.js` i `start.js`
 - Rekord liczy wyłącznie `obliczRekordy()` (seria z najwyższym ciężar × powtórzenia).
 - Wpisy treningów w tabeli `treningi` mają podejścia w formacie `[{ "cieżar": liczba, "powtorzenia": liczba }]` (z polskim „ż” w kluczu) – nie zmieniać.
 - Usuwanie zawsze z potwierdzeniem, komunikaty przez `pokazToast`.
+- `AI_UZYTKOWNIK_ID` (samo to konto): nielimitowana AI Analiza i cytat w nagłówku. Dane każdej sekcji zawsze filtrowane po `sesjaUzytkownika.user.id`, nigdy po stałych kont.
 - Po zmianach podbij `CACHE_NAME` w `sw.js`.

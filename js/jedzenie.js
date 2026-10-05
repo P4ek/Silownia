@@ -136,7 +136,7 @@ async function wczytajJedzenie() {
   const od = jedzPrzesunDzien(dzisiaj(), -(JEDZ_DNI_WCZYTYWANIA - 1));
   const [cele, posilki] = await Promise.all([
     db.from("jedzenie_cele").select("kcal, bialko, wegle, tluszcze").eq("user_id", sesjaUzytkownika.user.id).maybeSingle(),
-    db.from("posilki").select("*").gte("data", od).order("created_at", { ascending: true })
+    db.from("posilki").select("*").eq("user_id", sesjaUzytkownika.user.id).gte("data", od).order("created_at", { ascending: true })
   ]);
   if (cele.error) console.error(cele.error);
   if (posilki.error) {
@@ -160,7 +160,7 @@ function jedzZapewnijDane(odIso) {
   if (!jedzWczytaneOd || odIso >= jedzWczytaneOd || jedzWczytywanie) return;
   const noweOd = jedzPrzesunDzien(odIso, -(JEDZ_DNI_WCZYTYWANIA - 1));
   const doIso = jedzPrzesunDzien(jedzWczytaneOd, -1);
-  jedzWczytywanie = db.from("posilki").select("*").gte("data", noweOd).lte("data", doIso)
+  jedzWczytywanie = db.from("posilki").select("*").eq("user_id", sesjaUzytkownika.user.id).gte("data", noweOd).lte("data", doIso)
     .order("created_at", { ascending: true })
     .then(function (wynik) {
       jedzWczytywanie = null;
