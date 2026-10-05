@@ -86,8 +86,8 @@ h1.app-tytul-cytat { font-size: 1.45rem; }
 /* ----- Hamburger + przycisk przypomnień ----- */
 .topbar-ikony {
   position: fixed;
-  top: 14px;
-  left: 14px;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  left: calc(14px + env(safe-area-inset-left, 0px));
   z-index: 60;
   display: flex;
   gap: 8px;

@@ -6,7 +6,7 @@
   color: var(--habits-tekst);
   background: var(--habits-tlo);
   border-radius: 20px;
-  padding: 18px 16px 22px;
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 16px 22px;
   overflow: hidden;
 }
 .kontener.motyw-habits .habits-poswiata { display: block; }
