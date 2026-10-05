@@ -14,7 +14,7 @@ const radyAktywna = document.getElementById("rady-aktywna");
 const radyMapaLicznik = document.getElementById("rady-mapa-licznik");
 const radyMapaOpis = document.getElementById("rady-mapa-opis");
 const radyMapa = document.getElementById("rady-mapa");
-const RADY_KOMUNIKAT_JEDNA_AKTYWNA = "Ukończ najpierw wybraną zasadę";
+const RADY_KOMUNIKAT_JEDNA_AKTYWNA = "Ukończ najpierw wybraną zasadę z tej książki";
 
 // Punkty doświadczenia (PD) — liczone w apce z danych w bazie, bez osobnej tabeli
 const RADY_PIECZATKI_WYMAGANE = 3; // ile pieczątek (dni) potrzeba do zaliczenia zasady
@@ -52,8 +52,14 @@ function ustawDostepRadZKsiazek(dostep) {
 function radyPostepZasady(zasadaId) {
   return radyPostepWiersze.find(function (p) { return String(p.zasada_id) === String(zasadaId); }) || null;
 }
-function radyAktywnyPostep() {
-  return radyPostepWiersze.find(function (p) { return p.status === "aktywna"; }) || null;
+// Aktywna zasada w danej książce (w każdej książce może być jedna naraz); bez argumentu — dowolna aktywna
+function radyAktywnyPostep(ksiazkaId) {
+  return radyPostepWiersze.find(function (p) {
+    if (p.status !== "aktywna") return false;
+    if (ksiazkaId == null) return true;
+    const zasada = radyZasada(p.zasada_id);
+    return !!zasada && String(zasada.ksiazka_id) === String(ksiazkaId);
+  }) || null;
 }
 function radyStanZasady(zasadaId) {
   const postep = radyPostepZasady(zasadaId);
@@ -168,7 +174,7 @@ async function wczytajRadyZKsiazek() {
   renderRadyZKsiazek();
 }
 
-// Ponowne pobranie postępu i pieczątek — np. gdy baza odrzuci drugą aktywną zasadę ustawioną z innego urządzenia
+// Ponowne pobranie postępu i pieczątek — np. gdy baza odrzuci drugą aktywną zasadę w tej samej książce ustawioną z innego urządzenia
 async function odswiezRadyPostep() {
   const [postepRes, wpisyRes] = await Promise.all([
     db.from("zasady_postep").select("id, zasada_id, status, plan_jesli, plan_to, zaliczona_at").eq("user_id", sesjaUzytkownika.user.id),
@@ -315,11 +321,12 @@ function radyTekstBiletu(tekst) {
 // Miejsce pod półką: formularz planu (gdy wybieram zasadę) / bilet misji / gwiazdozbiór ukończony / zachęta
 function renderRadyAktywna() {
   radyAktywna.innerHTML = "";
-  const aktywny = radyAktywnyPostep();
+  const aktywny = radyAktywnyPostep(radyWybranaKsiazkaId);
   const zasadaAktywna = aktywny ? radyZasada(aktywny.zasada_id) : null;
+  const zasadaWFormularzu = radyZasada(radyZasadaWFormularzuId);
 
-  if (!aktywny && radyZasadaWFormularzuId && radyZasada(radyZasadaWFormularzuId)) {
-    radyAktywna.appendChild(radyFormularzPlanu(radyZasada(radyZasadaWFormularzuId)));
+  if (!aktywny && zasadaWFormularzu && String(zasadaWFormularzu.ksiazka_id) === String(radyWybranaKsiazkaId)) {
+    radyAktywna.appendChild(radyFormularzPlanu(zasadaWFormularzu));
     return;
   }
   radyZasadaWFormularzuId = null;
@@ -484,7 +491,7 @@ function radyFormularzPlanu(zasada) {
       pokazToast("Uzupełnij oba pola: „Jeśli…” i „To…”.", "blad");
       return;
     }
-    if (radyAktywnyPostep()) {
+    if (radyAktywnyPostep(zasada.ksiazka_id)) {
       pokazToast(RADY_KOMUNIKAT_JEDNA_AKTYWNA, "blad");
       return;
     }
@@ -504,7 +511,7 @@ function radyFormularzPlanu(zasada) {
 
     if (error) {
       console.error(error);
-      // 23505 = naruszenie unikalności (baza pozwala na jedną aktywną zasadę), P0001 = wyjątek z triggera
+      // 23505 = naruszenie unikalności (baza pozwala na jedną aktywną zasadę w książce), P0001 = wyjątek z triggera
       if (error.code === "23505" || error.code === "P0001") {
         pokazToast(RADY_KOMUNIKAT_JEDNA_AKTYWNA, "blad");
         odswiezRadyPostep();
@@ -635,7 +642,7 @@ function renderRadyMapa() {
     return;
   }
 
-  const aktywny = radyAktywnyPostep();
+  const aktywny = radyAktywnyPostep(radyWybranaKsiazkaId);
   const jestAktywna = !!aktywny;
 
   // Punkty mapy po kolei: zasady, co 4 zasady planeta, na końcu Gwiazda polarna
@@ -807,7 +814,7 @@ function kliknietoZasade(zasada, stan) {
     radyAktywna.scrollIntoView({ behavior: "smooth", block: "start" });
     return;
   }
-  if (radyAktywnyPostep()) {
+  if (radyAktywnyPostep(zasada.ksiazka_id)) {
     pokazToast(RADY_KOMUNIKAT_JEDNA_AKTYWNA, "blad");
     return;
   }
