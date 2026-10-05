@@ -57,7 +57,7 @@ const JEDZ_TYPY = [
 ];
 const JEDZ_DNI_WYKRESU = 7;      // ile słupków kalorii na wykresie
 const JEDZ_DNI_WCZYTYWANIA = 30; // ile dni posiłków dociągać jednym zapytaniem
-const JEDZ_MAKS_BOK_ZDJECIA = 1280;
+const JEDZ_MAKS_BOK_ZDJECIA = 768;
 const JEDZ_TEKSTY_LADOWANIA = ["Rozpoznaję, co jest na talerzu…", "Szacuję wielkość porcji…", "Liczę kalorie i makro…"];
 const JEDZ_KOLO_R_PIERSCIEN = 88;
 const JEDZ_KOLO_R_MAKRO = 62;
