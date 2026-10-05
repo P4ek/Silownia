@@ -24,7 +24,7 @@ Bez bundlera, npm i kroku build. Dane w Supabase (`js/konfiguracja.js`), wykresy
 | AI Analiza | `#widok-ai-analiza` | `js/ai-analiza.js` | `css/ai-analiza.css` |
 
 Pozostałe:
-- `js/konfiguracja.js` – klient Supabase (`db`), `AI_UZYTKOWNIK_ID`, `JEDZENIE_DOSTEP_IDS` (konta z sekcją Jedzenie: tabele `posilki`, `jedzenie_cele`, Edge Function `analizuj-posliek`), `RADY_DOSTEP_IDS` (konta z sekcją Rady z książek), stan sesji (`sesjaUzytkownika`).
+- `js/konfiguracja.js` – klient Supabase (`db`), `AI_UZYTKOWNIK_ID`, `JEDZENIE_DOSTEP_IDS` (konta z sekcją Jedzenie: tabele `posilki`, `jedzenie_cele`, Edge Function `analizuj-posliek`; „Zjedz ponownie” w `jedzenie.js` dodaje kopię posiłku z ostatnich 30 dni bez AI), `RADY_DOSTEP_IDS` (konta z sekcją Rady z książek), stan sesji (`sesjaUzytkownika`).
 - `js/wspolne.js` – funkcje używane przez wiele ekranów: `pokazToast`, `pustyStanHTML`, `wjazdKarty`, `animujLiczbe`, daty (`dzisiaj`, `isoZDaty`, `poniedzialekTygodnia`, `formatDatyRejestru`, nazwy dni/miesięcy), partie (`PARTIE`, `kolorPartiiCSS`, `kropkaPartii`), odmiana (`odmianaLiczby`), wspólne dane (`wpisy` – treningi, `katalog` – ćwiczenia) i JEDNA definicja rekordu (`obliczRekordy`, `wynikSerii`, `seriaRekordowaWpisu`, `czyWpisMaRekord`).
 - `js/logowanie.js` – formularze logowania (kod z maila) i wylogowanie.
 - `js/powiadomienia.js` – subskrypcja push (przycisk z dzwonkiem).

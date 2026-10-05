@@ -1,5 +1,6 @@
 // Ekran "Jedzenie" (#widok-jedzenie, tylko konta z JEDZENIE_DOSTEP_IDS): oglądany dzień, cele kcal/makro (jedzenie_cele),
-// wykres kalorii z kilku dni, talerz (koło makro + pierścień kalorii), kafle makro, analiza zdjęcia przez AI (Edge Function "analizuj-posliek"), lista posiłków (posilki).
+// wykres kalorii z kilku dni, talerz (koło makro + pierścień kalorii), kafle makro, analiza zdjęcia przez AI (Edge Function "analizuj-posliek"),
+// "Zjedz ponownie" (szybkie dodanie posiłku z ostatnich dni bez AI), lista posiłków (posilki).
 
 const navJedzenie = document.getElementById("nav-jedzenie");
 const jedzDzienLiczba = document.getElementById("jedz-dzien-liczba");
@@ -41,6 +42,8 @@ const btnJedzWynikOdrzuc = document.getElementById("jedz-wynik-odrzuc");
 const btnJedzWynikZapisz = document.getElementById("jedz-wynik-zapisz");
 const jedzListaLicznik = document.getElementById("jedz-lista-licznik");
 const jedzLista = document.getElementById("jedz-lista");
+const jedzOstatnieSekcja = document.getElementById("jedz-ostatnie");
+const jedzOstatnieLista = document.getElementById("jedz-ostatnie-lista");
 
 // Pola liczbowe: klucz = kolumna w posilki / jedzenie_cele
 const JEDZ_POLA = ["kcal", "bialko", "wegle", "tluszcze"];
@@ -61,6 +64,9 @@ const JEDZ_MAKS_BOK_ZDJECIA = 768;
 const JEDZ_TEKSTY_LADOWANIA = ["Rozpoznaję, co jest na talerzu…", "Szacuję wielkość porcji…", "Liczę kalorie i makro…"];
 const JEDZ_KOLO_R_PIERSCIEN = 88;
 const JEDZ_KOLO_R_MAKRO = 62;
+const JEDZ_DNI_OSTATNICH = 30;    // z ilu dni brać posiłki do "Zjedz ponownie"
+const JEDZ_MAKS_OSTATNICH = 12;
+const JEDZ_BLOKADA_OSTATNICH_MS = 800; // blokada podwójnego kliknięcia
 
 let jedzDostep = false;
 let jedzPosilki = [];           // wiersze z tabeli "posilki" od jedzWczytaneOd do dziś
@@ -74,6 +80,9 @@ let jedzZdjecieUrl = null;      // object URL podglądu
 let jedzWynik = null;           // szacunek z AI czekający na Zapisz / Odrzuć
 let jedzAnalizaTrwa = false;
 let jedzTimerLadowania = null;
+let jedzOstatnie = [];          // "Zjedz ponownie": najnowszy wiersz z posilki dla każdej nazwy, najczęściej jedzone pierwsze
+let jedzOstatnieZapytanie = 0;  // numer ostatniego zapytania (starsze odpowiedzi są pomijane)
+let jedzOstatnieBlokada = false;
 
 // Pozycja w menu i dane tylko dla kont z JEDZENIE_DOSTEP_IDS; pozostałym nic się nie wczytuje
 function ustawDostepJedzenia(dostep) {
@@ -84,6 +93,7 @@ function ustawDostepJedzenia(dostep) {
     jedzCele = null;
     jedzWczytaneOd = null;
     jedzWynik = null;
+    jedzOstatnie = [];
     if (navJedzenie.classList.contains("aktywny")) {
       document.querySelector('.nav-btn[data-widok="widok-dodaj"]').click();
     }
@@ -446,6 +456,96 @@ function renderJedzLista() {
   jedzLista.appendChild(kolejny);
 }
 
+// ----- Zjedz ponownie -----
+// Jedno zapytanie: posiłki z ostatnich JEDZ_DNI_OSTATNICH dni, od najnowszych
+async function wczytajJedzOstatnie() {
+  if (!jedzDostep) return;
+  const nr = ++jedzOstatnieZapytanie;
+  const od = jedzPrzesunDzien(dzisiaj(), -(JEDZ_DNI_OSTATNICH - 1));
+  const { data, error } = await db.from("posilki").select("nazwa, kcal, bialko, wegle, tluszcze, data, created_at")
+    .eq("user_id", sesjaUzytkownika.user.id).gte("data", od)
+    .order("data", { ascending: false }).order("created_at", { ascending: false });
+  if (nr !== jedzOstatnieZapytanie || !jedzDostep) return;
+  if (error) {
+    console.error(error);
+    return;
+  }
+  jedzOstatnie = jedzZgrupujOstatnie(data || []);
+  renderJedzOstatnie();
+}
+
+// Bez powtórzeń po nazwie (wielkość liter i spacje na końcach bez znaczenia); wartości z najnowszego wpisu,
+// kolejność: najczęściej jedzone, przy remisie ostatnio jedzone
+function jedzZgrupujOstatnie(wiersze) {
+  const grupy = new Map();
+  wiersze.forEach(function (p, i) {
+    const klucz = String(p.nazwa || "").trim().toLowerCase();
+    if (!klucz) return;
+    const grupa = grupy.get(klucz);
+    if (grupa) grupa.ile++;
+    else grupy.set(klucz, { posilek: p, ile: 1, kolejnosc: i });
+  });
+  return Array.from(grupy.values())
+    .sort(function (a, b) { return b.ile - a.ile || a.kolejnosc - b.kolejnosc; })
+    .slice(0, JEDZ_MAKS_OSTATNICH)
+    .map(function (g) { return g.posilek; });
+}
+
+function renderJedzOstatnie() {
+  jedzOstatnieSekcja.hidden = !jedzOstatnie.length;
+  jedzOstatnieLista.innerHTML = "";
+  jedzOstatnie.forEach(function (p) {
+    const nazwa = String(p.nazwa).trim();
+    const kcal = jedzFormat(jedzLiczba(p.kcal)) + " kcal";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "jedz-ostatni";
+    btn.title = nazwa;
+    btn.setAttribute("aria-label", "Zjedz ponownie: " + nazwa + ", " + kcal);
+    const nazwaEl = document.createElement("span");
+    nazwaEl.className = "jedz-ostatni-nazwa";
+    nazwaEl.textContent = nazwa;
+    const kcalEl = document.createElement("span");
+    kcalEl.className = "jedz-ostatni-kcal";
+    kcalEl.textContent = kcal;
+    btn.append(nazwaEl, kcalEl);
+    btn.addEventListener("click", function () { jedzZjedzPonownie(p); });
+    jedzOstatnieLista.appendChild(btn);
+  });
+}
+
+// Kopia posiłku na oglądany dzień z aktualnie wybranym typem — bez wywołania AI
+async function jedzZjedzPonownie(p) {
+  if (jedzOstatnieBlokada) return;
+  jedzOstatnieBlokada = true;
+  jedzOstatnieLista.classList.add("zajety");
+  setTimeout(function () {
+    jedzOstatnieBlokada = false;
+    jedzOstatnieLista.classList.remove("zajety");
+  }, JEDZ_BLOKADA_OSTATNICH_MS);
+
+  const nazwa = String(p.nazwa).trim();
+  const wiersz = {
+    user_id: sesjaUzytkownika.user.id,
+    data: jedzDzien,
+    nazwa: nazwa,
+    typ: jedzTyp,
+    z_ai: false
+  };
+  JEDZ_POLA.forEach(function (k) { wiersz[k] = p[k]; });
+
+  const { data, error } = await db.from("posilki").insert(wiersz).select().single();
+  if (error) {
+    console.error(error);
+    pokazToast("Nie udało się dodać posiłku", "blad");
+    return;
+  }
+  jedzPosilki.push(data);
+  renderJedzenie();
+  pokazToast("Dodano: " + nazwa, "sukces");
+  wczytajJedzOstatnie();
+}
+
 // ----- Nawigacja po dniach -----
 function jedzUstawDzien(iso) {
   const dzis = dzisiaj();
@@ -717,6 +817,7 @@ btnJedzWynikZapisz.addEventListener("click", async function () {
   inputJedzDopisek.value = "";
   renderJedzenie();
   pokazToast("Zapisano: " + nazwa, "sukces");
+  wczytajJedzOstatnie();
 });
 
 async function usunPosilek(p) {
@@ -730,4 +831,5 @@ async function usunPosilek(p) {
   jedzPosilki = jedzPosilki.filter(function (x) { return x.id !== p.id; });
   renderJedzenie();
   pokazToast("Usunięto posiłek", "sukces");
+  wczytajJedzOstatnie();
 }

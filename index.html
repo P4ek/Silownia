@@ -523,6 +523,11 @@
     <p class="jedz-analizuj-podpis">ANALIZUJ</p>
 
     <div id="jedz-typy" class="jedz-typy" role="group" aria-label="Typ posiłku"></div>
+    <!-- Zjedz ponownie: posiłki z ostatnich 30 dni, dodawane jednym kliknięciem bez AI -->
+    <div id="jedz-ostatnie" class="jedz-ostatnie" hidden>
+      <p class="jedz-kicker jedz-ostatnie-tytul">OSTATNIO JEDZONE</p>
+      <div id="jedz-ostatnie-lista" class="jedz-ostatnie-lista" role="group" aria-label="Zjedz ponownie"></div>
+    </div>
     <label for="jedz-dopisek" class="jedz-dopisek-etykieta">Dopisek dla AI <span>(poprawia trafność)</span></label>
     <input id="jedz-dopisek" class="jedz-dopisek" type="text" placeholder="np. 200 g ryżu, łyżka oliwy, bez sosu" autocomplete="off">
 

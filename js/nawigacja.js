@@ -44,7 +44,10 @@ navBtns.forEach(function (btn) {
       if (cel === "widok-rejestr") renderRejestr();
       if (cel === "widok-wykres") renderWykresPostepu();
       if (cel === "widok-wnioski") renderWnioski();
-      if (cel === "widok-jedzenie") renderJedzenie();
+      if (cel === "widok-jedzenie") {
+        renderJedzenie();
+        wczytajJedzOstatnie();
+      }
       zamknijPanel();
     }
 

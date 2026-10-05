@@ -1,4 +1,4 @@
-/* Ekran "Jedzenie" (#widok-jedzenie): nagłówek dnia, cele, wykres kalorii, talerz (koło makro), kafle makro, aparat + analiza AI, wynik, lista posiłków. */
+/* Ekran "Jedzenie" (#widok-jedzenie): nagłówek dnia, cele, wykres kalorii, talerz (koło makro), kafle makro, aparat + analiza AI, zjedz ponownie, wynik, lista posiłków. */
 
 #widok-jedzenie {
   --jedz-bialko: oklch(0.7 0.12 250);
@@ -380,6 +380,56 @@
   font-weight: 600;
 }
 #widok-jedzenie .jedz-typ[aria-pressed="true"] { border-color: var(--habits-akcent); background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+/* ----- Zjedz ponownie: poziomy pasek ostatnio jedzonych ----- */
+.jedz-ostatnie { margin-top: 14px; }
+#widok-jedzenie .jedz-ostatnie-tytul { margin: 0 0 8px; }
+.jedz-ostatnie-lista {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+}
+.jedz-ostatnie-lista::-webkit-scrollbar { display: none; }
+#widok-jedzenie .jedz-ostatni {
+  flex: none;
+  width: 124px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--habits-obramowanie);
+  background: var(--habits-tlo-karta);
+  color: oklch(0.85 0.006 240);
+  text-align: left;
+  scroll-snap-align: start;
+  transition: border-color 0.15s ease, scale 0.1s ease;
+}
+.jedz-ostatni-nazwa {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  font-weight: 600;
+}
+.jedz-ostatni-kcal {
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--jedz-szary);
+  transition: color 0.15s ease;
+}
+@media (hover: hover) {
+  #widok-jedzenie .jedz-ostatni:hover { border-color: var(--habits-zloto); }
+  #widok-jedzenie .jedz-ostatni:hover .jedz-ostatni-kcal { color: var(--habits-zloto); }
+}
+#widok-jedzenie .jedz-ostatni:active,
+#widok-jedzenie .jedz-ostatni:focus-visible { border-color: var(--habits-zloto); }
+#widok-jedzenie .jedz-ostatni:active .jedz-ostatni-kcal,
+#widok-jedzenie .jedz-ostatni:focus-visible .jedz-ostatni-kcal { color: var(--habits-zloto); }
+.jedz-ostatnie-lista.zajety .jedz-ostatni { opacity: 0.6; pointer-events: none; }
+
 #widok-jedzenie .jedz-dopisek-etykieta { margin: 14px 0 6px; font-size: 12px; font-weight: 600; color: oklch(0.6 0.008 240); }
 .jedz-dopisek-etykieta span { font-weight: 500; color: var(--habits-tekst-pomocniczy); }
 #widok-jedzenie .jedz-dopisek {
