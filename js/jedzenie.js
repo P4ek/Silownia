@@ -1,5 +1,5 @@
 // Ekran "Jedzenie" (#widok-jedzenie, tylko konta z JEDZENIE_DOSTEP_IDS): oglądany dzień, cele kcal/makro (jedzenie_cele),
-// wykres kalorii z kilku dni, talerz (koło makro + pierścień kalorii), kafle makro, analiza zdjęcia przez AI (Edge Function "analizuj-posilek"), lista posiłków (posilki).
+// wykres kalorii z kilku dni, talerz (koło makro + pierścień kalorii), kafle makro, analiza zdjęcia przez AI (Edge Function "analizuj-posliek"), lista posiłków (posilki).
 
 const navJedzenie = document.getElementById("nav-jedzenie");
 const jedzDzienLiczba = document.getElementById("jedz-dzien-liczba");
@@ -600,7 +600,7 @@ btnJedzAnalizuj.addEventListener("click", async function () {
   let szacunek = null;
   try {
     const obraz = jedzZdjecie ? await jedzZdjecieDoBase64(jedzZdjecie) : null;
-    const { data, error } = await db.functions.invoke("analizuj-posilek", { body: { obraz: obraz, opis: opis } });
+    const { data, error } = await db.functions.invoke("analizuj-posliek", { body: { obraz: obraz, opis: opis } });
     if (error || (data && data.error) || !(data && data.szacunek)) {
       tekstBledu = await jedzTekstBleduAnalizy(error, data);
     } else {
