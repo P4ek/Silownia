@@ -81,7 +81,6 @@ let jedzWynik = null;           // szacunek z AI czekający na Zapisz / Odrzuć
 let jedzAnalizaTrwa = false;
 let jedzTimerLadowania = null;
 let jedzOstatnie = [];          // "Zjedz ponownie": najnowszy wiersz z posilki dla każdej nazwy, najczęściej jedzone pierwsze
-let jedzOstatnieZapytanie = 0;  // numer ostatniego zapytania (starsze odpowiedzi są pomijane)
 let jedzOstatnieBlokada = false;
 
 // Pozycja w menu i dane tylko dla kont z JEDZENIE_DOSTEP_IDS; pozostałym nic się nie wczytuje
@@ -195,6 +194,7 @@ function renderJedzenie() {
   renderJedzTypy();
   renderJedzAparat();
   renderJedzLista();
+  przeliczJedzOstatnie();
 }
 
 function renderJedzNaglowek(dzis) {
@@ -457,20 +457,16 @@ function renderJedzLista() {
 }
 
 // ----- Zjedz ponownie -----
-// Jedno zapytanie: posiłki z ostatnich JEDZ_DNI_OSTATNICH dni, od najnowszych
-async function wczytajJedzOstatnie() {
-  if (!jedzDostep) return;
-  const nr = ++jedzOstatnieZapytanie;
+// Posiłki z ostatnich JEDZ_DNI_OSTATNICH dni z jedzPosilki, od najnowszych
+function przeliczJedzOstatnie() {
   const od = jedzPrzesunDzien(dzisiaj(), -(JEDZ_DNI_OSTATNICH - 1));
-  const { data, error } = await db.from("posilki").select("nazwa, kcal, bialko, wegle, tluszcze, data, created_at")
-    .eq("user_id", sesjaUzytkownika.user.id).gte("data", od)
-    .order("data", { ascending: false }).order("created_at", { ascending: false });
-  if (nr !== jedzOstatnieZapytanie || !jedzDostep) return;
-  if (error) {
-    console.error(error);
-    return;
-  }
-  jedzOstatnie = jedzZgrupujOstatnie(data || []);
+  const wiersze = jedzPosilki
+    .filter(function (p) { return p.data >= od; })
+    .sort(function (a, b) {
+      return String(b.data).localeCompare(String(a.data)) ||
+        String(b.created_at || "").localeCompare(String(a.created_at || ""));
+    });
+  jedzOstatnie = jedzZgrupujOstatnie(wiersze);
   renderJedzOstatnie();
 }
 
@@ -543,7 +539,6 @@ async function jedzZjedzPonownie(p) {
   jedzPosilki.push(data);
   renderJedzenie();
   pokazToast("Dodano: " + nazwa, "sukces");
-  wczytajJedzOstatnie();
 }
 
 // ----- Nawigacja po dniach -----
@@ -817,7 +812,6 @@ btnJedzWynikZapisz.addEventListener("click", async function () {
   inputJedzDopisek.value = "";
   renderJedzenie();
   pokazToast("Zapisano: " + nazwa, "sukces");
-  wczytajJedzOstatnie();
 });
 
 async function usunPosilek(p) {
@@ -831,5 +825,4 @@ async function usunPosilek(p) {
   jedzPosilki = jedzPosilki.filter(function (x) { return x.id !== p.id; });
   renderJedzenie();
   pokazToast("Usunięto posiłek", "sukces");
-  wczytajJedzOstatnie();
 }
