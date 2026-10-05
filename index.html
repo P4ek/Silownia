@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="css/wykres.css">
 <link rel="stylesheet" href="css/katalog.css">
 <link rel="stylesheet" href="css/zaplanuj-trening.css">
+<link rel="stylesheet" href="css/jedzenie.css">
 <link rel="stylesheet" href="css/plan-tygodnia.css">
 <link rel="stylesheet" href="css/nawyki.css">
 <link rel="stylesheet" href="css/rady-z-ksiazek.css">
@@ -80,6 +81,10 @@
   <button class="nav-btn" data-widok="widok-zaplanuj">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v3h6V3"/><path d="M8 12h8M8 16h5"/></svg>
     <span>Zaplanuj trening</span>
+  </button>
+  <button class="nav-btn" id="nav-jedzenie" data-widok="widok-jedzenie" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M4.5 3v5a2.5 2.5 0 0 0 5 0V3M7 11v10"/><path d="M17 21V3c-2.2 1.2-3.5 3.6-3.5 7v3H17"/></svg>
+    <span>Jedzenie</span>
   </button>
 
   <h3>Rozwój</h3>
@@ -426,6 +431,139 @@
     <div id="plany-lista" class="plany-pasek"></div>
   </section>
 
+  <!-- ===== Widok: Jedzenie (tylko konta z JEDZENIE_DOSTEP_IDS) ===== -->
+  <section id="widok-jedzenie" class="widok">
+    <header class="jedz-naglowek">
+      <div class="jedz-dzien">
+        <span id="jedz-dzien-liczba" class="jedz-dzien-liczba"></span>
+        <div class="jedz-dzien-opis">
+          <span id="jedz-dzien-dzis" class="jedz-dzien-dzis" hidden>DZIŚ</span>
+          <span id="jedz-dzien-tygodnia" class="jedz-dzien-tygodnia"></span>
+          <span id="jedz-dzien-miesiac" class="jedz-dzien-miesiac"></span>
+        </div>
+      </div>
+      <div class="jedz-naglowek-akcje">
+        <button type="button" id="jedz-btn-cele" class="jedz-btn-cele" aria-expanded="false" aria-controls="jedz-cele">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+          Cele
+        </button>
+        <div class="jedz-strzalki">
+          <button type="button" id="jedz-poprzedni" class="jedz-strzalka" aria-label="Poprzedni dzień">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+          </button>
+          <button type="button" id="jedz-nastepny" class="jedz-strzalka" aria-label="Następny dzień">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Edycja celów dziennych -->
+    <form id="jedz-cele" class="jedz-cele" hidden>
+      <div class="jedz-cele-gora">
+        <h2 class="jedz-cele-tytul">Twoje cele dzienne</h2>
+        <button type="submit" id="jedz-cele-zapisz" class="jedz-btn-jasny">Zapisz</button>
+      </div>
+      <div class="jedz-cele-pola">
+        <div class="jedz-cele-pole"><label for="jedz-cel-kcal">KALORIE</label><div><input id="jedz-cel-kcal" type="number" min="0" step="1" inputmode="numeric"><span>kcal</span></div></div>
+        <div class="jedz-cele-pole"><label for="jedz-cel-bialko">BIAŁKO</label><div><input id="jedz-cel-bialko" type="number" min="0" step="1" inputmode="numeric"><span>g</span></div></div>
+        <div class="jedz-cele-pole"><label for="jedz-cel-wegle">WĘGLOWODANY</label><div><input id="jedz-cel-wegle" type="number" min="0" step="1" inputmode="numeric"><span>g</span></div></div>
+        <div class="jedz-cele-pole"><label for="jedz-cel-tluszcze">TŁUSZCZE</label><div><input id="jedz-cel-tluszcze" type="number" min="0" step="1" inputmode="numeric"><span>g</span></div></div>
+      </div>
+      <p id="jedz-cele-podpowiedz" class="jedz-cele-podpowiedz"></p>
+    </form>
+
+    <!-- Zachęta, gdy celów brak (zamiast podsumowania) -->
+    <div id="jedz-brak-celow" class="jedz-brak-celow" hidden>
+      <p class="jedz-brak-celow-tytul">Ustaw swoje cele</p>
+      <p class="jedz-brak-celow-opis">Podaj dzienne kalorie i makro, a zobaczysz, ile jeszcze zostało na dziś.</p>
+      <button type="button" id="jedz-brak-celow-btn" class="jedz-btn-jasny">Ustaw cele</button>
+    </div>
+
+    <!-- Podsumowanie oglądanego dnia -->
+    <div id="jedz-podsumowanie" hidden>
+      <div class="jedz-wykres" id="jedz-wykres" role="group" aria-label="Kalorie z kilku dni"></div>
+
+      <section class="jedz-talerz">
+        <div class="jedz-kolo">
+          <svg id="jedz-kolo-svg" viewBox="0 0 190 190" aria-hidden="true"></svg>
+          <div class="jedz-kolo-srodek">
+            <span id="jedz-kolo-etykieta" class="jedz-kolo-etykieta">ZOSTAŁO</span>
+            <span id="jedz-kolo-liczba" class="jedz-kolo-liczba">0</span>
+            <span id="jedz-kolo-opis" class="jedz-kolo-opis"></span>
+          </div>
+        </div>
+        <div id="jedz-kafle" class="jedz-kafle"></div>
+      </section>
+    </div>
+
+    <!-- Aparat + analiza AI -->
+    <section class="jedz-aparat-wrap">
+      <label for="jedz-foto" id="jedz-aparat" class="jedz-aparat">
+        <img id="jedz-foto-podglad" class="jedz-foto-podglad" alt="Zdjęcie posiłku" hidden>
+        <span class="jedz-rog jedz-rog-lg" aria-hidden="true"></span>
+        <span class="jedz-rog jedz-rog-pg" aria-hidden="true"></span>
+        <span class="jedz-rog jedz-rog-ld" aria-hidden="true"></span>
+        <span class="jedz-rog jedz-rog-pd" aria-hidden="true"></span>
+        <span id="jedz-aparat-pusty" class="jedz-aparat-pusty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          <span class="jedz-aparat-tytul">Wyceluj w talerz</span>
+          <span class="jedz-aparat-opis">dotknij, by zrobić lub wybrać zdjęcie</span>
+        </span>
+        <span id="jedz-aparat-skan" class="jedz-aparat-skan" hidden>
+          <span class="jedz-skan-linia"></span>
+          <span class="jedz-skan-tekst jedz-puls"></span>
+        </span>
+        <input id="jedz-foto" type="file" accept="image/*" capture="environment" class="jedz-foto-input">
+      </label>
+      <button type="button" id="jedz-analizuj" class="jedz-analizuj" aria-label="Analizuj posiłek">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6zM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></svg>
+      </button>
+    </section>
+    <p class="jedz-analizuj-podpis">ANALIZUJ</p>
+
+    <div id="jedz-typy" class="jedz-typy" role="group" aria-label="Typ posiłku"></div>
+    <label for="jedz-dopisek" class="jedz-dopisek-etykieta">Dopisek dla AI <span>(poprawia trafność)</span></label>
+    <input id="jedz-dopisek" class="jedz-dopisek" type="text" placeholder="np. 200 g ryżu, łyżka oliwy, bez sosu" autocomplete="off">
+
+    <!-- Stan ładowania analizy -->
+    <section id="jedz-ladowanie" class="jedz-ladowanie" role="status" aria-live="polite" hidden>
+      <span id="jedz-ladowanie-tekst" class="jedz-ladowanie-tekst jedz-puls"></span>
+      <div class="jedz-ladowanie-pasek"><span id="jedz-ladowanie-postep"></span></div>
+      <div class="jedz-ladowanie-kafle">
+        <div class="jedz-shimmer"></div><div class="jedz-shimmer"></div><div class="jedz-shimmer"></div><div class="jedz-shimmer"></div>
+      </div>
+    </section>
+
+    <!-- Karta wyniku AI -->
+    <section id="jedz-wynik" class="jedz-wynik" aria-label="Wynik analizy" hidden>
+      <div class="jedz-wynik-gora">
+        <span class="jedz-kicker">WYNIK AI</span>
+        <span id="jedz-pewnosc" class="jedz-pewnosc"></span>
+      </div>
+      <label for="jedz-wynik-nazwa" class="jedz-sr">Nazwa posiłku</label>
+      <input id="jedz-wynik-nazwa" class="jedz-wynik-nazwa" type="text" autocomplete="off">
+      <div class="jedz-wynik-pola">
+        <div class="jedz-wynik-pole"><input id="jedz-wynik-kcal" type="number" min="0" inputmode="numeric" aria-label="kcal"><span class="jedz-kolor-kcal">kcal</span></div>
+        <div class="jedz-wynik-pole"><input id="jedz-wynik-bialko" type="number" min="0" inputmode="numeric" aria-label="białko"><span class="jedz-kolor-bialko">białko</span></div>
+        <div class="jedz-wynik-pole"><input id="jedz-wynik-wegle" type="number" min="0" inputmode="numeric" aria-label="węgle"><span class="jedz-kolor-wegle">węgle</span></div>
+        <div class="jedz-wynik-pole"><input id="jedz-wynik-tluszcze" type="number" min="0" inputmode="numeric" aria-label="tłuszcz"><span class="jedz-kolor-tluszcze">tłuszcz</span></div>
+      </div>
+      <ul id="jedz-wynik-skladniki" class="jedz-wynik-skladniki" hidden></ul>
+      <p id="jedz-wynik-uwaga" class="jedz-wynik-uwaga" hidden></p>
+      <div class="jedz-wynik-akcje">
+        <button type="button" id="jedz-wynik-odrzuc" class="jedz-btn-obrys">Odrzuć</button>
+        <button type="button" id="jedz-wynik-zapisz" class="jedz-btn-jasny">Zapisz</button>
+      </div>
+    </section>
+
+    <div class="jedz-lista-naglowek">
+      <h2 class="jedz-lista-tytul">Na talerzu</h2>
+      <span id="jedz-lista-licznik" class="jedz-kicker"></span>
+    </div>
+    <div id="jedz-lista" class="jedz-lista"></div>
+  </section>
+
   <!-- ===== Widok 5: Plan tygodnia ===== -->
   <section id="widok-plan" class="widok">
     <span class="kompas-kicker">Nawyk 3 · Najpierw to, co najważniejsze</span>
@@ -631,6 +769,7 @@
 <script src="js/wykres.js" defer></script>
 <script src="js/katalog.js" defer></script>
 <script src="js/zaplanuj-trening.js" defer></script>
+<script src="js/jedzenie.js" defer></script>
 <script src="js/plan-tygodnia.js" defer></script>
 <script src="js/nawyki.js" defer></script>
 <script src="js/rady-z-ksiazek.js" defer></script>

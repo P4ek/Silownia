@@ -16,6 +16,7 @@ Bez bundlera, npm i kroku build. Dane w Supabase (`js/konfiguracja.js`), wykresy
 | Wykres postępu | `#widok-wykres` | `js/wykres.js` | `css/wykres.css` |
 | Katalog ćwiczeń | `#widok-nowe` | `js/katalog.js` | `css/katalog.css` |
 | Zaplanuj trening | `#widok-zaplanuj` | `js/zaplanuj-trening.js` | `css/zaplanuj-trening.css` |
+| Jedzenie (tylko konta z `JEDZENIE_DOSTEP_IDS`) | `#widok-jedzenie` | `js/jedzenie.js` | `css/jedzenie.css` |
 | Plan tygodnia (Kompas) | `#widok-plan` | `js/plan-tygodnia.js` | `css/plan-tygodnia.css` |
 | Nawyki | `#widok-habits` | `js/nawyki.js` | `css/nawyki.css` |
 | Rady z książek (tylko konto `AI_UZYTKOWNIK_ID`) | `#widok-rady` | `js/rady-z-ksiazek.js` | `css/rady-z-ksiazek.css` |
@@ -23,7 +24,7 @@ Bez bundlera, npm i kroku build. Dane w Supabase (`js/konfiguracja.js`), wykresy
 | AI Analiza | `#widok-ai-analiza` | `js/ai-analiza.js` | `css/ai-analiza.css` |
 
 Pozostałe:
-- `js/konfiguracja.js` – klient Supabase (`db`), `AI_UZYTKOWNIK_ID`, stan sesji (`sesjaUzytkownika`).
+- `js/konfiguracja.js` – klient Supabase (`db`), `AI_UZYTKOWNIK_ID`, `JEDZENIE_DOSTEP_IDS` (konta z sekcją Jedzenie: tabele `posilki`, `jedzenie_cele`, Edge Function `analizuj-posilek`), stan sesji (`sesjaUzytkownika`).
 - `js/wspolne.js` – funkcje używane przez wiele ekranów: `pokazToast`, `pustyStanHTML`, `wjazdKarty`, `animujLiczbe`, daty (`dzisiaj`, `isoZDaty`, `poniedzialekTygodnia`, `formatDatyRejestru`, nazwy dni/miesięcy), partie (`PARTIE`, `kolorPartiiCSS`, `kropkaPartii`), odmiana (`odmianaLiczby`), wspólne dane (`wpisy` – treningi, `katalog` – ćwiczenia) i JEDNA definicja rekordu (`obliczRekordy`, `wynikSerii`, `seriaRekordowaWpisu`, `czyWpisMaRekord`).
 - `js/logowanie.js` – formularze logowania (kod z maila) i wylogowanie.
 - `js/powiadomienia.js` – subskrypcja push (przycisk z dzwonkiem).

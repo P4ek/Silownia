@@ -9,3 +9,4 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let sesjaUzytkownika = null; // aktualna sesja Supabase, ustawiana przez onAuthStateChange
 let aplikacjaZainicjowana = false;
 const AI_UZYTKOWNIK_ID = "1f1fc4a4-1b87-4ea7-9ddd-785873e98cbc"; // jedyne konto z dostępem do sekcji "AI Analiza" (i customowego nagłówka)
+const JEDZENIE_DOSTEP_IDS = [AI_UZYTKOWNIK_ID]; // konta z dostępem do sekcji "Jedzenie" (tabele posilki, jedzenie_cele)

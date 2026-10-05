@@ -15,6 +15,10 @@ function inicjalizujDaneAplikacji() {
   const kontoAI = !!(sesjaUzytkownika && sesjaUzytkownika.user && sesjaUzytkownika.user.id === AI_UZYTKOWNIK_ID);
   ustawDostepRadZKsiazek(kontoAI);
   if (kontoAI) wczytajRadyZKsiazek();
+
+  const dostepJedzenie = !!(sesjaUzytkownika && sesjaUzytkownika.user && JEDZENIE_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));
+  ustawDostepJedzenia(dostepJedzenie);
+  if (dostepJedzenie) wczytajJedzenie();
 }
 
 function pokazAplikacje() {

@@ -1,0 +1,592 @@
+/* Ekran "Jedzenie" (#widok-jedzenie): nagłówek dnia, cele, wykres kalorii, talerz (koło makro), kafle makro, aparat + analiza AI, wynik, lista posiłków. */
+
+#widok-jedzenie {
+  --jedz-bialko: oklch(0.7 0.12 250);
+  --jedz-wegle: oklch(0.72 0.11 175);
+  --jedz-tluszcze: oklch(0.7 0.14 35);
+  --jedz-tlo-pola: oklch(0.08 0.005 250);
+  --jedz-szary: oklch(0.52 0.008 240);
+  --jedz-jasny: oklch(0.95 0.004 240);
+  color: var(--habits-tekst);
+}
+#widok-jedzenie .jedz-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--habits-tekst-pomocniczy);
+}
+#widok-jedzenie .jedz-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  margin: 0;
+}
+#widok-jedzenie .jedz-puls { animation: jedz-puls 1.4s ease-in-out infinite; }
+@keyframes jedz-puls { 50% { opacity: 0.45; } }
+
+/* ----- Przyciski ----- */
+#widok-jedzenie .jedz-btn-jasny {
+  height: 44px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 999px;
+  background: var(--habits-akcent);
+  color: oklch(0.1 0.006 250);
+  font-size: 14px;
+  font-weight: 700;
+}
+#widok-jedzenie .jedz-btn-jasny:disabled { opacity: 0.55; }
+#widok-jedzenie .jedz-btn-obrys {
+  height: 52px;
+  border-radius: 999px;
+  border: 1px solid oklch(0.26 0.008 245);
+  background: transparent;
+  color: var(--habits-tekst);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* ----- Nagłówek: duża liczba dnia, DZIŚ, dzień tygodnia, miesiąc; Cele + strzałki ----- */
+.jedz-naglowek {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}
+.jedz-dzien { display: flex; align-items: flex-end; gap: 14px; min-width: 0; }
+.jedz-dzien-liczba {
+  flex: none;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: clamp(5.5rem, 30vw, 8.4rem);
+  line-height: 0.78;
+  letter-spacing: -0.03em;
+  color: var(--jedz-jasny);
+}
+.jedz-dzien-opis { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding-bottom: 6px; }
+.jedz-dzien-dzis { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; color: var(--habits-akcent); }
+.jedz-dzien-tygodnia {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.5rem, 7.5vw, 2rem);
+  line-height: 1;
+  color: oklch(0.93 0.004 240);
+}
+.jedz-dzien-miesiac { font-size: 14px; color: var(--jedz-szary); }
+.jedz-naglowek-akcje { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+#widok-jedzenie .jedz-btn-cele {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid oklch(0.26 0.008 245);
+  background: var(--habits-tlo-karta);
+  color: oklch(0.9 0.004 240);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+#widok-jedzenie .jedz-btn-cele[aria-expanded="true"] { border-color: var(--habits-akcent); }
+.jedz-btn-cele svg { width: 16px; height: 16px; }
+.jedz-strzalki { display: flex; gap: 6px; }
+#widok-jedzenie .jedz-strzalka {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid oklch(0.22 0.008 245);
+  background: transparent;
+  color: var(--habits-tekst);
+  display: grid;
+  place-items: center;
+}
+.jedz-strzalka svg { width: 18px; height: 18px; }
+#widok-jedzenie .jedz-strzalka:disabled { opacity: 0.3; cursor: default; }
+
+/* ----- Cele ----- */
+#widok-jedzenie .jedz-cele {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 24px;
+  background: var(--habits-tlo-karta);
+  border: 1px solid var(--habits-akcent);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.jedz-cele-gora { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+#widok-jedzenie .jedz-cele-tytul { margin: 0; font-size: 26px; color: var(--jedz-jasny); }
+.jedz-cele-pola { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+.jedz-cele-pole {
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--jedz-tlo-pola);
+  border: 1px solid var(--habits-obramowanie);
+}
+#widok-jedzenie .jedz-cele-pole label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: oklch(0.6 0.008 240);
+}
+.jedz-cele-pole > div { display: flex; align-items: baseline; gap: 4px; }
+.jedz-cele-pole span { font-size: 12px; color: var(--jedz-szary); }
+#widok-jedzenie .jedz-cele-pole input,
+#widok-jedzenie .jedz-wynik-pole input {
+  min-width: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 30px;
+  line-height: 1.2;
+  color: var(--jedz-jasny);
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+#widok-jedzenie .jedz-cele-pole input::-webkit-inner-spin-button,
+#widok-jedzenie .jedz-wynik-pole input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.jedz-cele-podpowiedz { margin: 10px 0 0; font-size: 12px; color: var(--jedz-szary); }
+
+/* ----- Zachęta, gdy celów brak ----- */
+.jedz-brak-celow {
+  margin-top: 24px;
+  padding: 22px 20px;
+  border-radius: 24px;
+  border: 1.5px dashed oklch(0.3 0.008 245);
+  text-align: center;
+}
+.jedz-brak-celow-tytul {
+  margin: 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 26px;
+  color: var(--jedz-jasny);
+}
+.jedz-brak-celow-opis { margin: 6px 0 14px; font-size: 13px; color: oklch(0.6 0.008 240); }
+
+/* ----- Wykres słupkowy kalorii ----- */
+.jedz-wykres { margin-top: 24px; }
+.jedz-wykres-slupki {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  height: 120px;
+  padding-top: 16px;
+}
+.jedz-wykres-cel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  /* Wysokość celu w obszarze słupków: wykres minus 16px górnego odstępu i 21px etykiet dni */
+  bottom: calc(21px + (100% - 37px) * var(--ulamek, 0));
+  border-top: 1px dashed oklch(0.5 0.01 245);
+  pointer-events: none;
+  z-index: 1;
+}
+.jedz-wykres-cel span {
+  position: absolute;
+  right: 0;
+  bottom: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: oklch(0.6 0.008 240);
+  background: var(--habits-tlo);
+  padding: 0 0 0 6px;
+}
+#widok-jedzenie .jedz-wykres-dzien {
+  height: 100%;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.jedz-wykres-slupek-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+.jedz-wykres-slupek {
+  display: block;
+  width: 100%;
+  max-width: 26px;
+  border-radius: 6px 6px 3px 3px;
+  background: oklch(0.32 0.01 245);
+  transition: height 0.3s ease;
+}
+.jedz-wykres-slupek.pusty { background: oklch(0.15 0.007 248); }
+.jedz-wykres-dzien.aktywny .jedz-wykres-slupek { background: var(--habits-akcent); box-shadow: 0 0 12px rgba(var(--habits-akcent-rgb), 0.35); }
+.jedz-wykres-etykieta { font-size: 11px; font-weight: 700; line-height: 16px; color: var(--habits-tekst-pomocniczy); }
+.jedz-wykres-dzien.dzis .jedz-wykres-etykieta { color: var(--habits-tekst); }
+.jedz-wykres-dzien.aktywny .jedz-wykres-etykieta { color: var(--habits-akcent); }
+
+/* ----- Talerz: koło + kafle makro ----- */
+.jedz-talerz { display: flex; align-items: center; gap: 18px; margin-top: 24px; }
+.jedz-kolo { position: relative; width: 190px; height: 190px; flex: none; }
+.jedz-kolo svg { display: block; width: 100%; height: 100%; }
+.jedz-kolo-tor { fill: none; stroke: oklch(0.15 0.007 248); stroke-width: 6; }
+.jedz-kolo-postep { fill: none; stroke: var(--habits-akcent); stroke-width: 6; stroke-linecap: round; }
+.jedz-kolo-tarcza { fill: var(--habits-tlo-karta); stroke: var(--habits-obramowanie); }
+.jedz-kolo-makro { fill: none; stroke-width: 18; }
+.jedz-kolo-makro-puste { fill: none; stroke: oklch(0.16 0.007 248); stroke-width: 18; }
+.jedz-kolo-srodek {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.jedz-kolo-etykieta { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; color: oklch(0.6 0.008 240); }
+.jedz-kolo-liczba {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 40px;
+  line-height: 1;
+  color: var(--jedz-jasny);
+}
+.jedz-kolo-opis { max-width: 88px; margin-top: 2px; font-size: 10px; line-height: 1.3; color: var(--jedz-szary); }
+.jedz-kafle { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.jedz-kafel-etykieta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: oklch(0.6 0.008 240);
+}
+.jedz-kropka { width: 8px; height: 8px; border-radius: 50%; background: var(--kolor-makro); }
+.jedz-kafel-wartosc {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 28px;
+  line-height: 1.05;
+  color: var(--jedz-jasny);
+}
+.jedz-kafel-cel { font-size: 16px; color: var(--jedz-szary); }
+.jedz-kafel-pasek { height: 4px; margin-top: 4px; border-radius: 2px; background: oklch(0.16 0.007 248); overflow: hidden; }
+.jedz-kafel-pasek span { display: block; height: 100%; border-radius: 2px; background: var(--kolor-makro); transition: width 0.4s ease; }
+
+/* ----- Aparat ----- */
+.jedz-aparat-wrap { position: relative; margin-top: 30px; }
+#widok-jedzenie .jedz-aparat {
+  position: relative;
+  display: block;
+  height: 210px;
+  margin: 0;
+  border-radius: 28px;
+  background: var(--habits-tlo-karta);
+  border: 1px solid var(--habits-obramowanie);
+  overflow: hidden;
+  cursor: pointer;
+}
+.jedz-foto-podglad { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.jedz-rog { position: absolute; width: 26px; height: 26px; border: 0 solid var(--habits-akcent); z-index: 1; }
+.jedz-rog-lg { left: 18px; top: 18px; border-left-width: 2px; border-top-width: 2px; border-radius: 8px 0 0 0; }
+.jedz-rog-pg { right: 18px; top: 18px; border-right-width: 2px; border-top-width: 2px; border-radius: 0 8px 0 0; }
+.jedz-rog-ld { left: 18px; bottom: 18px; border-left-width: 2px; border-bottom-width: 2px; border-radius: 0 0 0 8px; }
+.jedz-rog-pd { right: 18px; bottom: 18px; border-right-width: 2px; border-bottom-width: 2px; border-radius: 0 0 8px 0; }
+.jedz-aparat-pusty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: oklch(0.6 0.008 240);
+  font-weight: 400;
+}
+.jedz-aparat-pusty svg { width: 34px; height: 34px; }
+.jedz-aparat-tytul { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 24px; color: var(--habits-tekst); }
+.jedz-aparat-opis { font-size: 12px; }
+.jedz-aparat-skan { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.35); }
+.jedz-skan-linia {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--habits-akcent);
+  box-shadow: 0 0 18px 4px rgba(var(--habits-akcent-rgb), 0.6);
+  animation: jedz-skan 1.4s ease-in-out infinite alternate;
+}
+@keyframes jedz-skan { from { top: 8%; } to { top: 92%; } }
+.jedz-skan-tekst {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 26px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--habits-akcent);
+}
+#widok-jedzenie .jedz-foto-input { position: absolute; width: 1px; height: 1px; opacity: 0; padding: 0; border: 0; }
+#widok-jedzenie .jedz-analizuj {
+  position: absolute;
+  left: 50%;
+  bottom: -34px;
+  margin-left: -38px;
+  width: 76px;
+  height: 76px;
+  padding: 0;
+  border-radius: 50%;
+  border: 4px solid var(--habits-tlo);
+  background: var(--habits-akcent);
+  color: oklch(0.1 0.006 250);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 12px 30px -8px rgba(var(--habits-akcent-rgb), 0.6);
+  z-index: 2;
+}
+.jedz-analizuj svg { width: 26px; height: 26px; }
+#widok-jedzenie .jedz-analizuj:disabled { opacity: 0.6; cursor: default; }
+.jedz-analizuj-podpis {
+  margin: 44px 0 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--jedz-szary);
+}
+
+/* ----- Typ posiłku + dopisek ----- */
+.jedz-typy {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding-top: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.jedz-typy::-webkit-scrollbar { display: none; }
+#widok-jedzenie .jedz-typ {
+  flex: none;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--habits-obramowanie);
+  background: transparent;
+  color: oklch(0.7 0.006 240);
+  font-size: 12px;
+  font-weight: 600;
+}
+#widok-jedzenie .jedz-typ[aria-pressed="true"] { border-color: var(--habits-akcent); background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+#widok-jedzenie .jedz-dopisek-etykieta { margin: 14px 0 6px; font-size: 12px; font-weight: 600; color: oklch(0.6 0.008 240); }
+.jedz-dopisek-etykieta span { font-weight: 500; color: var(--habits-tekst-pomocniczy); }
+#widok-jedzenie .jedz-dopisek {
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 14px;
+  background: var(--jedz-tlo-pola);
+  color: oklch(0.93 0.004 240);
+}
+#widok-jedzenie .jedz-dopisek::placeholder { color: var(--habits-tekst-pomocniczy); }
+
+/* ----- Ładowanie analizy ----- */
+.jedz-ladowanie,
+.jedz-wynik {
+  margin-top: 16px;
+  padding: 18px;
+  border-radius: 24px;
+  background: var(--habits-tlo-karta);
+  border: 1px solid var(--habits-obramowanie);
+}
+.jedz-ladowanie-tekst { display: block; font-size: 14px; font-weight: 600; color: oklch(0.93 0.004 240); }
+.jedz-ladowanie-pasek { height: 4px; margin-top: 12px; border-radius: 2px; background: oklch(0.16 0.007 248); overflow: hidden; }
+.jedz-ladowanie-pasek span { display: block; width: 0; height: 100%; border-radius: 2px; background: var(--habits-akcent); transition: width 0.8s ease; }
+.jedz-ladowanie-kafle { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 14px; }
+.jedz-shimmer {
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, oklch(0.14 0.007 248) 0%, oklch(0.2 0.008 245) 50%, oklch(0.14 0.007 248) 100%);
+  background-size: 200% 100%;
+  animation: jedz-shimmer 1.1s linear infinite;
+}
+@keyframes jedz-shimmer { to { background-position: -200% 0; } }
+
+/* ----- Karta wyniku AI ----- */
+.jedz-wynik { margin-top: 18px; border-color: var(--habits-akcent); }
+.jedz-wynik-gora { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.jedz-pewnosc {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.jedz-pewnosc.poziom-3 { color: var(--jedz-wegle); }
+.jedz-pewnosc.poziom-2 { color: var(--habits-zloto); }
+.jedz-pewnosc.poziom-1 { color: var(--jedz-tluszcze); }
+.jedz-pewnosc.poprawione { border-color: var(--habits-akcent); background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+.jedz-pewnosc-kreski { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.jedz-pewnosc-kreski span { display: block; width: 3px; border-radius: 1px; background: currentColor; opacity: 0.25; }
+.jedz-pewnosc-kreski span:nth-child(1) { height: 4px; }
+.jedz-pewnosc-kreski span:nth-child(2) { height: 8px; }
+.jedz-pewnosc-kreski span:nth-child(3) { height: 12px; }
+.jedz-pewnosc-kreski span.pelna { opacity: 1; }
+#widok-jedzenie .jedz-wynik-nazwa {
+  display: block;
+  margin-top: 10px;
+  padding: 0 0 6px;
+  border: none;
+  border-bottom: 1px dashed oklch(0.3 0.008 245);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 22px;
+  color: var(--jedz-jasny);
+}
+.jedz-wynik-pola { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 14px; }
+.jedz-wynik-pole {
+  padding: 10px 4px 8px;
+  border-radius: 16px;
+  background: var(--jedz-tlo-pola);
+  border: 1px solid var(--habits-obramowanie);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.jedz-cele-pole:focus-within,
+.jedz-wynik-pole:focus-within { border-color: var(--habits-akcent); }
+#widok-jedzenie .jedz-wynik-pole input { width: 100%; font-size: 26px; text-align: center; }
+.jedz-wynik-pole > span { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; }
+.jedz-kolor-kcal { color: var(--habits-akcent); }
+.jedz-kolor-bialko { color: var(--jedz-bialko); }
+.jedz-kolor-wegle { color: var(--jedz-wegle); }
+.jedz-kolor-tluszcze { color: var(--jedz-tluszcze); }
+.jedz-wynik-skladniki { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; padding: 0; list-style: none; }
+.jedz-wynik-skladniki li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--habits-obramowanie);
+  font-size: 12px;
+  color: oklch(0.7 0.006 240);
+}
+.jedz-wynik-uwaga { margin: 10px 0 0; font-size: 12px; line-height: 1.45; color: oklch(0.6 0.008 240); }
+.jedz-wynik-akcje { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 8px; margin-top: 14px; }
+#widok-jedzenie .jedz-wynik-akcje .jedz-btn-jasny { height: 52px; font-size: 15px; }
+
+/* ----- Lista posiłków ----- */
+.jedz-lista-naglowek { display: flex; align-items: baseline; justify-content: space-between; margin-top: 32px; }
+#widok-jedzenie .jedz-lista-tytul { margin: 0; font-size: 30px; color: var(--habits-tekst); }
+.jedz-lista { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.jedz-posilek {
+  min-width: 0;
+  border-radius: 20px;
+  background: var(--habits-tlo-karta);
+  border: 1px solid var(--habits-obramowanie);
+  overflow: hidden;
+}
+.jedz-posilek-gora {
+  position: relative;
+  height: 104px;
+  background: oklch(0.13 0.007 248);
+  display: grid;
+  place-items: center;
+  color: oklch(0.3 0.008 245);
+}
+.jedz-posilek-talerz { width: 40px; height: 40px; }
+.jedz-posilek-godzina,
+.jedz-posilek-ai {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--habits-akcent);
+}
+.jedz-posilek-godzina + .jedz-posilek-ai { top: 38px; }
+.jedz-posilek-ai { color: oklch(0.7 0.006 240); }
+#widok-jedzenie .jedz-posilek-usun {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: oklch(0.9 0.004 240);
+  display: grid;
+  place-items: center;
+}
+.jedz-posilek-usun svg { width: 15px; height: 15px; }
+.jedz-posilek-kcal {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 30px;
+  line-height: 1;
+  color: oklch(0.97 0.004 240);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+.jedz-posilek-dol { padding: 10px 12px 12px; }
+#widok-jedzenie .jedz-posilek-typ { font-size: 10px; letter-spacing: 0.12em; color: var(--jedz-szary); }
+.jedz-posilek-nazwa {
+  margin-top: 2px;
+  min-height: 34px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: oklch(0.93 0.004 240);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.jedz-posilek-pasek { display: flex; height: 5px; gap: 2px; margin-top: 8px; border-radius: 3px; overflow: hidden; }
+.jedz-posilek-pasek span { display: block; height: 100%; }
+.jedz-posilek-makro { display: block; margin-top: 6px; font-size: 11px; color: oklch(0.6 0.008 240); }
+#widok-jedzenie .jedz-kolejny {
+  min-height: 216px;
+  margin: 0;
+  border-radius: 20px;
+  border: 1.5px dashed oklch(0.3 0.008 245);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: oklch(0.6 0.008 240);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.jedz-kolejny svg { width: 22px; height: 22px; }
+
+/* ----- Wąskie ekrany ----- */
+@media (max-width: 400px) {
+  .jedz-talerz { gap: 12px; }
+  .jedz-kolo { width: 176px; height: 176px; }
+  .jedz-kolo-liczba { font-size: 32px; }
+  .jedz-kafel-wartosc { font-size: 24px; }
+  .jedz-kafel-cel { font-size: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #widok-jedzenie .jedz-puls,
+  .jedz-skan-linia,
+  .jedz-shimmer { animation: none; }
+}
