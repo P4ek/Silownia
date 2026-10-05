@@ -1,4 +1,4 @@
-const CACHE_NAME = "silownia-v27";
+const CACHE_NAME = "silownia-v28";
 const ASSETS = [
   "./",
   "./index.html",
@@ -33,44 +33,59 @@ const ASSETS = [
   "./js/nawigacja.js",
   "./js/start.js",
   "./manifest.json",
+  "./logo/icon-180.png",
   "./logo/icon-192.png",
   "./logo/icon-512.png"
 ];
 
+// Instalacja: świeże pliki z serwera (cache: "reload" omija cache HTTP przeglądarki) do nowego cache
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.addAll(ASSETS.map((plik) => new Request(plik, { cache: "reload" })))
+    )
   );
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
+// Najpierw cache: pliki apki z cache, sieć tylko gdy pliku tam nie ma.
+// Nowe wersje plików przychodzą przez podbicie CACHE_NAME (nowy sw.js = nowa instalacja).
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
   // Zostaw przeglądarce bez ingerencji wszystko poza GET-ami do własnej domeny
-  // (czyli m.in. wszystkie zapytania do Supabase i Edge Functions)
+  // (czyli m.in. Supabase, Edge Functions, fonty Google, CDN)
   if (event.request.method !== "GET" || url.origin !== self.location.origin) {
     return;
   }
 
-  // cache: "reload" omija cache HTTP przeglądarki, więc "najpierw sieć" bierze naprawdę świeże pliki
+  // Otwarcie strony: index.html z cache
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      caches.match("./index.html").then((zCache) => zCache || fetch(event.request))
+    );
+    return;
+  }
+
   event.respondWith(
-    fetch(event.request, { cache: "reload" })
-      .then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+    caches.match(event.request).then((zCache) => {
+      if (zCache) return zCache;
+      return fetch(event.request).then((response) => {
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        }
         return response;
-      })
-      .catch(() => caches.match(event.request))
+      });
+    })
   );
 });
 // ----- Obsługa powiadomień push (przypomnienie o zapisaniu treningu/nawyku) -----
