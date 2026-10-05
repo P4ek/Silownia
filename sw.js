@@ -1,4 +1,4 @@
-const CACHE_NAME = "silownia-v24";
+const CACHE_NAME = "silownia-v25";
 const ASSETS = [
   "./",
   "./index.html",
@@ -62,8 +62,9 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // cache: "reload" omija cache HTTP przeglądarki, więc "najpierw sieć" bierze naprawdę świeże pliki
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, { cache: "reload" })
       .then((response) => {
         const copy = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));

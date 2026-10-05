@@ -1,28 +1,5 @@
 // Start aplikacji - ładowany jako OSTATNI: dopiero tu ruszają sprawdzanie sesji, onAuthStateChange i inicjalizujDaneAplikacji, gdy wszystkie pliki ekranów są już wczytane. Na końcu rejestracja service workera.
 
-// Ekran startowy: widoczny do odpowiedzi getSession(); bez sieci po START_LIMIT_MS komunikat i "Spróbuj ponownie"
-const START_LIMIT_MS = 8000;
-const ekranStartowy = document.getElementById("ekran-startowy");
-const startTimer = setTimeout(function () {
-  ekranStartowy.classList.add("blad");
-  document.getElementById("start-tekst").textContent = "Nie udało się połączyć";
-  document.getElementById("start-ponow").hidden = false;
-}, START_LIMIT_MS);
-document.getElementById("start-ponow").addEventListener("click", function () {
-  location.reload();
-});
-
-function schowajEkranStartowy() {
-  clearTimeout(startTimer);
-  if (ekranStartowy.hidden) return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    ekranStartowy.hidden = true;
-    return;
-  }
-  ekranStartowy.addEventListener("transitionend", function () { ekranStartowy.hidden = true; }, { once: true });
-  ekranStartowy.classList.add("znika");
-}
-
 // Wywoływane raz, przy pierwszym pokazaniu aplikacji po zalogowaniu - wczytuje wszystkie dane
 function inicjalizujDaneAplikacji() {
   wczytajKatalog();

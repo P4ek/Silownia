@@ -138,6 +138,31 @@
   </div>
   <p class="start-cytat">„Compare yourself to who you were yesterday, not to who someone else is today.”</p>
 </div>
+<script>
+// Ekran startowy: osobno od plików js/, żeby nie zależał od ich wersji. start.js woła schowajEkranStartowy(),
+// gdy wynik getSession() jest znany; bez odpowiedzi po 8 s komunikat i "Spróbuj ponownie"
+(function () {
+  const ekran = document.getElementById("ekran-startowy");
+  const timer = setTimeout(function () {
+    ekran.classList.add("blad");
+    document.getElementById("start-tekst").textContent = "Nie udało się połączyć";
+    document.getElementById("start-ponow").hidden = false;
+  }, 8000);
+  document.getElementById("start-ponow").addEventListener("click", function () {
+    location.reload();
+  });
+  window.schowajEkranStartowy = function () {
+    clearTimeout(timer);
+    if (ekran.hidden) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      ekran.hidden = true;
+      return;
+    }
+    ekran.addEventListener("transitionend", function () { ekran.hidden = true; }, { once: true });
+    ekran.classList.add("znika");
+  };
+})();
+</script>
 
 <div id="ekran-logowania" class="ekran-logowania">
   <div class="karta logowanie-karta">
