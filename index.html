@@ -2,7 +2,7 @@
 <html lang="pl" class="motyw-habits">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Dziennik treningowy</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="logo/icon-180.png">
@@ -26,8 +26,118 @@
 <link rel="stylesheet" href="css/wnioski.css">
 <link rel="stylesheet" href="css/ai-analiza.css">
 <link rel="stylesheet" href="css/motyw.css">
+<style>
+/* Ekran startowy: widoczny, dopóki getSession() nie zwróci wyniku (start.js), potem znika w ~300 ms */
+.ekran-startowy {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  height: 100dvh;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  background: var(--habits-tlo);
+  color: var(--habits-tekst);
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow: hidden;
+  transition: opacity 300ms ease;
+}
+.ekran-startowy.znika { opacity: 0; pointer-events: none; }
+.start-znak-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; min-height: 0; }
+.start-znak { position: relative; width: 120px; height: 120px; }
+.start-znak svg { position: absolute; inset: 0; }
+.start-znak-litera {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-bottom: 4px;
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 46px;
+  line-height: 1;
+  color: var(--habits-akcent);
+}
+.start-nazwa { text-align: center; }
+.ekran-startowy h1 {
+  margin: 0;
+  padding: 0;
+  font-size: 44px;
+  line-height: 1;
+  color: var(--habits-naglowek);
+}
+.start-podtytul { margin: 10px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; color: var(--habits-tekst-pomocniczy); }
+.start-status { width: 220px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.start-pasek { width: 100%; height: 3px; border-radius: 2px; background: var(--tryb-ciemny-tlo-karta); overflow: hidden; }
+.start-pasek-wypelnienie { height: 100%; border-radius: 2px; background: var(--habits-akcent); }
+.start-tekst { font-size: 13px; color: var(--muted); text-align: center; }
+.start-ponow {
+  padding: 8px 18px;
+  border: 1px solid var(--habits-obramowanie);
+  border-radius: 999px;
+  background: var(--habits-tlo-karta);
+  color: var(--habits-akcent);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.start-cytat {
+  margin: 0;
+  padding: 56px 40px 64px;
+  text-align: center;
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--habits-tekst-pomocniczy);
+}
+@media (max-height: 640px) {
+  .start-cytat { padding: 32px 32px 32px; }
+}
+.ekran-startowy .spin { transform-origin: 60px 60px; animation: start-spin 1.6s cubic-bezier(.6,.1,.4,.9) infinite; }
+.ekran-startowy .breathe { animation: start-br 2.4s ease-in-out infinite; }
+.ekran-startowy .fill { animation: start-fill 2.8s ease-in-out infinite; }
+.ekran-startowy .fade { animation: start-fade 2.8s ease-in-out infinite; }
+.ekran-startowy.blad .fill, .ekran-startowy.blad .fade { animation: none; }
+.ekran-startowy.blad .fill { width: 100%; background: var(--habits-obramowanie); }
+@keyframes start-spin { to { transform: rotate(360deg); } }
+@keyframes start-br { 0%, 100% { opacity: .55; transform: scale(.97); } 50% { opacity: 1; transform: scale(1); } }
+@keyframes start-fill { 0% { width: 6%; } 70% { width: 92%; } 100% { width: 92%; } }
+@keyframes start-fade { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .ekran-startowy { transition: none; }
+  .ekran-startowy .spin, .ekran-startowy .breathe, .ekran-startowy .fill, .ekran-startowy .fade { animation: none; }
+  .ekran-startowy .fill { width: 60%; }
+}
+</style>
 </head>
 <body class="motyw-habits">
+
+<div id="ekran-startowy" class="ekran-startowy">
+  <div class="start-znak-wrap">
+    <div class="start-znak breathe">
+      <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="var(--habits-obramowanie)" stroke-width="3"></circle>
+        <g class="spin"><path d="M60 6 A54 54 0 0 1 114 60" fill="none" stroke="var(--habits-akcent)" stroke-width="3" stroke-linecap="round"></path></g>
+        <circle cx="60" cy="60" r="40" fill="var(--habits-tlo-karta)" stroke="var(--habits-obramowanie)"></circle>
+      </svg>
+      <span class="start-znak-litera" aria-hidden="true">D</span>
+    </div>
+    <div class="start-nazwa">
+      <h1>Dziennik</h1>
+      <p class="start-podtytul">TRENING · NAWYKI · POSIŁKI</p>
+    </div>
+  </div>
+  <div class="start-status" role="status" aria-live="polite">
+    <div class="start-pasek"><div class="start-pasek-wypelnienie fill"></div></div>
+    <span id="start-tekst" class="start-tekst fade">Wczytuję Twój dzień…</span>
+    <button type="button" id="start-ponow" class="start-ponow" hidden>Spróbuj ponownie</button>
+  </div>
+  <p class="start-cytat">„Compare yourself to who you were yesterday, not to who someone else is today.”</p>
+</div>
 
 <div id="ekran-logowania" class="ekran-logowania">
   <div class="karta logowanie-karta">
