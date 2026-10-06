@@ -98,18 +98,38 @@
   -webkit-overflow-scrolling: touch;
   background: var(--habits-tlo);
   color: var(--habits-tekst);
-  /* zamknięte: niewidoczne i niedostępne klawiaturą (visibility), aria-hidden ustawia JS */
+  /* zamknięte: niewidoczne i niedostępne klawiaturą (visibility), aria-hidden ustawia JS.
+     Otwieranie: koło rozlewa się ze środka kropli (14 px + połowa z 56 px), zamykanie: wraca do kropli */
+  --menu-srodek: calc(42px + env(safe-area-inset-left, 0px)) calc(42px + env(safe-area-inset-top, 0px));
   visibility: hidden;
-  opacity: 0;
-  transform: translateY(-12px);
-  transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.3, 1.2, 0.5, 1), visibility 0s linear 0.3s;
+  -webkit-clip-path: circle(0 at var(--menu-srodek));
+  clip-path: circle(0 at var(--menu-srodek));
+  transition: clip-path 0.38s cubic-bezier(0.55, 0, 0.75, 0.3), -webkit-clip-path 0.38s cubic-bezier(0.55, 0, 0.75, 0.3), visibility 0s linear 0.38s;
 }
 #sidebar.open {
   visibility: visible;
-  opacity: 1;
-  transform: none;
-  transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.3, 1.2, 0.5, 1), visibility 0s;
+  -webkit-clip-path: circle(150vmax at var(--menu-srodek));
+  clip-path: circle(150vmax at var(--menu-srodek));
+  transition: clip-path 0.6s cubic-bezier(0.25, 0.9, 0.35, 1), -webkit-clip-path 0.6s cubic-bezier(0.25, 0.9, 0.35, 1), visibility 0s;
 }
+
+/* Po otwarciu: zakładki spadają z góry, potem kolejno wjeżdżają nagłówek, rozdziały i stopka.
+   fill-mode "backwards": po animacji nic nie zostaje nadpisane (np. transform zakładki przy dotyku) */
+#sidebar.open .menu-zakladka { animation: menu-zakladka 0.6s cubic-bezier(0.3, 1.35, 0.5, 1) backwards; }
+#sidebar.open .menu-zakladka:nth-child(1) { animation-delay: 0.14s; }
+#sidebar.open .menu-zakladka:nth-child(2) { animation-delay: 0.2s; }
+#sidebar.open .menu-zakladka:nth-child(3) { animation-delay: 0.26s; }
+#sidebar.open :is(.menu-naglowek, .menu-rozdzial, .menu-stopka) { animation: menu-wjazd 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) backwards; }
+#sidebar.open .menu-naglowek { animation-delay: 0.08s; }
+#sidebar.open .menu-rozdzial:nth-child(1) { animation-delay: 0.14s; }
+#sidebar.open .menu-rozdzial:nth-child(2) { animation-delay: 0.19s; }
+#sidebar.open .menu-rozdzial:nth-child(3) { animation-delay: 0.24s; }
+#sidebar.open .menu-rozdzial:nth-child(4) { animation-delay: 0.29s; }
+#sidebar.open .menu-stopka { animation-delay: 0.34s; }
+#sidebar.open .menu-pozycja[aria-current="page"]::before { animation: menu-znacznik 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) 0.4s backwards; }
+@keyframes menu-zakladka { from { transform: translateY(-105%); } }
+@keyframes menu-wjazd { from { opacity: 0; transform: translateY(16px); } }
+@keyframes menu-znacznik { from { opacity: 0; transform: translateY(-14px); } }
 .menu-wnetrze {
   position: relative;
   max-width: 560px;
@@ -301,5 +321,8 @@ html.menu-otwarte body {
 @media (prefers-reduced-motion: reduce) {
   .kropla { animation: none; border-radius: 50%; }
   .kropla, .kropla-l, .menu-zakladka, .menu-etykieta, .topbar-ikony #btn-przypomnienia { transition: none; }
-  #sidebar, #sidebar.open { transition: none; transform: none; }
+  #sidebar, #sidebar.open { transition: none; }
+  #sidebar.open .menu-zakladka,
+  #sidebar.open :is(.menu-naglowek, .menu-rozdzial, .menu-stopka),
+  #sidebar.open .menu-pozycja[aria-current="page"]::before { animation: none; }
 }
