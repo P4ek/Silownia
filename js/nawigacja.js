@@ -73,17 +73,9 @@ document.querySelectorAll(".menu-zakladka").forEach(function (z) {
 });
 
 // ----- Wartości po prawej stronie pozycji: tylko z danych już wczytanych, bez zapytań do bazy -----
-function liczbaRzymska(n) {
-  const znaki = [[10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]];
-  let wynik = "";
-  znaki.forEach(function (z) {
-    while (n >= z[0]) { wynik += z[1]; n -= z[0]; }
-  });
-  return wynik;
-}
-
 function odswiezWartosciMenu() {
   const wartosci = {
+    dzis: dzisWynikProcent(),
     zapisz: planWTrakcie ? planWTrakcie.nazwa : "",
     rejestr: "",
     zaplanuj: plany.length ? plany.length + " " + odmianaLiczby(plany.length, "plan", "plany", "planów") : "",
@@ -111,7 +103,7 @@ function odswiezWartosciMenu() {
   if (jedzDostep && jedzWczytaneOd) wartosci.jedzenie = jedzFormat(jedzSumaDnia(dzisiaj()).kcal);
 
   // Poziom z "Rad z książek" (z PD), gdy książki są wczytane
-  if (!navRady.hidden && radyKsiazki.length) wartosci.rady = liczbaRzymska(radyPoziomZPD(radyObliczPD()));
+  if (!navRady.hidden && radyKsiazki.length) wartosci.rady = rzymska(radyPoziomZPD(radyObliczPD()));
 
   document.querySelectorAll("[data-menu-wartosc]").forEach(function (el) {
     el.textContent = wartosci[el.dataset.menuWartosc] || "";
@@ -141,6 +133,7 @@ navBtns.forEach(function (btn) {
         void nowyWidok.offsetWidth; // wymuszenie przeliczenia stylów, żeby przejście z opacity:0 na 1 faktycznie się zanimowało
         nowyWidok.classList.remove("widok-znika");
       }
+      if (cel === "widok-dzis") renderDzis();
       if (cel === "widok-rejestr") renderRejestr();
       if (cel === "widok-wykres") renderWykresPostepu();
       if (cel === "widok-wnioski") renderWnioski();

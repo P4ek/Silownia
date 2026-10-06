@@ -27,6 +27,7 @@
 <link rel="stylesheet" href="css/ai-analiza.css">
 <link rel="stylesheet" href="css/motyw.css">
 <link rel="stylesheet" href="css/menu.css">
+<link rel="stylesheet" href="css/dzis.css">
 <style>
 /* Ekran startowy: widoczny, dopóki getSession() nie zwróci wyniku (start.js), potem znika w ~300 ms */
 .ekran-startowy {
@@ -223,17 +224,16 @@
     <div class="menu-rozdzialy">
       <section class="menu-rozdzial" aria-labelledby="menu-r-start">
         <span class="menu-rozdzial-nazwa" id="menu-r-start">START</span>
-        <!-- "Dziś" jeszcze bez ekranu: widoczne, ale nieaktywne -->
-        <button type="button" class="menu-pozycja menu-pozycja-nieaktywna" aria-disabled="true">
+        <button type="button" class="nav-btn menu-pozycja aktywny" data-widok="widok-dzis" aria-current="page">
           <span class="menu-etykieta">Dziś</span>
           <span class="menu-kropki" aria-hidden="true"></span>
-          <span class="menu-wartosc"></span>
+          <span class="menu-wartosc" data-menu-wartosc="dzis"></span>
         </button>
       </section>
 
       <section class="menu-rozdzial" aria-labelledby="menu-r-trening">
         <span class="menu-rozdzial-nazwa" id="menu-r-trening">TRENING</span>
-        <button type="button" class="nav-btn menu-pozycja aktywny" data-widok="widok-dodaj" aria-current="page">
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-dodaj">
           <span class="menu-etykieta">Zapisz trening</span>
           <span class="menu-kropki" aria-hidden="true"></span>
           <span class="menu-wartosc" data-menu-wartosc="zapisz"></span>
@@ -323,8 +323,63 @@
 
   <h1 id="app-tytul">Dziennik treningowy</h1>
 
+  <!-- ===== Widok 0: Dziś (ekran startowy) – niebo dnia; treść rysuje js/dzis.js ===== -->
+  <section id="widok-dzis" class="widok aktywny">
+    <div class="dzis-naglowek">
+      <span id="dzis-data" class="dzis-data"></span>
+      <h2 id="dzis-powitanie" class="dzis-powitanie"></h2>
+    </div>
+
+    <!-- Niebo dnia: każda zrobiona rzecz zapala gwiazdę -->
+    <div class="dzis-niebo">
+      <div class="dzis-niebo-poswiata" aria-hidden="true"></div>
+      <div class="dzis-wynik">
+        <span class="dzis-wynik-liczba"><span id="dzis-procent">–</span><span class="dzis-wynik-proc">%</span></span>
+        <span class="dzis-wynik-opis">dnia za Tobą<br><span id="dzis-gwiazdy-licznik" class="dzis-wynik-gwiazdy"></span></span>
+      </div>
+      <div class="dzis-gwiazdozbior">
+        <svg id="dzis-niebo-svg" class="dzis-niebo-svg" viewBox="0 0 342 300" aria-hidden="true"></svg>
+        <div id="dzis-gwiazdy-przyciski" class="dzis-gwiazdy-przyciski"></div>
+      </div>
+      <p id="dzis-podpowiedz" class="dzis-podpowiedz" aria-live="polite">Wczytuję Twój dzień…</p>
+    </div>
+
+    <!-- Cztery części dnia -->
+    <div class="dzis-czesci">
+      <div id="dzis-trening" class="dzis-czesc"></div>
+      <div id="dzis-nawyki" class="dzis-czesc"></div>
+      <div id="dzis-posilki" class="dzis-czesc" hidden></div>
+      <div id="dzis-misja" class="dzis-czesc" hidden></div>
+    </div>
+
+    <!-- Tydzień jako rząd gwiazd -->
+    <div class="dzis-tydzien">
+      <h3 class="dzis-tytul">Tydzień</h3>
+      <div id="dzis-tydzien-gwiazdy" class="dzis-tydzien-gwiazdy"></div>
+    </div>
+
+    <!-- Cele tygodnia (z Planu tygodnia) -->
+    <div class="dzis-cele-naglowek">
+      <h3 class="dzis-tytul">Cele tygodnia</h3>
+      <button type="button" id="dzis-cele-plan" class="dzis-link"><span id="dzis-cele-licznik"></span>PLAN →</button>
+    </div>
+    <div id="dzis-cele" class="dzis-cele"></div>
+
+    <!-- Rada na dziś (Rady z książek) -->
+    <div id="dzis-rada" class="dzis-rada" hidden>
+      <div class="dzis-rada-gora">
+        <span id="dzis-rada-licznik" class="dzis-kicker"></span>
+        <button type="button" id="dzis-rada-nastepna" class="dzis-rada-nastepna" aria-label="Następna rada">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg>
+        </button>
+      </div>
+      <p id="dzis-rada-tekst" class="dzis-rada-tekst"></p>
+      <span id="dzis-rada-zrodlo" class="dzis-rada-zrodlo"></span>
+    </div>
+  </section>
+
   <!-- ===== Widok 1: Zapisz trening ===== -->
-  <section id="widok-dodaj" class="widok aktywny">
+  <section id="widok-dodaj" class="widok">
     <h2 id="zapis-sesja" class="zapis-sesja">Sesja</h2>
     <p id="zasada-dnia" class="zasada-dnia"></p>
 
@@ -970,6 +1025,7 @@
 <script src="js/wnioski.js" defer></script>
 <script src="js/ai-analiza.js" defer></script>
 <script src="js/powiadomienia.js" defer></script>
+<script src="js/dzis.js" defer></script>
 <script src="js/nawigacja.js" defer></script>
 <script src="js/start.js" defer></script>
 </body>

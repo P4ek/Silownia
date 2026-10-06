@@ -267,10 +267,6 @@
   clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 76%, 0 100%);
 }
 
-/* "Dziś" – pozycja jeszcze nieaktywna */
-.menu-pozycja-nieaktywna { cursor: default; opacity: 0.4; }
-.menu-pozycja-nieaktywna:active .menu-etykieta { color: oklch(0.9 0.004 240); }
-
 /* Stopka: tylko Wyloguj */
 .menu-stopka {
   margin-top: 24px;

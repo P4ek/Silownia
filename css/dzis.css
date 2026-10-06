@@ -1,0 +1,353 @@
+/* Ekran "Dziś" (#widok-dzis): niebo dnia (gwiazdozbiór SVG skalowany do szerokości), cztery części dnia, tydzień, cele, rada.
+   Ładowany po menu.css. Kolory składników: --k ustawiane klasami .dzis-k-*. */
+
+#widok-dzis {
+  --dzis-tlo: var(--habits-tlo);
+  --dzis-linia: oklch(0.16 0.007 248);
+  --dzis-pomocniczy: oklch(0.6 0.008 240);
+  --dzis-wyciszony: oklch(0.5 0.008 240);
+  padding: 0 8px;
+  color: var(--habits-tekst);
+}
+.dzis-k-nawyk   { --k: var(--habits-akcent); }
+.dzis-k-trening { --k: oklch(0.72 0.12 250); }
+.dzis-k-posilek { --k: oklch(0.74 0.11 175); }
+.dzis-k-misja   { --k: oklch(0.76 0.09 75); }
+
+/* ----- Nagłówek ----- */
+.dzis-data {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: oklch(0.44 0.008 240);
+}
+.dzis-powitanie {
+  margin: 10px 0 0;
+  font-size: 36px;
+  line-height: 1;
+  color: oklch(0.93 0.004 240);
+}
+
+/* ----- Niebo dnia ----- */
+.dzis-niebo { position: relative; margin-top: 18px; }
+.dzis-niebo-poswiata {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: min(420px, 110%);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, oklch(0.72 0.08 75 / 0.1), transparent 60%);
+  pointer-events: none;
+}
+.dzis-wynik {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+.dzis-wynik-liczba { display: flex; align-items: flex-start; color: oklch(0.97 0.004 240); }
+#dzis-procent {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 96px;
+  line-height: 0.82;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.dzis-wynik-proc {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 30px;
+  color: var(--habits-akcent);
+}
+.dzis-wynik-opis {
+  padding-bottom: 6px;
+  text-align: right;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--dzis-pomocniczy);
+}
+.dzis-wynik-gwiazdy { color: var(--habits-akcent); }
+
+/* Gwiazdozbiór: proporcje 342×300, szerokość 100% */
+.dzis-gwiazdozbior {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 342 / 300;
+  margin: 6px auto 0;
+  animation: dzis-dryf 16s ease-in-out infinite;
+}
+.dzis-niebo-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.dzis-orbita {
+  fill: none;
+  stroke: oklch(0.72 0.08 75 / 0.18);
+  stroke-width: 1;
+  stroke-dasharray: 2 7;
+  transform-origin: 171px 160px;
+  animation: dzis-orbita 90s linear infinite;
+}
+.dzis-okrag { fill: none; stroke: oklch(0.3 0.008 245 / 0.35); stroke-width: 1; }
+.dzis-pyl { fill: oklch(0.85 0.005 240); animation: dzis-migotanie 3.6s ease-in-out infinite; }
+.dzis-linia { stroke: oklch(0.4 0.008 245 / 0.5); stroke-width: 1; stroke-dasharray: 2 5; stroke-linecap: round; }
+.dzis-linia.on { stroke: oklch(0.86 0.04 80 / 0.9); stroke-width: 1.5; stroke-dasharray: none; }
+.dzis-gw-halo { fill: var(--k); opacity: 0; }
+.dzis-gw.on .dzis-gw-halo { opacity: 0.07; }
+.dzis-gw-ksztalt { fill: var(--dzis-tlo); stroke: oklch(0.5 0.008 245); stroke-width: 1.2; }
+.dzis-gw.on .dzis-gw-ksztalt { fill: var(--k); stroke: none; }
+.dzis-gw-ksztalt.lit,
+.dzis-gw-ksztalt.born {
+  filter: drop-shadow(0 0 6px rgba(var(--habits-akcent-rgb), 0.9)) drop-shadow(0 0 14px rgba(var(--habits-akcent-rgb), 0.35));
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.dzis-gw-ksztalt.lit { animation: dzis-oddech 4s ease-in-out infinite; }
+.dzis-gw-ksztalt.born { animation: dzis-narodziny 0.7s cubic-bezier(0.3, 1.6, 0.5, 1) both, dzis-oddech 4s ease-in-out 0.7s infinite; }
+.dzis-gw-podpis {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  fill: oklch(0.48 0.008 240);
+}
+.dzis-gw.on .dzis-gw-podpis { fill: oklch(0.86 0.02 80); }
+.dzis-gw-reszta { font-family: "Plus Jakarta Sans", sans-serif; font-size: 11px; font-weight: 700; fill: var(--habits-akcent); }
+
+/* Pola dotyku gwiazd: 44×44 px wyśrodkowane na gwieździe (pozycja w % z JS) */
+.dzis-gwiazdy-przyciski { position: absolute; inset: 0; }
+.dzis-gw-przycisk {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+.dzis-gw-przycisk:active { background: rgba(var(--habits-akcent-rgb), 0.08); }
+.dzis-gw-przycisk:focus-visible { outline: 2px solid var(--habits-akcent); outline-offset: 0; }
+.dzis-podpowiedz {
+  position: relative;
+  margin: 2px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--dzis-wyciszony);
+}
+
+@keyframes dzis-dryf { 0%, 100% { transform: translate(0, 0); } 33% { transform: translate(3px, -4px); } 66% { transform: translate(-3px, 2px); } }
+@keyframes dzis-orbita { to { transform: rotate(360deg); } }
+@keyframes dzis-migotanie { 0%, 100% { opacity: 0.12; } 50% { opacity: 0.7; } }
+@keyframes dzis-oddech { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+@keyframes dzis-narodziny { from { transform: scale(0) rotate(-90deg); opacity: 0; } }
+
+/* ----- Cztery części dnia ----- */
+.dzis-czesci { margin-top: 26px; border-top: 1px solid oklch(0.72 0.08 75 / 0.22); }
+.dzis-czesc { border-bottom: 1px solid var(--dzis-linia); }
+.dzis-czesc-wiersz { min-height: 64px; display: flex; align-items: center; gap: 14px; }
+.dzis-glif { flex: none; }
+.dzis-glif path { fill: var(--dzis-tlo); stroke: var(--k); stroke-width: 1.5; }
+.dzis-glif.on path { fill: var(--k); }
+.dzis-glif.on { filter: drop-shadow(0 0 5px rgba(var(--habits-akcent-rgb), 0.7)); }
+.dzis-czesc-tytul {
+  flex: 1;
+  min-width: 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 27px;
+  line-height: 1;
+  color: oklch(0.95 0.004 240);
+}
+.dzis-czesc-wartosc {
+  flex: none;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--dzis-pomocniczy);
+}
+.dzis-czesc-wartosc.on { color: var(--k); }
+.dzis-czesc-tresc { padding: 0 0 18px 36px; }
+.dzis-czesc-tresc-siatka { padding-bottom: 12px; }
+.dzis-opis { display: block; font-size: 13px; color: var(--dzis-pomocniczy); overflow-wrap: anywhere; }
+
+.dzis-cwiczenia { display: flex; flex-direction: column; margin-top: 6px; }
+.dzis-cwiczenie { display: flex; align-items: baseline; gap: 8px; padding: 4px 0; font-size: 14px; color: var(--habits-tekst); }
+.dzis-kropki { flex: 1; min-width: 12px; border-bottom: 1px dotted oklch(0.26 0.008 245); transform: translateY(-4px); }
+.dzis-cwiczenie-partia { flex: none; color: var(--dzis-pomocniczy); }
+.dzis-cwiczenia-reszta { padding-top: 2px; font-size: 12px; color: var(--dzis-wyciszony); }
+
+.dzis-btn {
+  min-height: 44px;
+  margin-top: 12px;
+  padding: 0 22px;
+  border: 1px solid var(--k);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--k);
+  font-size: 13px;
+  font-weight: 600;
+  -webkit-tap-highlight-color: transparent;
+}
+.dzis-btn:not(:disabled):active { background: oklch(0.12 0.006 245); }
+.dzis-btn-zrobione,
+.dzis-btn:disabled { border-color: oklch(0.24 0.008 245); color: var(--dzis-pomocniczy); cursor: default; }
+
+/* Nawyki: siatka 2 kolumny */
+.dzis-nawyki-siatka { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 14px; }
+.dzis-nawyk {
+  width: 100%;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+.dzis-nawyk-nazwa {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  color: oklch(0.9 0.004 240);
+}
+.dzis-nawyk.on .dzis-nawyk-nazwa { color: oklch(0.55 0.008 240); }
+.dzis-nawyk:active .dzis-nawyk-nazwa { color: #fff; }
+.dzis-nawyk:focus-visible { outline: 2px solid var(--habits-akcent); outline-offset: 2px; border-radius: 8px; }
+
+/* Posiłki */
+.dzis-kcal { display: flex; align-items: baseline; gap: 6px; }
+.dzis-kcal .dzis-opis { display: inline; color: oklch(0.55 0.008 240); }
+.dzis-kcal-liczba { font-family: "Instrument Serif", Georgia, serif; font-size: 30px; line-height: 1; color: oklch(0.97 0.004 240); }
+.dzis-pasek { display: block; height: 2px; margin-top: 10px; background: oklch(0.18 0.007 248); }
+.dzis-pasek-wypelnienie { display: block; height: 100%; background: oklch(0.74 0.11 175); }
+.dzis-makra { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 12px; }
+.dzis-makro { font-size: 13px; color: oklch(0.55 0.008 240); }
+.dzis-makro strong { font-weight: 700; color: oklch(0.88 0.004 240); }
+
+/* Misja */
+.dzis-misja-tekst { display: block; font-size: 14px; line-height: 1.45; color: oklch(0.75 0.006 240); overflow-wrap: anywhere; }
+.dzis-pieczatki { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.dzis-pieczatki .dzis-glif.on { filter: none; }
+
+/* ----- Tydzień ----- */
+.dzis-tytul {
+  margin: 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 28px;
+  color: oklch(0.9 0.005 240);
+}
+.dzis-tydzien { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 30px; }
+.dzis-tydzien-gwiazdy { display: grid; grid-template-columns: repeat(7, minmax(0, 30px)); gap: 2px; min-width: 0; }
+.dzis-tydzien-dzien { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.dzis-tydzien-dzien svg { width: 100%; max-width: 30px; height: auto; }
+.dzis-tydzien-dzien path { fill: oklch(0.35 0.008 245); }
+.dzis-tydzien-dzien.jasna path { fill: oklch(0.62 0.03 80); }
+.dzis-tydzien-dzien.brak path { fill: oklch(0.22 0.008 245); }
+.dzis-tydzien-dzien.dzis path { fill: var(--habits-akcent); }
+.dzis-tydzien-dzien.dzis svg { filter: drop-shadow(0 0 4px rgba(var(--habits-akcent-rgb), 0.8)); }
+.dzis-tydzien-nazwa { font-size: 10px; color: var(--dzis-wyciszony); }
+.dzis-tydzien-dzien.dzis .dzis-tydzien-nazwa { font-weight: 700; color: var(--habits-akcent); }
+
+/* ----- Cele tygodnia ----- */
+.dzis-cele-naglowek { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding-top: 34px; }
+.dzis-link {
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--dzis-pomocniczy);
+  white-space: nowrap;
+}
+.dzis-link:active { color: #fff; }
+.dzis-cele { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+.dzis-cel {
+  position: relative;
+  min-height: 62px;
+  padding: 8px 4px 8px 0;
+  border-bottom: 1px solid var(--dzis-linia);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 400;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.dzis-cel:active .dzis-cel-tytul { color: #fff; }
+/* Prawdziwy checkbox (przelaczCel) – niewidoczny, ale dostępny z klawiatury i czytnika */
+.dzis-cel-checkbox { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.dzis-cel-pole {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border: 1.5px solid var(--k);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: oklch(0.1 0.006 250);
+}
+.dzis-cel-pole svg { width: 12px; height: 12px; visibility: hidden; }
+.dzis-cel-checkbox:checked + .dzis-cel-pole { background: var(--k); }
+.dzis-cel-checkbox:checked + .dzis-cel-pole svg { visibility: visible; }
+.dzis-cel-checkbox:focus-visible + .dzis-cel-pole { outline: 2px solid var(--habits-akcent); outline-offset: 3px; }
+.dzis-cel-checkbox:disabled + .dzis-cel-pole { opacity: 0.5; }
+.dzis-cel-tekst { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.dzis-cel-tytul {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1.1;
+  color: oklch(0.95 0.004 240);
+  overflow-wrap: anywhere;
+}
+.dzis-cel-checkbox:checked ~ .dzis-cel-tekst .dzis-cel-tytul { color: oklch(0.52 0.008 240); text-decoration: line-through; }
+.dzis-cel-meta { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: oklch(0.52 0.008 240); overflow-wrap: anywhere; }
+.dzis-cel-kropka { width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--k); }
+
+/* ----- Rada na dziś ----- */
+.dzis-rada { margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--dzis-linia); }
+.dzis-rada-gora { display: flex; align-items: center; justify-content: space-between; }
+.dzis-kicker { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; color: oklch(0.44 0.008 240); }
+.dzis-rada-nastepna {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  padding: 0;
+  border: 1px solid oklch(0.22 0.008 245);
+  border-radius: 50%;
+  background: transparent;
+  color: oklch(0.7 0.006 240);
+  display: grid;
+  place-items: center;
+}
+.dzis-rada-nastepna:active { background: oklch(0.12 0.006 245); }
+.dzis-rada-nastepna svg { width: 16px; height: 16px; }
+.dzis-rada-tekst {
+  margin: 6px 0 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 21px;
+  line-height: 1.3;
+  color: oklch(0.75 0.006 240);
+  overflow-wrap: anywhere;
+}
+.dzis-rada-zrodlo { display: block; margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--dzis-wyciszony); }
+
+@media (prefers-reduced-motion: reduce) {
+  .dzis-gwiazdozbior, .dzis-orbita, .dzis-pyl, .dzis-gw-ksztalt.lit, .dzis-gw-ksztalt.born { animation: none; }
+}

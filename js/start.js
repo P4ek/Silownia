@@ -1,24 +1,27 @@
 // Start aplikacji - ładowany jako OSTATNI: dopiero tu ruszają sprawdzanie sesji, onAuthStateChange i inicjalizujDaneAplikacji, gdy wszystkie pliki ekranów są już wczytane. Na końcu rejestracja service workera.
 
 // Wywoływane raz, przy pierwszym pokazaniu aplikacji po zalogowaniu - wczytuje wszystkie dane
+// Ekran "Dziś" nie ma własnych zapytań: po każdym wczytaniu dostaje znak (dzisDaneGotowe) i dorysowuje swoją część
 function inicjalizujDaneAplikacji() {
+  dzisResetDanych();
   wczytajKatalog();
-  wczytajWpisy();
+  wczytajWpisy().then(function () { dzisDaneGotowe("treningi"); });
   wczytajSzkicTreningu();
   renderTydzienEtykieta();
-  wczytajRole();
-  wczytajCeleDlaTygodnia();
-  wczytajNawyki();
-  wczytajNawykiWpisy();
-  wczytajPlanyTreningowe();
+  wczytajRole().then(function () { renderDzis(); });
+  wczytajCeleDlaTygodnia().then(function () { dzisDaneGotowe("cele"); });
+  wczytajNawyki().then(function () { dzisDaneGotowe("nawyki"); });
+  wczytajNawykiWpisy().then(function () { dzisDaneGotowe("nawykiWpisy"); });
+  wczytajPlanyTreningowe().then(function () { dzisDaneGotowe("plany"); });
 
   const dostepRady = !!(sesjaUzytkownika && sesjaUzytkownika.user && RADY_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));
   ustawDostepRadZKsiazek(dostepRady);
-  if (dostepRady) wczytajRadyZKsiazek();
+  if (dostepRady) wczytajRadyZKsiazek().then(function () { dzisDaneGotowe("rady"); });
 
   const dostepJedzenie = !!(sesjaUzytkownika && sesjaUzytkownika.user && JEDZENIE_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));
   ustawDostepJedzenia(dostepJedzenie);
-  if (dostepJedzenie) wczytajJedzenie();
+  if (dostepJedzenie) wczytajJedzenie().then(function () { dzisDaneGotowe("jedzenie"); });
+  renderDzis();
 }
 
 function pokazAplikacje() {

@@ -11,6 +11,7 @@ Bez bundlera, npm i kroku build. Dane w Supabase (`js/konfiguracja.js`), wykresy
 
 | Ekran (menu) | Sekcja HTML | JS | CSS |
 |---|---|---|---|
+| Dziś (ekran startowy; bez własnych zapytań, dane ze startu przez `dzisDaneGotowe` w `start.js`) | `#widok-dzis` | `js/dzis.js` | `css/dzis.css` |
 | Zapisz trening | `#widok-dodaj` | `js/zapisz-trening.js` | `css/zapisz-trening.css` |
 | Rejestr ćwiczeń | `#widok-rejestr` | `js/rejestr.js` | `css/rejestr.css` |
 | Wykres postępu | `#widok-wykres` | `js/wykres.js` | `css/wykres.css` |
@@ -32,6 +33,7 @@ Pozostałe:
 - `js/start.js` – start aplikacji (patrz niżej) + rejestracja service workera.
 - `css/baza.css` – zmienne (ciemny motyw, kolory partii `--partia-*`, złoty `--habits-zloto`), typografia, menu, karty, formularze, przyciski, banery, toasty, konfetti, animacje, puste stany, logowanie, responsywność.
 - `css/motyw.css` – reguły ciemnego motywu (`.kontener.motyw-habits`, `#sidebar.motyw-habits`), zawsze włączonego.
+- `css/menu.css` – menu: przycisk-kropla, pełnoekranowe menu, zakładki-skróty (logika w `js/nawigacja.js`). Ładowany po `motyw.css`, potem `dzis.css`.
 
 ## Kolejność ładowania i dlaczego
 
