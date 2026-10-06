@@ -1,4 +1,4 @@
-/* Ciemny motyw (zawsze włączony): reguły .kontener.motyw-habits / #sidebar.motyw-habits nakładane na wszystkie ekrany. Ładowany jako ostatni arkusz, bo nadpisuje style ekranów. */
+/* Ciemny motyw (zawsze włączony): reguły .kontener.motyw-habits nakładane na wszystkie ekrany. Ładowany jako ostatni arkusz, bo nadpisuje style ekranów. */
 
 /* ----- Ciemny motyw (zawsze włączony) na .kontener.motyw-habits, obejmuje całą kolumnę (nagłówek + widok); zmienne kolorów są w :root ----- */
 .kontener.motyw-habits {
@@ -93,13 +93,6 @@
 }
 
 /* ----- Poświata (glow) w kolorze akcentu na aktywnych elementach — tylko motyw ciemny ----- */
-/* #sidebar leży poza .kontener, więc --habits-akcent-rgb ma tam fallback na te same wartości */
-#sidebar.motyw-habits .nav-btn {
-  transition: background 0.15s ease, scale 0.1s ease, box-shadow 0.2s ease;
-}
-#sidebar.motyw-habits .nav-btn.aktywny {
-  box-shadow: 0 0 12px rgba(var(--habits-akcent-rgb, 214, 208, 192), 0.35);
-}
 .kontener.motyw-habits .btn-submit {
   transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease, box-shadow 0.2s ease;
 }
@@ -114,13 +107,6 @@
   border-color: var(--habits-akcent);
   box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18), 0 0 12px rgba(var(--habits-akcent-rgb), 0.35);
 }
-
-/* Aktywna pozycja w panelu bocznym — poza wariantem .nav-habits, który ma własny, niezależny wygląd; .nav-rozwoj (różowy w jasnym motywie) dostaje ten sam srebrny akcent co reszta, żeby nie zostawiać różu w trybie ciemnym */
-#sidebar.motyw-habits .nav-btn.aktywny:not(.nav-habits) {
-  background: oklch(0.1 0.006 250);
-  color: #D6D0C0;
-}
-#sidebar.motyw-habits .nav-btn.aktywny:not(.nav-habits) svg { color: #D6D0C0; }
 
 /* Elementy z twardo wpisanym pomarańczem/różem (gradienty, cienie, kolory stanu) — podmiana zmiennych --accent* wyżej ich nie obejmuje, więc dopasowujemy je ręcznie do akcentu z Nawyków */
 .kontener.motyw-habits .rekord-baner {

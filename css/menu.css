@@ -1,0 +1,309 @@
+/* Menu: przycisk-kropla (#hamburger, ten sam przycisk zamyka menu – kreski → X przez aria-expanded), dzwonek przypomnień,
+   pełnoekranowe menu (#sidebar) z rozdziałami, wiszące zakładki-skróty, Wyloguj. Ładowany po motyw.css.
+   Warstwy: #overlay 70 < #sidebar 75 < #wyloguj-overlay 90 < .topbar-ikony (kropla + dzwonek) 110. */
+
+/* ----- Kropla + dzwonek ----- */
+.topbar-ikony {
+  position: fixed;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  left: calc(14px + env(safe-area-inset-left, 0px));
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.kropla {
+  position: relative;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border: none;
+  border-radius: 58% 42% 55% 45% / 52% 48% 52% 48%;
+  background: var(--habits-akcent);
+  color: oklch(0.1 0.006 250);
+  box-shadow: 0 14px 30px -14px rgba(var(--habits-akcent-rgb), 0.6);
+  cursor: pointer;
+  animation: kropla 9s ease-in-out infinite;
+  transition: transform 0.35s cubic-bezier(0.3, 1.5, 0.5, 1), scale 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.kropla:not(:disabled):active { scale: 0.92; }
+.kropla:focus-visible { outline: 2px solid var(--habits-akcent); outline-offset: 4px; }
+.kropla[aria-expanded="true"] { transform: rotate(90deg); }
+.kropla-l {
+  position: absolute;
+  left: 18px;
+  top: 27px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 0.45s cubic-bezier(0.4, 1.6, 0.5, 1), width 0.3s ease;
+}
+.kropla-l1 { width: 20px; transform: translateY(-4px); }
+.kropla-l2 { width: 12px; transform: translateY(4px); }
+.kropla[aria-expanded="true"] .kropla-l1 { transform: rotate(45deg); }
+.kropla[aria-expanded="true"] .kropla-l2 { width: 20px; transform: rotate(-45deg); }
+@keyframes kropla {
+  0%, 100% { border-radius: 58% 42% 55% 45% / 52% 48% 52% 48%; }
+  33% { border-radius: 45% 55% 40% 60% / 60% 42% 58% 40%; }
+  66% { border-radius: 52% 48% 62% 38% / 45% 58% 42% 55%; }
+}
+
+/* Dzwonek widoczny tylko przy otwartym menu (klasa .panel-otwarty z otworzPanel/zamknijPanel) */
+.topbar-ikony #btn-przypomnienia {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid oklch(0.3 0.008 245);
+  border-radius: 50%;
+  background: var(--habits-tlo);
+  color: var(--habits-tekst);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-6px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s, scale 0.1s ease;
+}
+.topbar-ikony #btn-przypomnienia svg { width: 19px; height: 19px; }
+.topbar-ikony.panel-otwarty #btn-przypomnienia {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s, scale 0.1s ease;
+}
+
+/* Tytuł ekranu odsunięty od większej kropli (56 px zamiast dawnych 42 px) */
+.kontener > h1 { padding-left: 64px; }
+
+/* ----- Tło pod menu ----- */
+#overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* ----- Menu ----- */
+#sidebar {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  background: var(--habits-tlo);
+  color: var(--habits-tekst);
+  /* zamknięte: niewidoczne i niedostępne klawiaturą (visibility), aria-hidden ustawia JS */
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.3, 1.2, 0.5, 1), visibility 0s linear 0.3s;
+}
+#sidebar.open {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.3, 1.2, 0.5, 1), visibility 0s;
+}
+.menu-wnetrze {
+  position: relative;
+  max-width: 560px;
+  min-height: 100%;
+  padding:
+    0
+    calc(24px + env(safe-area-inset-right, 0px))
+    calc(40px + env(safe-area-inset-bottom, 0px))
+    calc(24px + env(safe-area-inset-left, 0px));
+}
+
+/* Zakładki-skróty wiszące z górnej krawędzi */
+.menu-zakladki {
+  position: absolute;
+  top: 0;
+  right: calc(22px + env(safe-area-inset-right, 0px));
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.menu-zakladka {
+  width: 50px;
+  height: calc(var(--wys) + env(safe-area-inset-top, 0px));
+  padding: 0 0 22px;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  background: var(--kolor);
+  color: oklch(0.1 0.006 250);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 14px), 0 100%);
+  cursor: pointer;
+  transform-origin: top center;
+  transition: transform 0.25s cubic-bezier(0.3, 1.4, 0.5, 1), scale 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.menu-zakladka:not(:disabled):active,
+.menu-zakladka:focus-visible { scale: 1; transform: translateY(10px); }
+.menu-zakladka:focus-visible { outline: none; filter: brightness(1.12); }
+.menu-zakladka svg { width: 20px; height: 20px; flex: none; }
+.menu-zakladka-tekst {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+.menu-zakladka-zdjecie { --kolor: oklch(0.72 0.11 175); --wys: 150px; }
+.menu-zakladka-trening { --kolor: oklch(0.7 0.12 250); --wys: 186px; }
+.menu-zakladka-nawyk   { --kolor: var(--habits-akcent); --wys: 128px; }
+
+/* Nagłówek: miejsce na kroplę u góry, potem "CZEŚĆ" i tytuł */
+.menu-naglowek { padding-top: calc(132px + env(safe-area-inset-top, 0px)); }
+.menu-powitanie {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: oklch(0.52 0.008 240);
+}
+.menu-tytul {
+  margin: 6px 0 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 64px;
+  line-height: 0.9;
+  letter-spacing: 0;
+  color: var(--habits-naglowek);
+}
+
+/* Rozdziały i pozycje */
+.menu-rozdzialy { margin-top: 26px; }
+.menu-rozdzial {
+  padding: 22px 0 6px;
+  border-top: 1px solid oklch(0.18 0.008 245);
+}
+.menu-rozdzial-nazwa {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: oklch(0.52 0.008 240);
+}
+.menu-pozycja {
+  position: relative;
+  width: 100%;
+  min-height: 50px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.menu-pozycja:not(:disabled):active { scale: 1; }
+.menu-pozycja:focus-visible { outline: 2px solid var(--habits-akcent); outline-offset: 2px; border-radius: 6px; }
+.menu-etykieta {
+  min-width: 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 27px;
+  line-height: 1.1;
+  color: oklch(0.9 0.004 240);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s ease, font-size 0.2s ease;
+}
+.menu-kropki {
+  flex: 1;
+  min-width: 16px;
+  border-bottom: 2px dotted oklch(0.26 0.008 245);
+  transform: translateY(-6px);
+}
+.menu-wartosc {
+  flex: none;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: oklch(0.6 0.008 240);
+  transform: translateY(-3px);
+}
+.menu-wartosc-zlota { color: var(--habits-zloto); }
+/* Pigułka celów tygodnia (plan-tygodnia.js): komplet = kolor akcentu */
+.nav-cele-pigulka.pigulka-kompletna { color: var(--habits-akcent); }
+
+/* Dotyk zamiast :hover */
+.menu-pozycja:active .menu-etykieta { color: #fff; }
+
+/* Aktywna pozycja: większa, w kolorze akcentu, ze złotą zakładką po lewej */
+.menu-pozycja[aria-current="page"] .menu-etykieta { font-size: 34px; color: var(--habits-akcent); }
+.menu-pozycja[aria-current="page"] .menu-wartosc { color: var(--habits-akcent); }
+.menu-pozycja[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  left: -24px;
+  top: 6px;
+  width: 12px;
+  height: 34px;
+  background: var(--habits-zloto);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 76%, 0 100%);
+}
+
+/* "Dziś" – pozycja jeszcze nieaktywna */
+.menu-pozycja-nieaktywna { cursor: default; opacity: 0.4; }
+.menu-pozycja-nieaktywna:active .menu-etykieta { color: oklch(0.9 0.004 240); }
+
+/* Stopka: tylko Wyloguj */
+.menu-stopka {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid oklch(0.18 0.008 245);
+}
+.nav-wyloguj {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid oklch(0.24 0.008 245);
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: oklch(0.55 0.008 240);
+  cursor: pointer;
+}
+.nav-wyloguj:active { background: oklch(0.12 0.006 245); color: oklch(0.75 0.13 28); }
+
+/* Blokada przewijania tła przy otwartym menu. Sam overflow:hidden na body nie działa w iOS Safari,
+   więc body jest przypinane (position:fixed, top = -scrollY ustawia JS), a po zamknięciu przewijanie wraca na miejsce. */
+html.menu-otwarte,
+html.menu-otwarte body { overflow: hidden; }
+html.menu-otwarte body {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kropla { animation: none; border-radius: 50%; }
+  .kropla, .kropla-l, .menu-zakladka, .menu-etykieta, .topbar-ikony #btn-przypomnienia { transition: none; }
+  #sidebar, #sidebar.open { transition: none; transform: none; }
+}

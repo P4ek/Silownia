@@ -26,6 +26,7 @@
 <link rel="stylesheet" href="css/wnioski.css">
 <link rel="stylesheet" href="css/ai-analiza.css">
 <link rel="stylesheet" href="css/motyw.css">
+<link rel="stylesheet" href="css/menu.css">
 <style>
 /* Ekran startowy: widoczny, dopóki getSession() nie zwróci wyniku (start.js), potem znika w ~300 ms */
 .ekran-startowy {
@@ -185,8 +186,9 @@
 <div id="aplikacja" hidden>
 
 <div class="topbar-ikony">
-  <button class="hamburger" id="hamburger" aria-label="Menu">
-    <span></span><span></span><span></span>
+  <button type="button" class="kropla" id="hamburger" aria-label="Menu" aria-expanded="false" aria-controls="sidebar">
+    <span class="kropla-l kropla-l1"></span>
+    <span class="kropla-l kropla-l2"></span>
   </button>
   <button type="button" id="btn-przypomnienia" class="nav-btn" aria-label="Przypomnienia" title="Przypomnienia">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -195,60 +197,112 @@
 
 <div id="overlay" hidden></div>
 
-<nav id="sidebar" class="motyw-habits">
-  <h3>Siłownia</h3>
-  <button class="nav-btn aktywny" data-widok="widok-dodaj">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
-    <span>Zapisz trening</span>
-  </button>
-  <button class="nav-btn" data-widok="widok-rejestr">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>
-    <span>Rejestr ćwiczeń</span>
-  </button>
-  <button class="nav-btn" data-widok="widok-wykres">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16"/><polyline points="7 14 11 10 14 13 20 7"/></svg>
-    <span>Wykres postępu</span>
-  </button>
-  <button class="nav-btn" data-widok="widok-nowe">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6M7 6v12M17 6v12M20 9v6M7 12h10"/></svg>
-    <span>Katalog ćwiczeń</span>
-  </button>
-  <button class="nav-btn" data-widok="widok-zaplanuj">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v3h6V3"/><path d="M8 12h8M8 16h5"/></svg>
-    <span>Zaplanuj trening</span>
-  </button>
-  <button class="nav-btn" id="nav-jedzenie" data-widok="widok-jedzenie" hidden>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M4.5 3v5a2.5 2.5 0 0 0 5 0V3M7 11v10"/><path d="M17 21V3c-2.2 1.2-3.5 3.6-3.5 7v3H17"/></svg>
-    <span>Jedzenie</span>
-  </button>
+<nav id="sidebar" class="menu" aria-label="Główne menu" aria-hidden="true">
+  <div class="menu-wnetrze">
+    <!-- Zakładki = skróty, wiszą z górnej krawędzi; klikają odpowiednią pozycję menu (data-skrot = data-widok) -->
+    <div class="menu-zakladki">
+      <button type="button" class="menu-zakladka menu-zakladka-zdjecie" id="menu-skrot-zdjecie" data-skrot="widok-jedzenie" aria-label="Zdjęcie posiłku" hidden>
+        <span class="menu-zakladka-tekst">Zdjęcie</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4zM12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>
+      </button>
+      <button type="button" class="menu-zakladka menu-zakladka-trening" data-skrot="widok-dodaj" aria-label="Zapisz trening">
+        <span class="menu-zakladka-tekst">Trening</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg>
+      </button>
+      <button type="button" class="menu-zakladka menu-zakladka-nawyk" data-skrot="widok-habits" aria-label="Nawyki">
+        <span class="menu-zakladka-tekst">Nawyk</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      </button>
+    </div>
 
-  <h3>Rozwój</h3>
-  <button class="nav-btn nav-rozwoj" data-widok="widok-plan">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.9 6.4.6-4.9 4.2 1.5 6.3L12 16.9l-5.5 3.1 1.5-6.3-4.9-4.2 6.4-.6L12 3Z"/></svg>
-    <span>Plan tygodnia</span>
-    <span id="cele-tydzien-pigulka" class="nav-cele-pigulka" hidden></span>
-  </button>
-  <button class="nav-btn nav-habits" data-widok="widok-habits">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M8 15l2 2 4-4"/></svg>
-    <span>Nawyki</span>
-  </button>
-  <button class="nav-btn nav-habits" id="nav-rady" data-widok="widok-rady" hidden>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2Z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7Z"/></svg>
-    <span>Rady z książek</span>
-  </button>
-  <button class="nav-btn" data-widok="widok-wnioski">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3Z"/></svg>
-    <span>Wnioski</span>
-  </button>
-  <button class="nav-btn nav-ai" id="nav-ai-analiza" data-widok="widok-ai-analiza">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l1.9 4.9L20 9.8l-4.9 1.9L13 16.6l-1.9-4.9L6 9.8l4.9-1.9L13 3Z"/></svg>
-    <span>AI Analiza</span>
-  </button>
+    <header class="menu-naglowek">
+      <span class="menu-powitanie">CZEŚĆ</span>
+      <h2 class="menu-tytul">Dokąd<br>dziś?</h2>
+    </header>
 
-  <button class="nav-btn nav-wyloguj" id="btn-wyloguj">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-    <span>Wyloguj</span>
-  </button>
+    <div class="menu-rozdzialy">
+      <section class="menu-rozdzial" aria-labelledby="menu-r-start">
+        <span class="menu-rozdzial-nazwa" id="menu-r-start">START</span>
+        <!-- "Dziś" jeszcze bez ekranu: widoczne, ale nieaktywne -->
+        <button type="button" class="menu-pozycja menu-pozycja-nieaktywna" aria-disabled="true">
+          <span class="menu-etykieta">Dziś</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc"></span>
+        </button>
+      </section>
+
+      <section class="menu-rozdzial" aria-labelledby="menu-r-trening">
+        <span class="menu-rozdzial-nazwa" id="menu-r-trening">TRENING</span>
+        <button type="button" class="nav-btn menu-pozycja aktywny" data-widok="widok-dodaj" aria-current="page">
+          <span class="menu-etykieta">Zapisz trening</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc" data-menu-wartosc="zapisz"></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-rejestr">
+          <span class="menu-etykieta">Rejestr ćwiczeń</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc" data-menu-wartosc="rejestr"></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-zaplanuj">
+          <span class="menu-etykieta">Zaplanuj trening</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc" data-menu-wartosc="zaplanuj"></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-nowe">
+          <span class="menu-etykieta">Katalog ćwiczeń</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc" data-menu-wartosc="katalog"></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-wykres">
+          <span class="menu-etykieta">Wykres postępu</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc" data-menu-wartosc="wykres"></span>
+        </button>
+      </section>
+
+      <section class="menu-rozdzial" aria-labelledby="menu-r-codziennie">
+        <span class="menu-rozdzial-nazwa" id="menu-r-codziennie">CODZIENNIE</span>
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-habits">
+          <span class="menu-etykieta">Nawyki</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc" data-menu-wartosc="nawyki"></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" id="nav-jedzenie" data-widok="widok-jedzenie" hidden>
+          <span class="menu-etykieta">Posiłki</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc" data-menu-wartosc="jedzenie"></span>
+        </button>
+      </section>
+
+      <section class="menu-rozdzial" aria-labelledby="menu-r-rozwoj">
+        <span class="menu-rozdzial-nazwa" id="menu-r-rozwoj">ROZWÓJ</span>
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-plan">
+          <span class="menu-etykieta">Plan tygodnia</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span id="cele-tydzien-pigulka" class="menu-wartosc nav-cele-pigulka" hidden></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" id="nav-rady" data-widok="widok-rady" hidden>
+          <span class="menu-etykieta">Rady z książek</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc menu-wartosc-zlota" data-menu-wartosc="rady"></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-wnioski">
+          <span class="menu-etykieta">Wnioski</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc"></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" id="nav-ai-analiza" data-widok="widok-ai-analiza">
+          <span class="menu-etykieta">AI Analiza</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc"></span>
+        </button>
+      </section>
+    </div>
+
+    <footer class="menu-stopka">
+      <button type="button" class="nav-btn nav-wyloguj" id="btn-wyloguj">Wyloguj</button>
+    </footer>
+  </div>
 </nav>
 
 <div id="wyloguj-overlay" hidden>

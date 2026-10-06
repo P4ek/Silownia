@@ -542,24 +542,6 @@
   .rady-migotanie { animation: none; }
 }
 
-/* Aktywny przycisk "Nawyki" w panelu bocznym — srebrny akcent */
-.nav-btn.aktywny.nav-habits {
-  background: oklch(0.1 0.006 250);
-  border: 1px solid rgba(214, 208, 192, 0.45);
-  color: #D6D0C0;
-}
-.nav-btn.aktywny.nav-habits svg { color: #D6D0C0; }
-
-/* Panel boczny ciemnieje razem z widokiem "Nawyki"; przycisk aktywny (:not(.aktywny) wyklucza go z wyciszenia) zostaje srebrny jak wyżej */
-#sidebar.motyw-habits {
-  background: oklch(0.045 0.004 250);
-  border-right-color: oklch(0.16 0.008 245);
-}
-#sidebar.motyw-habits h3 { color: oklch(0.4 0.008 240); }
-#sidebar.motyw-habits .nav-btn:not(.aktywny) { color: oklch(0.6 0.008 240); }
-#sidebar.motyw-habits .nav-btn:not(.aktywny) svg { color: oklch(0.6 0.008 240); }
-#sidebar.motyw-habits .nav-btn:not(.aktywny):hover { background: oklch(0.09 0.006 245); }
-
 /* Tło strony poza kontenerem — bez tego widać jasny margines wokół zaokrąglonych rogów kontenera */
 body.motyw-habits,
 html.motyw-habits {
