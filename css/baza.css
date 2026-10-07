@@ -32,6 +32,7 @@
   --partia-triceps: oklch(0.7 0.11 180);
   --partia-brzuch: oklch(0.74 0.13 140);
   --partia-nogi: oklch(0.7 0.15 25);
+  --partia-dupa: oklch(0.72 0.14 350);
   /* Bardzo subtelna tekstura szumu (film grain) na tło strony — SVG feTurbulence, jak w ikonce PWA; opacity 0.04 wpisane w sam SVG (rect) */
   --tekstura-szumu: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
 }
@@ -254,6 +255,7 @@ button { font: inherit; cursor: pointer; }
 .dot-Triceps, .mapa-partia[data-partia="Triceps"] { --kolor-partii: var(--partia-triceps); }
 .dot-Brzuch,  .mapa-partia[data-partia="Brzuch"]  { --kolor-partii: var(--partia-brzuch); }
 .dot-Nogi,    .mapa-partia[data-partia="Nogi"]    { --kolor-partii: var(--partia-nogi); }
+.dot-Dupa,    .mapa-partia[data-partia="Dupa"]    { --kolor-partii: var(--partia-dupa); }
 
 /* ----- Responsywność ----- */
 @media (max-width: 560px) {

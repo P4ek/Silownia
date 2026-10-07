@@ -91,7 +91,7 @@ function pustyStanHTML(ikona, tekst) {
 }
 
 // Stała lista partii; ćwiczenia pobierane z tabeli "cwiczenia"
-const PARTIE = ["Klata", "Plecy", "Biceps", "Triceps", "Barki", "Brzuch", "Nogi"];
+const PARTIE = ["Klata", "Plecy", "Biceps", "Triceps", "Barki", "Brzuch", "Nogi", "Dupa"];
 let katalog = []; // wiersze z tabeli "cwiczenia": { partia, nazwa }
 
 function cwiczeniaDlaPartii(partia) {

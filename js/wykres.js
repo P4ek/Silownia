@@ -131,7 +131,7 @@ mapaPrzelacznik.addEventListener("click", function (e) {
 // Etykiety przy sylwetce: [partia, strona kolumny, położenie w % wysokości sylwetki]
 const MAPA_ETYKIETY = {
   przod: [["Barki", "lewe", 22], ["Biceps", "lewe", 33], ["Nogi", "lewe", 72], ["Klata", "prawe", 24], ["Brzuch", "prawe", 41]],
-  tyl: [["Barki", "lewe", 22], ["Triceps", "lewe", 33], ["Nogi", "lewe", 72], ["Plecy", "prawe", 31]]
+  tyl: [["Barki", "lewe", 22], ["Triceps", "lewe", 33], ["Nogi", "lewe", 72], ["Plecy", "prawe", 31], ["Dupa", "prawe", 52]]
 };
 function renderEtykietyMapy(stan) {
   mapaCiala.querySelectorAll(".mapa-sylwetka").forEach(function (figura) {
