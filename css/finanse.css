@@ -1,226 +1,648 @@
-/* Finanse → Oszczędności (#widok-finanse): nawigacja tygodnia, budżety kategorii, wydatki dzień po dniu, podsumowania. Ładowany po motyw.css. */
+/* Finanse → Oszczędności (#widok-finanse) w stylu liquid glass: kapsuła tygodnia, karta główna z gwiazdkami dni, fiolki budżetów,
+   panel budżetów, nowy wydatek, lista wydatków, podsumowania. Ładowany po motyw.css (selektory z #widok-finanse wygrywają z motywem).
+   Szkło = rozmycie (z -webkit-) + odblask na krawędzi; backdrop-filter tylko na dużych kartach i kilku kontrolkach (.fin-szklo),
+   wiersze list i drobne przyciski mają zwykłe półprzezroczyste tło. */
 
 /* Piąty rozdział menu (FINANSE) – kontynuacja kaskady wjazdu z menu.css */
 #sidebar.open .menu-rozdzial:nth-child(5) { animation-delay: 0.34s; }
 
+/* Na tym ekranie nagłówek ekranu (kapsuła tygodnia) zajmuje wiersz kropli menu, więc tytuł aplikacji jest ukryty */
+.kontener:has(> #widok-finanse.aktywny) > #app-tytul { display: none; }
+
 #widok-finanse {
-  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  --fin-akcent: var(--habits-akcent);
+  --fin-tekst: oklch(0.88 0.005 240);
+  --fin-jasny: oklch(0.96 0.004 240);
+  --fin-pomocniczy: oklch(0.62 0.008 240);
+  --fin-wyciszony: oklch(0.52 0.008 240);
+  --fin-ostrzezenie: oklch(0.66 0.16 25);
+  --fin-ostrzezenie-tekst: oklch(0.78 0.13 25);
+  --fin-wglebienie: rgba(0, 0, 0, 0.24);
+  --fin-k1: oklch(0.74 0.11 175);
+  --fin-k2: oklch(0.72 0.12 250);
+  --fin-k3: oklch(0.76 0.09 75);
+  --fin-k4: var(--habits-akcent);
+  --fin-k5: oklch(0.7 0.13 300);
+  --fin-k6: oklch(0.74 0.13 140);
+  --fin-k7: oklch(0.72 0.13 350);
+  --fin-k-brak: oklch(0.5 0.008 240);
+  --fin-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  position: relative;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  color: var(--fin-tekst);
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
 }
 
-.fin-naglowek {
-  margin: 0 0 12px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--habits-tekst-pomocniczy);
+/* ----- Tło ekranu (warstwa w widoku, nie na body); sięga do krawędzi kolumny, przycina je .kontener ----- */
+#widok-finanse .fin-tlo {
+  position: absolute;
+  top: calc(-18px - env(safe-area-inset-top, 0px));
+  bottom: -22px;
+  left: -16px;
+  right: -16px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(460px 340px at 80% 230px, oklch(0.72 0.08 75 / 0.22), transparent 70%),
+    radial-gradient(380px 300px at 10% 330px, oklch(0.45 0.06 250 / 0.28), transparent 70%),
+    radial-gradient(420px 380px at 90% 1000px, oklch(0.72 0.08 75 / 0.14), transparent 70%),
+    radial-gradient(420px 380px at 0% 1500px, oklch(0.45 0.06 250 / 0.2), transparent 70%);
 }
-.fin-naglowek-dni { margin: 22px 4px 10px; }
+#widok-finanse .fin-gwiazdy-tla { display: block; width: 100%; height: 520px; }
 
-/* ----- Nawigacja tygodnia ----- */
-.fin-nawigacja {
+/* ----- Szkło ----- */
+#widok-finanse .fin-szklo,
+#widok-finanse .fin-szklo-lekkie {
+  position: relative;
+  isolation: isolate;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.55),
+    inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.25),
+    inset 0 0 22px rgba(255, 255, 255, 0.07),
+    0 18px 40px -16px rgba(0, 0, 0, 0.65);
+}
+#widok-finanse .fin-szklo {
+  -webkit-backdrop-filter: blur(14px) saturate(170%) brightness(1.08);
+  backdrop-filter: blur(14px) saturate(170%) brightness(1.08);
+}
+#widok-finanse .fin-szklo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 32%, rgba(255, 255, 255, 0) 68%, rgba(255, 255, 255, 0.08) 100%);
+}
+/* Odblask krawędzi bez rozmycia – drobne elementy */
+#widok-finanse .fin-odblask {
+  box-shadow: inset 1px 1px 0 -0.5px rgba(255, 255, 255, 0.45), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.18);
+}
+
+#widok-finanse button {
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+#widok-finanse button:focus-visible,
+#widok-finanse input:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+#widok-finanse .fin-minus { color: var(--fin-ostrzezenie-tekst) !important; }
+
+/* ----- Nagłówek: miejsce na kroplę menu (56 px + odstęp), kapsuła tygodnia na wysokości kropli ----- */
+#widok-finanse .fin-gora {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  margin-bottom: 14px;
+  justify-content: flex-end;
+  min-height: 56px;
+  margin-top: -4px;
+  padding-left: calc(64px + env(safe-area-inset-left, 0px));
 }
-.fin-btn-tydzien {
+#widok-finanse .fin-tydzien {
+  height: 52px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px;
+}
+#widok-finanse .fin-btn-tydzien {
   width: 40px;
   height: 40px;
   padding: 0;
   border: none;
-  border-radius: 10px;
+  border-radius: 50%;
   background: transparent;
-  color: oklch(0.7 0.006 240);
+  color: #fff;
   display: grid;
   place-items: center;
 }
-.fin-btn-tydzien svg { width: 16px; height: 16px; }
-.fin-btn-tydzien:hover:not(:disabled) { background: var(--habits-obramowanie); }
-.fin-btn-tydzien:disabled { opacity: 0.25; cursor: default; }
-.fin-zakres { padding: 0 6px; font-size: 13px; font-weight: 600; color: var(--habits-tekst); white-space: nowrap; }
+#widok-finanse .fin-btn-tydzien svg { width: 18px; height: 18px; }
+#widok-finanse .fin-btn-tydzien:disabled { opacity: 0.25; cursor: default; }
+#widok-finanse .fin-zakres {
+  padding: 0 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
 
-/* ----- Budżety ----- */
-.fin-budzet {
-  padding: 12px 0;
-  border-bottom: 1px solid var(--habits-obramowanie);
+#widok-finanse .fin-tytul {
+  margin: 26px 8px 18px;
+  font-family: var(--fin-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 46px;
+  line-height: 0.95;
+  letter-spacing: 0;
+  color: var(--fin-jasny);
 }
-.fin-budzet:first-child { padding-top: 0; }
-.fin-budzet-gora {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.fin-budzet-nazwa {
-  flex: 1;
-  min-width: 0;
-  font-weight: 600;
-  color: var(--habits-naglowek);
+
+#widok-finanse .fin-etykieta { font-size: 13px; font-weight: 600; color: var(--fin-pomocniczy); }
+#widok-finanse .fin-kwota-duza { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; }
+#widok-finanse .fin-kwota-duza > span:first-child {
+  font-family: var(--fin-serif);
+  font-size: 64px;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
   overflow-wrap: anywhere;
 }
-.kontener.motyw-habits #widok-finanse .fin-budzet-kwota {
-  width: 110px;
+#widok-finanse .fin-zl { font-family: var(--fin-serif); font-style: italic; font-size: 28px; color: var(--fin-akcent); }
+
+/* ----- Karta główna ----- */
+#widok-finanse .fin-glowna { padding: 22px 22px 18px; border-radius: 36px; }
+#widok-finanse .fin-glowna-gora { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+#widok-finanse .fin-glowna-lewa { min-width: 0; }
+#widok-finanse .fin-glowna-bok {
   flex: none;
-  padding: 7px 10px;
+  padding-bottom: 8px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--fin-pomocniczy);
   text-align: right;
 }
-.fin-budzet-staty {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 14px;
-  margin-top: 6px;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-.fin-budzet-staty b { font-weight: 600; color: var(--habits-tekst); }
-.fin-pasek {
-  height: 4px;
-  margin-top: 8px;
-  border-radius: 999px;
-  background: var(--habits-obramowanie);
-  overflow: hidden;
-}
-.fin-pasek span {
+#widok-finanse .fin-dziennie { display: block; color: var(--fin-akcent); font-weight: 700; }
+#widok-finanse .fin-dziennie[hidden] { display: none; }
+#widok-finanse .fin-pasek {
   display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--habits-akcent);
-  transition: width 0.3s ease;
-}
-.kontener.motyw-habits #widok-finanse .fin-minus { color: var(--partia-nogi); }
-.fin-pasek span.fin-minus-tlo { background: var(--partia-nogi); }
-
-/* Formularz nowej kategorii: bez wyglądu karty (form ma go domyślnie w baza.css/motyw.css) */
-.kontener.motyw-habits #widok-finanse .fin-budzet-form {
-  display: flex;
-  gap: 8px;
+  height: 2px;
   margin-top: 14px;
+  border-radius: 1px;
+  background: oklch(1 0 0 / 0.08);
+}
+#widok-finanse .fin-pasek > span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 1px;
+  background: var(--fin-akcent);
+  box-shadow: 0 0 8px rgba(var(--habits-akcent-rgb), 0.6);
+  transition: width 0.5s ease;
+}
+#widok-finanse .fin-pasek > span.fin-minus-tlo { background: var(--fin-ostrzezenie); box-shadow: 0 0 8px oklch(0.66 0.16 25 / 0.6); }
+
+#widok-finanse .fin-dni-gwiazdki { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); margin-top: 10px; }
+#widok-finanse .fin-dzien {
+  min-height: 52px;
+  padding: 4px 0;
+  border: none;
+  border-radius: 16px;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+#widok-finanse .fin-dzien svg { width: 22px; height: 22px; overflow: visible; }
+#widok-finanse .fin-dzien path { fill: transparent; stroke: oklch(0.35 0.008 245); stroke-width: 1.4; transition: fill 0.3s ease, stroke 0.3s ease; }
+#widok-finanse .fin-dzien:not(:disabled) path { stroke: oklch(0.55 0.008 245); }
+#widok-finanse .fin-dzien.on path { fill: var(--fin-akcent); stroke: var(--fin-akcent); }
+#widok-finanse .fin-dzien.on svg { filter: drop-shadow(0 0 5px rgba(var(--habits-akcent-rgb), 0.75)); }
+#widok-finanse .fin-dzien.ponad path { stroke: oklch(0.66 0.14 25); }
+#widok-finanse .fin-dzien-skrot { font-size: 10.5px; color: var(--fin-wyciszony); }
+#widok-finanse .fin-dzien.dzis .fin-dzien-skrot { font-weight: 700; color: var(--fin-akcent); }
+#widok-finanse .fin-dzien[aria-pressed="true"] { background: rgba(255, 255, 255, 0.08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22); }
+#widok-finanse .fin-dzien[aria-pressed="true"] .fin-dzien-skrot { color: #fff; }
+#widok-finanse .fin-dzien:disabled { cursor: default; }
+#widok-finanse .fin-podpowiedz { margin: 8px 0 0; font-size: 12px; line-height: 1.4; color: oklch(0.55 0.008 240); }
+
+/* ----- Nagłówki sekcji ----- */
+#widok-finanse .fin-sekcja-naglowek {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 34px 8px 0;
+}
+#widok-finanse .fin-sekcja-naglowek h3,
+#widok-finanse .fin-karta-tytul {
+  margin: 0;
+  font-family: var(--fin-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 30px;
+  color: var(--fin-jasny);
+}
+#widok-finanse .fin-sekcja-naglowek > span { font-size: 13px; color: rgba(238, 240, 246, 0.6); text-align: right; }
+#widok-finanse .fin-pusto { margin: 14px 8px 0; font-size: 14px; color: var(--fin-pomocniczy); }
+
+/* ----- Fiolki: poziom płynu = ile zostało z budżetu; przy wielu kategoriach przewijanie w poziomie ----- */
+#widok-finanse .fin-fiolki {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(68px, 1fr);
+  gap: 12px;
+  margin: 0 -16px;
+  padding: 16px 24px 6px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+#widok-finanse .fin-fiolki::-webkit-scrollbar { display: none; }
+#widok-finanse .fin-fiolka {
+  --k: var(--fin-k-brak);
+  padding: 4px 0 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  scroll-snap-align: start;
+  transition: transform 0.2s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+#widok-finanse .fin-fiolka:active { transform: scale(0.95); }
+#widok-finanse .fin-fiolka.fin-przekroczone { --k: var(--fin-ostrzezenie); }
+#widok-finanse .fin-rurka {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  width: 100%;
+  max-width: 88px;
+  height: 150px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.55),
+    inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.25),
+    inset 0 0 22px rgba(255, 255, 255, 0.07),
+    0 14px 30px -16px rgba(0, 0, 0, 0.65);
+}
+#widok-finanse .fin-fiolka[aria-pressed="true"] .fin-rurka { outline: 1.5px solid rgba(255, 255, 255, 0.7); outline-offset: 3px; }
+#widok-finanse .fin-plyn {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  height: 6%;
+  background: linear-gradient(180deg, var(--k), color-mix(in oklch, var(--k) 55%, #000));
+  transition: height 0.6s cubic-bezier(0.3, 1.3, 0.5, 1), background 0.3s ease;
+}
+#widok-finanse .fin-fala { position: absolute; left: 0; top: -10px; width: 140px; height: 12px; fill: var(--k); }
+#widok-finanse .fin-fala-2 { left: -20px; top: -8px; opacity: 0.5; }
+#widok-finanse .fin-fiolka.fin-faluje .fin-fala { animation: fin-fala 1.4s ease-in-out 1; }
+#widok-finanse .fin-fiolka.fin-faluje .fin-fala-2 { animation: fin-fala-wstecz 1.1s ease-in-out 1; }
+#widok-finanse .fin-fiolka-wartosc {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 14px;
+  text-align: center;
+  font-family: var(--fin-serif);
+  font-size: 22px;
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+  font-variant-numeric: tabular-nums;
+}
+#widok-finanse .fin-fiolka.fin-przekroczone .fin-fiolka-wartosc { color: var(--fin-ostrzezenie-tekst); }
+#widok-finanse .fin-fiolka-nazwa {
+  max-width: 100%;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(238, 240, 246, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#widok-finanse .fin-fiolka[aria-pressed="true"] .fin-fiolka-nazwa { color: #fff; }
+
+/* ----- Panel budżetów ----- */
+#widok-finanse .fin-btn-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 46px;
+  margin-top: 16px;
+  border: none;
+  border-radius: 999px;
+  color: var(--fin-jasny);
+  font-size: 14px;
+  font-weight: 700;
+}
+#widok-finanse .fin-btn-panel svg { width: 16px; height: 16px; transition: transform 0.25s ease; }
+#widok-finanse .fin-btn-panel[aria-expanded="true"] svg { transform: rotate(180deg); }
+#widok-finanse .fin-panel { margin-top: 10px; padding: 16px; border-radius: 28px; }
+#widok-finanse .fin-panel[hidden] { display: none; }
+#widok-finanse .fin-panel-info { margin: 0 4px 10px; font-size: 12px; color: var(--fin-pomocniczy); }
+#widok-finanse .fin-panel-wiersz {
+  --k: var(--fin-k-brak);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+#widok-finanse .fin-panel-opis { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+#widok-finanse .fin-panel-nazwa { font-size: 15px; font-weight: 600; color: var(--fin-jasny); overflow-wrap: anywhere; }
+#widok-finanse .fin-panel-wydano { font-size: 12px; color: var(--fin-pomocniczy); }
+#widok-finanse .fin-panel-zl { font-size: 13px; color: var(--fin-pomocniczy); }
+#widok-finanse .fin-kropka {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--k);
+  box-shadow: 0 0 8px -1px var(--k);
+}
+
+/* Pola: wgłębione w szkło, min. 16 px (iOS nie powiększa strony) */
+#widok-finanse input {
+  width: 100%;
+  margin: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--fin-wglebienie);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+  color: var(--fin-jasny);
+  font-family: inherit;
+  font-size: 16px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+#widok-finanse input::placeholder { color: rgba(235, 238, 245, 0.45); }
+#widok-finanse input:focus {
+  outline: none;
+  border: none;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(var(--habits-akcent-rgb), 0.45);
+}
+#widok-finanse .fin-panel-kwota { flex: none; width: 92px; height: 40px; padding: 0 14px; text-align: right; font-variant-numeric: tabular-nums; }
+
+#widok-finanse .fin-budzet-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px auto;
+  gap: 8px;
+  margin-top: 12px;
   padding: 0;
   border: none;
+  border-radius: 0;
   background: none;
   box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
-.fin-budzet-form input:first-child { flex: 1; min-width: 0; }
-.kontener.motyw-habits #widok-finanse .fin-budzet-form input:nth-child(2) { width: 96px; flex: none; }
-
-.fin-btn-dodaj {
-  flex: none;
-  padding: 0 16px;
+#widok-finanse .fin-budzet-form input { height: 44px; padding: 0 16px; }
+#widok-finanse .fin-btn-dodaj {
   min-height: 44px;
-  border: 1px solid var(--habits-akcent);
-  border-radius: 12px;
-  background: rgba(var(--habits-akcent-rgb), 0.12);
-  color: var(--habits-naglowek);
-  font-weight: 600;
-}
-.fin-btn-dodaj:disabled { opacity: 0.4; cursor: default; }
-
-.fin-usun {
-  flex: none;
-  width: 32px;
-  height: 32px;
-  padding: 0;
+  padding: 0 18px;
   border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--habits-tekst-pomocniczy);
-  font-size: 1.2rem;
-  line-height: 1;
+  border-radius: 999px;
+  background: rgba(214, 208, 192, 0.26);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: inset 1px 1px 0 -0.5px rgba(255, 255, 255, 0.5);
 }
-.fin-usun:hover { background: var(--habits-obramowanie); color: var(--habits-tekst); }
 
-/* ----- Dni tygodnia ----- */
-.fin-dzien { margin-bottom: 10px; padding: 14px 16px; }
-.kontener.motyw-habits #widok-finanse .fin-dzien-dzis { border-color: rgba(var(--habits-akcent-rgb), 0.45); }
-.fin-dzien-naglowek {
+/* Drobne przyciski usuwania: zwykłe tło, drugi krok potwierdzenia na czerwono */
+#widok-finanse .fin-usun {
+  flex: none;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 6px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(238, 240, 246, 0.45);
+  font-size: 18px;
+  line-height: 1;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+#widok-finanse .fin-usun.fin-uzbrojony {
+  padding: 0 12px;
+  background: oklch(0.66 0.16 25 / 0.22);
+  color: var(--fin-ostrzezenie-tekst);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ----- Nowy wydatek ----- */
+#widok-finanse .fin-nowy { margin: 34px -4px 0; padding: 18px 16px 16px; border-radius: 40px; background: rgba(255, 255, 255, 0.07); }
+#widok-finanse .fin-nowy-gora { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 6px; }
+#widok-finanse .fin-nowy-tytul { font-family: var(--fin-serif); font-style: italic; font-size: 24px; color: var(--fin-jasny); }
+#widok-finanse .fin-nowy-dzien { font-size: 12px; font-weight: 600; color: var(--fin-pomocniczy); }
+#widok-finanse .fin-kwota-pole {
   display: flex;
-  justify-content: space-between;
   align-items: baseline;
   gap: 8px;
+  margin: 12px 0 0;
+  padding: 8px 20px 10px;
+  border-radius: 28px;
+  background: var(--fin-wglebienie);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.45), inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+  cursor: text;
 }
-.fin-dzien-tytul { font-weight: 600; color: var(--habits-naglowek); }
-.fin-dzien-tytul::first-letter { text-transform: uppercase; }
-.fin-dzien-suma { font-size: 0.85rem; font-weight: 600; color: var(--habits-tekst); }
+#widok-finanse .fin-kwota-pole input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-family: var(--fin-serif);
+  font-size: 56px;
+  line-height: 1.05;
+  color: oklch(0.97 0.004 240);
+  font-variant-numeric: tabular-nums;
+}
+#widok-finanse .fin-kwota-pole input:focus { box-shadow: none; }
+#widok-finanse .fin-kwota-pole:focus-within { box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.45), 0 0 0 2px rgba(var(--habits-akcent-rgb), 0.4); }
+#widok-finanse .fin-kwota-pole .fin-zl { font-size: 30px; }
 
-.fin-wydatki { list-style: none; margin: 8px 0 0; padding: 0; }
-.fin-wydatki li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--habits-obramowanie);
-  font-size: 0.9rem;
-}
-.fin-wydatek-opis { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-.fin-wydatek-kat {
-  flex: none;
-  max-width: 35%;
-  padding: 2px 8px;
+#widok-finanse .fin-szybkie { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+#widok-finanse .fin-szybki {
+  height: 42px;
+  border: none;
   border-radius: 999px;
-  background: var(--habits-obramowanie);
-  font-size: 0.75rem;
-  color: var(--muted);
+  background: rgba(255, 255, 255, 0.05);
+  color: oklch(0.92 0.004 240);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: inset 1px 1px 0 -0.5px rgba(255, 255, 255, 0.45), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.18);
+  transition: transform 0.18s cubic-bezier(0.3, 1.6, 0.5, 1), background 0.2s;
+}
+#widok-finanse .fin-szybki:active { transform: scale(1.12); background: rgba(255, 255, 255, 0.18); }
+
+/* Przełącznik kategorii ze ślizgającą się szklaną kroplą; przy wielu kategoriach przewijany w poziomie */
+#widok-finanse .fin-kategorie {
+  position: relative;
+  display: flex;
+  gap: 0;
+  min-height: 48px;
+  margin-top: 14px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+#widok-finanse .fin-kategorie::-webkit-scrollbar { display: none; }
+#widok-finanse .fin-kategorie-pusto { display: none; }
+#widok-finanse .fin-kategorie-kropla {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  width: 0;
+  opacity: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.55), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  transition: transform 0.45s cubic-bezier(0.3, 1.35, 0.45, 1), width 0.45s cubic-bezier(0.3, 1.35, 0.45, 1);
+}
+#widok-finanse .fin-kat {
+  --k: var(--fin-k-brak);
+  position: relative;
+  flex: 1 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(238, 240, 246, 0.55);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+#widok-finanse .fin-kat .fin-kropka { width: 6px; height: 6px; }
+#widok-finanse .fin-kat[aria-pressed="true"] { color: #fff; }
+
+#widok-finanse .fin-opis { display: block; height: 46px; margin-top: 10px; padding: 0 18px; }
+
+#widok-finanse .fin-czesto { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; padding: 0 4px; }
+#widok-finanse .fin-czesto[hidden] { display: none; }
+#widok-finanse .fin-czesto-etykieta { font-size: 12px; color: oklch(0.55 0.008 240); }
+#widok-finanse .fin-czesto-lista { display: flex; flex-wrap: wrap; gap: 6px; }
+#widok-finanse .fin-czesty {
+  --k: var(--fin-k-brak);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  max-width: 100%;
+  padding: 0 14px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  color: oklch(0.75 0.006 240);
+  font-size: 13px;
+  font-weight: 600;
+}
+#widok-finanse .fin-czesty .fin-kropka { width: 6px; height: 6px; }
+#widok-finanse .fin-czesty-nazwa { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#widok-finanse .fin-czesty[aria-pressed="true"] { background: rgba(255, 255, 255, 0.14); color: #fff; box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.35); }
+
+#widok-finanse .fin-zapisz {
+  display: block;
+  width: 100%;
+  min-height: 58px;
+  margin-top: 12px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(238, 240, 246, 0.4);
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.5), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.2), 0 14px 30px -16px rgba(0, 0, 0, 0.6);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: background 0.25s ease, color 0.25s ease, transform 0.2s cubic-bezier(0.3, 1.6, 0.5, 1);
 }
-.fin-wydatek-kwota { flex: none; font-weight: 600; color: var(--habits-naglowek); }
+#widok-finanse .fin-zapisz.fin-gotowy { background: rgba(214, 208, 192, 0.26); color: #fff; }
+#widok-finanse .fin-zapisz:active { transform: scale(0.97); }
 
-.fin-wydatek-form {
-  display: grid;
-  grid-template-columns: 96px 1fr auto;
-  grid-template-areas: "kwota kat kat" "opis opis btn";
-  gap: 8px;
-  margin-top: 10px;
-}
-.fin-wydatek-form > :nth-child(1) { grid-area: kwota; }
-.fin-wydatek-form > :nth-child(2) { grid-area: kat; min-width: 0; }
-.fin-wydatek-form > :nth-child(3) { grid-area: opis; min-width: 0; }
-.fin-wydatek-form > :nth-child(4) { grid-area: btn; }
-.kontener.motyw-habits #widok-finanse .fin-wydatek-form :is(input, select) { padding: 9px 10px; }
-@media (min-width: 560px) {
-  .fin-wydatek-form {
-    grid-template-columns: 96px 150px 1fr auto;
-    grid-template-areas: "kwota kat opis btn";
-  }
-}
-
-/* ----- Podsumowania ----- */
-.fin-podsumowanie { margin-top: 14px; }
-.fin-podsumowanie-wiersz {
+/* ----- Lista wydatków (bez backdrop-filter) ----- */
+#widok-finanse .fin-wydatki-lista { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+#widok-finanse .fin-wydatek {
+  --k: var(--fin-k-brak);
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 6px 0;
-  color: var(--muted);
-}
-.fin-podsumowanie-wiersz b { color: var(--habits-naglowek); font-weight: 600; }
-.fin-podsumowanie-glowny {
-  margin-top: 4px;
-  padding-top: 10px;
-  border-top: 1px solid var(--habits-obramowanie);
-  color: var(--habits-tekst);
-  font-weight: 600;
-}
-.fin-podsumowanie-glowny b { font-size: 1.1rem; }
-
-.fin-ogolem {
-  margin-top: 14px;
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  text-align: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 0 8px 0 10px;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.055);
+  box-shadow: inset 1px 1px 0 -0.5px rgba(255, 255, 255, 0.4), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.15);
 }
-.fin-ogolem-opis { font-size: 0.85rem; color: var(--muted); }
-.fin-ogolem-kwota {
-  font-family: "Instrument Serif", Georgia, serif;
-  font-style: italic;
-  font-weight: 400;
-  font-size: 2.2rem;
-  line-height: 1.1;
-  color: var(--habits-zloto);
+#widok-finanse .fin-wydatek.fin-wjazd { animation: fin-wjazd 0.5s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+#widok-finanse .fin-znaczek {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0a0b10;
+  background: var(--k);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.6), 0 0 16px -2px var(--k);
+}
+#widok-finanse .fin-wydatek-teksty { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+#widok-finanse .fin-wydatek-opis { font-size: 15px; font-weight: 600; color: var(--fin-jasny); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#widok-finanse .fin-wydatek-meta { font-size: 12px; color: rgba(238, 240, 246, 0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#widok-finanse .fin-wydatek-kwota { flex: none; font-family: var(--fin-serif); font-size: 22px; font-variant-numeric: tabular-nums; color: var(--fin-jasny); }
+
+/* ----- Podsumowanie tygodnia i suma od początku ----- */
+#widok-finanse .fin-podsumowanie { margin-top: 34px; padding: 20px 22px; border-radius: 32px; }
+#widok-finanse .fin-karta-tytul { font-size: 26px; margin-bottom: 8px; }
+#widok-finanse .fin-podsumowanie-wiersz {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 14px;
+  color: var(--fin-pomocniczy);
+}
+#widok-finanse .fin-podsumowanie-wiersz b { font-weight: 600; color: var(--fin-jasny); font-variant-numeric: tabular-nums; }
+#widok-finanse .fin-podsumowanie-glowny { margin-top: 4px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+#widok-finanse .fin-podsumowanie-glowny span { color: var(--fin-tekst); font-weight: 600; }
+#widok-finanse .fin-podsumowanie-glowny b { font-family: var(--fin-serif); font-size: 26px; font-weight: 400; color: var(--fin-akcent); }
+
+#widok-finanse .fin-ogolem { margin-top: 14px; padding: 22px; border-radius: 32px; background: rgba(214, 208, 192, 0.1); }
+#widok-finanse .fin-kwota-ogolem > span:first-child { font-size: 52px; }
+#widok-finanse .fin-ogolem-opis { display: block; margin-top: 8px; font-size: 12px; color: oklch(0.55 0.008 240); }
+
+/* ----- Animacje jednorazowe ----- */
+@keyframes fin-fala { from { transform: translateX(0); } to { transform: translateX(-56px); } }
+@keyframes fin-fala-wstecz { from { transform: translateX(-56px); } to { transform: translateX(0); } }
+@keyframes fin-wjazd { from { opacity: 0; transform: scale(0.92) translateY(-10px); } }
+
+@media (max-width: 380px) {
+  #widok-finanse .fin-kwota-duza > span:first-child { font-size: 54px; }
+  #widok-finanse .fin-tytul { font-size: 40px; }
+  #widok-finanse .fin-zakres { font-size: 13px; padding: 0 2px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #widok-finanse .fin-fala,
+  #widok-finanse .fin-wydatek.fin-wjazd,
+  #widok-finanse .fin-fiolka.fin-faluje .fin-fala { animation: none; }
+  #widok-finanse .fin-plyn,
+  #widok-finanse .fin-pasek > span,
+  #widok-finanse .fin-kategorie-kropla,
+  #widok-finanse .fin-dzien path,
+  #widok-finanse .fin-szybki,
+  #widok-finanse .fin-fiolka,
+  #widok-finanse .fin-zapisz { transition: none; }
 }

@@ -1014,43 +1014,112 @@
     </div>
   </section>
 
-  <!-- ===== Widok: Finanse → Oszczędności (tylko konta z FINANSE_DOSTEP_IDS); treść rysuje js/finanse.js ===== -->
+  <!-- ===== Widok: Finanse → Oszczędności (tylko konta z FINANSE_DOSTEP_IDS); dane i punktowe aktualizacje w js/finanse.js ===== -->
   <section id="widok-finanse" class="widok">
-    <h2>Oszczędności</h2>
-
-    <div class="fin-nawigacja">
-      <button type="button" id="fin-tydzien-poprzedni" class="fin-btn-tydzien" aria-label="Poprzedni tydzień">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
-      </button>
-      <span id="fin-tydzien-data" class="fin-zakres">—</span>
-      <button type="button" id="fin-tydzien-nastepny" class="fin-btn-tydzien" aria-label="Następny tydzień">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-      </button>
+    <!-- Tło ekranu: poświaty + drobne gwiazdy (pył z ekranu Dziś, rysuje finanse.js) -->
+    <div class="fin-tlo" aria-hidden="true">
+      <svg id="fin-gwiazdy-tla" class="fin-gwiazdy-tla" viewBox="0 0 342 300" preserveAspectRatio="xMidYMid slice"></svg>
     </div>
 
-    <div class="karta fin-budzety">
-      <h3 class="fin-naglowek">Budżety tygodnia</h3>
-      <div id="fin-budzety-lista"></div>
+    <!-- Nagłówek: miejsce na kroplę menu po lewej, kapsuła tygodnia po prawej -->
+    <div class="fin-gora">
+      <div class="fin-tydzien fin-szklo">
+        <button type="button" id="fin-tydzien-poprzedni" class="fin-btn-tydzien" aria-label="Poprzedni tydzień">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <span id="fin-tydzien-data" class="fin-zakres" aria-live="polite">—</span>
+        <button type="button" id="fin-tydzien-nastepny" class="fin-btn-tydzien" aria-label="Następny tydzień">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <h2 class="fin-tytul">Oszczędności</h2>
+
+    <!-- Karta główna: zostało / zaoszczędzone, pasek zużycia, gwiazdki dni -->
+    <div class="fin-glowna fin-szklo">
+      <div class="fin-glowna-gora">
+        <div class="fin-glowna-lewa">
+          <span id="fin-glowna-etykieta" class="fin-etykieta">Zostało na tydzień</span>
+          <div class="fin-kwota-duza"><span id="fin-zostalo">…</span><span class="fin-zl">zł</span></div>
+        </div>
+        <span class="fin-glowna-bok">z <span id="fin-budzet-lacznie">0</span> zł<span id="fin-dziennie" class="fin-dziennie"></span></span>
+      </div>
+      <span class="fin-pasek" aria-hidden="true"><span id="fin-pasek-zuzycie"></span></span>
+      <div id="fin-dni-gwiazdki" class="fin-dni-gwiazdki" role="group" aria-label="Dni tygodnia – wybierz dzień nowego wydatku"></div>
+      <p class="fin-podpowiedz">Gwiazdka świeci, gdy dzień zmieścił się w dziennym limicie. Stuknij dzień, żeby dopisać do niego wydatek.</p>
+    </div>
+
+    <!-- Fiolki budżetów kategorii -->
+    <div class="fin-sekcja-naglowek">
+      <h3>Budżety</h3>
+      <span id="fin-wydane-z"></span>
+    </div>
+    <div id="fin-fiolki" class="fin-fiolki"></div>
+    <p id="fin-fiolki-pusto" class="fin-pusto" hidden></p>
+
+    <button type="button" id="fin-budzety-przelacz" class="fin-btn-panel fin-szklo" aria-expanded="false" aria-controls="fin-budzety-panel">
+      <span>Edytuj budżety</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div id="fin-budzety-panel" class="fin-panel fin-szklo" hidden>
+      <p id="fin-panel-info" class="fin-panel-info"></p>
+      <div id="fin-budzety-lista" class="fin-budzety-lista"></div>
       <form id="fin-budzet-form" class="fin-budzet-form">
-        <input type="text" id="fin-budzet-nazwa" placeholder="Nowa kategoria" aria-label="Nazwa kategorii" maxlength="60">
-        <input type="text" id="fin-budzet-kwota" inputmode="decimal" placeholder="Kwota" aria-label="Kwota budżetu">
+        <input type="text" id="fin-budzet-nazwa" placeholder="Kategoria" aria-label="Nazwa kategorii" maxlength="40" autocomplete="off">
+        <input type="text" id="fin-budzet-kwota" inputmode="decimal" placeholder="Kwota" aria-label="Kwota budżetu" autocomplete="off">
         <button type="submit" class="fin-btn-dodaj">Dodaj</button>
       </form>
     </div>
 
-    <h3 class="fin-naglowek fin-naglowek-dni">Wydatki</h3>
-    <div id="fin-dni"></div>
+    <!-- Nowy wydatek -->
+    <div class="fin-nowy fin-szklo">
+      <div class="fin-nowy-gora">
+        <span class="fin-nowy-tytul">Nowy wydatek</span>
+        <span id="fin-nowy-dzien" class="fin-nowy-dzien"></span>
+      </div>
+      <label class="fin-kwota-pole">
+        <input type="text" id="fin-kwota" inputmode="decimal" placeholder="0" aria-label="Kwota w złotych" autocomplete="off">
+        <span class="fin-zl" aria-hidden="true">zł</span>
+      </label>
+      <div class="fin-szybkie">
+        <button type="button" class="fin-szybki" data-dodaj="10" aria-label="Dodaj 10 zł">+10</button>
+        <button type="button" class="fin-szybki" data-dodaj="20" aria-label="Dodaj 20 zł">+20</button>
+        <button type="button" class="fin-szybki" data-dodaj="50" aria-label="Dodaj 50 zł">+50</button>
+        <button type="button" class="fin-szybki" data-dodaj="100" aria-label="Dodaj 100 zł">+100</button>
+      </div>
+      <div id="fin-kategorie" class="fin-kategorie" role="group" aria-label="Kategoria wydatku">
+        <span id="fin-kategorie-kropla" class="fin-kategorie-kropla" aria-hidden="true"></span>
+      </div>
+      <input type="text" id="fin-opis" class="fin-opis" placeholder="Na co? np. Biedronka" aria-label="Na co?" maxlength="120" autocomplete="off">
+      <div id="fin-czesto" class="fin-czesto" hidden>
+        <span class="fin-czesto-etykieta">Często:</span>
+        <div id="fin-czesto-lista" class="fin-czesto-lista"></div>
+      </div>
+      <button type="button" id="fin-zapisz" class="fin-zapisz">Wpisz kwotę</button>
+    </div>
 
-    <div class="karta fin-podsumowanie">
-      <h3 class="fin-naglowek">Podsumowanie tygodnia</h3>
+    <!-- Wydatki tygodnia -->
+    <div class="fin-sekcja-naglowek">
+      <h3>Wydatki</h3>
+      <span id="fin-wydatki-licznik"></span>
+    </div>
+    <div id="fin-wydatki-lista" class="fin-wydatki-lista"></div>
+    <p id="fin-wydatki-pusto" class="fin-pusto" hidden></p>
+
+    <!-- Podsumowanie tygodnia -->
+    <div class="fin-podsumowanie fin-szklo">
+      <h3 class="fin-karta-tytul">Podsumowanie tygodnia</h3>
       <div class="fin-podsumowanie-wiersz"><span>Budżet łącznie</span><b id="fin-tydz-budzet">–</b></div>
       <div class="fin-podsumowanie-wiersz"><span>Wydano</span><b id="fin-tydz-wydano">–</b></div>
       <div class="fin-podsumowanie-wiersz fin-podsumowanie-glowny"><span>Zaoszczędzone</span><b id="fin-tydz-zaoszczedzone">–</b></div>
     </div>
 
-    <div class="karta fin-ogolem">
-      <span class="fin-ogolem-opis">Zaoszczędzone od początku</span>
-      <b id="fin-suma-ogolna" class="fin-ogolem-kwota">…</b>
+    <!-- Łącznie od początku (widok oszczednosci) -->
+    <div class="fin-ogolem fin-szklo">
+      <span class="fin-etykieta">Łącznie od początku</span>
+      <div class="fin-kwota-duza fin-kwota-ogolem"><span id="fin-suma-ogolna">…</span><span class="fin-zl">zł</span></div>
+      <span class="fin-ogolem-opis">Suma zaoszczędzona we wszystkich tygodniach, razem z bieżącym.</span>
     </div>
   </section>
 </div>
