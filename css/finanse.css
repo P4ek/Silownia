@@ -1,0 +1,226 @@
+/* Finanse → Oszczędności (#widok-finanse): nawigacja tygodnia, budżety kategorii, wydatki dzień po dniu, podsumowania. Ładowany po motyw.css. */
+
+/* Piąty rozdział menu (FINANSE) – kontynuacja kaskady wjazdu z menu.css */
+#sidebar.open .menu-rozdzial:nth-child(5) { animation-delay: 0.34s; }
+
+#widok-finanse {
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+.fin-naglowek {
+  margin: 0 0 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--habits-tekst-pomocniczy);
+}
+.fin-naglowek-dni { margin: 22px 4px 10px; }
+
+/* ----- Nawigacja tygodnia ----- */
+.fin-nawigacja {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+.fin-btn-tydzien {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: oklch(0.7 0.006 240);
+  display: grid;
+  place-items: center;
+}
+.fin-btn-tydzien svg { width: 16px; height: 16px; }
+.fin-btn-tydzien:hover:not(:disabled) { background: var(--habits-obramowanie); }
+.fin-btn-tydzien:disabled { opacity: 0.25; cursor: default; }
+.fin-zakres { padding: 0 6px; font-size: 13px; font-weight: 600; color: var(--habits-tekst); white-space: nowrap; }
+
+/* ----- Budżety ----- */
+.fin-budzet {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--habits-obramowanie);
+}
+.fin-budzet:first-child { padding-top: 0; }
+.fin-budzet-gora {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.fin-budzet-nazwa {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  color: var(--habits-naglowek);
+  overflow-wrap: anywhere;
+}
+.kontener.motyw-habits #widok-finanse .fin-budzet-kwota {
+  width: 110px;
+  flex: none;
+  padding: 7px 10px;
+  text-align: right;
+}
+.fin-budzet-staty {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.fin-budzet-staty b { font-weight: 600; color: var(--habits-tekst); }
+.fin-pasek {
+  height: 4px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: var(--habits-obramowanie);
+  overflow: hidden;
+}
+.fin-pasek span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--habits-akcent);
+  transition: width 0.3s ease;
+}
+.kontener.motyw-habits #widok-finanse .fin-minus { color: var(--partia-nogi); }
+.fin-pasek span.fin-minus-tlo { background: var(--partia-nogi); }
+
+/* Formularz nowej kategorii: bez wyglądu karty (form ma go domyślnie w baza.css/motyw.css) */
+.kontener.motyw-habits #widok-finanse .fin-budzet-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.fin-budzet-form input:first-child { flex: 1; min-width: 0; }
+.kontener.motyw-habits #widok-finanse .fin-budzet-form input:nth-child(2) { width: 96px; flex: none; }
+
+.fin-btn-dodaj {
+  flex: none;
+  padding: 0 16px;
+  min-height: 44px;
+  border: 1px solid var(--habits-akcent);
+  border-radius: 12px;
+  background: rgba(var(--habits-akcent-rgb), 0.12);
+  color: var(--habits-naglowek);
+  font-weight: 600;
+}
+.fin-btn-dodaj:disabled { opacity: 0.4; cursor: default; }
+
+.fin-usun {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--habits-tekst-pomocniczy);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+.fin-usun:hover { background: var(--habits-obramowanie); color: var(--habits-tekst); }
+
+/* ----- Dni tygodnia ----- */
+.fin-dzien { margin-bottom: 10px; padding: 14px 16px; }
+.kontener.motyw-habits #widok-finanse .fin-dzien-dzis { border-color: rgba(var(--habits-akcent-rgb), 0.45); }
+.fin-dzien-naglowek {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.fin-dzien-tytul { font-weight: 600; color: var(--habits-naglowek); }
+.fin-dzien-tytul::first-letter { text-transform: uppercase; }
+.fin-dzien-suma { font-size: 0.85rem; font-weight: 600; color: var(--habits-tekst); }
+
+.fin-wydatki { list-style: none; margin: 8px 0 0; padding: 0; }
+.fin-wydatki li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--habits-obramowanie);
+  font-size: 0.9rem;
+}
+.fin-wydatek-opis { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.fin-wydatek-kat {
+  flex: none;
+  max-width: 35%;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--habits-obramowanie);
+  font-size: 0.75rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fin-wydatek-kwota { flex: none; font-weight: 600; color: var(--habits-naglowek); }
+
+.fin-wydatek-form {
+  display: grid;
+  grid-template-columns: 96px 1fr auto;
+  grid-template-areas: "kwota kat kat" "opis opis btn";
+  gap: 8px;
+  margin-top: 10px;
+}
+.fin-wydatek-form > :nth-child(1) { grid-area: kwota; }
+.fin-wydatek-form > :nth-child(2) { grid-area: kat; min-width: 0; }
+.fin-wydatek-form > :nth-child(3) { grid-area: opis; min-width: 0; }
+.fin-wydatek-form > :nth-child(4) { grid-area: btn; }
+.kontener.motyw-habits #widok-finanse .fin-wydatek-form :is(input, select) { padding: 9px 10px; }
+@media (min-width: 560px) {
+  .fin-wydatek-form {
+    grid-template-columns: 96px 150px 1fr auto;
+    grid-template-areas: "kwota kat opis btn";
+  }
+}
+
+/* ----- Podsumowania ----- */
+.fin-podsumowanie { margin-top: 14px; }
+.fin-podsumowanie-wiersz {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0;
+  color: var(--muted);
+}
+.fin-podsumowanie-wiersz b { color: var(--habits-naglowek); font-weight: 600; }
+.fin-podsumowanie-glowny {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--habits-obramowanie);
+  color: var(--habits-tekst);
+  font-weight: 600;
+}
+.fin-podsumowanie-glowny b { font-size: 1.1rem; }
+
+.fin-ogolem {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+.fin-ogolem-opis { font-size: 0.85rem; color: var(--muted); }
+.fin-ogolem-kwota {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 2.2rem;
+  line-height: 1.1;
+  color: var(--habits-zloto);
+}

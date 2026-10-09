@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="css/motyw.css">
 <link rel="stylesheet" href="css/menu.css">
 <link rel="stylesheet" href="css/dzis.css">
+<link rel="stylesheet" href="css/finanse.css">
 <style>
 /* Ekran startowy: widoczny, dopóki getSession() nie zwróci wyniku (start.js), potem znika w ~300 ms */
 .ekran-startowy {
@@ -293,6 +294,15 @@
         </button>
         <button type="button" class="nav-btn menu-pozycja" id="nav-ai-analiza" data-widok="widok-ai-analiza">
           <span class="menu-etykieta">AI Analiza</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc"></span>
+        </button>
+      </section>
+
+      <section class="menu-rozdzial" id="menu-rozdzial-finanse" aria-labelledby="menu-r-finanse" hidden>
+        <span class="menu-rozdzial-nazwa" id="menu-r-finanse">FINANSE</span>
+        <button type="button" class="nav-btn menu-pozycja" id="nav-finanse" data-widok="widok-finanse">
+          <span class="menu-etykieta">Oszczędności</span>
           <span class="menu-kropki" aria-hidden="true"></span>
           <span class="menu-wartosc"></span>
         </button>
@@ -1003,6 +1013,46 @@
       <div id="ai-analiza-wynik" class="ai-analiza-wynik" hidden></div>
     </div>
   </section>
+
+  <!-- ===== Widok: Finanse → Oszczędności (tylko konta z FINANSE_DOSTEP_IDS); treść rysuje js/finanse.js ===== -->
+  <section id="widok-finanse" class="widok">
+    <h2>Oszczędności</h2>
+
+    <div class="fin-nawigacja">
+      <button type="button" id="fin-tydzien-poprzedni" class="fin-btn-tydzien" aria-label="Poprzedni tydzień">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <span id="fin-tydzien-data" class="fin-zakres">—</span>
+      <button type="button" id="fin-tydzien-nastepny" class="fin-btn-tydzien" aria-label="Następny tydzień">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+
+    <div class="karta fin-budzety">
+      <h3 class="fin-naglowek">Budżety tygodnia</h3>
+      <div id="fin-budzety-lista"></div>
+      <form id="fin-budzet-form" class="fin-budzet-form">
+        <input type="text" id="fin-budzet-nazwa" placeholder="Nowa kategoria" aria-label="Nazwa kategorii" maxlength="60">
+        <input type="text" id="fin-budzet-kwota" inputmode="decimal" placeholder="Kwota" aria-label="Kwota budżetu">
+        <button type="submit" class="fin-btn-dodaj">Dodaj</button>
+      </form>
+    </div>
+
+    <h3 class="fin-naglowek fin-naglowek-dni">Wydatki</h3>
+    <div id="fin-dni"></div>
+
+    <div class="karta fin-podsumowanie">
+      <h3 class="fin-naglowek">Podsumowanie tygodnia</h3>
+      <div class="fin-podsumowanie-wiersz"><span>Budżet łącznie</span><b id="fin-tydz-budzet">–</b></div>
+      <div class="fin-podsumowanie-wiersz"><span>Wydano</span><b id="fin-tydz-wydano">–</b></div>
+      <div class="fin-podsumowanie-wiersz fin-podsumowanie-glowny"><span>Zaoszczędzone</span><b id="fin-tydz-zaoszczedzone">–</b></div>
+    </div>
+
+    <div class="karta fin-ogolem">
+      <span class="fin-ogolem-opis">Zaoszczędzone od początku</span>
+      <b id="fin-suma-ogolna" class="fin-ogolem-kwota">…</b>
+    </div>
+  </section>
 </div>
 
 </div>
@@ -1026,6 +1076,7 @@
 <script src="js/ai-analiza.js" defer></script>
 <script src="js/powiadomienia.js" defer></script>
 <script src="js/dzis.js" defer></script>
+<script src="js/finanse.js" defer></script>
 <script src="js/nawigacja.js" defer></script>
 <script src="js/start.js" defer></script>
 </body>

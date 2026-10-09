@@ -21,6 +21,10 @@ function inicjalizujDaneAplikacji() {
   const dostepJedzenie = !!(sesjaUzytkownika && sesjaUzytkownika.user && JEDZENIE_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));
   ustawDostepJedzenia(dostepJedzenie);
   if (dostepJedzenie) wczytajJedzenie().then(function () { dzisDaneGotowe("jedzenie"); });
+
+  // Finanse: tylko widoczność menu; dane wczytuje finanse.js przy pierwszym wejściu na ekran
+  const dostepFinanse = !!(sesjaUzytkownika && sesjaUzytkownika.user && FINANSE_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));
+  ustawDostepFinansow(dostepFinanse);
   renderDzis();
 }
 

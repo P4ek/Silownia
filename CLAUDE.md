@@ -23,9 +23,10 @@ Bez bundlera, npm i kroku build. Dane w Supabase (`js/konfiguracja.js`), wykresy
 | Rady z książek (tylko konta z `RADY_DOSTEP_IDS`) | `#widok-rady` | `js/rady-z-ksiazek.js` | `css/rady-z-ksiazek.css` |
 | Wnioski | `#widok-wnioski` | `js/wnioski.js` | `css/wnioski.css` |
 | AI Analiza | `#widok-ai-analiza` | `js/ai-analiza.js` | `css/ai-analiza.css` |
+| Finanse → Oszczędności (tylko konta z `FINANSE_DOSTEP_IDS`; cały rozdział menu `#menu-rozdzial-finanse` ukryty do sprawdzenia dostępu w `start.js`) | `#widok-finanse` | `js/finanse.js` | `css/finanse.css` (ładowany po `motyw.css`) |
 
 Pozostałe:
-- `js/konfiguracja.js` – klient Supabase (`db`), `AI_UZYTKOWNIK_ID`, `JEDZENIE_DOSTEP_IDS` (konta z sekcją Jedzenie: tabele `posilki`, `jedzenie_cele`, Edge Function `analizuj-posliek`; „Zjedz ponownie” w `jedzenie.js` dodaje kopię posiłku z ostatnich 30 dni bez AI), `RADY_DOSTEP_IDS` (konta z sekcją Rady z książek), stan sesji (`sesjaUzytkownika`).
+- `js/konfiguracja.js` – klient Supabase (`db`), `AI_UZYTKOWNIK_ID`, `JEDZENIE_DOSTEP_IDS` (konta z sekcją Jedzenie: tabele `posilki`, `jedzenie_cele`, Edge Function `analizuj-posliek`; „Zjedz ponownie” w `jedzenie.js` dodaje kopię posiłku z ostatnich 30 dni bez AI), `RADY_DOSTEP_IDS` (konta z sekcją Rady z książek), `FINANSE_DOSTEP_IDS` (konta z sekcją Finanse: tabele `wydatki`, `budzety` – unikalne `(user_id, tydzien_od, kategoria)`, zapis przez upsert – i widok `oszczednosci` tylko do odczytu; `user_id` uzupełnia baza; dane wczytywane przy pierwszym wejściu na ekran, tylko oglądany tydzień + suma ogólna + najwcześniejszy tydzień; tydzień bez budżetów dostaje kopię z ostatniego wcześniejszego tygodnia zapisaną w bazie), stan sesji (`sesjaUzytkownika`).
 - `js/wspolne.js` – funkcje używane przez wiele ekranów: `pokazToast`, `pustyStanHTML`, `wjazdKarty`, `animujLiczbe`, daty (`dzisiaj`, `isoZDaty`, `poniedzialekTygodnia`, `formatDatyRejestru`, nazwy dni/miesięcy), partie (`PARTIE`, `kolorPartiiCSS`, `kropkaPartii`), odmiana (`odmianaLiczby`), wspólne dane (`wpisy` – treningi, `katalog` – ćwiczenia) i JEDNA definicja rekordu (`obliczRekordy`, `wynikSerii`, `seriaRekordowaWpisu`, `czyWpisMaRekord`).
 - `js/logowanie.js` – formularze logowania (kod z maila) i wylogowanie.
 - `js/powiadomienia.js` – subskrypcja push (przycisk z dzwonkiem).
@@ -33,7 +34,7 @@ Pozostałe:
 - `js/start.js` – start aplikacji (patrz niżej) + rejestracja service workera.
 - `css/baza.css` – zmienne (ciemny motyw, kolory partii `--partia-*`, złoty `--habits-zloto`), typografia, menu, karty, formularze, przyciski, banery, toasty, konfetti, animacje, puste stany, logowanie, responsywność.
 - `css/motyw.css` – reguły ciemnego motywu (`.kontener.motyw-habits`, `#sidebar.motyw-habits`), zawsze włączonego.
-- `css/menu.css` – menu: przycisk-kropla, pełnoekranowe menu, zakładki-skróty (logika w `js/nawigacja.js`). Ładowany po `motyw.css`, potem `dzis.css`.
+- `css/menu.css` – menu: przycisk-kropla, pełnoekranowe menu, zakładki-skróty (logika w `js/nawigacja.js`). Ładowany po `motyw.css`, potem `dzis.css` i `finanse.css`.
 
 ## Kolejność ładowania i dlaczego
 

@@ -10,4 +10,5 @@ let sesjaUzytkownika = null; // aktualna sesja Supabase, ustawiana przez onAuthS
 let aplikacjaZainicjowana = false;
 const AI_UZYTKOWNIK_ID = "1f1fc4a4-1b87-4ea7-9ddd-785873e98cbc"; // jedyne konto z dostępem do sekcji "AI Analiza" (i customowego nagłówka)
 const JEDZENIE_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z dostępem do sekcji "Jedzenie" (tabele posilki, jedzenie_cele)
+const FINANSE_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z dostępem do sekcji "Finanse" (tabele wydatki, budzety, widok oszczednosci) (te same konta co Jedzenie)
 const RADY_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z dostępem do sekcji "Rady z książek"
