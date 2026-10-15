@@ -10,8 +10,10 @@ function inicjalizujDaneAplikacji() {
   renderTydzienEtykieta();
   wczytajRole().then(function () { renderDzis(); });
   wczytajCeleDlaTygodnia().then(function () { dzisDaneGotowe("cele"); });
-  wczytajNawyki().then(function () { dzisDaneGotowe("nawyki"); });
-  wczytajNawykiWpisy().then(function () { dzisDaneGotowe("nawykiWpisy"); });
+  const nawykiGotowe = Promise.all([
+    wczytajNawyki().then(function () { dzisDaneGotowe("nawyki"); }),
+    wczytajNawykiWpisy().then(function () { dzisDaneGotowe("nawykiWpisy"); })
+  ]);
   wczytajPlanyTreningowe().then(function () { dzisDaneGotowe("plany"); });
 
   const dostepRady = !!(sesjaUzytkownika && sesjaUzytkownika.user && RADY_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));
@@ -25,6 +27,11 @@ function inicjalizujDaneAplikacji() {
   // Finanse: tylko widoczność menu; dane wczytuje finanse.js przy pierwszym wejściu na ekran
   const dostepFinanse = !!(sesjaUzytkownika && sesjaUzytkownika.user && FINANSE_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));
   ustawDostepFinansow(dostepFinanse);
+
+  // Medytacja: widoczność menu; trwająca/skończona sesja z tego urządzenia wraca po wczytaniu nawyków (automatyczne odznaczenie)
+  const dostepMedytacja = !!(sesjaUzytkownika && sesjaUzytkownika.user && MEDYTACJA_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));
+  ustawDostepMedytacji(dostepMedytacja);
+  if (dostepMedytacja) nawykiGotowe.then(medPrzywrocSesje);
   renderDzis();
 }
 

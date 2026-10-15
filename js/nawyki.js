@@ -294,26 +294,32 @@ function odpalKonfetti() {
   setTimeout(function () { warstwa.remove(); }, 2500);
 }
 
+// Zapis wykonania nawyku w danym dniu (wiersz w "nawyki_wpisy"); true = zapisane. Używa go też Medytacja (ustawia, nie przełącza)
+async function zapiszNawykZrobiony(nawyk, data) {
+  const { data: wstawione, error } = await db
+    .from("nawyki_wpisy")
+    .insert({ nawyk_id: nawyk.id, data: data, user_id: sesjaUzytkownika.user.id })
+    .select();
+
+  if (error) {
+    console.error(error);
+    pokazToast("Nie udało się zapisać zaznaczenia: " + error.message, "blad");
+    return false;
+  }
+  nawykiWpisy.push(wstawione && wstawione[0] ? wstawione[0] : { nawyk_id: nawyk.id, data: data });
+  return true;
+}
+
 // Odhaczenie/odznaczenie dnia (kafel na dziś albo komórka siatki) - wstawia lub usuwa wiersz w "nawyki_wpisy"
 async function przelaczNawykDzien(nawyk, data, przycisk) {
   if (przycisk.disabled) return;
   przycisk.disabled = true;
 
   if (!czyNawykZrobiony(nawyk.id, data)) {
-    const { data: wstawione, error } = await db
-      .from("nawyki_wpisy")
-      .insert({ nawyk_id: nawyk.id, data: data, user_id: sesjaUzytkownika.user.id })
-      .select();
-
+    const ok = await zapiszNawykZrobiony(nawyk, data);
     przycisk.disabled = false;
+    if (!ok) return;
 
-    if (error) {
-      console.error(error);
-      pokazToast("Nie udało się zapisać zaznaczenia: " + error.message, "blad");
-      return;
-    }
-
-    nawykiWpisy.push(wstawione && wstawione[0] ? wstawione[0] : { nawyk_id: nawyk.id, data: data });
     if (navigator.vibrate) navigator.vibrate(15);
     // Ten nawyk nie był odznaczony przed kliknięciem, więc dzień nie był wcześniej kompletny
     if (data === dzisiaj() && wszystkieNawykiOdznaczone(data)) odpalKonfettiRazDziennie(data);

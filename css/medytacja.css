@@ -1,0 +1,319 @@
+/* Medytacja (#widok-medytacja) wg makiety medytacja-nic-ekrany-1-3: świecąca nić, szkło jak w Oszczędnościach.
+   Ładowany po motyw.css; wszystko pod #widok-medytacja. Nić rysuje js/medytacja.js (maks. 3 ścieżki: poświata, nić, pasmo);
+   ruch tylko przez transform, animacje stoją poza ekranem (.med-ruch z IntersectionObserver) i przy prefers-reduced-motion. */
+
+/* Na tym ekranie wiersz kropli menu zajmuje data, więc tytuł aplikacji jest ukryty */
+.kontener:has(> #widok-medytacja.aktywny) > #app-tytul { display: none; }
+
+#widok-medytacja {
+  --med-len: #D6D0C0;
+  --med-len-jasny: #EFE8D6;
+  --med-tekst: oklch(0.85 0.005 240);
+  --med-jasny: oklch(0.96 0.004 240);
+  --med-pomocniczy: oklch(0.6 0.008 240);
+  --med-wyciszony: oklch(0.52 0.008 240);
+  --med-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  position: relative;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  color: var(--med-tekst);
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+}
+#widok-medytacja [hidden] { display: none !important; }
+
+/* Tło: poświaty jako gradienty (bez filtrów rozmycia) */
+#widok-medytacja .med-tlo {
+  position: absolute;
+  top: calc(-18px - env(safe-area-inset-top, 0px));
+  bottom: -22px;
+  left: -16px;
+  right: -16px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(420px 320px at 80% 160px, oklch(0.72 0.08 75 / 0.16), transparent 70%),
+    radial-gradient(360px 300px at 0% 520px, oklch(0.45 0.06 250 / 0.22), transparent 70%),
+    radial-gradient(320px 320px at 10% 260px, oklch(0.72 0.08 75 / 0.12), transparent 70%);
+}
+
+/* ----- Szkło ----- */
+#widok-medytacja .med-szklo {
+  position: relative;
+  isolation: isolate;
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(3px) saturate(170%) brightness(1.08);
+  backdrop-filter: blur(3px) saturate(170%) brightness(1.08);
+  box-shadow:
+    inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.55),
+    inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.25),
+    inset 0 0 22px rgba(255, 255, 255, 0.07),
+    0 18px 40px -16px rgba(0, 0, 0, 0.65);
+}
+#widok-medytacja .med-szklo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 32%, rgba(255, 255, 255, 0) 68%, rgba(255, 255, 255, 0.08) 100%);
+}
+#widok-medytacja .med-szklo-tint { background: rgba(214, 208, 192, 0.26); }
+
+/* ----- Nagłówek: miejsce na kroplę po lewej, data po prawej ----- */
+#widok-medytacja .med-gora {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 56px;
+  margin-top: -4px;
+  padding-left: calc(64px + env(safe-area-inset-left, 0px));
+  padding-right: env(safe-area-inset-right, 0px);
+}
+#widok-medytacja .med-data { display: flex; flex-direction: column; align-items: flex-end; font-size: 13px; line-height: 1.35; color: oklch(0.55 0.008 240); }
+#widok-medytacja .med-data-dzien { color: oklch(0.82 0.005 240); }
+#widok-medytacja .med-tytul {
+  margin: 18px 4px 0;
+  font-family: var(--med-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 44px;
+  line-height: 0.95;
+  color: var(--med-jasny);
+}
+#widok-medytacja .med-podtytul { display: block; margin: 6px 4px 0; font-size: 13.5px; color: var(--med-pomocniczy); }
+
+/* ----- Nić ----- */
+#widok-medytacja .med-nic {
+  position: relative;
+  /* wygaszenie końców nici */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+#widok-medytacja .med-nic svg { display: block; width: 100%; height: 100%; overflow: hidden; }
+#widok-medytacja .med-nic-wygladzanie { transition: transform 1s linear; }
+#widok-medytacja .med-nic-sciezka {
+  fill: none;
+  stroke: var(--med-len-jasny);
+  stroke-linecap: round;
+  animation-name: med-plyn;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-play-state: paused;
+}
+#widok-medytacja .med-nic.med-ruch .med-nic-sciezka { animation-play-state: running; }
+/* Przesunięcie o jeden okres nici (130 jednostek viewBox) - pętla bez szwu */
+@keyframes med-plyn { to { transform: translateX(-130px); } }
+#widok-medytacja .med-nic-poswiata { stroke-width: 7px; opacity: 0.14; }
+#widok-medytacja .med-nic-glowna { stroke-width: 1.7px; opacity: 0.95; }
+#widok-medytacja .med-nic-pasmo { stroke-width: 0.9px; opacity: 0.5; }
+
+/* ----- Widok 1: wybór czasu na nici ----- */
+#widok-medytacja .med-wybor-czasu { position: relative; height: 220px; margin: 10px -16px 0; }
+#widok-medytacja .med-czas-duzy { position: absolute; left: 0; right: 0; top: 0; text-align: center; }
+#widok-medytacja .med-czas-duzy > span:first-child { font-family: var(--med-serif); font-size: 110px; line-height: 0.9; color: #fff; }
+#widok-medytacja .med-czas-min { font-family: var(--med-serif); font-style: italic; font-size: 26px; color: var(--med-len); }
+#widok-medytacja .med-nic-start { position: absolute; left: 0; right: 0; top: 75px; height: 90px; }
+#widok-medytacja .med-koraliki {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 96px;
+  display: flex;
+  justify-content: space-around;
+  padding: 0 4px;
+}
+#widok-medytacja .med-koralik {
+  width: 52px;
+  min-height: 96px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  -webkit-tap-highlight-color: transparent;
+}
+/* Koralik: zawsze 30 px, niewybrany pomniejszony przez transform */
+#widok-medytacja .med-koralik-kulka {
+  display: block;
+  width: 30px;
+  height: 30px;
+  margin-top: 9px;
+  border-radius: 50%;
+  background: oklch(0.12 0.006 250);
+  border: 2.5px solid oklch(1 0 0 / 0.35);
+  transform: scale(0.55);
+  transition: transform 0.45s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+#widok-medytacja .med-koralik.wybrany .med-koralik-kulka {
+  border: none;
+  background: radial-gradient(circle at 35% 30%, #fff, var(--med-len) 60%, #9c9584);
+  box-shadow: 0 0 22px rgba(233, 226, 207, 0.85);
+  transform: scale(1);
+}
+#widok-medytacja .med-koralik-etykieta { font-size: 13px; font-weight: 700; color: oklch(0.55 0.008 240); }
+#widok-medytacja .med-koralik.wybrany .med-koralik-etykieta { color: #fff; }
+#widok-medytacja .med-koralik:focus-visible { outline: 2px solid var(--med-len); outline-offset: 3px; border-radius: 16px; }
+
+/* ----- Ocena nićmi ----- */
+#widok-medytacja .med-ocena { margin-top: 12px; padding: 16px 12px 12px; border-radius: 34px; }
+#widok-medytacja .med-ocena-gora { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 8px; min-height: 44px; }
+#widok-medytacja .med-ocena-tytul { font-family: var(--med-serif); font-style: italic; font-size: 21px; color: oklch(0.95 0.004 240); }
+#widok-medytacja .med-btn-tekst { min-height: 44px; min-width: 44px; padding: 0 4px; border: none; background: transparent; font-size: 13px; font-weight: 600; color: var(--med-pomocniczy); }
+#widok-medytacja .med-btn-tekst[aria-pressed="true"] { color: var(--med-len); }
+#widok-medytacja .med-nitki { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+#widok-medytacja .med-nitka {
+  min-height: 72px;
+  padding: 8px 0 6px;
+  border: none;
+  border-radius: 22px;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: transform 0.2s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+#widok-medytacja .med-nitka:active { transform: scale(0.95); }
+#widok-medytacja .med-nitka svg { width: 52px; height: 34px; }
+#widok-medytacja .med-nitka path { fill: none; stroke: oklch(0.55 0.008 240); stroke-width: 1.3px; stroke-linecap: round; }
+#widok-medytacja .med-nitka span { font-size: 11px; font-weight: 700; color: oklch(0.5 0.008 240); }
+#widok-medytacja .med-nitka.wybrana {
+  background: rgba(214, 208, 192, 0.16);
+  box-shadow: inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.5), inset 0 0 0 1px rgba(214, 208, 192, 0.3);
+}
+#widok-medytacja .med-nitka.wybrana path { stroke: #F1EADA; filter: drop-shadow(0 0 4px rgba(233, 226, 207, 0.9)); }
+#widok-medytacja .med-nitka.wybrana span { color: var(--med-len); }
+#widok-medytacja .med-nitki-podpis { display: flex; justify-content: space-between; padding: 0 8px; margin-top: 6px; font-size: 11.5px; color: oklch(0.55 0.008 240); }
+
+/* ----- Przyciski i podpowiedzi ----- */
+#widok-medytacja .med-btn-glowny {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 64px;
+  margin-top: 14px;
+  border-radius: 999px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  transition: transform 0.2s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+#widok-medytacja .med-btn-glowny:active { transform: scale(0.97); }
+#widok-medytacja .med-btn-glowny:disabled { opacity: 0.6; }
+#widok-medytacja .med-btn-zacznij { min-height: 70px; font-size: 19px; }
+#widok-medytacja .med-btn-zacznij svg { width: 16px; height: 16px; }
+#widok-medytacja .med-btn-zakoncz { min-height: 58px; margin-top: 18px; font-size: 15px; }
+#widok-medytacja .med-podpowiedz { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 12px 0 0; font-size: 13px; color: oklch(0.58 0.008 240); text-align: center; }
+#widok-medytacja .med-podpowiedz svg { flex: none; width: 14px; height: 14px; }
+#widok-medytacja .med-link {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 2px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--med-len);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: oklch(0.72 0.08 75 / 0.5);
+}
+#widok-medytacja :is(.med-btn-glowny, .med-link, .med-btn-tekst, .med-nitka):focus-visible { outline: 2px solid var(--med-len); outline-offset: 3px; }
+#widok-medytacja .med-blad { margin: 10px 4px 0; font-size: 13px; color: oklch(0.75 0.13 28); overflow-wrap: anywhere; }
+
+/* ----- Karta "Sesja skończona, zapisać?" ----- */
+#widok-medytacja .med-karta-zapis { margin-top: 24px; padding: 20px 18px 18px; border-radius: 34px; }
+#widok-medytacja .med-karta-zapis-tekst { margin: 0 4px; font-family: var(--med-serif); font-style: italic; font-size: 26px; line-height: 1.15; color: var(--med-jasny); }
+
+/* ----- Widok 2: odliczanie ----- */
+#widok-medytacja .med-trwa-gora { display: flex; justify-content: space-between; gap: 12px; margin-top: 18px; font-size: 13px; color: var(--med-pomocniczy); }
+#widok-medytacja .med-trwa-pole { position: relative; height: min(520px, 58vh); min-height: 360px; margin: 16px -16px 0; }
+#widok-medytacja .med-oddech { position: absolute; left: 0; right: 0; top: 50%; height: 300px; margin-top: -150px; animation: med-oddech 16s ease-in-out infinite; animation-play-state: paused; }
+#widok-medytacja .med-oddech.med-ruch { animation-play-state: running; }
+@keyframes med-oddech { 0%, 100% { transform: scaleY(0.82); } 50% { transform: scaleY(1.08); } }
+#widok-medytacja .med-nic-trwa { height: 100%; }
+#widok-medytacja .med-zegar {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 18px 30px 14px;
+  border-radius: 40px;
+  background: rgba(10, 12, 18, 0.35);
+  text-align: center;
+}
+#widok-medytacja .med-zegar-liczba { display: block; font-family: var(--med-serif); font-size: 84px; line-height: 0.95; color: #fff; font-variant-numeric: tabular-nums; }
+#widok-medytacja .med-postep { display: flex; align-items: center; gap: 10px; margin-top: 4px; font-size: 12px; color: oklch(0.55 0.008 240); }
+#widok-medytacja .med-postep-pasek { position: relative; flex: 1; height: 2px; overflow: hidden; border-radius: 1px; background: oklch(1 0 0 / 0.1); }
+#widok-medytacja .med-postep-pasek > span {
+  position: absolute;
+  inset: 0;
+  background: var(--med-len);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.5s linear;
+}
+
+/* ----- Widok 3: koniec ----- */
+#widok-medytacja .med-koniec-pole { position: relative; height: 260px; margin: 6px -16px 0; }
+#widok-medytacja .med-koniec-napis { position: absolute; left: 0; right: 0; top: 14px; text-align: center; font-size: 15px; color: oklch(0.7 0.008 240); }
+#widok-medytacja .med-nic-koniec { position: absolute; left: 0; right: 0; top: 90px; height: 80px; }
+#widok-medytacja .med-nic-koniec .med-nic-glowna { stroke-width: 2px; opacity: 1; }
+#widok-medytacja .med-nic-koniec .med-nic-poswiata { opacity: 0.22; }
+#widok-medytacja .med-koniec-czas { top: auto; bottom: 4px; }
+#widok-medytacja .med-koniec-czas > span:first-child { font-size: 96px; }
+#widok-medytacja .med-koniec-czas .med-czas-min { font-size: 34px; }
+#widok-medytacja .med-roznica {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  background: rgba(214, 208, 192, 0.18);
+  color: var(--med-len);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+#widok-medytacja .med-porownanie {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 8px 0;
+  padding-top: 10px;
+  border-top: 1px solid oklch(1 0 0 / 0.08);
+  font-size: 12px;
+  color: oklch(0.55 0.008 240);
+}
+#widok-medytacja .med-porownanie svg { width: 70px; height: 26px; flex: none; }
+#widok-medytacja .med-porownanie path { fill: none; stroke: oklch(0.6 0.008 240); stroke-width: 1.4px; }
+#widok-medytacja .med-porownanie-po path { stroke: #E9E2CF; stroke-width: 1.6px; filter: drop-shadow(0 0 3px rgba(233, 226, 207, 0.8)); }
+#widok-medytacja .med-strzalka { font-size: 16px; color: var(--med-len); }
+#widok-medytacja .med-notatka {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 84px;
+  margin-top: 12px;
+  padding: 16px 20px;
+  border-radius: 30px;
+  resize: none;
+  color: #fff;
+  font-family: inherit;
+  font-size: 16px;
+}
+#widok-medytacja .med-notatka::placeholder { color: oklch(0.48 0.008 240); }
+#widok-medytacja .med-notatka:focus { outline: none; box-shadow: inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.55), 0 0 0 2px rgba(214, 208, 192, 0.45); }
+
+@media (prefers-reduced-motion: reduce) {
+  #widok-medytacja .med-nic-sciezka,
+  #widok-medytacja .med-oddech { animation: none; }
+  #widok-medytacja :is(.med-koralik-kulka, .med-nitka, .med-btn-glowny, .med-nic-wygladzanie, .med-postep-pasek > span) { transition: none; }
+}

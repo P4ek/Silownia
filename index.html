@@ -30,6 +30,7 @@
 <link rel="stylesheet" href="css/dzis.css">
 <link rel="stylesheet" href="css/finanse.css">
 <link rel="stylesheet" href="css/rejestr-superseria.css">
+<link rel="stylesheet" href="css/medytacja.css">
 <style>
 /* Ekran startowy: widoczny, dopóki getSession() nie zwróci wyniku (start.js), potem znika w ~300 ms */
 .ekran-startowy {
@@ -288,12 +289,18 @@
           <span class="menu-kropki" aria-hidden="true"></span>
           <span class="menu-wartosc menu-wartosc-zlota" data-menu-wartosc="rady"></span>
         </button>
-        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-wnioski">
+        <button type="button" class="nav-btn menu-pozycja" id="nav-medytacja" data-widok="widok-medytacja" hidden>
+          <span class="menu-etykieta">Medytacja</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc"></span>
+        </button>
+        <!-- Wnioski i AI Analiza: ukryte w menu (ekrany i kod zostają) -->
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-wnioski" hidden>
           <span class="menu-etykieta">Wnioski</span>
           <span class="menu-kropki" aria-hidden="true"></span>
           <span class="menu-wartosc"></span>
         </button>
-        <button type="button" class="nav-btn menu-pozycja" id="nav-ai-analiza" data-widok="widok-ai-analiza">
+        <button type="button" class="nav-btn menu-pozycja" id="nav-ai-analiza" data-widok="widok-ai-analiza" hidden>
           <span class="menu-etykieta">AI Analiza</span>
           <span class="menu-kropki" aria-hidden="true"></span>
           <span class="menu-wartosc"></span>
@@ -1159,6 +1166,86 @@
       <span class="fin-ogolem-opis">Suma zaoszczędzona we wszystkich tygodniach, razem z bieżącym.</span>
     </div>
   </section>
+
+  <!-- ===== Widok: Medytacja (tylko konta z MEDYTACJA_DOSTEP_IDS); start, odliczanie, koniec - logika w js/medytacja.js ===== -->
+  <section id="widok-medytacja" class="widok">
+    <div class="med-tlo" aria-hidden="true"></div>
+
+    <!-- Nagłówek: miejsce na kroplę menu po lewej, data po prawej -->
+    <div class="med-gora">
+      <span class="med-data"><span id="med-dzien-tyg"></span><span id="med-data-tekst" class="med-data-dzien"></span></span>
+    </div>
+
+    <!-- Sesja skończona, a jeszcze niezapisana (powrót do apki po czasie albo nieudany zapis) -->
+    <div id="med-karta-zapis" class="med-szklo med-karta-zapis" hidden>
+      <p id="med-karta-zapis-tekst" class="med-karta-zapis-tekst"></p>
+      <p id="med-karta-zapis-blad" class="med-blad" hidden></p>
+      <button type="button" id="med-karta-zapis-btn" class="med-szklo med-szklo-tint med-btn-glowny">Zapisz</button>
+    </div>
+
+    <!-- 1. Start -->
+    <div id="med-start" class="med-etap">
+      <h2 class="med-tytul">Medytacja</h2>
+      <span class="med-podtytul">Nawlecz czas na nić</span>
+      <div class="med-wybor-czasu">
+        <div class="med-czas-duzy"><span id="med-czas-liczba">7</span><span class="med-czas-min"> min</span></div>
+        <div id="med-nic-start" class="med-nic med-nic-start"></div>
+        <div id="med-koraliki" class="med-koraliki" role="radiogroup" aria-label="Czas medytacji"></div>
+      </div>
+      <section class="med-szklo med-ocena">
+        <div class="med-ocena-gora">
+          <span class="med-ocena-tytul">Która nić to Ty teraz?</span>
+          <button type="button" id="med-przed-pomin" class="med-btn-tekst">Pomiń</button>
+        </div>
+        <div id="med-przed" class="med-nitki" role="radiogroup" aria-label="Ocena przed medytacją"></div>
+        <div class="med-nitki-podpis"><span>splątany</span><span>gładki</span></div>
+      </section>
+      <button type="button" id="med-zacznij" class="med-szklo med-szklo-tint med-btn-glowny med-btn-zacznij">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        <span id="med-zacznij-tekst">Zacznij 7 min</span>
+      </button>
+      <p class="med-podpowiedz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Możesz zablokować ekran, gong zabrzmi na końcu</p>
+      <button type="button" id="med-bez-timera" class="med-link">Zaliczyłem bez timera</button>
+    </div>
+
+    <!-- 2. Odliczanie -->
+    <div id="med-trwa" class="med-etap" hidden>
+      <div class="med-trwa-gora"><span id="med-trwa-opis">Medytacja · 7 min</span><span>nić wygładza się</span></div>
+      <div class="med-trwa-pole">
+        <div class="med-oddech"><div id="med-nic-trwa" class="med-nic med-nic-trwa"></div></div>
+        <div class="med-szklo med-zegar"><span id="med-zegar" class="med-zegar-liczba" role="timer" aria-live="off">7:00</span></div>
+      </div>
+      <div class="med-postep"><span>splątana</span><span class="med-postep-pasek"><span id="med-postep-wypelnienie"></span></span><span>gładka</span></div>
+      <button type="button" id="med-zakoncz" class="med-szklo med-btn-glowny med-btn-zakoncz">Zakończ wcześniej</button>
+      <p class="med-podpowiedz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Możesz zablokować ekran, gong zabrzmi na końcu</p>
+    </div>
+
+    <!-- 3. Koniec: ocena "po" i notatka (aktualizują zapisany już wiersz) -->
+    <div id="med-koniec" class="med-etap" hidden>
+      <div class="med-koniec-pole">
+        <span class="med-koniec-napis">Nić się wygładziła</span>
+        <div id="med-nic-koniec" class="med-nic med-nic-koniec"></div>
+        <div class="med-czas-duzy med-koniec-czas"><span id="med-koniec-minuty">7</span><span class="med-czas-min"> min</span></div>
+      </div>
+      <section class="med-szklo med-ocena">
+        <div class="med-ocena-gora">
+          <span class="med-ocena-tytul">A teraz?</span>
+          <span id="med-roznica" class="med-roznica" hidden></span>
+        </div>
+        <div id="med-po" class="med-nitki" role="radiogroup" aria-label="Ocena po medytacji"></div>
+        <div class="med-nitki-podpis"><span>splątany</span><span>gładki</span></div>
+        <div id="med-porownanie" class="med-porownanie" hidden>
+          <span>przed</span><svg id="med-porownanie-przed" viewBox="0 0 70 26" aria-hidden="true"></svg>
+          <span class="med-strzalka">→</span>
+          <span>po</span><svg id="med-porownanie-po" class="med-porownanie-po" viewBox="0 0 70 26" aria-hidden="true"></svg>
+        </div>
+      </section>
+      <label for="med-notatka" class="plan-ukryta-etykieta">Co zauważyłem?</label>
+      <textarea id="med-notatka" class="med-szklo med-notatka" rows="3" placeholder="Co zauważyłem? (opcjonalnie)"></textarea>
+      <p id="med-koniec-blad" class="med-blad" hidden></p>
+      <button type="button" id="med-zapisz" class="med-szklo med-szklo-tint med-btn-glowny">Zapisz</button>
+    </div>
+  </section>
 </div>
 
 </div>
@@ -1183,6 +1270,7 @@
 <script src="js/powiadomienia.js" defer></script>
 <script src="js/dzis.js" defer></script>
 <script src="js/finanse.js" defer></script>
+<script src="js/medytacja.js" defer></script>
 <script src="js/nawigacja.js" defer></script>
 <script src="js/start.js" defer></script>
 </body>
