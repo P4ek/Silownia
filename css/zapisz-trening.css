@@ -158,7 +158,6 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-top: 16px;
   padding: 10px 16px 10px 12px;
   border-radius: 14px;
   background: oklch(0.12 0.015 75);
@@ -330,7 +329,7 @@
 .zapis-dzis-serie { font-size: 13px; color: oklch(0.6 0.008 240); overflow-wrap: anywhere; }
 
 /* ----- Superseria: przycisk, pytanie 2/3, wybór ćwiczeń A/B/C, rundy wpisywane na przemian ----- */
-.zapis-tryb { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+.zapis-pobicie-wiersz { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; }
 .zapis-btn-superseria {
   min-height: 44px;
   padding: 0 16px;

@@ -425,9 +425,6 @@
     </div>
 
     <!-- Superseria: pytanie o liczbę ćwiczeń, wybór ćwiczeń i rundy (logika w zapisz-trening.js) -->
-    <div class="zapis-tryb">
-      <button type="button" id="zapis-btn-superseria" class="zapis-btn-superseria">Super seria</button>
-    </div>
     <div id="superseria-pytanie" class="superseria-karta" hidden>
       <p class="superseria-pytanie-tekst">Ile ćwiczeń ma mieć superseria?</p>
       <div class="superseria-liczba" role="group" aria-label="Liczba ćwiczeń w superserii">
@@ -468,10 +465,13 @@
       <section class="zapis-aktualne">
         <span class="zapis-partia"><span id="zapis-partia-kropka" class="zapis-kropka"></span><span id="zapis-partia-nazwa"></span></span>
         <h3 id="zapis-tytul" class="zapis-tytul"></h3>
-        <div id="zapis-do-pobicia" class="zapis-do-pobicia" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
-          <span class="zapis-do-pobicia-etykieta">Do pobicia</span>
-          <span id="zapis-rekord" class="zapis-do-pobicia-wartosc"></span>
+        <div class="zapis-pobicie-wiersz">
+          <div id="zapis-do-pobicia" class="zapis-do-pobicia" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+            <span class="zapis-do-pobicia-etykieta">Do pobicia</span>
+            <span id="zapis-rekord" class="zapis-do-pobicia-wartosc"></span>
+          </div>
+          <button type="button" id="zapis-btn-superseria" class="zapis-btn-superseria">Super seria</button>
         </div>
       </section>
 
