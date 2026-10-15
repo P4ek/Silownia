@@ -179,6 +179,14 @@ function renderRejestrDzien(daty) {
   pigulka(wpisyDnia.length + " " + odmianaLiczby(wpisyDnia.length, "ćwiczenie", "ćwiczenia", "ćwiczeń"));
   pigulka(liczbaSerii + " " + odmianaLiczby(liczbaSerii, "seria", "serie", "serii"));
   if (liczbaRekordow > 0) pigulka(liczbaRekordow + " " + odmianaLiczby(liczbaRekordow, "rekord", "rekordy", "rekordów"), true);
+  const liczbaSuperserii = new Set(wpisyDnia.filter(function (w) { return w.superseria_id; }).map(function (w) { return w.superseria_id; })).size;
+  if (liczbaSuperserii > 0) {
+    const el = document.createElement("span");
+    el.className = "rejestr-pigulka rejestr-pigulka-superseria";
+    el.innerHTML = IKONA_WYMIANA;
+    el.appendChild(document.createTextNode(liczbaSuperserii + " " + odmianaLiczby(liczbaSuperserii, "superseria", "superserie", "superserii")));
+    rejestrPigulki.appendChild(el);
+  }
 
   // Rozkład serii: pasek dzielony proporcjonalnie do liczby serii w partiach + legenda
   rejestrRozkladPasek.innerHTML = "";
@@ -205,6 +213,7 @@ function renderRejestrDzien(daty) {
   });
 
   // Karty ćwiczeń dnia; wiersze z tym samym superseria_id w jednej ramce "Superseria" (numer liczy ramkę raz)
+  if (sswObserwator) sswObserwator.disconnect();
   rejestrKarty.innerHTML = "";
   const pokazaneSuperserie = new Set();
   let i = 0;
@@ -224,34 +233,157 @@ function renderRejestrDzien(daty) {
   });
 }
 
-// Ramka superserii: etykieta, kosz (usuwa całą superserię), karty ćwiczeń obok siebie bez osobnego usuwania
+// ----- Ramka superserii: złota obwódka, nazwy ćwiczeń z ikoną wymiany, rundy (słupki ćwiczeń obok siebie + mostek), objętość -----
+const IKONA_WYMIANA =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4M3 11V9a2 2 0 0 1 2-2h16M7 21l-4-4 4-4M21 13v2a2 2 0 0 1-2 2H3"/></svg>';
+// Obracana obwódka wymaga conic-gradient i @property (animowany kąt); bez tego zostaje statyczna złota
+const SSW_OBWODKA_ANIMOWANA = !!(window.CSS && CSS.supports && CSS.supports("background", "conic-gradient(from 1deg, red, blue)") &&
+  typeof CSS.registerProperty === "function");
+// Iskry (maks. 4): pozycja, opóźnienie, czas, rozmiar
+const SSW_ISKRY = [
+  { left: 12, delay: 0, czas: 3.2, r: 3 },
+  { left: 37, delay: 1.1, czas: 4, r: 2 },
+  { left: 63, delay: 2.2, czas: 3.6, r: 4 },
+  { left: 88, delay: 0.6, czas: 4.4, r: 2 }
+];
+// Animacje ramek tylko, gdy są na ekranie (klasa "widoczna"); poza ekranem animation-play-state: paused
+const sswObserwator = "IntersectionObserver" in window
+  ? new IntersectionObserver(function (wpisyObs) {
+      wpisyObs.forEach(function (e) { e.target.classList.toggle("widoczna", e.isIntersecting); });
+    })
+  : null;
+
+function sswEl(tag, klasa, tekst) {
+  const e = document.createElement(tag);
+  if (klasa) e.className = klasa;
+  if (tekst !== undefined) e.textContent = tekst;
+  return e;
+}
+
+// Rundy = podejścia ćwiczeń sparowane po indeksie; brakujące podejście jako "–"
 function budujRamkeSuperserii(czlonkowie, rekordy, i) {
-  const ramka = document.createElement("section");
-  ramka.className = "rejestr-superseria";
-  const gora = document.createElement("div");
-  gora.className = "rejestr-superseria-gora";
-  const numer = document.createElement("span");
-  numer.className = "rejestr-karta-numer";
-  numer.textContent = String(i + 1).padStart(2, "0");
-  const etykieta = document.createElement("span");
-  etykieta.className = "rejestr-superseria-etykieta";
-  etykieta.textContent = "Superseria";
-  const btnUsun = document.createElement("button");
+  const trzy = czlonkowie.length >= 3;
+  const liczbaRund = Math.max.apply(null, czlonkowie.map(function (w) { return (w.podejscia || []).length; }).concat([0]));
+  const rekordowe = czlonkowie.map(function (w) { return seriaRekordowaWpisu(w, rekordy); });
+  const liczbaRekordow = rekordowe.filter(Boolean).length;
+  let maks = 0;
+  let objetosc = 0;
+  czlonkowie.forEach(function (w) {
+    (w.podejscia || []).forEach(function (p) {
+      objetosc += wynikSerii(p);
+      maks = Math.max(maks, wynikSerii(p));
+    });
+  });
+
+  // Zewnętrzny pojemnik dostaje animację wjazdu (wjazdKarty), .ssw własne animacje
+  const pojemnik = sswEl("div", "rejestr-superseria");
+  const ramka = sswEl("div", "ssw" + (trzy ? " ssw-3" : "") + (SSW_OBWODKA_ANIMOWANA ? " ssw-animowana" : ""));
+  const wnetrze = sswEl("section", "ssw-wnetrze");
+  wnetrze.setAttribute("aria-label", "Superseria: " + czlonkowie.map(function (w) { return w.cwiczenie; }).join(", "));
+
+  const iskry = sswEl("div", "ssw-iskry");
+  iskry.setAttribute("aria-hidden", "true");
+  SSW_ISKRY.forEach(function (s) {
+    const iskra = sswEl("span", "spark");
+    iskra.style.left = s.left + "%";
+    iskra.style.width = iskra.style.height = s.r + "px";
+    iskra.style.animationDelay = s.delay + "s";
+    iskra.style.animationDuration = s.czas + "s";
+    iskry.appendChild(iskra);
+  });
+
+  // Nagłówek: numer, "SUPERSERIA", liczba rund, kosz
+  const gora = sswEl("div", "ssw-gora");
+  const numer = sswEl("span", "ssw-numer", String(i + 1).padStart(2, "0"));
+  const opis = sswEl("span", "ssw-opis");
+  opis.append(
+    sswEl("span", "ssw-etykieta", "Superseria"),
+    sswEl("span", "ssw-podpis", liczbaRund + " " + odmianaLiczby(liczbaRund, "runda", "rundy", "rund"))
+  );
+  const btnUsun = sswEl("button", "rejestr-btn-usun");
   btnUsun.type = "button";
-  btnUsun.className = "rejestr-btn-usun";
   btnUsun.setAttribute("aria-label", "Usuń całą superserię");
   btnUsun.innerHTML = IKONA_KOSZ_KATALOG;
   btnUsun.addEventListener("click", function () { usunSuperserie(czlonkowie[0].superseria_id, btnUsun); });
-  gora.append(numer, etykieta, btnUsun);
+  gora.append(numer, opis, btnUsun);
 
-  const cwiczenia = document.createElement("div");
-  cwiczenia.className = "rejestr-superseria-cwiczenia";
-  czlonkowie.forEach(function (w) { cwiczenia.appendChild(budujKarteRejestru(w, rekordy, null)); });
-  ramka.append(gora, cwiczenia);
-  return ramka;
+  // Nazwy ćwiczeń z kropką partii, między nimi rdzeń z ikoną wymiany
+  const nazwy = sswEl("div", "ssw-nazwy");
+  czlonkowie.forEach(function (w, k) {
+    if (k > 0) {
+      const rdzen = sswEl("span", "core");
+      rdzen.innerHTML = IKONA_WYMIANA;
+      nazwy.appendChild(rdzen);
+    }
+    const nazwa = sswEl("span", "ssw-nazwa");
+    nazwa.style.setProperty("--kolor-partii", kolorPartiiCSS(w.partia));
+    const partia = sswEl("span", "ssw-nazwa-partia");
+    partia.append(sswEl("span", "rejestr-kropka"), document.createTextNode(w.partia));
+    nazwa.append(partia, sswEl("span", "ssw-nazwa-tekst", w.cwiczenie));
+    nazwy.appendChild(nazwa);
+  });
+
+  // Rundy: słupki (wysokość ∝ wynikSerii, maksimum z całej superserii), mostek, wyniki, "runda N"
+  const rundy = sswEl("div", "ssw-rundy" + (liczbaRund > 4 ? " przewijane" : ""));
+  for (let r = 0; r < liczbaRund; r++) {
+    const runda = sswEl("div", "ssw-runda");
+    const slupki = sswEl("div", "ssw-slupki");
+    const wyniki = [];
+    const wysokosci = [];
+    czlonkowie.forEach(function (w, k) {
+      const p = (w.podejscia || [])[r];
+      const kolor = kolorPartiiCSS(w.partia);
+      const slupek = sswEl("span", "ssw-slupek");
+      slupek.style.setProperty("--kolor-partii", kolor);
+      const wynik = sswEl("span", "ssw-wynik");
+      wynik.style.setProperty("--kolor-partii", kolor);
+      if (!p) {
+        slupek.classList.add("brak");
+        wynik.textContent = "–";
+      } else {
+        const h = Math.round(16 + 76 * (maks > 0 ? wynikSerii(p) / maks : 0));
+        slupek.style.height = h + "px";
+        wysokosci.push(h);
+        wynik.textContent = formatKg(Number(p["cieżar"]) || 0) + "×" + (Number(p.powtorzenia) || 0);
+        if (p === rekordowe[k]) {
+          slupek.classList.add("rekord");
+          wynik.classList.add("rekord");
+          wynik.insertAdjacentHTML("beforeend", IKONA_GWIAZDKA_REKORD);
+          wynik.setAttribute("aria-label", wynik.textContent + ", rekord");
+        }
+      }
+      slupki.appendChild(slupek);
+      wyniki.push(wynik);
+    });
+    if (wysokosci.length >= 2) {
+      const most = sswEl("i", "bridge");
+      most.style.bottom = Math.round(Math.min.apply(null, wysokosci) * 0.75) + "px";
+      most.style.setProperty("--kolor-a", kolorPartiiCSS(czlonkowie[0].partia));
+      most.style.setProperty("--kolor-b", kolorPartiiCSS(czlonkowie[czlonkowie.length - 1].partia));
+      slupki.appendChild(most);
+    }
+    runda.appendChild(slupki);
+    wyniki.forEach(function (w) { runda.appendChild(w); });
+    runda.appendChild(sswEl("span", "ssw-runda-nr", "runda " + (r + 1)));
+    rundy.appendChild(runda);
+  }
+
+  // Stopka: objętość superserii i rekordy
+  const stopka = sswEl("div", "ssw-stopka");
+  stopka.append(
+    sswEl("span", "ssw-stopka-opis", "Objętość superserii · " + liczbaRekordow + " " + odmianaLiczby(liczbaRekordow, "rekord", "rekordy", "rekordów")),
+    sswEl("span", "ssw-objetosc", Math.round(objetosc).toLocaleString("pl-PL") + " kg")
+  );
+
+  wnetrze.append(iskry, gora, nazwy, rundy, stopka);
+  ramka.appendChild(wnetrze);
+  pojemnik.appendChild(ramka);
+  if (sswObserwator) sswObserwator.observe(ramka);
+  else ramka.classList.add("widoczna");
+  return pojemnik;
 }
 
-// Karta ćwiczenia ze słupkami serii; i = null - karta w ramce superserii (bez numeru i kosza)
+// Karta zwykłego ćwiczenia ze słupkami serii
 function budujKarteRejestru(w, rekordy, i) {
   const seriaRekordowa = seriaRekordowaWpisu(w, rekordy);
   const kolor = kolorPartiiCSS(w.partia);
@@ -264,8 +396,7 @@ function budujKarteRejestru(w, rekordy, i) {
   gora.className = "rejestr-karta-gora";
   const numer = document.createElement("span");
   numer.className = "rejestr-karta-numer";
-  numer.textContent = i === null ? "" : String(i + 1).padStart(2, "0");
-  numer.hidden = i === null;
+  numer.textContent = String(i + 1).padStart(2, "0");
   const opis = document.createElement("div");
   opis.className = "rejestr-karta-opis";
   const partia = document.createElement("span");
@@ -288,15 +419,13 @@ function budujKarteRejestru(w, rekordy, i) {
     gwiazda.innerHTML = IKONA_GWIAZDKA_REKORD;
     akcje.appendChild(gwiazda);
   }
-  if (i !== null) {
-    const btnUsun = document.createElement("button");
-    btnUsun.type = "button";
-    btnUsun.className = "rejestr-btn-usun";
-    btnUsun.setAttribute("aria-label", "Usuń wpis „" + w.cwiczenie + "”");
-    btnUsun.innerHTML = IKONA_KOSZ_KATALOG;
-    btnUsun.addEventListener("click", function () { usunWpis(w, btnUsun); });
-    akcje.appendChild(btnUsun);
-  }
+  const btnUsun = document.createElement("button");
+  btnUsun.type = "button";
+  btnUsun.className = "rejestr-btn-usun";
+  btnUsun.setAttribute("aria-label", "Usuń wpis „" + w.cwiczenie + "”");
+  btnUsun.innerHTML = IKONA_KOSZ_KATALOG;
+  btnUsun.addEventListener("click", function () { usunWpis(w, btnUsun); });
+  akcje.appendChild(btnUsun);
   gora.append(numer, opis, akcje);
 
   // Słupki serii: wysokość ∝ ciężar × powtórzenia, seria-rekord na złoto
