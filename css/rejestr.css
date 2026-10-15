@@ -227,3 +227,34 @@
   background: rgba(var(--habits-akcent-rgb), 0.14);
   color: var(--habits-akcent);
 }
+
+/* ----- Rejestr: ramka superserii (ćwiczenia obok siebie, na wąskim ekranie przewijane w bok) ----- */
+.rejestr-superseria {
+  padding: 14px 12px 12px;
+  border-radius: 26px;
+  border: 1px solid oklch(0.72 0.08 75 / 0.45);
+  background: oklch(0.1 0.01 75 / 0.5);
+}
+.rejestr-superseria-gora { display: flex; align-items: center; gap: 12px; padding: 0 6px; }
+.rejestr-superseria-etykieta {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--habits-zloto);
+}
+.rejestr-superseria-cwiczenia {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(150px, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.rejestr-superseria-cwiczenia::-webkit-scrollbar { display: none; }
+.rejestr-superseria .rejestr-karta { padding: 14px; border-radius: 20px; scroll-snap-align: start; }
+#widok-rejestr .rejestr-superseria .rejestr-karta-nazwa { font-size: 20px; }
+.rejestr-superseria .rejestr-serie { gap: 6px; }

@@ -1,4 +1,4 @@
-// Ekran "Zapisz trening" (#widok-dodaj): wybór ćwiczenia, liczniki, serie z wersją roboczą, plan w trakcie, baner rekordu, "Dziś zapisane", zapis i usuwanie wpisów z tabeli treningi.
+// Ekran "Zapisz trening" (#widok-dodaj): wybór ćwiczenia, liczniki, serie z wersją roboczą, plan w trakcie, superseria, baner rekordu, "Dziś zapisane", zapis i usuwanie wpisów z tabeli treningi.
 
 const ZASADY = [
   "Bądź mężczyzną i dopchaj to do końca.",
@@ -79,7 +79,7 @@ function budujWpisDzis(row) {
   const btnUsun = document.createElement("button");
   btnUsun.type = "button";
   btnUsun.className = "rejestr-btn-usun";
-  btnUsun.setAttribute("aria-label", "Usuń zapis „" + row.cwiczenie + "”");
+  btnUsun.setAttribute("aria-label", (row.superseria_id ? "Usuń superserię z „" : "Usuń zapis „") + row.cwiczenie + "”");
   btnUsun.innerHTML = IKONA_KOSZ_KATALOG;
   btnUsun.addEventListener("click", function () { usunWpis(row, btnUsun); });
   li.append(opis, btnUsun);
@@ -175,6 +175,7 @@ function ustawFormularzNaCwiczeniePlanu() {
 // Uruchomienie trybu "trening z planu" po kliknięciu "Rozpocznij" na karcie planu
 function rozpocznijTreningZPlanu(plan) {
   planWTrakcie = { nazwa: plan.nazwa, cwiczenia: plan.cwiczenia, indeks: 0 };
+  zamknijSuperserie();
   document.querySelector('.nav-btn[data-widok="widok-dodaj"]').click();
   ustawFormularzNaCwiczeniePlanu();
   planTrakcieBaner.hidden = false;
@@ -621,6 +622,8 @@ btnZapisZapisz.addEventListener("click", function () { zapiszBiezaceCwiczenie(fa
 
 // Usunięcie zapisanego treningu (wiersza z tabeli "treningi"), np. błędnie wpisanej serii
 async function usunWpis(row, btn) {
+  // Wpis superserii nie jest edytowany osobno - usuwa się cała superseria
+  if (row.superseria_id) return usunSuperserie(row.superseria_id, btn);
   const potwierdzenie = window.confirm(
     'Usunąć zapis „' + row.partia + " — " + row.cwiczenie + '" z dnia ' + row.data + "?"
   );
@@ -643,6 +646,362 @@ async function usunWpis(row, btn) {
   const idx = wpisy.indexOf(row);
   if (idx !== -1) wpisy.splice(idx, 1);
 
+  renderOstatnio();
+  renderRekord();
+  renderRejestr();
+  renderWykresPostepu();
+  odswiezZapisPoZmianieWpisow();
+}
+
+// ===== Superseria: 2-3 różne ćwiczenia, rundy wpisywane na przemian, zapis jednym insertem (wspólne superseria_id) =====
+const zapisZwykly = document.getElementById("zapis-zwykly");
+const btnSuperseria = document.getElementById("zapis-btn-superseria");
+const superseriaPytanie = document.getElementById("superseria-pytanie");
+const superseriaPanel = document.getElementById("superseria-panel");
+const superseriaWybor = document.getElementById("superseria-wybor");
+const superseriaRundyBox = document.getElementById("superseria-rundy");
+const superseriaRundyLicznik = document.getElementById("superseria-rundy-licznik");
+const btnSuperseriaDodajRunde = document.getElementById("superseria-dodaj-runde");
+const btnSuperseriaZapisz = document.getElementById("superseria-zapisz");
+const SUPERSERIA_LITERY = ["A", "B", "C"];
+let superseriaLiczba = 2;
+let superseria = null;       // w formularzu: { cwiczenia: [{ partia, cwiczenie }], rundy: [[{ kg, powt }]] } (wartości jako tekst z pól)
+let superseriaZapisTrwa = false;
+
+// etap: null = zwykły zapis, "pytanie" = ile ćwiczeń, "formularz" = wybór ćwiczeń i rundy
+function pokazEtapSuperserii(etap) {
+  btnSuperseria.hidden = etap !== null;
+  zapisZwykly.hidden = etap !== null;
+  superseriaPytanie.hidden = etap !== "pytanie";
+  superseriaPanel.hidden = etap !== "formularz";
+}
+function zamknijSuperserie() {
+  superseria = null;
+  pokazEtapSuperserii(null);
+}
+
+function renderSuperseriaLiczba() {
+  superseriaPytanie.querySelectorAll(".superseria-liczba-btn").forEach(function (b) {
+    b.setAttribute("aria-pressed", Number(b.dataset.liczba) === superseriaLiczba ? "true" : "false");
+  });
+}
+btnSuperseria.addEventListener("click", function () {
+  superseriaLiczba = 2;
+  renderSuperseriaLiczba();
+  pokazEtapSuperserii("pytanie");
+});
+superseriaPytanie.querySelectorAll(".superseria-liczba-btn").forEach(function (b) {
+  b.addEventListener("click", function () {
+    superseriaLiczba = Number(b.dataset.liczba);
+    renderSuperseriaLiczba();
+  });
+});
+
+function pustaRunda() {
+  return superseria.cwiczenia.map(function () { return { kg: "", powt: "" }; });
+}
+document.getElementById("superseria-dalej").addEventListener("click", function () {
+  // Na start partia z normalnego zapisu i kolejne (różne) ćwiczenia tej partii
+  const cwiczenia = cwiczeniaDlaPartii(zapisPartia);
+  superseria = { cwiczenia: [], rundy: [] };
+  for (let i = 0; i < superseriaLiczba; i++) {
+    superseria.cwiczenia.push({ partia: zapisPartia, cwiczenie: cwiczenia[i] || null });
+  }
+  superseria.rundy.push(pustaRunda());
+  pokazEtapSuperserii("formularz");
+  renderSuperseria();
+});
+
+function superseriaMaDane() {
+  return !!superseria && superseria.rundy.some(function (r) {
+    return r.some(function (p) { return p.kg.trim() !== "" || p.powt.trim() !== ""; });
+  });
+}
+document.querySelectorAll(".superseria-anuluj").forEach(function (b) {
+  b.addEventListener("click", function () {
+    if (superseriaMaDane() && !window.confirm("Porzucić superserię? Wpisane rundy nie zostaną zapisane.")) return;
+    zamknijSuperserie();
+  });
+});
+
+// Wartości z pól: null = puste albo błędne
+function superseriaKg(tekst) {
+  const t = String(tekst).trim().replace(",", ".");
+  if (!t) return null;
+  const n = parseFloat(t);
+  return isNaN(n) || n < 0 ? null : Math.round(n * 100) / 100;
+}
+function superseriaPowt(tekst) {
+  const n = parseInt(String(tekst).trim(), 10);
+  return isNaN(n) || n < 1 ? null : n;
+}
+// Runda liczy się tylko, gdy ma ciężar i powtórzenia dla każdego ćwiczenia
+function czyPelnaRunda(runda) {
+  return runda.every(function (p) { return superseriaKg(p.kg) !== null && superseriaPowt(p.powt) !== null; });
+}
+
+function renderSuperseria() {
+  renderSuperseriaWybor();
+  renderSuperseriaRundy();
+}
+
+// Wybór ćwiczeń: dla każdego własna partia i ćwiczenie z katalogu
+function renderSuperseriaWybor() {
+  superseriaWybor.innerHTML = "";
+  superseria.cwiczenia.forEach(function (poz, i) {
+    const slot = document.createElement("div");
+    slot.className = "superseria-slot";
+    slot.style.setProperty("--kolor-partii", kolorPartiiCSS(poz.partia));
+
+    const litera = document.createElement("span");
+    litera.className = "superseria-litera";
+    litera.textContent = SUPERSERIA_LITERY[i];
+
+    const pola = document.createElement("div");
+    pola.className = "superseria-slot-pola";
+
+    const etykietaPartii = document.createElement("label");
+    etykietaPartii.className = "plan-ukryta-etykieta";
+    etykietaPartii.htmlFor = "superseria-partia-" + i;
+    etykietaPartii.textContent = "Partia ćwiczenia " + SUPERSERIA_LITERY[i];
+    const selPartia = document.createElement("select");
+    selPartia.id = "superseria-partia-" + i;
+    PARTIE.forEach(function (p) { selPartia.appendChild(new Option(p, p, false, p === poz.partia)); });
+    selPartia.addEventListener("change", function () {
+      poz.partia = selPartia.value;
+      const zajete = superseria.cwiczenia.map(function (c) { return c.cwiczenie; });
+      poz.cwiczenie = cwiczeniaDlaPartii(poz.partia).filter(function (n) { return zajete.indexOf(n) === -1; })[0] || null;
+      renderSuperseria();
+    });
+
+    const etykietaCw = document.createElement("label");
+    etykietaCw.className = "plan-ukryta-etykieta";
+    etykietaCw.htmlFor = "superseria-cwiczenie-" + i;
+    etykietaCw.textContent = "Ćwiczenie " + SUPERSERIA_LITERY[i];
+    const selCw = document.createElement("select");
+    selCw.id = "superseria-cwiczenie-" + i;
+    const lista = cwiczeniaDlaPartii(poz.partia);
+    if (lista.length === 0) {
+      selCw.appendChild(new Option("Brak ćwiczeń w partii", ""));
+      selCw.disabled = true;
+    } else {
+      if (!poz.cwiczenie) selCw.appendChild(new Option("Wybierz ćwiczenie", "", true, true));
+      lista.forEach(function (n) { selCw.appendChild(new Option(n, n, false, n === poz.cwiczenie)); });
+    }
+    selCw.addEventListener("change", function () {
+      poz.cwiczenie = selCw.value || null;
+      renderSuperseria();
+    });
+    pola.append(etykietaPartii, selPartia, etykietaCw, selCw);
+
+    const powtorka = poz.cwiczenie && superseria.cwiczenia.some(function (c, j) { return j < i && c.cwiczenie === poz.cwiczenie; });
+    if (powtorka) {
+      const uwaga = document.createElement("p");
+      uwaga.className = "superseria-uwaga";
+      uwaga.textContent = "To ćwiczenie jest już w superserii - wybierz inne.";
+      pola.appendChild(uwaga);
+    }
+    slot.append(litera, pola);
+    superseriaWybor.appendChild(slot);
+  });
+}
+
+function renderSuperseriaLicznik() {
+  const pelne = superseria.rundy.filter(czyPelnaRunda).length;
+  superseriaRundyLicznik.textContent = pelne + " " + odmianaLiczby(pelne, "pełna", "pełne", "pełnych") + " z " + superseria.rundy.length;
+}
+
+// Pole ciężaru/powtórzeń w rundzie; wartość trafia od razu do stanu superserii
+function poleSuperserii(runda, p, klucz, karta, etykieta) {
+  const pole = document.createElement("input");
+  pole.type = "text";
+  pole.className = "superseria-pole";
+  pole.inputMode = klucz === "kg" ? "decimal" : "numeric";
+  pole.autocomplete = "off";
+  pole.enterKeyHint = "next";
+  pole.placeholder = klucz === "kg" ? "kg" : "powt.";
+  pole.value = p[klucz];
+  pole.setAttribute("aria-label", etykieta);
+  pole.addEventListener("input", function () {
+    const czyste = pole.value.replace(klucz === "kg" ? /[^0-9.,]/g : /[^0-9]/g, "");
+    if (czyste !== pole.value) pole.value = czyste;
+    p[klucz] = pole.value;
+    karta.classList.toggle("pelna", czyPelnaRunda(runda));
+    renderSuperseriaLicznik();
+  });
+  return pole;
+}
+
+// Rundy: w każdej po kolei ciężar i powtórzenia dla A, B (i C) - Enter przechodzi do następnego pola
+function renderSuperseriaRundy() {
+  superseriaRundyBox.innerHTML = "";
+  superseria.rundy.forEach(function (runda, r) {
+    const karta = document.createElement("div");
+    karta.className = "superseria-runda" + (czyPelnaRunda(runda) ? " pelna" : "");
+
+    const gora = document.createElement("div");
+    gora.className = "superseria-runda-gora";
+    const tytul = document.createElement("span");
+    tytul.className = "superseria-runda-tytul";
+    tytul.textContent = "Runda " + (r + 1);
+    gora.appendChild(tytul);
+    if (superseria.rundy.length > 1) {
+      const btnX = document.createElement("button");
+      btnX.type = "button";
+      btnX.className = "zapis-btn-x";
+      btnX.setAttribute("aria-label", "Usuń rundę " + (r + 1));
+      btnX.innerHTML = IKONA_X;
+      btnX.addEventListener("click", function () {
+        const pusta = runda.every(function (p) { return p.kg.trim() === "" && p.powt.trim() === ""; });
+        if (!pusta && !window.confirm("Usunąć rundę " + (r + 1) + "?")) return;
+        superseria.rundy.splice(r, 1);
+        renderSuperseriaRundy();
+      });
+      gora.appendChild(btnX);
+    }
+    karta.appendChild(gora);
+
+    runda.forEach(function (p, i) {
+      const poz = superseria.cwiczenia[i];
+      const nazwaCw = poz.cwiczenie || "Ćwiczenie " + SUPERSERIA_LITERY[i];
+      const wiersz = document.createElement("div");
+      wiersz.className = "superseria-wiersz";
+      wiersz.style.setProperty("--kolor-partii", kolorPartiiCSS(poz.partia));
+      const nazwa = document.createElement("span");
+      nazwa.className = "superseria-wiersz-nazwa";
+      const litera = document.createElement("b");
+      litera.textContent = SUPERSERIA_LITERY[i];
+      nazwa.append(litera, document.createTextNode(nazwaCw));
+      const razy = document.createElement("span");
+      razy.className = "superseria-razy";
+      razy.textContent = "×";
+      const opisPola = "Runda " + (r + 1) + ", " + nazwaCw + ": ";
+      wiersz.append(
+        nazwa,
+        poleSuperserii(runda, p, "kg", karta, opisPola + "ciężar w kg"),
+        razy,
+        poleSuperserii(runda, p, "powt", karta, opisPola + "powtórzenia")
+      );
+      karta.appendChild(wiersz);
+    });
+    superseriaRundyBox.appendChild(karta);
+  });
+  renderSuperseriaLicznik();
+}
+superseriaRundyBox.addEventListener("keydown", function (e) {
+  if (e.key !== "Enter" || !e.target.classList.contains("superseria-pole")) return;
+  e.preventDefault();
+  const pola = Array.from(superseriaRundyBox.querySelectorAll(".superseria-pole"));
+  const nastepne = pola[pola.indexOf(e.target) + 1];
+  if (nastepne) nastepne.focus();
+  else e.target.blur();
+});
+
+// "Dodaj rundę": nowe podejście dla każdego ćwiczenia, kursor w pierwszym polu nowej rundy
+btnSuperseriaDodajRunde.addEventListener("click", function () {
+  if (!superseria) return;
+  superseria.rundy.push(pustaRunda());
+  renderSuperseriaRundy();
+  const karty = superseriaRundyBox.querySelectorAll(".superseria-runda");
+  const pierwsze = karty[karty.length - 1].querySelector(".superseria-pole");
+  if (pierwsze) pierwsze.focus();
+});
+
+// UUID superserii generowany w apce (randomUUID wymaga nowszej przeglądarki - zapas na getRandomValues)
+function nowyUUID() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6] & 0x0f) | 0x40;
+  b[8] = (b[8] & 0x3f) | 0x80;
+  const h = Array.from(b, function (x) { return x.toString(16).padStart(2, "0"); }).join("");
+  return h.slice(0, 8) + "-" + h.slice(8, 12) + "-" + h.slice(12, 16) + "-" + h.slice(16, 20) + "-" + h.slice(20);
+}
+
+// Zapis: jeden wiersz "treningi" na ćwiczenie, wszystkie jednym insertem (przy błędzie nie zostaje pół superserii);
+// na ekranie dopiero po powodzeniu
+btnSuperseriaZapisz.addEventListener("click", async function () {
+  if (!superseria || superseriaZapisTrwa) return;
+  if (document.activeElement && document.activeElement.classList.contains("superseria-pole")) document.activeElement.blur();
+
+  const brak = superseria.cwiczenia.findIndex(function (c) { return !c.cwiczenie; });
+  if (brak !== -1) {
+    pokazToast("Wybierz ćwiczenie " + SUPERSERIA_LITERY[brak] + ".", "blad");
+    return;
+  }
+  const nazwy = superseria.cwiczenia.map(function (c) { return c.cwiczenie; });
+  if (new Set(nazwy).size !== nazwy.length) {
+    pokazToast("Ćwiczenia w superserii muszą być różne.", "blad");
+    return;
+  }
+  const pelne = superseria.rundy.filter(czyPelnaRunda);
+  if (pelne.length === 0) {
+    pokazToast("Wypełnij co najmniej jedną pełną rundę - ciężar i powtórzenia dla każdego ćwiczenia.", "blad");
+    return;
+  }
+
+  const superseriaId = nowyUUID();
+  const data = dzisiaj();
+  const wiersze = superseria.cwiczenia.map(function (c, i) {
+    return {
+      partia: c.partia,
+      cwiczenie: c.cwiczenie,
+      data: data,
+      podejscia: pelne.map(function (runda) { return { "cieżar": superseriaKg(runda[i].kg), powtorzenia: superseriaPowt(runda[i].powt) }; }),
+      user_id: sesjaUzytkownika.user.id,
+      superseria_id: superseriaId,
+      superseria_poz: i + 1
+    };
+  });
+
+  superseriaZapisTrwa = true;
+  btnSuperseriaZapisz.disabled = true;
+  const { data: wstawione, error } = await db.from("treningi").insert(wiersze).select();
+  superseriaZapisTrwa = false;
+  btnSuperseriaZapisz.disabled = false;
+
+  if (error) {
+    console.error(error);
+    pokazToast("Nie udało się zapisać superserii: " + error.message, "blad");
+    return;
+  }
+
+  (wstawione && wstawione.length ? wstawione : wiersze).forEach(function (w) { wpisy.push(w); });
+  const pominiete = superseria.rundy.length - pelne.length;
+  pokazToast(
+    "Zapisano superserię: " + nazwy.join(" + ") + " (" + pelne.length + " " + odmianaLiczby(pelne.length, "runda", "rundy", "rund") + ")" +
+    (pominiete > 0 ? ", pominięte niepełne: " + pominiete : ""),
+    "sukces"
+  );
+  zamknijSuperserie();
+  renderOstatnio();
+  renderRekord();
+  renderRejestr();
+  renderWykresPostepu();
+  odswiezZapisPoZmianieWpisow();
+});
+
+// Usunięcie całej superserii (Rejestr, "Dziś zapisane"): wszystkie wiersze z tym superseria_id jednym zapytaniem
+async function usunSuperserie(superseriaId, btn) {
+  const czlonkowie = wpisy
+    .filter(function (w) { return w.superseria_id === superseriaId; })
+    .sort(function (a, b) { return (a.superseria_poz || 0) - (b.superseria_poz || 0); });
+  const opis = czlonkowie.map(function (w) { return w.cwiczenie; }).join(" + ");
+  const data = czlonkowie.length ? czlonkowie[0].data : "";
+  if (!window.confirm("Usunąć całą superserię „" + opis + "” z dnia " + data + "? Usunięte zostaną wszystkie jej ćwiczenia.")) return;
+
+  btn.disabled = true;
+  const { error } = await db.from("treningi").delete().eq("superseria_id", superseriaId);
+  if (error) {
+    console.error(error);
+    pokazToast("Nie udało się usunąć superserii: " + error.message, "blad");
+    btn.disabled = false;
+    return;
+  }
+
+  for (let i = wpisy.length - 1; i >= 0; i--) {
+    if (wpisy[i].superseria_id === superseriaId) wpisy.splice(i, 1);
+  }
+  pokazToast("Usunięto superserię: " + opis, "sukces");
   renderOstatnio();
   renderRekord();
   renderRejestr();

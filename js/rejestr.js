@@ -204,43 +204,91 @@ function renderRejestrDzien(daty) {
     rejestrRozkladLegenda.appendChild(poz);
   });
 
-  // Karty ćwiczeń dnia
+  // Karty ćwiczeń dnia; wiersze z tym samym superseria_id w jednej ramce "Superseria" (numer liczy ramkę raz)
   rejestrKarty.innerHTML = "";
-  wpisyDnia.forEach(function (w, i) {
-    const seriaRekordowa = seriaRekordowaWpisu(w, rekordy);
-    const kolor = kolorPartiiCSS(w.partia);
-
-    const karta = document.createElement("article");
-    karta.className = "rejestr-karta" + (seriaRekordowa ? " rekord" : "");
-    karta.style.setProperty("--kolor-partii", kolor);
-
-    const gora = document.createElement("div");
-    gora.className = "rejestr-karta-gora";
-    const numer = document.createElement("span");
-    numer.className = "rejestr-karta-numer";
-    numer.textContent = String(i + 1).padStart(2, "0");
-    const opis = document.createElement("div");
-    opis.className = "rejestr-karta-opis";
-    const partia = document.createElement("span");
-    partia.className = "rejestr-karta-partia";
-    const kropka = document.createElement("span");
-    kropka.className = "rejestr-kropka";
-    partia.append(kropka, document.createTextNode(w.partia));
-    const nazwa = document.createElement("h3");
-    nazwa.className = "rejestr-karta-nazwa";
-    nazwa.textContent = w.cwiczenie;
-    opis.append(partia, nazwa);
-
-    const akcje = document.createElement("div");
-    akcje.className = "rejestr-karta-akcje";
-    if (seriaRekordowa) {
-      const gwiazda = document.createElement("span");
-      gwiazda.className = "rejestr-gwiazda";
-      gwiazda.setAttribute("role", "img");
-      gwiazda.setAttribute("aria-label", "Nowy rekord");
-      gwiazda.innerHTML = IKONA_GWIAZDKA_REKORD;
-      akcje.appendChild(gwiazda);
+  const pokazaneSuperserie = new Set();
+  let i = 0;
+  wpisyDnia.forEach(function (w) {
+    if (!w.superseria_id) {
+      rejestrKarty.appendChild(wjazdKarty(budujKarteRejestru(w, rekordy, i), i));
+      i++;
+      return;
     }
+    if (pokazaneSuperserie.has(w.superseria_id)) return;
+    pokazaneSuperserie.add(w.superseria_id);
+    const czlonkowie = wpisyDnia
+      .filter(function (x) { return x.superseria_id === w.superseria_id; })
+      .sort(function (a, b) { return (a.superseria_poz || 0) - (b.superseria_poz || 0); });
+    rejestrKarty.appendChild(wjazdKarty(budujRamkeSuperserii(czlonkowie, rekordy, i), i));
+    i++;
+  });
+}
+
+// Ramka superserii: etykieta, kosz (usuwa całą superserię), karty ćwiczeń obok siebie bez osobnego usuwania
+function budujRamkeSuperserii(czlonkowie, rekordy, i) {
+  const ramka = document.createElement("section");
+  ramka.className = "rejestr-superseria";
+  const gora = document.createElement("div");
+  gora.className = "rejestr-superseria-gora";
+  const numer = document.createElement("span");
+  numer.className = "rejestr-karta-numer";
+  numer.textContent = String(i + 1).padStart(2, "0");
+  const etykieta = document.createElement("span");
+  etykieta.className = "rejestr-superseria-etykieta";
+  etykieta.textContent = "Superseria";
+  const btnUsun = document.createElement("button");
+  btnUsun.type = "button";
+  btnUsun.className = "rejestr-btn-usun";
+  btnUsun.setAttribute("aria-label", "Usuń całą superserię");
+  btnUsun.innerHTML = IKONA_KOSZ_KATALOG;
+  btnUsun.addEventListener("click", function () { usunSuperserie(czlonkowie[0].superseria_id, btnUsun); });
+  gora.append(numer, etykieta, btnUsun);
+
+  const cwiczenia = document.createElement("div");
+  cwiczenia.className = "rejestr-superseria-cwiczenia";
+  czlonkowie.forEach(function (w) { cwiczenia.appendChild(budujKarteRejestru(w, rekordy, null)); });
+  ramka.append(gora, cwiczenia);
+  return ramka;
+}
+
+// Karta ćwiczenia ze słupkami serii; i = null - karta w ramce superserii (bez numeru i kosza)
+function budujKarteRejestru(w, rekordy, i) {
+  const seriaRekordowa = seriaRekordowaWpisu(w, rekordy);
+  const kolor = kolorPartiiCSS(w.partia);
+
+  const karta = document.createElement("article");
+  karta.className = "rejestr-karta" + (seriaRekordowa ? " rekord" : "");
+  karta.style.setProperty("--kolor-partii", kolor);
+
+  const gora = document.createElement("div");
+  gora.className = "rejestr-karta-gora";
+  const numer = document.createElement("span");
+  numer.className = "rejestr-karta-numer";
+  numer.textContent = i === null ? "" : String(i + 1).padStart(2, "0");
+  numer.hidden = i === null;
+  const opis = document.createElement("div");
+  opis.className = "rejestr-karta-opis";
+  const partia = document.createElement("span");
+  partia.className = "rejestr-karta-partia";
+  const kropka = document.createElement("span");
+  kropka.className = "rejestr-kropka";
+  partia.append(kropka, document.createTextNode(w.partia));
+  const nazwa = document.createElement("h3");
+  nazwa.className = "rejestr-karta-nazwa";
+  nazwa.textContent = w.cwiczenie;
+  opis.append(partia, nazwa);
+
+  const akcje = document.createElement("div");
+  akcje.className = "rejestr-karta-akcje";
+  if (seriaRekordowa) {
+    const gwiazda = document.createElement("span");
+    gwiazda.className = "rejestr-gwiazda";
+    gwiazda.setAttribute("role", "img");
+    gwiazda.setAttribute("aria-label", "Nowy rekord");
+    gwiazda.innerHTML = IKONA_GWIAZDKA_REKORD;
+    akcje.appendChild(gwiazda);
+  }
+  if (i !== null) {
     const btnUsun = document.createElement("button");
     btnUsun.type = "button";
     btnUsun.className = "rejestr-btn-usun";
@@ -248,28 +296,28 @@ function renderRejestrDzien(daty) {
     btnUsun.innerHTML = IKONA_KOSZ_KATALOG;
     btnUsun.addEventListener("click", function () { usunWpis(w, btnUsun); });
     akcje.appendChild(btnUsun);
-    gora.append(numer, opis, akcje);
+  }
+  gora.append(numer, opis, akcje);
 
-    // Słupki serii: wysokość ∝ ciężar × powtórzenia, seria-rekord na złoto
-    const serie = document.createElement("div");
-    serie.className = "rejestr-serie";
-    const podejscia = w.podejscia || [];
-    const maks = Math.max.apply(null, podejscia.map(wynikSerii).concat([0]));
-    podejscia.forEach(function (p) {
-      const kolumna = document.createElement("div");
-      kolumna.className = "rejestr-seria" + (p === seriaRekordowa ? " rekord" : "");
-      const podpis = document.createElement("span");
-      podpis.className = "rejestr-seria-podpis";
-      podpis.textContent = formatKg(Number(p["cieżar"]) || 0) + "×​" + (Number(p.powtorzenia) || 0); // przy wąskich słupkach łamie się tylko po "×"
-      const slupek = document.createElement("div");
-      slupek.className = "rejestr-seria-slupek";
-      slupek.style.height = Math.round(16 + 60 * (maks > 0 ? wynikSerii(p) / maks : 0)) + "px";
-      kolumna.append(podpis, slupek);
-      serie.appendChild(kolumna);
-    });
-
-    karta.append(gora, serie);
-    rejestrKarty.appendChild(wjazdKarty(karta, i));
+  // Słupki serii: wysokość ∝ ciężar × powtórzenia, seria-rekord na złoto
+  const serie = document.createElement("div");
+  serie.className = "rejestr-serie";
+  const podejscia = w.podejscia || [];
+  const maks = Math.max.apply(null, podejscia.map(wynikSerii).concat([0]));
+  podejscia.forEach(function (p) {
+    const kolumna = document.createElement("div");
+    kolumna.className = "rejestr-seria" + (p === seriaRekordowa ? " rekord" : "");
+    const podpis = document.createElement("span");
+    podpis.className = "rejestr-seria-podpis";
+    podpis.textContent = formatKg(Number(p["cieżar"]) || 0) + "×​" + (Number(p.powtorzenia) || 0); // przy wąskich słupkach łamie się tylko po "×"
+    const slupek = document.createElement("div");
+    slupek.className = "rejestr-seria-slupek";
+    slupek.style.height = Math.round(16 + 60 * (maks > 0 ? wynikSerii(p) / maks : 0)) + "px";
+    kolumna.append(podpis, slupek);
+    serie.appendChild(kolumna);
   });
+
+  karta.append(gora, serie);
+  return karta;
 }
 rejestrSzukaj.addEventListener("input", renderRejestr);

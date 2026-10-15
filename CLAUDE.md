@@ -58,6 +58,7 @@ Nowy ekran: HTML w `index.html`, plik w `js/` (przed `nawigacja.js` i `start.js`
 - Apka ma zawsze ciemny motyw; kolory partii tylko ze zmiennych `--partia-*`.
 - Rekord liczy wyłącznie `obliczRekordy()` (seria z najwyższym ciężar × powtórzenia).
 - Wpisy treningów w tabeli `treningi` mają podejścia w formacie `[{ "cieżar": liczba, "powtorzenia": liczba }]` (z polskim „ż” w kluczu) – nie zmieniać.
+- Superseria (przycisk „Super seria” w Zapisz trening, kod na końcu `js/zapisz-trening.js`): 2–3 różne ćwiczenia, rundy wpisywane na przemian, zapisywane tylko pełne rundy. Każde ćwiczenie to zwykły wiersz `treningi` (Wykres/rekordy działają bez zmian) ze wspólnym `superseria_id` (UUID z apki) i `superseria_poz` 1–3, ta sama data, tablice `podejscia` równej długości; wszystkie wiersze jednym insertem. Rejestr pokazuje je w jednej ramce „Superseria”; usunięcie (Rejestr i „Dziś zapisane”, przez `usunSuperserie`) kasuje wszystkie wiersze z tym `superseria_id` jednym zapytaniem. Pojedynczych wpisów superserii się nie edytuje ani nie usuwa.
 - Usuwanie zawsze z potwierdzeniem, komunikaty przez `pokazToast`.
 - `AI_UZYTKOWNIK_ID` (samo to konto): nielimitowana AI Analiza i cytat w nagłówku. Dane każdej sekcji zawsze filtrowane po `sesjaUzytkownika.user.id`, nigdy po stałych kont.
 - Po zmianach podbij `CACHE_NAME` w `sw.js`.

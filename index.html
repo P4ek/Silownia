@@ -424,6 +424,41 @@
       </div>
     </div>
 
+    <!-- Superseria: pytanie o liczbę ćwiczeń, wybór ćwiczeń i rundy (logika w zapisz-trening.js) -->
+    <div class="zapis-tryb">
+      <button type="button" id="zapis-btn-superseria" class="zapis-btn-superseria">Super seria</button>
+    </div>
+    <div id="superseria-pytanie" class="superseria-karta" hidden>
+      <p class="superseria-pytanie-tekst">Ile ćwiczeń ma mieć superseria?</p>
+      <div class="superseria-liczba" role="group" aria-label="Liczba ćwiczeń w superserii">
+        <button type="button" class="superseria-liczba-btn" data-liczba="2" aria-pressed="true">2 ćwiczenia</button>
+        <button type="button" class="superseria-liczba-btn" data-liczba="3" aria-pressed="false">3 ćwiczenia</button>
+      </div>
+      <div class="zapis-szkic-stary-akcje">
+        <button type="button" id="superseria-dalej" class="zapis-btn-maly zloty">Dalej</button>
+        <button type="button" class="zapis-btn-maly superseria-anuluj">Anuluj</button>
+      </div>
+    </div>
+    <div id="superseria-panel" class="superseria-panel" hidden>
+      <div class="superseria-gora">
+        <span class="superseria-etykieta">Superseria</span>
+        <button type="button" class="zapis-btn-maly superseria-anuluj">Anuluj</button>
+      </div>
+      <div id="superseria-wybor" class="superseria-wybor"></div>
+      <div class="zapis-serie-naglowek">
+        <h3 class="zapis-serie-tytul">Rundy</h3>
+        <span id="superseria-rundy-licznik" class="zapis-serie-licznik"></span>
+      </div>
+      <div id="superseria-rundy" class="superseria-rundy"></div>
+      <button type="button" id="superseria-dodaj-runde" class="zapis-btn-zapisz">+ Dodaj rundę</button>
+      <button type="button" id="superseria-zapisz" class="zapis-btn-zalicz">
+        <span>Zapisz superserię</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      </button>
+    </div>
+
+    <!-- Zwykły zapis (ukrywany w trybie superserii) -->
+    <div id="zapis-zwykly">
     <!-- Wybór ćwiczenia: chipy partii + karty ćwiczeń wybranej partii -->
     <div id="zapis-chipy" class="plan-chipy zapis-chipy" role="group" aria-label="Partia mięśniowa"></div>
     <div id="zapis-cwiczenia" class="zapis-cwiczenia"></div>
@@ -472,6 +507,7 @@
       </div>
       <div id="zapis-serie" class="zapis-serie"></div>
       <button type="button" id="zapis-zapisz" class="zapis-btn-zapisz">Zapisz ćwiczenie i wybierz kolejne</button>
+    </div>
     </div>
 
     <div class="zapis-serie-naglowek zapis-dzis-naglowek">
