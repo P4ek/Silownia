@@ -36,12 +36,20 @@ const medEl = {
   porownaniePo: document.getElementById("med-porownanie-po"),
   notatka: document.getElementById("med-notatka"),
   koniecBlad: document.getElementById("med-koniec-blad"),
-  zapisz: document.getElementById("med-zapisz")
+  zapisz: document.getElementById("med-zapisz"),
+  wlasny: document.getElementById("med-wlasny"),
+  wlasnyPole: document.getElementById("med-wlasny-pole"),
+  historia: document.getElementById("med-historia"),
+  historiaSuma: document.getElementById("med-historia-suma"),
+  historiaLista: document.getElementById("med-historia-lista"),
+  historiaWiecej: document.getElementById("med-historia-wiecej")
 };
 
 const MED_CEL_DOMYSLNY = 7;
 const MED_CZASY_STALE = [5, 10, 15, 20];
 const MED_SVG_NS = "http://www.w3.org/2000/svg";
+const MED_WLASNY_MAKS = 180;
+const MED_HISTORIA_PORCJA = 20;
 
 let medDostep = false;
 let medCel = MED_CEL_DOMYSLNY;
@@ -58,6 +66,8 @@ let medAudio = null;
 let medAudioUrl = null;
 let medWakeLock = null;
 let medSkala = null; // ostatnio ustawione wygładzenie nici odliczania
+let medHistoria = [];          // ukończone sesje z bazy, najnowsze pierwsze
+let medHistoriaIle = MED_HISTORIA_PORCJA;
 
 // ===== Pomocnicze =====
 function medMinutyTekst(m) {
@@ -65,6 +75,18 @@ function medMinutyTekst(m) {
 }
 function medKlucz() {
   return "silownia-medytacja-" + (sesjaUzytkownika ? sesjaUzytkownika.user.id : "anon");
+}
+// Ostatni własny czas (koralik obok stałych) - wygoda tego urządzenia
+function medKluczWlasny() {
+  return medKlucz() + "-wlasny";
+}
+function medWlasnyCzas() {
+  try {
+    const m = Number(localStorage.getItem(medKluczWlasny()));
+    return m > 0 && m <= MED_WLASNY_MAKS ? m : null;
+  } catch (e) {
+    return null;
+  }
 }
 function medZapiszStan() {
   try {
@@ -153,7 +175,8 @@ medRysujNic(medEl.nicKoniec, { wysokosc: 80, amplituda: 2.5 });
 
 // ===== Widok 1: start =====
 function medOpcjeCzasu() {
-  return Array.from(new Set([MED_CZASY_STALE[0], medCel].concat(MED_CZASY_STALE.slice(1))))
+  const wlasny = medWlasnyCzas();
+  return Array.from(new Set([MED_CZASY_STALE[0], medCel].concat(MED_CZASY_STALE.slice(1), wlasny ? [wlasny] : [])))
     .sort(function (a, b) { return a - b; });
 }
 
@@ -182,9 +205,47 @@ function renderMedKoraliki() {
     });
     medEl.koraliki.appendChild(b);
   });
+  // Koralik "+": pole na własny czas
+  const plus = document.createElement("button");
+  plus.type = "button";
+  plus.className = "med-koralik med-koralik-plus";
+  plus.setAttribute("aria-label", "Własny czas");
+  plus.setAttribute("aria-expanded", medEl.wlasny.hidden ? "false" : "true");
+  plus.setAttribute("aria-controls", "med-wlasny");
+  const kulkaPlus = document.createElement("span");
+  kulkaPlus.className = "med-koralik-kulka";
+  kulkaPlus.textContent = "+";
+  const etykietaPlus = document.createElement("span");
+  etykietaPlus.className = "med-koralik-etykieta";
+  etykietaPlus.textContent = "inny";
+  plus.append(kulkaPlus, etykietaPlus);
+  plus.addEventListener("click", function () {
+    medEl.wlasny.hidden = !medEl.wlasny.hidden;
+    plus.setAttribute("aria-expanded", medEl.wlasny.hidden ? "false" : "true");
+    if (!medEl.wlasny.hidden) {
+      medEl.wlasnyPole.value = "";
+      medEl.wlasnyPole.focus();
+    }
+  });
+  medEl.koraliki.appendChild(plus);
   medEl.czasLiczba.textContent = medMinutyTekst(medWybrane);
   medEl.zacznijTekst.textContent = "Zacznij " + medMinutyTekst(medWybrane) + " min";
 }
+
+medEl.wlasny.addEventListener("submit", function (e) {
+  e.preventDefault();
+  const m = Math.round(Number(String(medEl.wlasnyPole.value).replace(",", ".")));
+  if (!(m >= 1 && m <= MED_WLASNY_MAKS)) {
+    pokazToast("Podaj czas od 1 do " + MED_WLASNY_MAKS + " minut.", "blad");
+    return;
+  }
+  try { localStorage.setItem(medKluczWlasny(), String(m)); } catch (err) {}
+  medWybrane = m;
+  medWybranoRecznie = true;
+  medEl.wlasny.hidden = true;
+  medEl.wlasnyPole.blur();
+  renderMedKoraliki();
+});
 
 // Pięć nitek oceny jako radiogroup
 function renderMedNitki(kontener, wartosc, wybierz) {
@@ -438,6 +499,7 @@ async function medZapiszSesje() {
   pokazToast("Zapisano medytację: " + medMinutyTekst(medSesja.faktyczne) + " min", "sukces");
   medRender();
   medOdznaczNawyk(medSesja.data);
+  medWczytajHistorie();
 }
 medEl.kartaZapisBtn.addEventListener("click", medZapiszSesje);
 
@@ -509,6 +571,70 @@ medEl.zapisz.addEventListener("click", async function () {
   medEl.notatka.value = "";
   pokazToast("Zapisano", "sukces");
   medRender();
+  medWczytajHistorie();
+});
+
+// ===== Spis ukończonych medytacji (z bazy, najnowsze pierwsze) =====
+async function medWczytajHistorie() {
+  const { data, error } = await db
+    .from("medytacje")
+    .select("id, data, minuty, ocena_przed, ocena_po, notatka")
+    .eq("user_id", sesjaUzytkownika.user.id)
+    .order("data", { ascending: false })
+    .order("id", { ascending: false });
+  if (error) {
+    console.error(error);
+    pokazToast("Nie udało się pobrać medytacji: " + error.message, "blad");
+    return;
+  }
+  medHistoria = data || [];
+  renderMedHistoria();
+}
+
+function renderMedHistoria() {
+  const lista = medEl.historiaLista;
+  lista.innerHTML = "";
+  const ile = medHistoria.length;
+  if (!ile) {
+    medEl.historiaSuma.textContent = "";
+    lista.innerHTML = '<li class="med-historia-pusto">' + pustyStanHTML("🧘", "Jeszcze żadnej medytacji. Pierwsza nić czeka.") + "</li>";
+    medEl.historiaWiecej.hidden = true;
+    return;
+  }
+  const suma = medHistoria.reduce(function (s, w) { return s + (Number(w.minuty) || 0); }, 0);
+  medEl.historiaSuma.textContent = ile + " " + odmianaLiczby(ile, "sesja", "sesje", "sesji") + " · " + medMinutyTekst(suma) + " min";
+  medHistoria.slice(0, medHistoriaIle).forEach(function (w) {
+    const li = document.createElement("li");
+    li.className = "med-historia-wpis";
+    const gora = document.createElement("div");
+    gora.className = "med-historia-wiersz";
+    const data = document.createElement("span");
+    data.className = "med-historia-data";
+    data.textContent = formatDatyRejestru(w.data);
+    const min = document.createElement("span");
+    min.className = "med-historia-min";
+    min.textContent = medMinutyTekst(Number(w.minuty) || 0) + " min";
+    gora.append(data, min);
+    li.appendChild(gora);
+    if (w.ocena_przed || w.ocena_po) {
+      const ocena = document.createElement("span");
+      ocena.className = "med-historia-ocena";
+      ocena.textContent = "nić " + (w.ocena_przed || "–") + " → " + (w.ocena_po || "–");
+      li.appendChild(ocena);
+    }
+    if (w.notatka) {
+      const n = document.createElement("p");
+      n.className = "med-historia-notatka";
+      n.textContent = w.notatka;
+      li.appendChild(n);
+    }
+    lista.appendChild(li);
+  });
+  medEl.historiaWiecej.hidden = ile <= medHistoriaIle;
+}
+medEl.historiaWiecej.addEventListener("click", function () {
+  medHistoriaIle += MED_HISTORIA_PORCJA;
+  renderMedHistoria();
 });
 
 // ===== Który widok =====
@@ -521,6 +647,8 @@ function medRender() {
   medEl.trwa.hidden = !trwa;
   medEl.kartaZapis.hidden = !doZapisu;
   medEl.koniec.hidden = !zapisana;
+  medEl.historia.hidden = trwa;
+  if (medSesja) medEl.wlasny.hidden = true;
   if (!medSesja) {
     renderMedKoraliki();
     renderMedPrzed();
@@ -574,4 +702,5 @@ navMedytacja.addEventListener("click", function () {
   if (!medDostep) return;
   medRender();
   medWczytajCel();
+  medWczytajHistorie();
 });
