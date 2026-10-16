@@ -309,33 +309,58 @@ async function medWczytajCel() {
   renderMedKoraliki();
 }
 
-// ===== Dźwięk: WAV 8 kHz / 8 bit / mono - cisza na całą sesję i zsyntetyzowany gong na końcu =====
-const MED_GONG_S = 7;
+// ===== Dźwięk: WAV 11025 Hz / 16 bit / mono - cisza na całą sesję i gong (miska) od chwili końca sesji =====
+const MED_HZ = 11025;
+const MED_GONG_S = 16;
+let medGong = null; // próbki gongu (Float64Array, szczyt 0.55), liczone raz
+
+// Gong: dwie pary składowych z lekkim rozstrojeniem, miękki narost, pogłos z opóźnionych kopii,
+// wyciszenie końca do zera i normalizacja do 0.55 pełnej skali; bez szumu i bez ucinania
+function medPoliczGong() {
+  if (medGong) return medGong;
+  const n = MED_GONG_S * MED_HZ;
+  const suchy = new Float64Array(n);
+  const skladowe = [[262, 1, 7], [263, 0.8, 7], [710, 0.22, 3], [710.5, 0.176, 3]]; // [Hz, amplituda, tau s]
+  for (let i = 0; i < n; i++) {
+    const t = i / MED_HZ;
+    let x = 0;
+    for (let k = 0; k < skladowe.length; k++) {
+      x += skladowe[k][1] * Math.sin(2 * Math.PI * skladowe[k][0] * t) * Math.exp(-t / skladowe[k][2]);
+    }
+    suchy[i] = x * (0.5 - 0.5 * Math.cos(Math.PI * Math.min(1, t / 0.6)));
+  }
+  const poglos = [[0.11, 0.35], [0.23, 0.25], [0.41, 0.18], [0.67, 0.12]]; // [opóźnienie s, waga]
+  const y = Float64Array.from(suchy);
+  poglos.forEach(function (p) {
+    const d = Math.round(p[0] * MED_HZ);
+    for (let i = d; i < n; i++) y[i] += p[1] * suchy[i - d];
+  });
+  const wyciszenie = Math.round(1.2 * MED_HZ);
+  for (let i = 0; i < wyciszenie; i++) {
+    const v = 1 - i / (wyciszenie - 1); // od 1 do 0 na ostatniej próbce
+    y[n - wyciszenie + i] *= v * v;
+  }
+  let szczyt = 0;
+  for (let i = 0; i < n; i++) szczyt = Math.max(szczyt, Math.abs(y[i]));
+  for (let i = 0; i < n; i++) y[i] = (y[i] / szczyt) * 0.55;
+  medGong = y;
+  return y;
+}
+
 function medUtworzDzwiek(sekundy) {
-  const czestotliwosc = 8000;
-  const n = Math.round((sekundy + MED_GONG_S) * czestotliwosc);
-  const bufor = new ArrayBuffer(44 + n);
+  const gong = medPoliczGong();
+  const cisza = Math.round(sekundy * MED_HZ);
+  const n = cisza + gong.length;
+  const bajty = n * 2;
+  const bufor = new ArrayBuffer(44 + bajty); // zera = cisza
   const v = new DataView(bufor);
   const tekst = function (poz, t) { for (let i = 0; i < t.length; i++) v.setUint8(poz + i, t.charCodeAt(i)); };
-  tekst(0, "RIFF"); v.setUint32(4, 36 + n, true); tekst(8, "WAVE");
+  tekst(0, "RIFF"); v.setUint32(4, 36 + bajty, true); tekst(8, "WAVE");
   tekst(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
-  v.setUint32(24, czestotliwosc, true); v.setUint32(28, czestotliwosc, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true);
-  tekst(36, "data"); v.setUint32(40, n, true);
-
-  const probki = new Uint8Array(bufor, 44);
-  probki.fill(128); // cisza w 8-bitowym PCM
-  // Gong: kilka sinusów (lekko nieharmonicznych) z wykładniczym wygaszaniem
-  const tony = [[174, 1, 2.6], [349, 0.55, 1.8], [524, 0.32, 1.2], [702, 0.22, 0.85], [1046, 0.12, 0.5]];
-  const poczatek = Math.round(sekundy * czestotliwosc);
-  const dlugosc = n - poczatek;
-  for (let i = 0; i < dlugosc; i++) {
-    const t = i / czestotliwosc;
-    const narastanie = Math.min(1, t / 0.012);
-    const wybrzmienie = Math.min(1, (dlugosc - i) / (0.3 * czestotliwosc));
-    let s = 0;
-    for (let k = 0; k < tony.length; k++) s += tony[k][1] * Math.sin(2 * Math.PI * tony[k][0] * t) * Math.exp(-t / tony[k][2]);
-    probki[poczatek + i] = Math.max(0, Math.min(255, Math.round(128 + 52 * s * narastanie * wybrzmienie)));
-  }
+  v.setUint32(24, MED_HZ, true); v.setUint32(28, MED_HZ * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  tekst(36, "data"); v.setUint32(40, bajty, true);
+  const poczatek = 44 + cisza * 2;
+  for (let i = 0; i < gong.length; i++) v.setInt16(poczatek + i * 2, Math.trunc(gong[i] * 32767), true);
   return new Blob([bufor], { type: "audio/wav" });
 }
 
@@ -346,6 +371,8 @@ function medStartDzwieku(sekundy) {
     medAudioUrl = URL.createObjectURL(medUtworzDzwiek(sekundy));
     medAudio = new Audio(medAudioUrl);
     medAudio.setAttribute("playsinline", "");
+    medAudio.loop = false;
+    medAudio.playbackRate = 1;
     medAudio.addEventListener("ended", medStopDzwieku);
     const gra = medAudio.play();
     if (gra && gra.catch) gra.catch(function (e) { console.warn("Medytacja: dźwięk nie ruszył", e); });
