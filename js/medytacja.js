@@ -48,7 +48,7 @@ const medEl = {
 const MED_CEL_DOMYSLNY = 7;
 const MED_CZASY_STALE = [5, 10, 15, 20];
 const MED_SVG_NS = "http://www.w3.org/2000/svg";
-const MED_WLASNY_MAKS = 180;
+const MED_MAX_MINUT = 20; // najdłuższa sesja (plik audio rośnie z czasem: 20 min ≈ 26 MB)
 const MED_HISTORIA_PORCJA = 20;
 
 let medDostep = false;
@@ -83,7 +83,7 @@ function medKluczWlasny() {
 function medWlasnyCzas() {
   try {
     const m = Number(localStorage.getItem(medKluczWlasny()));
-    return m > 0 && m <= MED_WLASNY_MAKS ? m : null;
+    return m > 0 ? Math.min(m, MED_MAX_MINUT) : null;
   } catch (e) {
     return null;
   }
@@ -234,10 +234,14 @@ function renderMedKoraliki() {
 
 medEl.wlasny.addEventListener("submit", function (e) {
   e.preventDefault();
-  const m = Math.round(Number(String(medEl.wlasnyPole.value).replace(",", ".")));
-  if (!(m >= 1 && m <= MED_WLASNY_MAKS)) {
-    pokazToast("Podaj czas od 1 do " + MED_WLASNY_MAKS + " minut.", "blad");
+  let m = Math.round(Number(String(medEl.wlasnyPole.value).replace(",", ".")));
+  if (!(m >= 1)) {
+    pokazToast("Podaj czas od 1 do " + MED_MAX_MINUT + " minut.", "blad");
     return;
+  }
+  if (m > MED_MAX_MINUT) {
+    m = MED_MAX_MINUT;
+    pokazToast("Maksymalnie " + MED_MAX_MINUT + " min - ustawiono " + MED_MAX_MINUT + ".", "sukces");
   }
   try { localStorage.setItem(medKluczWlasny(), String(m)); } catch (err) {}
   medWybrane = m;
@@ -301,7 +305,7 @@ async function medWczytajCel() {
     pokazToast("Nie udało się pobrać celu medytacji: " + error.message, "blad");
     return;
   }
-  const cel = data && Number(data.cel_minuty) > 0 ? Number(data.cel_minuty) : MED_CEL_DOMYSLNY;
+  const cel = data && Number(data.cel_minuty) > 0 ? Math.min(Number(data.cel_minuty), MED_MAX_MINUT) : MED_CEL_DOMYSLNY;
   if (cel !== medCel) {
     medCel = cel;
     if (!medWybranoRecznie) medWybrane = cel;
