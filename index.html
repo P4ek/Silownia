@@ -34,6 +34,7 @@
 <link rel="stylesheet" href="css/spojnosc.css">
 <link rel="stylesheet" href="css/blask.css">
 <link rel="stylesheet" href="css/szklo.css">
+<link rel="stylesheet" href="css/kosmetyki.css">
 <script>
 // Tryb "liquid glass" (css/szklo.css) – klasa ustawiana przed narysowaniem strony; przełącznik w stopce menu (nawigacja.js)
 try { if (localStorage.getItem("styl-szklo") === "1") document.documentElement.classList.add("styl-szklo"); } catch (e) {}
@@ -204,6 +205,25 @@ try { if (localStorage.getItem("styl-szklo") === "1") document.documentElement.c
   <button type="button" id="btn-przypomnienia" class="nav-btn" aria-label="Przypomnienia" title="Przypomnienia">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
   </button>
+</div>
+
+<!-- Pigułka kosmetyków (js/kosmetyki.js): plan na bieżącą porę dnia, tylko konta z KOSMETYKI_DOSTEP_IDS; poza ekranami, więc widoczna na każdej sekcji -->
+<div id="kosmetyki" class="kosm" hidden>
+  <button type="button" id="kosm-przelacz" class="kosm-przelacz" aria-expanded="false" aria-controls="kosm-karta">
+    <svg class="kosm-ikona" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3 4 6 7.2 6 10.5A6 6 0 0 1 6 13.5C6 10.2 9 7 12 3Z"/><path d="M9.5 14.5a2.6 2.6 0 0 0 2.5 2.5"/></svg>
+    <span id="kosm-pora" class="kosm-pora">Rano</span>
+    <span id="kosm-ile" class="kosm-ile"></span>
+  </button>
+  <div id="kosm-karta" class="kosm-karta" aria-live="polite">
+    <section id="kosm-rano" class="kosm-sekcja">
+      <h3 class="kosm-sekcja-tytul">Rano</h3>
+      <ol id="kosm-rano-lista" class="kosm-lista"></ol>
+    </section>
+    <section id="kosm-wieczor" class="kosm-sekcja">
+      <h3 class="kosm-sekcja-tytul">Wieczór <span id="kosm-wieczor-dzien" class="kosm-sekcja-dzien"></span></h3>
+      <ol id="kosm-wieczor-lista" class="kosm-lista"></ol>
+    </section>
+  </div>
 </div>
 
 <div id="overlay" hidden></div>
@@ -1306,6 +1326,7 @@ try { if (localStorage.getItem("styl-szklo") === "1") document.documentElement.c
 <script src="js/dzis.js" defer></script>
 <script src="js/finanse.js" defer></script>
 <script src="js/medytacja.js" defer></script>
+<script src="js/kosmetyki.js" defer></script>
 <script src="js/nawigacja.js" defer></script>
 <script src="js/start.js" defer></script>
 </body>

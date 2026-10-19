@@ -1,0 +1,150 @@
+/* Pigułka kosmetyków (#kosmetyki, js/kosmetyki.js) – ładowana po motyw.css.
+   Położenie: wyśrodkowana pod notchem (env(safe-area-inset-top)) w rzędzie kropli menu, na wysokości jej środka.
+   Kropla (14–70 px od lewej) i pigułka (176 px na środku, węższa na wąskich ekranach) zostawiają między sobą co najmniej 16 px. Żeby pigułka nie wchodziła
+   na nagłówki ekranów (tytuł/cytat obok kropli, kapsuła tygodnia w Finansach, data w Medytacji), przy html.kosm-widoczna
+   kolumna .kontener schodzi o jeden rząd (62 px) niżej. Rozwinięta karta opada pod rząd kropli (translateY), więc kropli nie zasłania.
+   Warstwy: treść < #kosmetyki 65 < #overlay 70 < #sidebar 75; przy otwartym menu (html.menu-otwarte) pigułka znika.
+   Animacja: transform + opacity, a szerokość/wysokość jednorazowo przy rozwinięciu/zwinięciu; prefers-reduced-motion – bez animacji. */
+
+.kosm {
+  --kosm-wys: 44px;
+  --kosm-zwinieta: min(176px, calc(100vw - 172px)); /* zawsze co najmniej 16 px odstępu od kropli (14 + 56 px) */
+  --kosm-rozwinieta: min(400px, calc(100vw - 32px));
+  --kosm-gora: calc(20px + env(safe-area-inset-top, 0px));
+  --kosm-zjazd: 56px; /* rozwinięta karta zaczyna się pod kroplą (14 + 56 px) */
+  position: fixed;
+  top: var(--kosm-gora);
+  left: 50%;
+  z-index: 65;
+  width: var(--kosm-zwinieta);
+  height: var(--kosm-wys);
+  overflow: hidden;
+  border-radius: 22px;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 38%, rgba(255, 255, 255, 0) 68%, rgba(255, 255, 255, 0.05)), rgba(14, 15, 19, 0.72);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  box-shadow: inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.45), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.16), 0 16px 34px -16px rgba(0, 0, 0, 0.8);
+  color: var(--habits-tekst);
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  cursor: pointer;
+  transform: translate(-50%, 0);
+  -webkit-tap-highlight-color: transparent;
+  animation: kosm-pojawienie 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) backwards;
+  transition:
+    width 0.55s cubic-bezier(0.3, 1.35, 0.5, 1),
+    height 0.55s cubic-bezier(0.3, 1.35, 0.5, 1),
+    transform 0.55s cubic-bezier(0.3, 1.35, 0.5, 1),
+    border-radius 0.4s ease,
+    opacity 0.2s ease,
+    visibility 0s;
+}
+@keyframes kosm-pojawienie { from { opacity: 0; transform: translate(-50%, -10px) scale(0.85); } }
+.kosm.rozwinieta {
+  width: var(--kosm-rozwinieta);
+  border-radius: 26px;
+  transform: translate(-50%, var(--kosm-zjazd));
+  cursor: default;
+}
+
+/* Miejsce na pigułkę: kolumna ekranów o jeden rząd niżej (tylko gdy pigułka jest dostępna) */
+html.kosm-widoczna .kontener.motyw-habits { padding-top: calc(80px + env(safe-area-inset-top, 0px)); }
+/* Nagłówki, które robiły miejsce na kroplę obok siebie, są teraz pod nią – bez wcięcia i bez wyrównania do kropli */
+html.kosm-widoczna .kontener > h1 { padding-left: 0; }
+html.kosm-widoczna #widok-finanse .fin-gora,
+html.kosm-widoczna #widok-medytacja .med-gora { padding-left: 0; min-height: 0; margin-top: 0; }
+
+/* Menu otwarte: pigułka schowana pod nakładką i niewidoczna */
+html.menu-otwarte .kosm { opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0s linear 0.15s; }
+
+/* ----- Zwinięta pigułka: ikona, pora, liczba kroków ----- */
+.kosm-przelacz {
+  width: 100%;
+  height: var(--kosm-wys);
+  min-height: 44px;
+  padding: 0 16px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font: inherit;
+  cursor: pointer;
+}
+.kosm-przelacz:focus-visible { outline: 2px solid var(--habits-akcent); outline-offset: -3px; border-radius: 22px; }
+.kosm-ikona { flex: none; width: 18px; height: 18px; color: var(--habits-akcent); filter: drop-shadow(0 0 6px rgba(var(--habits-akcent-rgb), 0.55)); }
+.kosm-pora {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 19px;
+  line-height: 1;
+  color: var(--habits-naglowek);
+  white-space: nowrap;
+}
+.kosm-ile { font-size: 14px; font-weight: 600; color: var(--habits-akcent); white-space: nowrap; }
+
+/* ----- Karta: stała szerokość treści (niezależna od animowanej szerokości), widoczna po rozwinięciu ----- */
+.kosm-karta {
+  width: var(--kosm-rozwinieta);
+  padding: 2px 20px 20px;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.2s ease, transform 0.35s ease;
+}
+.kosm.rozwinieta .kosm-karta { opacity: 1; transform: none; transition-delay: 0.12s; }
+.kosm-sekcja { opacity: 0.5; }
+.kosm-sekcja + .kosm-sekcja { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(var(--habits-akcent-rgb), 0.15); }
+.kosm-sekcja.biezaca { opacity: 1; }
+.kosm-sekcja-tytul {
+  margin: 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.1;
+  color: var(--habits-naglowek);
+}
+.kosm-sekcja.biezaca .kosm-sekcja-tytul { color: var(--habits-akcent); text-shadow: 0 0 18px rgba(var(--habits-akcent-rgb), 0.35); }
+.kosm-sekcja-dzien { font-family: "Plus Jakarta Sans", system-ui, sans-serif; font-style: normal; font-size: 14px; color: var(--habits-tekst-pomocniczy); }
+.kosm-lista {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: kosm;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.kosm-lista li {
+  counter-increment: kosm;
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--habits-tekst);
+}
+.kosm-lista li::before {
+  content: counter(kosm);
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -1px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: oklch(0.1 0.006 250);
+  background: var(--habits-akcent);
+}
+.kosm-sekcja:not(.biezaca) .kosm-lista li::before { background: rgba(var(--habits-akcent-rgb), 0.35); }
+
+@media (max-width: 360px) {
+  .kosm-przelacz { padding: 0 10px; gap: 6px; }
+  .kosm-pora { font-size: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kosm, .kosm-karta, .kosm.rozwinieta .kosm-karta { animation: none; transition: none; }
+}

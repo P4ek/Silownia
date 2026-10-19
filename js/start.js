@@ -31,6 +31,9 @@ function inicjalizujDaneAplikacji() {
   // Medytacja: widoczność menu; trwająca/skończona sesja z tego urządzenia wraca po wczytaniu nawyków (automatyczne odznaczenie)
   const dostepMedytacja = !!(sesjaUzytkownika && sesjaUzytkownika.user && MEDYTACJA_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));
   ustawDostepMedytacji(dostepMedytacja);
+
+  // Kosmetyki: pigułka z planem na porę dnia, bez bazy (js/kosmetyki.js)
+  ustawDostepKosmetykow(!!(sesjaUzytkownika && sesjaUzytkownika.user && KOSMETYKI_DOSTEP_IDS.includes(sesjaUzytkownika.user.id)));
   if (dostepMedytacja) nawykiGotowe.then(medPrzywrocSesje);
   renderDzis();
 }
