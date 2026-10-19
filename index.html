@@ -33,6 +33,11 @@
 <link rel="stylesheet" href="css/medytacja.css">
 <link rel="stylesheet" href="css/spojnosc.css">
 <link rel="stylesheet" href="css/blask.css">
+<link rel="stylesheet" href="css/szklo.css">
+<script>
+// Tryb "liquid glass" (css/szklo.css) – klasa ustawiana przed narysowaniem strony; przełącznik w stopce menu (nawigacja.js)
+try { if (localStorage.getItem("styl-szklo") === "1") document.documentElement.classList.add("styl-szklo"); } catch (e) {}
+</script>
 <style>
 /* Ekran startowy: widoczny, dopóki getSession() nie zwróci wyniku (start.js), potem znika w ~300 ms */
 .ekran-startowy {
@@ -320,6 +325,10 @@
     </div>
 
     <footer class="menu-stopka">
+      <button type="button" class="menu-styl" id="btn-styl-szklo" aria-pressed="false">
+        <span class="menu-styl-tekst">Liquid glass</span>
+        <span class="menu-styl-tor" aria-hidden="true"><span class="menu-styl-galka"></span></span>
+      </button>
       <button type="button" class="nav-btn nav-wyloguj" id="btn-wyloguj">Wyloguj</button>
     </footer>
   </div>

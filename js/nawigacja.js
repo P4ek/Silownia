@@ -149,3 +149,15 @@ navBtns.forEach(function (btn) {
     }
   });
 });
+
+// ----- Tryb "liquid glass" (css/szklo.css): klasa html.styl-szklo, zapamiętana w localStorage "styl-szklo" -----
+const btnStylSzklo = document.getElementById("btn-styl-szklo");
+function odswiezPrzelacznikSzkla() {
+  btnStylSzklo.setAttribute("aria-pressed", document.documentElement.classList.contains("styl-szklo") ? "true" : "false");
+}
+btnStylSzklo.addEventListener("click", function () {
+  const wlaczony = document.documentElement.classList.toggle("styl-szklo");
+  try { localStorage.setItem("styl-szklo", wlaczony ? "1" : "0"); } catch (e) {}
+  odswiezPrzelacznikSzkla();
+});
+odswiezPrzelacznikSzkla();

@@ -1,0 +1,146 @@
+/* Tryb „liquid glass” dla całej apki – wersja opcjonalna, do cofnięcia jednym kliknięciem.
+   Działa tylko z klasą html.styl-szklo (przełącznik „Szkło” w stopce menu, zapis w localStorage "styl-szklo";
+   klasę ustawia skrypt w <head> index.html przed narysowaniem strony, więc nie ma mignięcia).
+   Wygląd jak ekran Oszczędności: półprzezroczyste tafle z rozmyciem tła, odblaskiem na krawędzi i skośnym połyskiem,
+   pola „wgłębione”, przyciski jak krople szkła. Pod szkłem mocniejsze poświaty nieba z blask.css, żeby było co rozmywać.
+   Rozmycie (backdrop-filter) tylko na kartach najwyższego poziomu – wiersze list mają samo półprzezroczyste tło.
+   Cofnięcie w kodzie: usunąć ten plik z index.html i sw.js (oraz przełącznik w menu). */
+
+html.styl-szklo {
+  --szklo-tlo: rgba(255, 255, 255, 0.075);
+  --szklo-polysk: linear-gradient(140deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 34%, rgba(255, 255, 255, 0) 66%, rgba(255, 255, 255, 0.06) 100%);
+  --szklo-krawedz: inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.5), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.22), inset 0 0 22px rgba(255, 255, 255, 0.05);
+  --szklo-cien: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
+  --szklo-lekkie: linear-gradient(140deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
+  --szklo-wglebienie: rgba(0, 0, 0, 0.26);
+}
+
+/* ----- Mocniejsze, kolorowe niebo pod szkłem ----- */
+html.styl-szklo body.motyw-habits::before {
+  background:
+    radial-gradient(42% 30% at 85% 10%, oklch(0.74 0.12 75 / 0.45), transparent 70%),
+    radial-gradient(40% 30% at 5% 40%, oklch(0.55 0.15 255 / 0.5), transparent 70%),
+    radial-gradient(36% 26% at 85% 62%, oklch(0.58 0.15 300 / 0.36), transparent 70%),
+    radial-gradient(40% 28% at 15% 88%, oklch(0.62 0.12 175 / 0.32), transparent 70%);
+}
+
+/* Tło kolumny przezroczyste także dla arkuszy, które je nadpisują */
+html.styl-szklo #aplikacja .kontener.motyw-habits { background: transparent; }
+html.styl-szklo #aplikacja #widok-plan .kompas-form { border: none; }
+
+/* ----- Karty: tafle szkła ----- */
+html.styl-szklo #aplikacja .kontener.motyw-habits :is(
+  .karta, form, .rejestr-karta, .wykres-karta, .gablota-karta, .plany-karta, .plan-okladka, .zapis-licznik,
+  .habits-tydzien, .katalog-kafel, .jedz-posilek, .jedz-cele, .jedz-wynik, .kompas-blok,
+  .rady-bilet, .superseria-karta, .zapis-szkic-stary, .kompas-form, .habits-nowy-panel, .dzis-rada,
+  .plan-trakcie-baner, .ssw-wnetrze, .med-szklo
+):not(.ekran-logowania form) {
+  background: var(--szklo-polysk), var(--szklo-tlo);
+  border: none;
+  box-shadow: var(--szklo-krawedz), var(--szklo-cien);
+}
+/* Rozmycie tła tylko na taflach najwyższego poziomu */
+html.styl-szklo #aplikacja .kontener.motyw-habits :is(
+  .karta, .rejestr-karta, .wykres-karta, .plan-okladka, .habits-tydzien, .jedz-cele, .jedz-wynik, .rady-bilet,
+  .superseria-karta, .zapis-licznik, .dzis-rada, .ssw-wnetrze
+):not(.karta *) {
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+}
+/* Formularze zagnieżdżone w kartach i w Nawykach zostają bez tafli */
+html.styl-szklo #aplikacja .kontener.motyw-habits :is(.karta form, #widok-habits form, #widok-zaplanuj .zaplanuj-form, #widok-rady form, .fin-budzet-form) {
+  background: none;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+/* Ekran Dziś: niebo i rada jako szkło */
+html.styl-szklo .dzis-rada { padding: 18px; border-radius: 24px; border-top: none; }
+
+/* ----- Wiersze list: lekkie szkło bez rozmycia ----- */
+html.styl-szklo #aplikacja .kontener.motyw-habits :is(
+  .zapis-seria, .zapis-cw-karta, .plan-katalog-wiersz, .plan-notion, .kompas-rola-edycja, .jedz-ostatni,
+  .rejestr-wynik, .zapis-dzis-wiersz, .katalog-wiersz, .plan-lista-wiersz, .dzis-cel
+) {
+  border-color: rgba(255, 255, 255, 0.07);
+}
+html.styl-szklo #aplikacja .kontener.motyw-habits :is(.zapis-seria, .zapis-cw-karta:not(.aktywna), .habits-kafel:not(.zrobiony) .habits-kafel-btn, .plan-katalog-wiersz, .plan-notion, .kompas-rola-edycja, .jedz-ostatni) {
+  background: var(--szklo-lekkie);
+  border: none;
+  box-shadow: inset 1px 1px 0 -0.5px rgba(255, 255, 255, 0.4), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.14);
+}
+
+/* ----- Pola: wgłębione w szkło ----- */
+html.styl-szklo #aplikacja .kontener.motyw-habits :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  background: var(--szklo-wglebienie);
+  border-color: transparent;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+}
+html.styl-szklo #aplikacja .kontener.motyw-habits :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45), 0 0 0 2px rgba(var(--habits-akcent-rgb), 0.45);
+}
+html.styl-szklo #aplikacja #widok-dodaj .zapis-licznik-wartosc { background: transparent; box-shadow: none; }
+html.styl-szklo .zapis-licznik-przyciski button,
+html.styl-szklo .rejestr-nawigacja,
+html.styl-szklo .kompas-nawigacja {
+  background: var(--szklo-wglebienie);
+  border-color: transparent;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* ----- Przyciski drugorzędne i chipy: krople szkła ----- */
+html.styl-szklo #aplikacja .kontener.motyw-habits :is(
+  .plan-chip, .kompas-chip, .kompas-btn-maly, .kompas-btn-dodaj, .habits-btn-edytuj, .dzis-btn, .zapis-btn-superseria,
+  .zapis-btn-zapisz, .zapis-btn-maly, .plany-btn-notion, .plany-btn-kosz, .rejestr-pigulka, #widok-jedzenie .jedz-typ,
+  #widok-jedzenie .jedz-btn-cele, #widok-jedzenie .jedz-strzalka, .habits-btn-tydzien, .habits-nowy-btn, .katalog-kafel-nowe,
+  .btn-pill, .rady-btn-dyskretny, .dzis-rada-nastepna, .mapa-przelacznik, .zapis-chipy button
+):not(.aktywny):not([aria-pressed="true"]) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: transparent;
+  box-shadow: inset 1px 1px 0 -0.5px rgba(255, 255, 255, 0.45), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.16);
+}
+/* Wybrane: kremowa kropla z odblaskiem */
+html.styl-szklo #aplikacja .kontener.motyw-habits :is(.plan-chip.aktywny, .kompas-chip.aktywny, #widok-jedzenie .jedz-typ[aria-pressed="true"], .mapa-przelacznik button[aria-pressed="true"], .zapis-chipy [aria-pressed="true"], .zapis-cw-karta.aktywna, .habits-kafel.zrobiony .habits-kafel-btn) {
+  box-shadow: inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.85), inset -1px -1px 0 -0.5px rgba(0, 0, 0, 0.18), 0 0 18px rgba(var(--habits-akcent-rgb), 0.35);
+}
+
+/* ----- Przyciski główne: krem z odblaskiem szkła ----- */
+html.styl-szklo :is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .btn-zakoncz-tydzien):not(:disabled) {
+  box-shadow: inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.9), inset -1px -1px 0 -0.5px rgba(0, 0, 0, 0.2), 0 0 20px rgba(var(--habits-akcent-rgb), 0.35), 0 14px 30px -14px rgba(0, 0, 0, 0.6);
+}
+
+/* ----- Menu: szkło nad apką ----- */
+html.styl-szklo #sidebar {
+  background: rgba(8, 9, 11, 0.55);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  backdrop-filter: blur(26px) saturate(150%);
+}
+html.styl-szklo #overlay { background: rgba(0, 0, 0, 0.2); }
+html.styl-szklo .kropla {
+  background: rgba(214, 208, 192, 0.3);
+  color: #fff;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.6), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.2), 0 14px 30px -14px rgba(0, 0, 0, 0.7);
+}
+html.styl-szklo .topbar-ikony #btn-przypomnienia {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: transparent;
+  box-shadow: inset 1px 1px 0 -0.5px rgba(255, 255, 255, 0.45);
+}
+html.styl-szklo .nav-wyloguj,
+html.styl-szklo .menu-styl {
+  border-color: transparent;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 1px 1px 0 -0.5px rgba(255, 255, 255, 0.4), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.14);
+}
+
+/* ----- Okno wylogowania i toasty ----- */
+html.styl-szklo #wyloguj-modal,
+html.styl-szklo .toast {
+  background: var(--szklo-polysk), rgba(20, 22, 28, 0.6);
+  border: none;
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: var(--szklo-krawedz), var(--szklo-cien);
+}

@@ -169,7 +169,50 @@ body.motyw-habits::after {
 .menu-pozycja[aria-current="page"] .menu-etykieta { text-shadow: 0 0 22px rgba(var(--habits-akcent-rgb), 0.45); }
 .menu-tytul { text-shadow: 0 0 40px rgba(var(--habits-akcent-rgb), 0.18); }
 
+
+/* ===== Oszczędności podrasowane ===== */
+/* Fale w fiolkach płyną cały czas (zmiana poziomu nadal daje mocniejszą falę z .fin-faluje) */
+#widok-finanse .fin-fala { animation: blask-fala 3.2s linear infinite; }
+#widok-finanse .fin-fala-2 { animation: blask-fala-wstecz 4.4s linear infinite; }
+@keyframes blask-fala { from { transform: translateX(0); } to { transform: translateX(-56px); } }
+@keyframes blask-fala-wstecz { from { transform: translateX(-56px); } to { transform: translateX(0); } }
+/* Szklana rurka: pionowy odblask i poświata płynu pod spodem */
+#widok-finanse .fin-rurka::after {
+  content: "";
+  position: absolute;
+  left: 16%;
+  top: 9%;
+  bottom: 9%;
+  width: 11%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.05) 70%, transparent);
+  pointer-events: none;
+}
+#widok-finanse .fin-fiolka { filter: drop-shadow(0 14px 18px color-mix(in oklch, var(--k) 38%, transparent)); }
+#widok-finanse .fin-fiolka[aria-pressed="true"] .fin-fiolka-nazwa { text-shadow: 0 0 12px rgba(255, 255, 255, 0.6); }
+#widok-finanse .fin-fiolka-wartosc { text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45); }
+/* Pasek tygodnia ze świecącą końcówką, zapalone dni świecą */
+#widok-finanse .fin-pasek > span { position: relative; box-shadow: 0 0 10px rgba(var(--habits-akcent-rgb), 0.6); }
+#widok-finanse .fin-pasek > span::after {
+  content: "";
+  position: absolute;
+  right: -3px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translateY(-50%);
+  box-shadow: 0 0 10px 2px rgba(var(--habits-akcent-rgb), 0.8);
+}
+#widok-finanse .fin-dzien.on svg { filter: drop-shadow(0 0 6px rgba(var(--habits-akcent-rgb), 0.8)); }
+/* Znaczki wydatków i główna kwota */
+#widok-finanse .fin-znaczek { box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.6), 0 0 18px -2px var(--k); }
+#widok-finanse .fin-kwota-ogolem > span:first-child { text-shadow: 0 0 30px rgba(var(--habits-akcent-rgb), 0.3); }
+#widok-finanse .fin-zapisz.fin-gotowy { box-shadow: inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.6), 0 0 20px rgba(var(--habits-akcent-rgb), 0.35); }
+
 @media (prefers-reduced-motion: reduce) {
+  #widok-finanse .fin-fala, #widok-finanse .fin-fala-2,
   body.motyw-habits::before, body.motyw-habits::after, .widok.aktywny > *,
   :is(.dzis-powitanie, #widok-wykres .wykres-tytul, #widok-plan .kompas-tytul, #widok-rady .rady-tytul, #widok-finanse .fin-tytul, #widok-medytacja .med-tytul, #widok-dodaj .zapis-tytul),
   :is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .btn-zakoncz-tydzien)::after { animation: none; }
