@@ -88,15 +88,25 @@ body.motyw-habits::after {
   #widok-medytacja .med-historia-tytul
 )::before {
   content: "";
-  display: inline-block;
+  position: absolute;
+  left: 0;
+  top: 0.34em;
   width: 0.42em;
   height: 0.42em;
-  margin: 0 0.32em 0.12em 0;
   background: var(--blask-zloto);
   -webkit-mask: var(--blask-iskra) center / contain no-repeat;
   mask: var(--blask-iskra) center / contain no-repeat;
   filter: drop-shadow(0 0 6px oklch(0.8 0.1 78 / 0.8));
-  vertical-align: middle;
+}
+/* Iskra przypięta do pierwszej linii (wcięcie zamiast inline-block, który na wąskim ekranie odrywał się od tekstu) */
+:is(
+  .dzis-tytul, #widok-dodaj .zapis-serie-tytul, .zapis-dzis-naglowek h3, #widok-wykres .wykres-karta-tytul,
+  .wykres-gablota-naglowek h3, #widok-zaplanuj .plany-tytul, #widok-jedzenie .jedz-lista-tytul,
+  #widok-plan .kompas-tydzien-rola, #widok-rady .rady-mapa-tytul, #widok-finanse .fin-sekcja-naglowek h3,
+  #widok-medytacja .med-historia-tytul
+) {
+  position: relative;
+  padding-left: 0.74em;
 }
 
 /* ===== Wielkie liczby z poświatą ===== */
