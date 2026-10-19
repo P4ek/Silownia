@@ -214,3 +214,71 @@ function dataSprzedDni(n) {
   const off = d.getTimezoneOffset();
   return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
 }
+
+// ----- Sztanga (styl "Kreda i żelazo") -----
+// Talerze olimpijskie: waga, kolor (zmienna CSS), grubość i wysokość w jednostkach SVG. Bumpery 25–10 mają pełną wysokość,
+// talerze 5 / 2,5 / 1,25 są mniejsze. Kolejność od najcięższego = kolejność zakładania od zacisku na zewnątrz.
+const SZTANGA_TALERZE = [
+  { kg: 25, kolor: "var(--talerz-25)", w: 15, h: 120 },
+  { kg: 20, kolor: "var(--talerz-20)", w: 13, h: 120 },
+  { kg: 15, kolor: "var(--talerz-15)", w: 11, h: 120 },
+  { kg: 10, kolor: "var(--talerz-10)", w: 9, h: 120 },
+  { kg: 5, kolor: "var(--talerz-5)", w: 8, h: 70 },
+  { kg: 2.5, kolor: "var(--talerz-25)", w: 6, h: 54 },
+  { kg: 1.25, kolor: "var(--tekst-3)", w: 5, h: 44 }
+];
+const SZTANGA_GRYF_KG = 20;
+
+// Talerze na jedną stronę dla ciężaru całkowitego (gryf 20 kg); reszta, której nie da się złożyć, w "brak"
+function sztangaTalerzeNaStrone(kg) {
+  let strona = Math.max(0, (kg - SZTANGA_GRYF_KG) / 2);
+  const talerze = [];
+  SZTANGA_TALERZE.forEach(function (t) {
+    while (strona + 1e-9 >= t.kg && talerze.length < 14) {
+      talerze.push(t);
+      strona -= t.kg;
+    }
+  });
+  return { talerze: talerze, brak: Math.round(strona * 100) / 100 };
+}
+
+// Opis załadunku, np. "2 × 25 + 2 × 10 na gryfie 20 kg"
+function sztangaOpis(kg) {
+  if (kg < SZTANGA_GRYF_KG) return kg > 0 ? "Lżej niż gryf – hantle, wyciąg albo maszyna" : "Bez obciążenia";
+  const { talerze, brak } = sztangaTalerzeNaStrone(kg);
+  if (!talerze.length) return "Sam gryf, 20 kg";
+  const ile = new Map();
+  talerze.forEach(function (t) { ile.set(t.kg, (ile.get(t.kg) || 0) + 2); });
+  const czesci = Array.from(ile, function (p) { return p[1] + " × " + String(p[0]).replace(".", ","); });
+  return czesci.join(" + ") + " na gryfie 20 kg" + (brak > 0 ? " (+" + String(brak * 2).replace(".", ",") + " kg reszty)" : "");
+}
+
+// SVG obciążonej sztangi; talerze symetrycznie od zacisków na zewnątrz. Szerokość viewBox dopasowana do liczby talerzy.
+function sztangaSVG(kg) {
+  const { talerze } = sztangaTalerzeNaStrone(kg);
+  const H = 140, sr = H / 2, chwyt = 46, zacisk = 6, odstep = 2;
+  const szerokoscTalerzy = talerze.reduce(function (s, t) { return s + t.w + odstep; }, 0);
+  const tuleja = Math.max(60, szerokoscTalerzy + 14);
+  const W = 2 * (chwyt + zacisk + tuleja) + 8;
+  const cx = W / 2;
+  let svg = '<svg class="sztanga" viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="' + sztangaEsc(sztangaOpis(kg)) + '">';
+  // Gryf z radełkowaniem, zaciski i tuleje
+  svg += '<rect class="sztanga-gryf" x="' + (cx - chwyt) + '" y="' + (sr - 3) + '" width="' + 2 * chwyt + '" height="6" rx="1"/>';
+  svg += '<path class="sztanga-radelko" d="M' + (cx - chwyt + 8) + " " + sr + "H" + (cx - 10) + "M" + (cx + 10) + " " + sr + "H" + (cx + chwyt - 8) + '"/>';
+  [-1, 1].forEach(function (str) {
+    const z = cx + str * chwyt;
+    svg += '<rect class="sztanga-zacisk" x="' + (str < 0 ? z - zacisk : z) + '" y="' + (sr - 11) + '" width="' + zacisk + '" height="22" rx="1.5"/>';
+    const t0 = z + str * zacisk;
+    svg += '<rect class="sztanga-tuleja" x="' + (str < 0 ? t0 - tuleja : t0) + '" y="' + (sr - 6) + '" width="' + tuleja + '" height="12" rx="2"/>';
+    let x = t0 + str * 3;
+    talerze.forEach(function (t, i) {
+      const lewy = str < 0 ? x - t.w : x;
+      svg += '<rect class="sztanga-talerz" style="fill:' + t.kolor + ";animation-delay:" + (i * 45) + 'ms" x="' + lewy + '" y="' + (sr - t.h / 2) + '" width="' + t.w + '" height="' + t.h + '" rx="2"/>';
+      x += str * (t.w + odstep);
+    });
+  });
+  return svg + "</svg>";
+}
+function sztangaEsc(t) {
+  return String(t).replace(/[&<>"']/g, function (z) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[z]; });
+}

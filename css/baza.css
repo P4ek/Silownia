@@ -1,31 +1,38 @@
-/* Baza: zmienne (ciemny motyw, kolory partii), typografia, karty i formularze, przyciski, banery, toasty, konfetti, animacje wejścia, puste stany, ekran logowania, responsywność.
-   Styl: płaska ciemność (ciepła prawie-czerń, powierzchnie o jeden stopień jaśniejsze, bez cieni, poświat i szkła), jeden krój (Archivo),
-   jeden kolor danych (żółty jak talerz 15 kg: --akcent-danych) – tylko na danych (rekordy, postęp), nigdy na przyciskach i menu.
-   Przycisk główny = odwrócenie (jasna pigułka, ciemny tekst). */
+/* Baza: tokeny stylu, kolory partii, typografia, karty i formularze, przyciski, banery, toasty, konfetti, puste stany, ekran logowania, responsywność.
+   Styl „Kreda i żelazo”: apka jak siłownia. Tło = gumowa podłoga z kolorowymi drobinkami (--guma), tekst = kreda,
+   kolory = barwy talerzy olimpijskich (25 kg czerwony, 20 niebieski, 15 żółty, 10 zielony, 5 biały), nagłówki i liczby
+   wąskim tablicowym krojem (--font-tablica, Big Shoulders Display, WERSALIKI), tekst Archivo. Bez gradientów, szkła i poświat. */
 
 :root {
-  /* Nowe tokeny */
-  --tlo: #0d0c0b;
-  --powierzchnia: #171614;
-  --wypukle: #22201d;
-  --linia: #262421;
-  --linia-mocna: #3a3733;
-  --tekst: #f0efed;
-  --tekst-2: #b8b3ab;
-  --tekst-3: #99948c;
-  --akcent-danych: #f2c230;
-  --akcent-danych-rgb: 242, 194, 48;
-  --pozytyw: #3fc07a;
-  --negatyw: #ec6a6a;
-  --pozytyw-tlo: #15261b;
-  --negatyw-tlo: #2c1918;
-  --promien-karta: 16px;
-  --promien-pole: 12px;
+  --tlo: #121110;
+  --powierzchnia: #1c1b19;
+  --wypukle: #292724;
+  --linia: #2d2b28;
+  --linia-mocna: #46433e;
+  --tekst: #efebe3;
+  --tekst-2: #bdb7ac;
+  --tekst-3: #9a9489;
+  /* Talerze olimpijskie */
+  --talerz-25: #e23b2e;
+  --talerz-20: #2a62d9;
+  --talerz-15: #f4c20d;
+  --talerz-10: #1e9e57;
+  --talerz-5: #efebe3;
+  --akcent-danych: var(--talerz-15);
+  --akcent-danych-rgb: 244, 194, 13;
+  --pozytyw: #2fbf6c;
+  --negatyw: #f0584b;
+  --pozytyw-tlo: #12261a;
+  --negatyw-tlo: #2e1714;
+  --promien-karta: 10px;
+  --promien-pole: 8px;
   --font: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-tablica: "Big Shoulders Display", "Archivo", sans-serif;
+  --guma: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cellipse cx='174' cy='2' rx='1.5' ry='1.1' transform='rotate(61 174 2)' fill='%23f4c20d' opacity='0.3'/%3E%3Cellipse cx='3' cy='158' rx='1.5' ry='1.0' transform='rotate(61 3 158)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='21' cy='84' rx='1.1' ry='0.8' transform='rotate(67 21 84)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='62' cy='168' rx='0.9' ry='0.7' transform='rotate(80 62 168)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='40' cy='166' rx='1.3' ry='0.9' transform='rotate(147 40 166)' fill='%231e9e57' opacity='0.3'/%3E%3Cellipse cx='82' cy='76' rx='0.8' ry='0.6' transform='rotate(112 82 76)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='103' cy='167' rx='1.4' ry='1.0' transform='rotate(16 103 167)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='88' cy='170' rx='0.7' ry='0.5' transform='rotate(136 88 170)' fill='%23f4c20d' opacity='0.3'/%3E%3Cellipse cx='31' cy='169' rx='1.5' ry='1.1' transform='rotate(73 31 169)' fill='%23e23b2e' opacity='0.3'/%3E%3Cellipse cx='95' cy='27' rx='1.7' ry='1.2' transform='rotate(101 95 27)' fill='%232a62d9' opacity='0.3'/%3E%3Cellipse cx='9' cy='84' rx='1.6' ry='1.2' transform='rotate(75 9 84)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='72' cy='90' rx='0.9' ry='0.6' transform='rotate(90 72 90)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='14' cy='56' rx='0.9' ry='0.6' transform='rotate(99 14 56)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='163' cy='61' rx='1.2' ry='0.9' transform='rotate(69 163 61)' fill='%232a62d9' opacity='0.3'/%3E%3Cellipse cx='85' cy='21' rx='1.3' ry='0.9' transform='rotate(3 85 21)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='151' cy='167' rx='1.5' ry='1.1' transform='rotate(16 151 167)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='7' cy='161' rx='1.8' ry='1.3' transform='rotate(127 7 161)' fill='%23f4c20d' opacity='0.3'/%3E%3Cellipse cx='102' cy='157' rx='1.3' ry='0.9' transform='rotate(15 102 157)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='85' cy='15' rx='1.8' ry='1.3' transform='rotate(151 85 15)' fill='%231e9e57' opacity='0.3'/%3E%3Cellipse cx='81' cy='130' rx='1.5' ry='1.0' transform='rotate(14 81 130)' fill='%23e23b2e' opacity='0.3'/%3E%3Cellipse cx='60' cy='117' rx='1.1' ry='0.8' transform='rotate(14 60 117)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='111' cy='127' rx='1.4' ry='1.0' transform='rotate(140 111 127)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='148' cy='144' rx='1.7' ry='1.2' transform='rotate(3 148 144)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='161' cy='165' rx='1.4' ry='1.0' transform='rotate(0 161 165)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='26' cy='45' rx='1.8' ry='1.3' transform='rotate(83 26 45)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='164' cy='123' rx='1.1' ry='0.8' transform='rotate(0 164 123)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='109' cy='126' rx='1.1' ry='0.8' transform='rotate(44 109 126)' fill='%23e23b2e' opacity='0.3'/%3E%3Cellipse cx='115' cy='91' rx='1.8' ry='1.3' transform='rotate(85 115 91)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='157' cy='154' rx='1.1' ry='0.8' transform='rotate(87 157 154)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='83' cy='110' rx='1.4' ry='1.0' transform='rotate(100 83 110)' fill='%232a62d9' opacity='0.3'/%3E%3Cellipse cx='167' cy='105' rx='0.8' ry='0.6' transform='rotate(167 167 105)' fill='%23f4c20d' opacity='0.3'/%3E%3Cellipse cx='83' cy='29' rx='0.9' ry='0.7' transform='rotate(140 83 29)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='111' cy='58' rx='1.2' ry='0.8' transform='rotate(165 111 58)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='94' cy='21' rx='1.3' ry='0.9' transform='rotate(150 94 21)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='28' cy='127' rx='1.6' ry='1.1' transform='rotate(117 28 127)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='156' cy='178' rx='1.4' ry='1.0' transform='rotate(7 156 178)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='49' cy='23' rx='1.0' ry='0.7' transform='rotate(15 49 23)' fill='%23f4c20d' opacity='0.3'/%3E%3Cellipse cx='84' cy='179' rx='1.4' ry='1.0' transform='rotate(25 84 179)' fill='%231e9e57' opacity='0.3'/%3E%3Cellipse cx='12' cy='45' rx='1.5' ry='1.1' transform='rotate(113 12 45)' fill='%232a62d9' opacity='0.3'/%3E%3Cellipse cx='96' cy='159' rx='1.0' ry='0.7' transform='rotate(157 96 159)' fill='%23f4c20d' opacity='0.3'/%3E%3Cellipse cx='156' cy='10' rx='1.2' ry='0.8' transform='rotate(43 156 10)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='67' cy='102' rx='1.3' ry='0.9' transform='rotate(121 67 102)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='166' cy='84' rx='0.9' ry='0.6' transform='rotate(108 166 84)' fill='%232a62d9' opacity='0.3'/%3E%3Cellipse cx='49' cy='80' rx='1.5' ry='1.1' transform='rotate(115 49 80)' fill='%23e23b2e' opacity='0.3'/%3E%3Cellipse cx='60' cy='162' rx='0.9' ry='0.6' transform='rotate(156 60 162)' fill='%23e23b2e' opacity='0.3'/%3E%3Cellipse cx='122' cy='80' rx='1.1' ry='0.8' transform='rotate(152 122 80)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='142' cy='70' rx='1.6' ry='1.1' transform='rotate(178 142 70)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='114' cy='137' rx='0.9' ry='0.6' transform='rotate(115 114 137)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='164' cy='59' rx='1.5' ry='1.1' transform='rotate(133 164 59)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='15' cy='153' rx='0.9' ry='0.6' transform='rotate(129 15 153)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='72' cy='20' rx='1.1' ry='0.8' transform='rotate(82 72 20)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='162' cy='156' rx='1.0' ry='0.7' transform='rotate(106 162 156)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='22' cy='159' rx='1.5' ry='1.1' transform='rotate(41 22 159)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='104' cy='166' rx='0.9' ry='0.6' transform='rotate(61 104 166)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='172' cy='87' rx='1.3' ry='0.9' transform='rotate(167 172 87)' fill='%232a62d9' opacity='0.3'/%3E%3Cellipse cx='44' cy='39' rx='1.8' ry='1.3' transform='rotate(157 44 39)' fill='%231e9e57' opacity='0.3'/%3E%3Cellipse cx='52' cy='73' rx='1.4' ry='1.0' transform='rotate(120 52 73)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='139' cy='58' rx='1.1' ry='0.8' transform='rotate(96 139 58)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='59' cy='60' rx='1.6' ry='1.1' transform='rotate(57 59 60)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='173' cy='132' rx='1.3' ry='1.0' transform='rotate(45 173 132)' fill='%232a62d9' opacity='0.3'/%3E%3Cellipse cx='124' cy='126' rx='1.0' ry='0.7' transform='rotate(127 124 126)' fill='%231e9e57' opacity='0.3'/%3E%3Cellipse cx='45' cy='89' rx='0.9' ry='0.6' transform='rotate(124 45 89)' fill='%231e9e57' opacity='0.3'/%3E%3Cellipse cx='169' cy='29' rx='1.3' ry='0.9' transform='rotate(143 169 29)' fill='%231e9e57' opacity='0.3'/%3E%3Cellipse cx='153' cy='109' rx='1.4' ry='1.0' transform='rotate(159 153 109)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='20' cy='108' rx='1.0' ry='0.7' transform='rotate(56 20 108)' fill='%23e23b2e' opacity='0.3'/%3E%3Cellipse cx='7' cy='153' rx='1.1' ry='0.8' transform='rotate(151 7 153)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='115' cy='164' rx='1.1' ry='0.8' transform='rotate(167 115 164)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='100' cy='113' rx='1.5' ry='1.1' transform='rotate(145 100 113)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='114' cy='75' rx='0.8' ry='0.6' transform='rotate(111 114 75)' fill='%23f4c20d' opacity='0.3'/%3E%3Cellipse cx='25' cy='11' rx='0.8' ry='0.6' transform='rotate(154 25 11)' fill='%236d6860' opacity='0.5'/%3E%3C/svg%3E");
 
   /* Stare nazwy (używane w arkuszach ekranów) – przypięte do nowych tokenów */
-  --habits-akcent: var(--tekst);              /* wypełnienie przycisku głównego, zaznaczenia */
-  --habits-akcent-rgb: 240, 239, 237;
+  --habits-akcent: var(--talerz-15);          /* wypełnienie przycisku głównego, zaznaczenia: żółty talerz */
+  --habits-akcent-rgb: 244, 194, 13;
   --habits-tlo: var(--tlo);
   --habits-tlo-karta: var(--powierzchnia);
   --habits-obramowanie: var(--linia);
@@ -33,28 +40,28 @@
   --habits-naglowek: var(--tekst);
   --habits-tekst: var(--tekst);
   --habits-tekst-pomocniczy: var(--tekst-3);
-  --habits-zloto: var(--akcent-danych);       /* rekordy, PD, poziom – kolor danych */
+  --habits-zloto: var(--talerz-15);            /* rekordy, PD, poziom */
   --tryb-ciemny-tlo-karta: var(--powierzchnia);
   --cream: var(--tlo);
   --card: var(--powierzchnia);
   --ink: var(--tekst);
   --muted: var(--tekst-2);
   --border: var(--linia);
-  --accent: var(--tekst);
+  --accent: var(--talerz-15);
   --accent-soft: var(--wypukle);
-  --accent-pink: var(--tekst);
+  --accent-pink: var(--talerz-15);
   --accent-pink-soft: var(--wypukle);
   --shadow-warm: none;
 
-  /* Kolory partii – blade, przygaszone odcienie (tożsamość, nie dane); jedna mapa dla całej apki */
-  --partia-klata: oklch(0.78 0.07 30);
-  --partia-plecy: oklch(0.76 0.07 240);
-  --partia-barki: oklch(0.8 0.07 70);
-  --partia-biceps: oklch(0.76 0.07 320);
-  --partia-triceps: oklch(0.78 0.06 190);
-  --partia-brzuch: oklch(0.8 0.07 130);
-  --partia-nogi: oklch(0.76 0.07 0);
-  --partia-dupa: oklch(0.78 0.06 280);
+  /* Kolory partii – barwy talerzy i taśm; jedna mapa dla całej apki */
+  --partia-klata: var(--talerz-25);
+  --partia-plecy: var(--talerz-20);
+  --partia-barki: var(--talerz-15);
+  --partia-nogi: var(--talerz-10);
+  --partia-brzuch: var(--talerz-5);
+  --partia-biceps: #f07a22;
+  --partia-triceps: #20b2a6;
+  --partia-dupa: #e8559a;
 }
 * { box-sizing: border-box; }
 /* Gwarantuje, że atrybut [hidden] zawsze ukrywa element, nawet gdy jakaś
@@ -67,22 +74,23 @@ body {
   font-family: var(--font);
   font-size: 15px;
   line-height: 1.5;
-  background: var(--tlo);
+  background: var(--guma), var(--tlo);
   min-height: 100vh;
 }
 input, select, textarea, button { font-family: var(--font); }
 ::selection { background: var(--tekst); color: var(--tlo); }
 
-h1, h2, legend, .rekord-baner {
-  font-family: var(--font);
+h1, h2, legend {
+  font-family: var(--font-tablica);
   font-style: normal;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
 }
-h1 { font-size: 22px; margin: 0 0 20px; line-height: 1.2; }
-h2 { font-size: 18px; margin: 0 0 12px; line-height: 1.25; }
+h1 { font-size: 30px; margin: 0 0 20px; line-height: 1; }
+h2 { font-size: 30px; margin: 0 0 12px; line-height: 1; }
 /* Cytat zamiast tytułu (konto AI_UZYTKOWNIK_ID) – cichy, w pasku górnym */
-h1.app-tytul-cytat { font-size: 13px; font-weight: 400; line-height: 1.4; color: var(--tekst-2); letter-spacing: 0; }
+h1.app-tytul-cytat { font-family: var(--font); font-size: 13px; font-weight: 400; line-height: 1.4; text-transform: none; color: var(--tekst-2); letter-spacing: 0; }
 
 .kontener {
   position: relative;

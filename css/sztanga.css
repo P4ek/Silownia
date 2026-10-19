@@ -1,0 +1,285 @@
+/* Warstwa charakteru „Kreda i żelazo” – ładowana jako ostatnia, nadpisuje wygląd ekranów:
+   - typografia tablicowa (--font-tablica, WERSALIKI) na tytułach i dużych liczbach,
+   - przyciski główne jak żółta taśma (talerz 15 kg) z czarnym napisem,
+   - przycisk menu = żółty talerz, menu jak napisy na ścianie siłowni,
+   - sztanga: .sztanga (sztangaSVG z wspolne.js, Zapisz trening) i sztanga dnia na ekranie Dziś (renderDzisNiebo w dzis.js),
+   - kolory części dnia = kolory talerzy (trening 25 czerwony, misja 20 niebieski, nawyk 15 żółty, posiłek 10 zielony). */
+
+/* ===== Typografia tablicowa ===== */
+:is(
+  .dzis-powitanie, .dzis-czesc-tytul, .dzis-tytul, .dzis-rada-tekst,
+  #widok-dodaj .zapis-tytul, #widok-dodaj .zapis-serie-tytul, .zapis-dzis-naglowek h3, .superseria-etykieta,
+  #widok-rejestr .rejestr-kicker, #widok-rejestr .rejestr-karta-nazwa, #widok-rejestr .ssw-nazwa-tekst,
+  #widok-wykres .wykres-tytul, #widok-wykres .wykres-karta-tytul, .wykres-gablota-naglowek h3,
+  #widok-nowe .katalog-kicker, #widok-nowe .katalog-partia-tytul, .katalog-kafel-nazwa,
+  #widok-zaplanuj .zaplanuj-kicker, #widok-zaplanuj .plany-tytul, #widok-zaplanuj .plany-karta-nazwa, #widok-zaplanuj .plan-okladka-nazwa,
+  .jedz-dzien-tygodnia, #widok-jedzenie .jedz-lista-tytul, #widok-jedzenie .jedz-cele-tytul, .jedz-aparat-tytul,
+  #widok-plan .kompas-tytul, #widok-plan .kompas-tydzien-rola,
+  .habits-dzis-dzien, .habits-etykieta,
+  #widok-rady .rady-tytul, #widok-rady .rady-bilet-tytul, #widok-rady .rady-mapa-tytul,
+  #widok-finanse .fin-tytul, #widok-finanse .fin-sekcja-naglowek h3, #widok-finanse .fin-karta-tytul, #widok-finanse .fin-nowy-tytul,
+  #widok-medytacja .med-tytul, #widok-medytacja .med-historia-tytul, #widok-medytacja .med-ocena-tytul,
+  .menu-tytul, .logowanie-karta h1, .ekran-startowy h1
+) {
+  font-family: var(--font-tablica);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 0.95;
+}
+/* Tytuły ekranów */
+:is(
+  .dzis-powitanie, #widok-rejestr .rejestr-kicker, #widok-wykres .wykres-tytul, #widok-nowe .katalog-kicker,
+  #widok-zaplanuj .zaplanuj-kicker, #widok-plan .kompas-tytul, #widok-rady .rady-tytul,
+  #widok-finanse .fin-tytul, #widok-medytacja .med-tytul, .jedz-dzien-tygodnia, .habits-dzis-dzien
+) { font-size: 46px; }
+#widok-rejestr .rejestr-kicker { font-size: 38px; }
+/* Nagłówki sekcji */
+:is(
+  .dzis-czesc-tytul, .dzis-tytul, #widok-dodaj .zapis-serie-tytul, .zapis-dzis-naglowek h3,
+  #widok-wykres .wykres-karta-tytul, .wykres-gablota-naglowek h3, #widok-nowe .katalog-partia-tytul,
+  #widok-zaplanuj .plany-tytul, #widok-jedzenie .jedz-lista-tytul, #widok-jedzenie .jedz-cele-tytul,
+  #widok-plan .kompas-tydzien-rola, .habits-etykieta, #widok-rady .rady-mapa-tytul,
+  #widok-finanse .fin-sekcja-naglowek h3, #widok-finanse .fin-karta-tytul, #widok-finanse .fin-nowy-tytul,
+  #widok-medytacja .med-historia-tytul, #widok-medytacja .med-ocena-tytul
+) { font-size: 30px; }
+:is(#widok-rejestr .rejestr-karta-nazwa, #widok-rejestr .ssw-nazwa-tekst, #widok-zaplanuj .plany-karta-nazwa, #widok-rady .rady-bilet-tytul, .dzis-rada-tekst, .superseria-etykieta, .jedz-aparat-tytul) { font-size: 28px; }
+#widok-dodaj .zapis-tytul { font-size: 52px; line-height: 0.9; }
+#widok-zaplanuj .plan-okladka-nazwa { font-size: 40px; }
+.katalog-kafel-nazwa { font-size: 24px; }
+.menu-tytul { font-size: 64px; line-height: 0.88; }
+
+/* Duże liczby: tablica wyników */
+:is(
+  #dzis-procent, .dzis-kcal-liczba,
+  #widok-dodaj .zapis-licznik-wartosc, .zapis-seria-opis, .zapis-seria-pieczatka, .zapis-do-pobicia-wartosc,
+  .rejestr-objetosc-liczba, .gablota-wynik, .ssw-objetosc,
+  .katalog-suma-liczba, .katalog-kafel-liczba,
+  .jedz-dzien-liczba, .jedz-kolo-liczba, .jedz-kafel-wartosc, .jedz-posilek-kcal,
+  .kompas-wynik, .kompas-dzien-numer,
+  .habits-dzis-liczba, .habits-procent-liczba,
+  #widok-finanse .fin-kwota-duza > span:first-child, #widok-finanse .fin-kwota-pole input, #widok-finanse .fin-fiolka-wartosc,
+  #widok-finanse .fin-wydatek-kwota, #widok-finanse .fin-podsumowanie-glowny b,
+  #widok-medytacja .med-czas-duzy > span:first-child, #widok-medytacja .med-zegar-liczba, #widok-medytacja .med-historia-min,
+  .rady-odznaka-poziom, .rady-nagroda
+) {
+  font-family: var(--font-tablica);
+  font-weight: 800;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+#dzis-procent { font-size: 120px; line-height: 0.82; }
+.dzis-wynik-proc { font-family: var(--font-tablica); font-size: 40px; font-weight: 800; color: var(--talerz-15); }
+#widok-dodaj .zapis-licznik-wartosc { font-size: 76px; line-height: 1; }
+.rejestr-objetosc-liczba { font-size: 96px; line-height: 0.85; }
+.rejestr-objetosc-kg { font-family: var(--font-tablica); font-size: 36px; font-weight: 800; text-transform: uppercase; color: var(--talerz-15); }
+:is(.katalog-suma-liczba, .jedz-dzien-liczba, .habits-dzis-liczba) { font-size: 96px; line-height: 0.82; }
+#widok-finanse .fin-kwota-duza > span:first-child { font-size: 84px; line-height: 0.85; }
+#widok-finanse .fin-kwota-pole input { font-size: 60px; }
+#widok-finanse .fin-kwota-ogolem > span:first-child { font-size: 64px; }
+#widok-medytacja .med-czas-duzy > span:first-child { font-size: 96px; }
+#widok-medytacja .med-zegar-liczba { font-size: 88px; }
+.habits-procent-liczba { font-size: 64px; }
+.katalog-kafel-liczba { font-size: 56px; }
+.jedz-kolo-liczba { font-size: 44px; }
+.jedz-kafel-wartosc { font-size: 32px; }
+.jedz-posilek-kcal, .gablota-wynik { font-size: 38px; }
+.zapis-seria-opis { font-size: 30px; }
+#widok-finanse .fin-fiolka-wartosc { font-size: 28px; }
+#widok-finanse .fin-wydatek-kwota { font-size: 26px; }
+.kompas-wynik { font-size: 44px; }
+.kompas-dzien-numer { font-size: 30px; }
+
+/* ===== Przyciski główne = żółta taśma ===== */
+:is(
+  .btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .btn-zakoncz-tydzien,
+  #widok-jedzenie .jedz-btn-jasny, .katalog-btn-zapisz, #widok-habits .habits-btn-dodaj, #widok-finanse .fin-btn-dodaj,
+  #widok-finanse .fin-zapisz.fin-gotowy, #widok-medytacja .med-szklo-tint, .btn-wyloguj-tak
+) {
+  border-radius: 6px !important;
+  background: var(--talerz-15) !important;
+  color: #111 !important;
+  font-family: var(--font-tablica);
+  font-weight: 800;
+  font-size: 22px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+:is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .btn-zakoncz-tydzien, #widok-medytacja .med-btn-zacznij) { min-height: 58px; }
+.zapis-btn-zalicz { font-size: 26px; }
+:is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .rady-btn-glowny, .kompas-btn-glowny):disabled { background: var(--wypukle) !important; color: var(--tekst-3) !important; }
+/* Pigułki zaznaczenia (chipy partii, typy posiłków itd.) – kwadratowe jak taśma */
+:is(.zapis-chipy button, .plan-chip, .kompas-chip, #widok-jedzenie .jedz-typ, .mapa-przelacznik button, .superseria-liczba-btn) { border-radius: 6px; }
+
+/* ===== Przycisk menu = żółty talerz, menu jak napisy na ścianie ===== */
+.kropla {
+  width: 48px;
+  height: 48px;
+  background: var(--talerz-15);
+  color: #111;
+  box-shadow: inset 0 0 0 4px var(--talerz-15), inset 0 0 0 6px rgba(0, 0, 0, 0.35);
+  transition: transform 0.4s cubic-bezier(0.3, 1.3, 0.5, 1), scale 0.1s ease;
+}
+.kropla:not(:disabled):active { background: var(--talerz-15); }
+.kropla[aria-expanded="true"] { transform: rotate(180deg); }
+.kropla-l { left: 15px; top: 23px; height: 2.5px; }
+.kontener > h1 { padding-left: 60px; min-height: 48px; }
+
+#sidebar { background: var(--guma), var(--tlo); }
+#overlay { background: var(--tlo); }
+.menu-tytul { margin-top: 4px; color: var(--tekst); }
+.menu-rozdzial-nazwa {
+  font-family: var(--font-tablica);
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--tekst-3);
+}
+.menu-pozycja { min-height: 50px; }
+.menu-etykieta {
+  font-family: var(--font-tablica);
+  font-size: 36px;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--tekst-2);
+}
+.menu-pozycja[aria-current="page"] .menu-etykieta {
+  flex: 0 1 auto;
+  padding: 2px 8px 0;
+  margin-left: -8px;
+  background: var(--talerz-15);
+  color: #111;
+  font-weight: 900;
+}
+.menu-pozycja[aria-current="page"] { justify-content: space-between; }
+.menu-wartosc { font-family: var(--font-tablica); font-size: 22px; font-weight: 800; color: var(--tekst-3); }
+.menu-pozycja[aria-current="page"] .menu-wartosc { color: var(--tekst); }
+/* Skróty: trzy talerze w kolorach 25 / 20 / 10 */
+.menu-zakladka { border-radius: 6px; color: #111; }
+.menu-zakladka svg { color: #111; }
+.menu-zakladka-tekst { font-family: var(--font-tablica); font-size: 22px; font-weight: 800; text-transform: uppercase; }
+.menu-zakladka-zdjecie { background: var(--talerz-10); }
+.menu-zakladka-trening { background: var(--talerz-25); }
+.menu-zakladka-nawyk { background: var(--talerz-20); }
+.menu-zakladka-trening, .menu-zakladka-nawyk, .menu-zakladka-trening svg, .menu-zakladka-nawyk svg { color: #fff; }
+.nav-wyloguj { border-radius: 6px; font-family: var(--font-tablica); font-size: 20px; font-weight: 800; text-transform: uppercase; }
+
+/* ===== Sztanga (wspólna) ===== */
+.sztanga { display: block; width: 100%; height: 100%; overflow: visible; }
+.sztanga-gryf { fill: #8d877d; }
+.sztanga-radelko { stroke: #5f5a52; stroke-width: 6; stroke-dasharray: 1.5 1.5; }
+.sztanga-zacisk { fill: #b9b2a6; }
+.sztanga-tuleja { fill: #a7a095; }
+.sztanga-talerz { stroke: rgba(0, 0, 0, 0.45); stroke-width: 1; transform-box: fill-box; animation: sztanga-zaloz 0.35s cubic-bezier(0.2, 1.2, 0.4, 1) backwards; }
+@keyframes sztanga-zaloz { from { opacity: 0; transform: translateY(-14px); } }
+
+/* Zapisz trening: sztanga nad licznikami */
+.zapis-sztanga {
+  margin-top: 18px;
+  padding: 14px 12px 10px;
+  border-radius: var(--promien-karta);
+  background: var(--powierzchnia);
+}
+.zapis-sztanga-rys { height: 120px; }
+.zapis-sztanga-opis {
+  margin: 8px 0 0;
+  text-align: center;
+  font-family: var(--font-tablica);
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--tekst-2);
+}
+
+/* ===== Dziś: sztanga dnia ===== */
+.dzis-k-trening { --k: var(--talerz-25); }
+.dzis-k-misja   { --k: var(--talerz-20); }
+.dzis-k-nawyk   { --k: var(--talerz-15); }
+.dzis-k-posilek { --k: var(--talerz-10); }
+.dzis-niebo { background: none; padding: 0; }
+.dzis-wynik { align-items: flex-end; }
+.dzis-wynik-liczba { align-items: flex-start; }
+.dzis-wynik-opis { font-size: 14px; }
+.dzis-wynik-gwiazdy { font-family: var(--font-tablica); font-size: 26px; font-weight: 800; text-transform: uppercase; color: var(--tekst); }
+.dzis-gwiazdozbior { max-width: none; aspect-ratio: 420 / 240; margin: 14px -8px 0; }
+.dzis-talerz { fill: transparent; stroke: var(--linia-mocna); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.dzis-gw.on .dzis-talerz { fill: var(--k); stroke: rgba(0, 0, 0, 0.5); stroke-width: 1; stroke-dasharray: none; }
+.dzis-gw.born .dzis-talerz { transform-box: fill-box; animation: dzis-talerz-wjazd 0.45s cubic-bezier(0.2, 1.3, 0.4, 1); }
+.dzis-gw.born.lustro .dzis-talerz { animation-name: dzis-talerz-wjazd-lewo; }
+@keyframes dzis-talerz-wjazd { from { transform: translateX(60px); opacity: 0; } }
+@keyframes dzis-talerz-wjazd-lewo { from { transform: translateX(-60px); opacity: 0; } }
+.dzis-gw-podpis { font-family: var(--font-tablica); font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; fill: var(--tekst-3); }
+.dzis-gw.on .dzis-gw-podpis { fill: #111; }
+.dzis-gw.on.dzis-k-trening .dzis-gw-podpis,
+.dzis-gw.on.dzis-k-misja .dzis-gw-podpis,
+.dzis-gw.on.dzis-k-posilek .dzis-gw-podpis { fill: #fff; }
+.dzis-gw-reszta { font-family: var(--font-tablica); font-size: 15px; font-weight: 800; text-transform: uppercase; fill: var(--talerz-15); }
+.dzis-gw-przycisk { width: 30px; margin: 0 0 0 -15px; border-radius: 4px; transform: translateY(-50%); }
+.dzis-gw-przycisk:active { background: rgba(255, 255, 255, 0.08); }
+.dzis-podpowiedz { margin-top: 10px; }
+/* Ikony części dnia = talerze */
+.dzis-glif path { fill: none; stroke: var(--tekst-3); stroke-width: 1.5; }
+.dzis-glif.on path { fill: var(--k); stroke: var(--k); }
+.dzis-czesc-wartosc { font-family: var(--font-tablica); font-size: 22px; font-weight: 800; text-transform: uppercase; }
+.dzis-czesc-wartosc.on { color: var(--k); }
+.dzis-pasek-wypelnienie { background: var(--talerz-10); }
+.dzis-btn { border-radius: 6px; font-family: var(--font-tablica); font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; border-color: var(--k); color: var(--k); }
+/* Tydzień: kolumny jak stos talerzy */
+.dzis-tydzien-gwiazdy { grid-template-columns: repeat(7, minmax(0, 26px)); gap: 6px; }
+.dzis-tydzien-dzien svg { max-width: 22px; }
+.dzis-tydzien-dzien rect { fill: var(--linia-mocna); }
+.dzis-tydzien-dzien.jasna rect { fill: var(--talerz-10); }
+.dzis-tydzien-dzien.ciemna rect { fill: var(--talerz-20); }
+.dzis-tydzien-dzien.brak rect { fill: var(--wypukle); }
+.dzis-tydzien-dzien.dzis rect { fill: var(--talerz-15); }
+.dzis-tydzien-nazwa { font-family: var(--font-tablica); font-size: 14px; font-weight: 800; text-transform: uppercase; }
+.dzis-rada { border-left: 6px solid var(--talerz-20); border-radius: 6px; }
+.dzis-cel-checkbox:checked + .dzis-cel-pole { background: var(--talerz-15); border-color: var(--talerz-15); color: #111; }
+
+/* ===== Drobiazgi na innych ekranach ===== */
+/* Rekordy i serie: tablica wyników */
+.zapis-seria { border-radius: 6px; }
+.zapis-seria-pieczatka { border-radius: 4px; background: var(--wypukle); font-size: 22px; }
+.zapis-seria.rekord .zapis-seria-pieczatka { background: var(--talerz-15); color: #111; }
+.rejestr-seria-slupek { background: var(--kolor-partii); opacity: 0.55; border-radius: 3px 3px 0 0; }
+.rejestr-seria.rekord .rejestr-seria-slupek { opacity: 1; }
+.rejestr-karta, .wykres-karta, .gablota-karta, .plany-karta, .jedz-posilek, .habits-kafel-btn, .katalog-kafel { border-radius: var(--promien-karta); }
+.gablota-karta { border-top: 6px solid var(--talerz-15); }
+.katalog-kafel { border-left: 6px solid var(--kolor-partii); }
+.katalog-kafel.aktywny { border-color: var(--kolor-partii); background: var(--kolor-partii); color: #111; }
+.habits-kafel.zrobiony .habits-kafel-btn { background: var(--talerz-15); color: #111; }
+.habits-kafel.zrobiony .habits-kafel-pod { color: rgba(0, 0, 0, 0.65); }
+.habits-kafel.zrobiony .habits-pieczatka { background: #111; color: var(--talerz-15); }
+.kompas-luk { stroke: var(--talerz-15); stroke-width: 6; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sztanga-talerz, .dzis-gw.born .dzis-talerz { animation: none; }
+  .kropla { transition: none; }
+}
+
+/* Małe etykiety w <h2> zostają zwykłym tekstem */
+:is(#widok-dodaj .zapis-sesja, #widok-habits .habits-kicker) { text-transform: none; }
+
+/* Posiłki: nagłówek dnia obok przycisków Cele/strzałek, liczba w kole mieści się w środku */
+#widok-jedzenie .jedz-dzien-tygodnia { font-size: 32px; }
+#widok-jedzenie .jedz-kolo-liczba { font-size: 34px; }
+.jedz-kolo-opis { font-size: 12px; }
+
+/* Finanse: płyn w słupkach budżetów w kolorze kategorii (barwy talerzy) */
+#widok-finanse {
+  --fin-k1: var(--talerz-10);
+  --fin-k2: var(--talerz-20);
+  --fin-k3: var(--talerz-15);
+  --fin-k4: var(--talerz-5);
+  --fin-k5: var(--talerz-25);
+  --fin-k6: var(--partia-triceps);
+  --fin-k7: var(--partia-dupa);
+}
+#widok-finanse .fin-plyn { background: var(--k); opacity: 0.85; }
+#widok-finanse .fin-fiolka.fin-przekroczone .fin-plyn { background: var(--negatyw-tlo); opacity: 1; }
+#widok-finanse .fin-fiolka-wartosc { color: var(--tekst); }
+#widok-finanse .fin-rurka { border-radius: 6px; }
+#widok-finanse .fin-znaczek { color: #111; background: var(--k); }

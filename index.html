@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Silownia">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/baza.css">
 <link rel="stylesheet" href="css/zapisz-trening.css">
 <link rel="stylesheet" href="css/rejestr.css">
@@ -31,6 +31,7 @@
 <link rel="stylesheet" href="css/finanse.css">
 <link rel="stylesheet" href="css/rejestr-superseria.css">
 <link rel="stylesheet" href="css/medytacja.css">
+<link rel="stylesheet" href="css/sztanga.css">
 <style>
 /* Ekran startowy: widoczny, dopóki getSession() nie zwróci wyniku (start.js), potem znika w ~300 ms */
 .ekran-startowy {
@@ -478,6 +479,12 @@
           <button type="button" id="zapis-btn-superseria" class="zapis-btn-superseria">Super seria</button>
         </div>
       </section>
+
+      <!-- Sztanga ładowana talerzami wg ciężaru (sztangaSVG z wspolne.js) -->
+      <div class="zapis-sztanga" aria-live="polite">
+        <div id="zapis-sztanga-rys" class="zapis-sztanga-rys"></div>
+        <p id="zapis-sztanga-opis" class="zapis-sztanga-opis"></p>
+      </div>
 
       <!-- Liczniki: kliknięcie w liczbę pozwala wpisać wartość z klawiatury -->
       <div class="zapis-liczniki">

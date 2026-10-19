@@ -11,7 +11,7 @@ Bez bundlera, npm i kroku build. Dane w Supabase (`js/konfiguracja.js`), wykresy
 
 | Ekran (menu) | Sekcja HTML | JS | CSS |
 |---|---|---|---|
-| Dziś (ekran startowy; bez własnych zapytań, dane ze startu przez `dzisDaneGotowe` w `start.js`) | `#widok-dzis` | `js/dzis.js` | `css/dzis.css` |
+| Dziś (ekran startowy; bez własnych zapytań, dane ze startu przez `dzisDaneGotowe` w `start.js`; sztanga dnia zamiast gwiazdozbioru) | `#widok-dzis` | `js/dzis.js` | `css/dzis.css` |
 | Zapisz trening | `#widok-dodaj` | `js/zapisz-trening.js` | `css/zapisz-trening.css` |
 | Rejestr ćwiczeń | `#widok-rejestr` | `js/rejestr.js` | `css/rejestr.css` |
 | Wykres postępu | `#widok-wykres` | `js/wykres.js` | `css/wykres.css` |
@@ -35,12 +35,13 @@ Pozostałe:
 - `js/start.js` – start aplikacji (patrz niżej) + rejestracja service workera.
 - `css/baza.css` – tokeny stylu (patrz „Styl” niżej), stare nazwy `--habits-*` przypięte do nowych tokenów, kolory partii `--partia-*`, typografia, karty, formularze, przyciski, banery, toasty, konfetti, puste stany, logowanie, responsywność.
 - `css/motyw.css` – reguły ciemnego motywu (`.kontener.motyw-habits`), zawsze włączonego; płaskie karty, bez szkła i poświat.
-- `css/menu.css` – menu: okrągły przycisk menu (`.kropla`, 44 px), pełnoekranowe menu z rzędem trzech skrótów (`.menu-zakladka`) i listą bez kursywy, aktywna pozycja = jaśniejszy tekst (logika w `js/nawigacja.js`). Ładowany po `motyw.css`, potem `dzis.css`, `finanse.css`, `rejestr-superseria.css` i `medytacja.css`.
+- `css/menu.css` – menu: okrągły przycisk menu (`.kropla`, 44 px), pełnoekranowe menu z rzędem trzech skrótów (`.menu-zakladka`) i listą bez kursywy, aktywna pozycja = jaśniejszy tekst (logika w `js/nawigacja.js`). Ładowany po `motyw.css`, potem `dzis.css`, `finanse.css`, `rejestr-superseria.css`, `medytacja.css` i `sztanga.css`.
 - `css/rejestr-superseria.css` – karta superserii w Rejestrze (`budujRamkeSuperserii` w `js/rejestr.js`, układ wg `makiety/rejestr-superseria.html`) i pigułka „N superserii”; zakres `#widok-rejestr`, ładowany ostatni. Rundy = podejścia ćwiczeń sparowane po indeksie (brak = „–”), maks. 4 rundy widoczne, więcej przewija się w bok. Płaska karta bez animacji: iskry, mostek i numer są ukryte w CSS, klasy `.ssw-animowana`/`.widoczna` z JS nic już nie animują; słupki w kolorze partii, rekord w `--akcent-danych`.
+- `css/sztanga.css` – warstwa charakteru „Kreda i żelazo” (patrz „Styl”), ładowana jako ostatnia.
 
 ## Kolejność ładowania i dlaczego
 
-CSS (`<link>` w `<head>`): `baza` → arkusze ekranów → `motyw`. Kolejność ma znaczenie dla kaskady: `motyw.css` nadpisuje style ekranów, a po nim idą `menu.css`, `dzis.css`, `finanse.css`, `rejestr-superseria.css` i `medytacja.css`.
+CSS (`<link>` w `<head>`): `baza` → arkusze ekranów → `motyw`. Kolejność ma znaczenie dla kaskady: `motyw.css` nadpisuje style ekranów, a po nim idą `menu.css`, `dzis.css`, `finanse.css`, `rejestr-superseria.css`, `medytacja.css` i na końcu `sztanga.css` (warstwa charakteru).
 
 JS: najpierw Supabase i Chart.js z CDN (zwykłe `<script>`), potem pliki aplikacji jako zwykłe skrypty (NIE `type="module"`) z `defer`, wykonywane po kolei po wczytaniu HTML:
 
@@ -55,19 +56,19 @@ Wszystkie pliki dzielą jedną przestrzeń globalną (funkcje i `const`/`let` na
 
 Nowy ekran: HTML w `index.html`, plik w `js/` (przed `nawigacja.js` i `start.js`) i w `css/` (przed `motyw.css`), wczytywanie danych dopisane w `inicjalizujDaneAplikacji` w `start.js`, oba pliki w `ASSETS` w `sw.js`.
 
-## Styl
+## Styl „Kreda i żelazo”
 
-Wg skilla `design-taste-frontend` (styl ekranów aplikacji „true-black flat”), żeby apka nie wyglądała na wygenerowaną:
-- Tokeny w `:root` w `css/baza.css`: `--tlo` (ciepła prawie-czerń), `--powierzchnia` / `--wypukle` (karty o jeden stopień jaśniejsze), `--linia` / `--linia-mocna`, `--tekst` / `--tekst-2` / `--tekst-3`, `--akcent-danych` (żółty jak talerz 15 kg), `--pozytyw` / `--negatyw` (+ `-tlo`). Stare `--habits-*` wskazują na nie (`--habits-akcent` = jasny tekst, `--habits-zloto` = `--akcent-danych`).
-- Jeden krój: Archivo (Google Fonts) z `tabular-nums` na liczbach. Bez kursywy, bez serifów, bez rozstrzelonych WIELKICH LITER (etykiety zdaniowe, też w tekstach z JS – bez `.toUpperCase()`), bez numeracji 01/02.
-- Płasko: bez gradientów, poświat, cieni na kartach, `backdrop-filter`, emoji i dekoracyjnych plam. Cień tylko na tym, co pływa (okno wylogowania, toast).
-- `--akcent-danych` tylko na danych (zapalone gwiazdy, rekordy, postęp, białko); nigdy na przyciskach i menu. Przycisk główny = jasna pigułka z ciemnym tekstem (`--tekst` na `--tlo`), drugorzędny = obrys `--linia-mocna`.
-- Rozmiary: tytuł ekranu 26 px, sekcje 17–18 px, tekst 14–15 px, etykiety 13 px, liczby co najwyżej 40 px.
-- Podgląd do zrzutów (bez Supabase): `.taste-skill/podglad/` (atrapa bazy, `zbuduj.sh` robi `podglad.html`, `zrzuty.mjs` robi zrzuty ekranów przez Chrome); oba poza gitem.
+Apka wygląda jak siłownia (koncept zamiast szablonu; wcześniejszy płaski styl ze skilla `design-taste-frontend` był „bez duszy”):
+- Tokeny w `:root` w `css/baza.css`: tło `--tlo` + `--guma` (gumowa podłoga z kolorowymi drobinkami, SVG w data URI na `body` i menu), `--powierzchnia` / `--wypukle`, `--linia` / `--linia-mocna`, kreda `--tekst` / `--tekst-2` / `--tekst-3`, talerze olimpijskie `--talerz-25` (czerwony), `--talerz-20` (niebieski), `--talerz-15` (żółty), `--talerz-10` (zielony), `--talerz-5` (biały), `--pozytyw` / `--negatyw`. Stare `--habits-*` wskazują na nie (`--habits-akcent` i `--habits-zloto` = żółty talerz). Partie mają barwy talerzy (klata 25, plecy 20, barki 15, nogi 10, brzuch 5) i taśm.
+- Kroje: `--font-tablica` (Big Shoulders Display, WERSALIKI) na tytułach, nagłówkach sekcji, menu, przyciskach głównych i dużych liczbach (tablica wyników); `--font` (Archivo) na tekście. Małe etykiety zwykłym tekstem (bez rozstrzelonych wersalików, bez `.toUpperCase()` w JS).
+- `css/sztanga.css` (ładowany ostatni) to warstwa charakteru: listy selektorów z krojem tablicowym i rozmiarami, przyciski główne jako żółta taśma (`border-radius: 6px`), przycisk menu = żółty talerz obracany przy otwarciu, menu jak napisy na ścianie (aktywna pozycja na żółtej taśmie, skróty w kolorach talerzy), sztanga i kolory części dnia. Uwaga: listy `:is(...)` zawierają selektory z `#id`, więc późniejsze nadpisanie potrzebuje też `#widok-…`.
+- Sztanga: `sztangaSVG(kg)` / `sztangaOpis(kg)` / `sztangaTalerzeNaStrone(kg)` w `js/wspolne.js` (gryf 20 kg, talerze 25–1,25 zachłannie na stronę). Zapisz trening rysuje ją nad licznikami (`renderZapisSztanga`, przerysowanie tylko przy zmianie załadunku). Ekran Dziś: `renderDzisNiebo` rysuje sztangę dnia – każda rzecz do zrobienia to para talerzy (trening 25, misja 20, posiłki 10, nawyki 15), zrobione w kolorze, reszta przerywaną kredą; przyciski talerzy po prawej (lustro po lewej ma `aria-hidden`). Ikony części dnia i tydzień to talerze/słupki.
+- Bez gradientów, szkła i poświat; animacje tylko krótkie (talerz wjeżdża na gryf), wyłączane przez `prefers-reduced-motion`.
+- Podgląd do zrzutów (bez Supabase): `.taste-skill/podglad/` (atrapa bazy, `zbuduj.sh` robi `podglad.html`, `zrzuty.mjs <folder> 390 widok-…` – też `menu` i `sztanga`); poza gitem.
 
 ## Zasady
 
-- Apka ma zawsze ciemny motyw; kolory partii tylko ze zmiennych `--partia-*` (blade odcienie).
+- Apka ma zawsze ciemny motyw; kolory partii tylko ze zmiennych `--partia-*`.
 - Rekord liczy wyłącznie `obliczRekordy()` (seria z najwyższym ciężar × powtórzenia).
 - Wpisy treningów w tabeli `treningi` mają podejścia w formacie `[{ "cieżar": liczba, "powtorzenia": liczba }]` (z polskim „ż” w kluczu) – nie zmieniać.
 - Superseria (przycisk „Super seria” w Zapisz trening, kod na końcu `js/zapisz-trening.js`): 2–3 różne ćwiczenia, rundy wpisywane na przemian, zapisywane tylko pełne rundy. Każde ćwiczenie to zwykły wiersz `treningi` (Wykres/rekordy działają bez zmian) ze wspólnym `superseria_id` (UUID z apki) i `superseria_poz` 1–3, ta sama data, tablice `podejscia` równej długości; wszystkie wiersze jednym insertem. Rejestr pokazuje je w jednej ramce „Superseria” (rundy, objętość, rekordy; patrz `css/rejestr-superseria.css`) i pigułkę „N superserii”; usunięcie (Rejestr i „Dziś zapisane”, przez `usunSuperserie`) kasuje wszystkie wiersze z tym `superseria_id` jednym zapytaniem. Pojedynczych wpisów superserii się nie edytuje ani nie usuwa.

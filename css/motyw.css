@@ -3,7 +3,7 @@
 
 .kontener.motyw-habits {
   color: var(--tekst);
-  background: var(--tlo);
+  background: transparent;
   padding: calc(14px + env(safe-area-inset-top, 0px)) 16px 22px;
   overflow: hidden;
 }
