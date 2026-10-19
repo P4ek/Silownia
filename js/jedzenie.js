@@ -238,7 +238,7 @@ function renderJedzWykres(dzis) {
   linia.className = "jedz-wykres-cel";
   linia.style.setProperty("--ulamek", (jedzCele.kcal / skala).toFixed(3));
   const podpis = document.createElement("span");
-  podpis.textContent = "CEL " + jedzFormat(jedzCele.kcal);
+  podpis.textContent = "Cel " + jedzFormat(jedzCele.kcal);
   linia.appendChild(podpis);
   slupki.appendChild(linia);
 
@@ -306,7 +306,7 @@ function renderJedzKolo(suma) {
   jedzKoloSvg.innerHTML = svg;
 
   const ponad = suma.kcal > jedzCele.kcal;
-  jedzKoloEtykieta.textContent = ponad ? "PONAD CEL" : "ZOSTAŁO";
+  jedzKoloEtykieta.textContent = ponad ? "Ponad cel" : "Zostało";
   animujLiczbe(jedzKoloLiczba, Math.round(Math.abs(jedzCele.kcal - suma.kcal)), jedzFormat);
   jedzKoloOpis.textContent = "kcal · zjedzone " + jedzFormat(suma.kcal);
 }
@@ -322,7 +322,7 @@ function renderJedzKafle(suma) {
     const etykieta = document.createElement("span");
     etykieta.className = "jedz-kafel-etykieta";
     etykieta.innerHTML = '<span class="jedz-kropka" aria-hidden="true"></span>';
-    etykieta.append(m.nazwa.toUpperCase());
+    etykieta.append(m.nazwa);
 
     const wartosc = document.createElement("div");
     wartosc.className = "jedz-kafel-wartosc";
@@ -424,7 +424,7 @@ function renderJedzLista() {
     dol.className = "jedz-posilek-dol";
     const typ = document.createElement("span");
     typ.className = "jedz-kicker jedz-posilek-typ";
-    typ.textContent = jedzNazwaTypu(p.typ).toUpperCase();
+    typ.textContent = jedzNazwaTypu(p.typ);
     const nazwa = document.createElement("div");
     nazwa.className = "jedz-posilek-nazwa";
     nazwa.textContent = p.nazwa || "Posiłek";
@@ -645,7 +645,7 @@ function jedzStartLadowania() {
   function pokazKrok() {
     const tekst = JEDZ_TEKSTY_LADOWANIA[krok];
     jedzLadowanieTekst.textContent = tekst;
-    jedzAparatSkan.querySelector(".jedz-skan-tekst").textContent = tekst.toUpperCase();
+    jedzAparatSkan.querySelector(".jedz-skan-tekst").textContent = tekst;
     jedzLadowaniePostep.style.width = [30, 65, 92][krok] + "%";
   }
   pokazKrok();

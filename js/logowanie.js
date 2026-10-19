@@ -27,14 +27,14 @@ formLogowania.addEventListener("submit", async function (e) {
   if (error) {
     console.error(error);
     logowanieStatus.textContent = "Nie udało się wysłać linku: " + error.message;
-    logowanieStatus.style.color = "oklch(0.78 0.12 28)";
+    logowanieStatus.style.color = "#ec6a6a";
     logowanieStatus.hidden = false;
     return;
   }
 
   logowanieEmail = email;
   logowanieStatus.textContent = "Sprawdź maila";
-  logowanieStatus.style.color = "oklch(0.8 0.1 150)";
+  logowanieStatus.style.color = "#3fc07a";
   logowanieStatus.hidden = false;
   formLogowania.hidden = true;
   formKodu.hidden = false;
@@ -60,7 +60,7 @@ formKodu.addEventListener("submit", async function (e) {
   if (error) {
     console.error(error);
     logowanieStatus.textContent = "Nie udało się zalogować: " + error.message;
-    logowanieStatus.style.color = "oklch(0.78 0.12 28)";
+    logowanieStatus.style.color = "#ec6a6a";
     logowanieStatus.hidden = false;
   }
 });

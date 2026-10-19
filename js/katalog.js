@@ -149,7 +149,7 @@ function renderKatalogPartii() {
   nowePartiaNazwa.textContent = partia;
   katalogPartiaKropka.style.setProperty("--kolor-partii", kolor);
   katalogPartiaTytul.textContent = partia;
-  katalogPartiaLicznik.textContent = (cwiczenia.length + " " + odmianaCwiczen(cwiczenia.length)).toUpperCase();
+  katalogPartiaLicznik.textContent = cwiczenia.length + " " + odmianaCwiczen(cwiczenia.length);
 
   katalogLista.innerHTML = "";
   if (cwiczenia.length === 0) {

@@ -231,7 +231,8 @@ function renderDzis() {
 
 function renderDzisNaglowek() {
   const teraz = new Date();
-  dzisDataEl.textContent = (DNI_TYGODNIA_PELNE[(teraz.getDay() + 6) % 7] + " · " + teraz.getDate() + " " + MIESIACE_SKROT[teraz.getMonth()]).toUpperCase();
+  const dzienTyg = DNI_TYGODNIA_PELNE[(teraz.getDay() + 6) % 7];
+  dzisDataEl.textContent = dzienTyg.charAt(0).toUpperCase() + dzienTyg.slice(1) + ", " + teraz.getDate() + " " + MIESIACE_SKROT[teraz.getMonth()];
   const h = teraz.getHours();
   dzisPowitanieEl.textContent = h < 5 ? "Dobrej nocy." : h < 12 ? "Dzień dobry." : h < 18 ? "Miłego popołudnia." : h < 22 ? "Dobry wieczór." : "Dobrej nocy.";
 }
@@ -466,7 +467,7 @@ function renderDzisCele() {
   }
   const lista = dzisCeleTygodnia;
   const zrobione = lista.filter(function (c) { return c.zrealizowane; }).length;
-  dzisCeleLicznikEl.textContent = lista.length ? zrobione + "/" + lista.length + " · " : "";
+  dzisCeleLicznikEl.textContent = lista.length ? zrobione + " z " + lista.length + " · " : "";
   if (!lista.length) {
     dzisCeleEl.innerHTML = '<span class="dzis-opis">Brak celów na ten tydzień. Dodaj je w Planie tygodnia.</span>';
     return;
@@ -474,7 +475,7 @@ function renderDzisCele() {
   lista.forEach(function (c) {
     const indeksRoli = role.findIndex(function (r) { return r.id === c.rola_id; });
     const rola = role[indeksRoli];
-    let dzien = "CAŁY TYDZIEŃ";
+    let dzien = "cały tydzień";
     if (c.dzien) {
       const d = new Date(+c.dzien.slice(0, 4), +c.dzien.slice(5, 7) - 1, +c.dzien.slice(8, 10));
       dzien = DNI_TYGODNIA_ETYKIETY[(d.getDay() + 6) % 7];
@@ -497,7 +498,7 @@ function renderDzisCele() {
     tytul.textContent = c.tresc;
     const meta = document.createElement("span");
     meta.className = "dzis-cel-meta";
-    meta.textContent = (rola ? rola.nazwa.toUpperCase() + " · " : "") + dzien;
+    meta.textContent = (rola ? rola.nazwa + " · " : "") + dzien;
     tekst.append(tytul, meta);
     const kropka = document.createElement("span");
     kropka.className = "dzis-cel-kropka";
@@ -536,8 +537,8 @@ function renderDzisRada() {
   if (!rady.length) return;
   dzisRadaIndeks = dzisRadaIndeks % rady.length;
   const r = rady[dzisRadaIndeks];
-  dzisRadaLicznikEl.textContent = "RADA NA DZIŚ · " + (dzisRadaIndeks + 1) + "/" + rady.length;
-  dzisRadaTekstEl.textContent = "„" + r.zasada.nazwa + "”";
+  dzisRadaLicznikEl.textContent = "Rada na dziś, " + (dzisRadaIndeks + 1) + " z " + rady.length;
+  dzisRadaTekstEl.textContent = r.zasada.nazwa;
   dzisRadaZrodloEl.textContent = r.ksiazka.tytul + ", zasada " + rzymska(radyNumerZasady(r.zasada));
   document.getElementById("dzis-rada-nastepna").hidden = rady.length < 2;
 }

@@ -6,13 +6,13 @@
 <title>Dziennik treningowy</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="logo/icon-180.png">
-<meta name="theme-color" content="#08090B">
+<meta name="theme-color" content="#0d0c0b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Silownia">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/baza.css">
 <link rel="stylesheet" href="css/zapisz-trening.css">
 <link rel="stylesheet" href="css/rejestr.css">
@@ -45,7 +45,7 @@
   padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
   background: var(--habits-tlo);
   color: var(--habits-tekst);
-  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font);
   overflow: hidden;
   transition: opacity 300ms ease;
 }
@@ -59,31 +59,30 @@
   display: grid;
   place-items: center;
   padding-bottom: 4px;
-  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
-  font-style: italic;
-  font-size: 46px;
+  font-size: 40px;
+  font-weight: 600;
   line-height: 1;
-  color: var(--habits-akcent);
+  color: var(--tekst);
 }
 .start-nazwa { text-align: center; }
 .ekran-startowy h1 {
   margin: 0;
   padding: 0;
-  font-size: 44px;
-  line-height: 1;
-  color: var(--habits-naglowek);
+  font-size: 28px;
+  line-height: 1.1;
+  color: var(--tekst);
 }
-.start-podtytul { margin: 10px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; color: var(--habits-tekst-pomocniczy); }
+.start-podtytul { margin: 8px 0 0; font-size: 14px; color: var(--tekst-2); }
 .start-status { width: 220px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .start-pasek { width: 100%; height: 3px; border-radius: 2px; background: var(--tryb-ciemny-tlo-karta); overflow: hidden; }
 .start-pasek-wypelnienie { height: 100%; border-radius: 2px; background: var(--habits-akcent); }
 .start-tekst { font-size: 13px; color: var(--muted); text-align: center; }
 .start-ponow {
   padding: 8px 18px;
-  border: 1px solid var(--habits-obramowanie);
+  border: 1px solid var(--linia-mocna);
   border-radius: 999px;
-  background: var(--habits-tlo-karta);
-  color: var(--habits-akcent);
+  background: transparent;
+  color: var(--tekst);
   font: inherit;
   font-size: 13px;
   font-weight: 600;
@@ -93,11 +92,9 @@
   margin: 0;
   padding: 56px 40px 64px;
   text-align: center;
-  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
-  font-style: italic;
-  font-size: 18px;
-  line-height: 1.4;
-  color: var(--habits-tekst-pomocniczy);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--tekst-2);
 }
 @media (max-height: 640px) {
   .start-cytat { padding: 32px 32px 32px; }
@@ -133,7 +130,7 @@
     </div>
     <div class="start-nazwa">
       <h1>Dziennik</h1>
-      <p class="start-podtytul">TRENING · NAWYKI · POSIŁKI</p>
+      <p class="start-podtytul">Trening, nawyki, posiłki</p>
     </div>
   </div>
   <div class="start-status" role="status" aria-live="polite">
@@ -220,13 +217,12 @@
     </div>
 
     <header class="menu-naglowek">
-      <span class="menu-powitanie">CZEŚĆ</span>
-      <h2 class="menu-tytul">Dokąd<br>dziś?</h2>
+      <h2 class="menu-tytul">Dokąd dziś?</h2>
     </header>
 
     <div class="menu-rozdzialy">
       <section class="menu-rozdzial" aria-labelledby="menu-r-start">
-        <span class="menu-rozdzial-nazwa" id="menu-r-start">START</span>
+        <span class="menu-rozdzial-nazwa" id="menu-r-start">Start</span>
         <button type="button" class="nav-btn menu-pozycja aktywny" data-widok="widok-dzis" aria-current="page">
           <span class="menu-etykieta">Dziś</span>
           <span class="menu-kropki" aria-hidden="true"></span>
@@ -235,7 +231,7 @@
       </section>
 
       <section class="menu-rozdzial" aria-labelledby="menu-r-trening">
-        <span class="menu-rozdzial-nazwa" id="menu-r-trening">TRENING</span>
+        <span class="menu-rozdzial-nazwa" id="menu-r-trening">Trening</span>
         <button type="button" class="nav-btn menu-pozycja" data-widok="widok-dodaj">
           <span class="menu-etykieta">Zapisz trening</span>
           <span class="menu-kropki" aria-hidden="true"></span>
@@ -264,7 +260,7 @@
       </section>
 
       <section class="menu-rozdzial" aria-labelledby="menu-r-codziennie">
-        <span class="menu-rozdzial-nazwa" id="menu-r-codziennie">CODZIENNIE</span>
+        <span class="menu-rozdzial-nazwa" id="menu-r-codziennie">Codziennie</span>
         <button type="button" class="nav-btn menu-pozycja" data-widok="widok-habits">
           <span class="menu-etykieta">Nawyki</span>
           <span class="menu-kropki" aria-hidden="true"></span>
@@ -278,7 +274,7 @@
       </section>
 
       <section class="menu-rozdzial" aria-labelledby="menu-r-rozwoj">
-        <span class="menu-rozdzial-nazwa" id="menu-r-rozwoj">ROZWÓJ</span>
+        <span class="menu-rozdzial-nazwa" id="menu-r-rozwoj">Rozwój</span>
         <button type="button" class="nav-btn menu-pozycja" data-widok="widok-plan">
           <span class="menu-etykieta">Plan tygodnia</span>
           <span class="menu-kropki" aria-hidden="true"></span>
@@ -308,7 +304,7 @@
       </section>
 
       <section class="menu-rozdzial" id="menu-rozdzial-finanse" aria-labelledby="menu-r-finanse" hidden>
-        <span class="menu-rozdzial-nazwa" id="menu-r-finanse">FINANSE</span>
+        <span class="menu-rozdzial-nazwa" id="menu-r-finanse">Finanse</span>
         <button type="button" class="nav-btn menu-pozycja" id="nav-finanse" data-widok="widok-finanse">
           <span class="menu-etykieta">Oszczędności</span>
           <span class="menu-kropki" aria-hidden="true"></span>
@@ -379,7 +375,7 @@
     <!-- Cele tygodnia (z Planu tygodnia) -->
     <div class="dzis-cele-naglowek">
       <h3 class="dzis-tytul">Cele tygodnia</h3>
-      <button type="button" id="dzis-cele-plan" class="dzis-link"><span id="dzis-cele-licznik"></span>PLAN →</button>
+      <button type="button" id="dzis-cele-plan" class="dzis-link"><span id="dzis-cele-licznik"></span>Plan</button>
     </div>
     <div id="dzis-cele" class="dzis-cele"></div>
 
@@ -735,7 +731,7 @@
       <div class="jedz-dzien">
         <span id="jedz-dzien-liczba" class="jedz-dzien-liczba"></span>
         <div class="jedz-dzien-opis">
-          <span id="jedz-dzien-dzis" class="jedz-dzien-dzis" hidden>DZIŚ</span>
+          <span id="jedz-dzien-dzis" class="jedz-dzien-dzis" hidden>Dziś</span>
           <span id="jedz-dzien-tygodnia" class="jedz-dzien-tygodnia"></span>
           <span id="jedz-dzien-miesiac" class="jedz-dzien-miesiac"></span>
         </div>
@@ -763,10 +759,10 @@
         <button type="submit" id="jedz-cele-zapisz" class="jedz-btn-jasny">Zapisz</button>
       </div>
       <div class="jedz-cele-pola">
-        <div class="jedz-cele-pole"><label for="jedz-cel-kcal">KALORIE</label><div><input id="jedz-cel-kcal" type="number" min="0" step="1" inputmode="numeric"><span>kcal</span></div></div>
-        <div class="jedz-cele-pole"><label for="jedz-cel-bialko">BIAŁKO</label><div><input id="jedz-cel-bialko" type="number" min="0" step="1" inputmode="numeric"><span>g</span></div></div>
-        <div class="jedz-cele-pole"><label for="jedz-cel-wegle">WĘGLOWODANY</label><div><input id="jedz-cel-wegle" type="number" min="0" step="1" inputmode="numeric"><span>g</span></div></div>
-        <div class="jedz-cele-pole"><label for="jedz-cel-tluszcze">TŁUSZCZE</label><div><input id="jedz-cel-tluszcze" type="number" min="0" step="1" inputmode="numeric"><span>g</span></div></div>
+        <div class="jedz-cele-pole"><label for="jedz-cel-kcal">Kalorie</label><div><input id="jedz-cel-kcal" type="number" min="0" step="1" inputmode="numeric"><span>kcal</span></div></div>
+        <div class="jedz-cele-pole"><label for="jedz-cel-bialko">Białko</label><div><input id="jedz-cel-bialko" type="number" min="0" step="1" inputmode="numeric"><span>g</span></div></div>
+        <div class="jedz-cele-pole"><label for="jedz-cel-wegle">Węglowodany</label><div><input id="jedz-cel-wegle" type="number" min="0" step="1" inputmode="numeric"><span>g</span></div></div>
+        <div class="jedz-cele-pole"><label for="jedz-cel-tluszcze">Tłuszcze</label><div><input id="jedz-cel-tluszcze" type="number" min="0" step="1" inputmode="numeric"><span>g</span></div></div>
       </div>
       <p id="jedz-cele-podpowiedz" class="jedz-cele-podpowiedz"></p>
     </form>
@@ -786,7 +782,7 @@
         <div class="jedz-kolo">
           <svg id="jedz-kolo-svg" viewBox="0 0 190 190" aria-hidden="true"></svg>
           <div class="jedz-kolo-srodek">
-            <span id="jedz-kolo-etykieta" class="jedz-kolo-etykieta">ZOSTAŁO</span>
+            <span id="jedz-kolo-etykieta" class="jedz-kolo-etykieta">Zostało</span>
             <span id="jedz-kolo-liczba" class="jedz-kolo-liczba">0</span>
             <span id="jedz-kolo-opis" class="jedz-kolo-opis"></span>
           </div>
@@ -818,12 +814,12 @@
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6zM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></svg>
       </button>
     </section>
-    <p class="jedz-analizuj-podpis">ANALIZUJ</p>
+    <p class="jedz-analizuj-podpis">Analizuj</p>
 
     <div id="jedz-typy" class="jedz-typy" role="group" aria-label="Typ posiłku"></div>
     <!-- Zjedz ponownie: posiłki z ostatnich 30 dni, dodawane jednym kliknięciem bez AI -->
     <div id="jedz-ostatnie" class="jedz-ostatnie" hidden>
-      <p class="jedz-kicker jedz-ostatnie-tytul">OSTATNIO JEDZONE</p>
+      <p class="jedz-kicker jedz-ostatnie-tytul">Ostatnio jedzone</p>
       <div id="jedz-ostatnie-lista" class="jedz-ostatnie-lista" role="group" aria-label="Zjedz ponownie"></div>
     </div>
     <label for="jedz-dopisek" class="jedz-dopisek-etykieta">Dopisek AI – analiza posiłku z tekstu <span>(poprawia trafność)</span></label>
@@ -841,7 +837,7 @@
     <!-- Karta wyniku AI -->
     <section id="jedz-wynik" class="jedz-wynik" aria-label="Wynik analizy" hidden>
       <div class="jedz-wynik-gora">
-        <span class="jedz-kicker">WYNIK AI</span>
+        <span class="jedz-kicker">Wynik AI</span>
         <span id="jedz-pewnosc" class="jedz-pewnosc"></span>
       </div>
       <label for="jedz-wynik-nazwa" class="jedz-sr">Nazwa posiłku</label>
@@ -1006,7 +1002,7 @@
   <section id="widok-rady" class="widok">
     <header class="rady-naglowek">
       <div>
-        <h2 class="rady-tytul">Rady<br>z książek</h2>
+        <h2 class="rady-tytul">Rady z książek</h2>
         <div class="rady-statystyki">
           <span id="rady-ranga" class="rady-ranga"></span>
           <span class="rady-kropka" aria-hidden="true"></span>

@@ -3,29 +3,28 @@
 /* ----- Katalog ćwiczeń (widok #widok-nowe): liczba ćwiczeń, kafle partii, formularz, lista wybranej partii ----- */
 #widok-nowe .katalog-kicker {
   margin: 0;
-  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
-  font-style: normal;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--habits-tekst-pomocniczy);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--tekst);
 }
-.katalog-suma { display: flex; align-items: flex-end; gap: 14px; margin-top: 22px; }
+.katalog-suma { display: flex; align-items: baseline; gap: 10px; margin-top: 6px; }
 .katalog-suma-liczba {
-  font-family: "Instrument Serif", Georgia, serif;
-  font-size: clamp(5.5rem, 30vw, 7.5rem);
-  line-height: 0.8;
-  letter-spacing: -0.03em;
-  color: oklch(0.95 0.004 240);
+  font-family: var(--font);
+  font-size: 40px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--tekst);
+  font-weight: 600;
 }
 .katalog-suma-podpis {
-  padding-bottom: 6px;
-  font-family: "Instrument Serif", Georgia, serif;
-  font-style: italic;
-  font-size: clamp(1.5rem, 7.5vw, 1.9rem);
-  line-height: 1.05;
-  color: oklch(0.6 0.008 240);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.3;
+  color: var(--tekst-2);
+  font-weight: 400;
 }
 .katalog-kafle {
   display: grid;
@@ -37,12 +36,12 @@
   position: relative;
   overflow: hidden;
   min-width: 0;
-  min-height: 136px;
-  padding: 16px;
-  border-radius: 24px;
-  border: 1px solid var(--habits-obramowanie);
+  min-height: 96px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid transparent;
   background: var(--habits-tlo-karta);
-  color: oklch(0.8 0.005 240);
+  color: var(--tekst);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -51,32 +50,21 @@
   text-align: left;
   transition: border-color 0.15s ease, background 0.15s ease, scale 0.1s ease;
 }
-.katalog-kafel::before {
-  content: "";
-  position: absolute;
-  right: -34px;
-  top: -34px;
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  background: var(--kolor-partii);
-  opacity: 0.22;
-  transition: opacity 0.2s ease;
-}
+.katalog-kafel::before { content: none; }
 .katalog-kafel.aktywny {
-  border-color: var(--kolor-partii);
-  background: oklch(0.12 0.008 248);
-  color: oklch(0.95 0.004 240);
+  border-color: var(--tekst-2);
+  background: var(--wypukle);
+  color: var(--tekst);
 }
-.katalog-kafel.aktywny::before { opacity: 0.9; }
-.katalog-kafel-liczba { position: relative; font-family: "Instrument Serif", Georgia, serif; font-size: 58px; line-height: 0.9; }
-.katalog-kafel-nazwa { position: relative; font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+
+.katalog-kafel-liczba { position: relative; font-size: 24px; line-height: 1; font-weight: 600; font-variant-numeric: tabular-nums; }
+.katalog-kafel-nazwa { position: relative; font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
 .katalog-kafel-nowe {
-  min-height: 136px;
-  border-radius: 24px;
-  border: 1.5px dashed oklch(0.3 0.008 245);
+  min-height: 96px;
+  border-radius: 16px;
+  border: 1px dashed var(--linia-mocna);
   background: transparent;
-  color: oklch(0.7 0.006 240);
+  color: var(--tekst-2);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -87,11 +75,11 @@
 }
 .katalog-kafel-nowe[aria-expanded="true"] { border-color: var(--habits-akcent); color: var(--habits-tekst); }
 .katalog-kafel-nowe-ikona {
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: var(--habits-akcent);
-  color: oklch(0.1 0.006 250);
+  background: var(--wypukle);
+  color: var(--tekst);
   display: grid;
   place-items: center;
 }
@@ -99,15 +87,11 @@
 #widok-nowe .katalog-formularz {
   margin: 12px 0 0;
   padding: 18px;
-  border-radius: 24px;
+  border-radius: 16px;
   background: var(--habits-tlo-karta);
-  border: 1px solid var(--habits-akcent);
-  box-shadow: none;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
 }
-#widok-nowe .katalog-formularz label { margin: 0; font-size: 13px; font-weight: 600; color: oklch(0.6 0.008 240); }
-#widok-nowe .katalog-formularz b { color: oklch(0.93 0.004 240); }
+#widok-nowe .katalog-formularz label { margin: 0; font-size: 13px; font-weight: 600; color: var(--tekst-2); }
+#widok-nowe .katalog-formularz b { color: var(--tekst); }
 .katalog-formularz-rzad { display: flex; gap: 8px; margin-top: 10px; }
 #widok-nowe .katalog-formularz input {
   flex: 1;
@@ -116,8 +100,8 @@
   padding: 0 14px;
   border-radius: 14px;
   border: 1px solid var(--habits-obramowanie);
-  background: oklch(0.08 0.005 250);
-  color: oklch(0.9 0.004 240);
+  background: var(--tlo);
+  color: var(--tekst);
 }
 #widok-nowe .katalog-formularz input::placeholder { color: var(--habits-tekst-pomocniczy); }
 #widok-nowe .katalog-formularz input:focus { border-color: var(--habits-akcent); }
@@ -128,37 +112,36 @@
   border-radius: 14px;
   border: none;
   background: var(--habits-akcent);
-  color: oklch(0.1 0.006 250);
+  color: var(--tlo);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
 }
 .katalog-btn-zapisz:disabled { opacity: 0.55; cursor: default; }
 .katalog-lista-naglowek { display: flex; align-items: baseline; gap: 12px; margin-top: 36px; }
 .katalog-partia-kropka {
   flex: none;
   align-self: center;
-  width: 14px;
-  height: 14px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--kolor-partii);
-  box-shadow: 0 0 18px var(--kolor-partii);
+  box-shadow: none;
 }
 #widok-nowe .katalog-partia-tytul {
   margin: 0;
   flex: 1;
   min-width: 0;
-  font-family: "Instrument Serif", Georgia, serif;
-  font-style: italic;
-  font-weight: 400;
-  font-size: 40px;
-  line-height: 1;
-  color: oklch(0.95 0.004 240);
+  font-family: var(--font);
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--tekst);
+  font-weight: 600;
 }
 .katalog-partia-licznik {
   flex: none;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
   color: var(--habits-tekst-pomocniczy);
   white-space: nowrap;
 }
@@ -168,11 +151,11 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  min-height: 64px;
-  border-top: 1px solid oklch(0.16 0.007 248);
+  min-height: 56px;
+  border-top: 1px solid var(--linia);
 }
-.katalog-wiersz-numer { flex: none; width: 34px; font-family: "Instrument Serif", Georgia, serif; font-size: 26px; color: oklch(0.3 0.008 245); }
-.katalog-wiersz-nazwa { flex: 1; min-width: 0; font-size: 16px; font-weight: 500; color: oklch(0.9 0.004 240); overflow-wrap: anywhere; }
+.katalog-wiersz-numer { display: none; }
+.katalog-wiersz-nazwa { flex: 1; min-width: 0; font-size: 16px; font-weight: 500; color: var(--tekst); overflow-wrap: anywhere; }
 .katalog-btn-kosz {
   flex: none;
   width: 44px;
@@ -187,19 +170,19 @@
   transition: background 0.15s ease, color 0.15s ease, scale 0.1s ease;
 }
 .katalog-btn-kosz svg { width: 17px; height: 17px; }
-.katalog-btn-kosz:hover { background: rgba(180, 72, 44, 0.12); color: oklch(0.75 0.13 28); }
+.katalog-btn-kosz:active { background: var(--negatyw-tlo); color: var(--negatyw); }
 .katalog-btn-kosz:disabled { opacity: 0.5; cursor: default; }
 .btn-usun {
   flex: none;
   padding: 8px 12px;
-  border: 1px solid #E7C3B4;
-  border-radius: 11px;
-  background: #F8E7E0;
-  color: #B4482C;
-  font-size: 0.8rem;
+  border: 1px solid var(--linia-mocna);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--tekst-2);
+  font-size: 13px;
   font-weight: 600;
 }
-.btn-usun:hover { background: #F3D7CC; }
+.btn-usun:active { background: var(--negatyw-tlo); color: var(--negatyw); }
 .btn-usun:disabled { opacity: 0.55; cursor: default; }
 
 /* ----- Status ----- */

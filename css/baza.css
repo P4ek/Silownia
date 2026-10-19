@@ -1,70 +1,88 @@
-/* Baza: zmienne (ciemny motyw, kolory partii), typografia, karty i formularze, przyciski, banery, toasty, konfetti, animacje wejścia, puste stany, ekran logowania, responsywność. */
+/* Baza: zmienne (ciemny motyw, kolory partii), typografia, karty i formularze, przyciski, banery, toasty, konfetti, animacje wejścia, puste stany, ekran logowania, responsywność.
+   Styl: płaska ciemność (ciepła prawie-czerń, powierzchnie o jeden stopień jaśniejsze, bez cieni, poświat i szkła), jeden krój (Archivo),
+   jeden kolor danych (żółty jak talerz 15 kg: --akcent-danych) – tylko na danych (rekordy, postęp), nigdy na przyciskach i menu.
+   Przycisk główny = odwrócenie (jasna pigułka, ciemny tekst). */
 
-/* Apka ma zawsze ciemny motyw (ten z sekcji Nawyki) — zmienne bazowe mają od razu ciemne wartości, więc także elementy poza .kontener (ekran logowania, okno wylogowania, menu) są ciemne */
 :root {
-  --habits-akcent: #D6D0C0;
-  --habits-akcent-rgb: 214, 208, 192;
-  --habits-tlo: oklch(0.07 0.004 250);
-  --habits-tlo-karta: oklch(0.1 0.006 250);
-  --habits-obramowanie: oklch(0.19 0.008 245);
-  --habits-obramowanie-puste: oklch(0.24 0.01 245);
-  --habits-naglowek: oklch(0.97 0.004 240);
-  --habits-tekst: oklch(0.85 0.005 240);
-  --habits-tekst-pomocniczy: oklch(0.44 0.008 240);
-  --habits-zloto: oklch(0.72 0.08 75); /* złoty akcent z "Rad z książek" (PD, poziom, planety) */
-  /* Jaśniejsze tło kart/formularzy poza sekcją "Nawyki" — --habits-tlo-karta zostaje bez zmian dla samej sekcji Nawyki */
-  --tryb-ciemny-tlo-karta: oklch(0.14 0.006 250);
-  --cream: var(--habits-tlo);
-  --card: var(--tryb-ciemny-tlo-karta);
-  --ink: var(--habits-tekst);
-  --muted: oklch(0.6 0.008 240);
-  --border: var(--habits-obramowanie);
-  --accent: var(--habits-akcent);
-  --accent-soft: var(--habits-tlo-karta);
-  --accent-pink: var(--habits-akcent);
-  --accent-pink-soft: var(--habits-tlo-karta);
-  --shadow-warm: 0 14px 34px -16px rgba(0, 0, 0, 0.7);
-  /* Kolory partii — jedna mapa dla całej apki (kropki partii, Mapa ciała) */
-  --partia-klata: #D6D0C0;
-  --partia-plecy: oklch(0.66 0.13 250);
-  --partia-barki: oklch(0.72 0.14 50);
-  --partia-biceps: oklch(0.66 0.15 300);
-  --partia-triceps: oklch(0.7 0.11 180);
-  --partia-brzuch: oklch(0.74 0.13 140);
-  --partia-nogi: oklch(0.7 0.15 25);
-  --partia-dupa: oklch(0.72 0.14 350);
-  /* Bardzo subtelna tekstura szumu (film grain) na tło strony — SVG feTurbulence, jak w ikonce PWA; opacity 0.04 wpisane w sam SVG (rect) */
-  --tekstura-szumu: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  /* Nowe tokeny */
+  --tlo: #0d0c0b;
+  --powierzchnia: #171614;
+  --wypukle: #22201d;
+  --linia: #262421;
+  --linia-mocna: #3a3733;
+  --tekst: #f0efed;
+  --tekst-2: #b8b3ab;
+  --tekst-3: #99948c;
+  --akcent-danych: #f2c230;
+  --akcent-danych-rgb: 242, 194, 48;
+  --pozytyw: #3fc07a;
+  --negatyw: #ec6a6a;
+  --pozytyw-tlo: #15261b;
+  --negatyw-tlo: #2c1918;
+  --promien-karta: 16px;
+  --promien-pole: 12px;
+  --font: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* Stare nazwy (używane w arkuszach ekranów) – przypięte do nowych tokenów */
+  --habits-akcent: var(--tekst);              /* wypełnienie przycisku głównego, zaznaczenia */
+  --habits-akcent-rgb: 240, 239, 237;
+  --habits-tlo: var(--tlo);
+  --habits-tlo-karta: var(--powierzchnia);
+  --habits-obramowanie: var(--linia);
+  --habits-obramowanie-puste: var(--linia-mocna);
+  --habits-naglowek: var(--tekst);
+  --habits-tekst: var(--tekst);
+  --habits-tekst-pomocniczy: var(--tekst-3);
+  --habits-zloto: var(--akcent-danych);       /* rekordy, PD, poziom – kolor danych */
+  --tryb-ciemny-tlo-karta: var(--powierzchnia);
+  --cream: var(--tlo);
+  --card: var(--powierzchnia);
+  --ink: var(--tekst);
+  --muted: var(--tekst-2);
+  --border: var(--linia);
+  --accent: var(--tekst);
+  --accent-soft: var(--wypukle);
+  --accent-pink: var(--tekst);
+  --accent-pink-soft: var(--wypukle);
+  --shadow-warm: none;
+
+  /* Kolory partii – blade, przygaszone odcienie (tożsamość, nie dane); jedna mapa dla całej apki */
+  --partia-klata: oklch(0.78 0.07 30);
+  --partia-plecy: oklch(0.76 0.07 240);
+  --partia-barki: oklch(0.8 0.07 70);
+  --partia-biceps: oklch(0.76 0.07 320);
+  --partia-triceps: oklch(0.78 0.06 190);
+  --partia-brzuch: oklch(0.8 0.07 130);
+  --partia-nogi: oklch(0.76 0.07 0);
+  --partia-dupa: oklch(0.78 0.06 280);
 }
 * { box-sizing: border-box; }
 /* Gwarantuje, że atrybut [hidden] zawsze ukrywa element, nawet gdy jakaś
    reguła w tym arkuszu ustawia mu display (np. .rekord-baner{display:flex}) */
 [hidden] { display: none !important; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; background: var(--tlo); }
 body {
   margin: 0;
-  color: var(--ink);
-  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--tekst);
+  font-family: var(--font);
   font-size: 15px;
   line-height: 1.5;
-  background:
-    var(--tekstura-szumu) repeat,
-    radial-gradient(1000px 620px at 100% -5%, rgba(226, 100, 63, 0.16), rgba(226, 100, 63, 0) 62%),
-    var(--cream);
-  background-attachment: fixed;
+  background: var(--tlo);
   min-height: 100vh;
 }
+input, select, textarea, button { font-family: var(--font); }
+::selection { background: var(--tekst); color: var(--tlo); }
 
 h1, h2, legend, .rekord-baner {
-  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: 0.01em;
+  font-family: var(--font);
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
-h1 { font-size: 2.1rem; margin: 4px 0 20px; padding-left: 52px; line-height: 1.15; }
-h2 { font-size: 1.5rem; margin: 0 0 14px; }
-/* Dłuższy cytat zamiast tytułu (konto AI_UZYTKOWNIK_ID) — mniejszy, żeby nie zajmował pół ekranu */
-h1.app-tytul-cytat { font-size: 1.45rem; }
+h1 { font-size: 22px; margin: 0 0 20px; line-height: 1.2; }
+h2 { font-size: 18px; margin: 0 0 12px; line-height: 1.25; }
+/* Cytat zamiast tytułu (konto AI_UZYTKOWNIK_ID) – cichy, w pasku górnym */
+h1.app-tytul-cytat { font-size: 13px; font-weight: 400; line-height: 1.4; color: var(--tekst-2); letter-spacing: 0; }
 
 .kontener {
   position: relative;
@@ -74,21 +92,13 @@ h1.app-tytul-cytat { font-size: 1.45rem; }
 }
 .kontener > h1,
 .kontener > section { position: relative; z-index: 1; }
-.habits-poswiata {
-  display: none;
-  position: absolute;
-  top: -220px;
-  right: -120px;
-  z-index: 0;
-  opacity: 0.14;
-  pointer-events: none;
-}
+.habits-poswiata { display: none !important; }
 
 /* ----- Okno potwierdzenia wylogowania ----- */
 #wyloguj-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.7);
   z-index: 90;
   display: flex;
   align-items: center;
@@ -98,54 +108,38 @@ h1.app-tytul-cytat { font-size: 1.45rem; }
 #wyloguj-modal {
   width: 100%;
   max-width: 340px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  box-shadow: var(--shadow-warm);
-  padding: 26px 22px 22px;
-  text-align: center;
+  background: var(--wypukle);
+  border-radius: var(--promien-karta);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  padding: 24px 20px 20px;
 }
 #wyloguj-modal h3 {
-  margin: 0 0 8px;
-  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
-  font-style: italic;
-  font-weight: 400;
-  font-size: 1.35rem;
+  margin: 0 0 6px;
+  font-size: 17px;
+  font-weight: 600;
 }
 #wyloguj-modal p {
-  margin: 0 0 22px;
-  color: var(--muted);
-  font-size: 0.88rem;
+  margin: 0 0 20px;
+  color: var(--tekst-2);
+  font-size: 14px;
 }
 .wyloguj-akcje {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
-.btn-wyloguj-tak {
-  padding: 13px 20px;
-  border: none;
-  border-radius: 999px;
-  background: var(--habits-akcent);
-  color: oklch(0.07 0.004 250);
-  font-weight: 700;
-  font-size: 0.92rem;
-  box-shadow: 0 0 10px rgba(var(--habits-akcent-rgb), 0.35);
-  transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease;
-}
-.btn-wyloguj-tak:hover { filter: brightness(1.05); }
-.btn-wyloguj-tak:active { transform: translateY(1px); }
-.btn-wyloguj-tak:disabled { opacity: 0.55; box-shadow: none; cursor: default; }
+.btn-wyloguj-tak,
 .btn-wyloguj-nie {
-  padding: 13px 20px;
-  border: 1px solid var(--border);
+  min-height: 46px;
+  padding: 0 20px;
   border-radius: 999px;
-  background: none;
-  color: var(--ink);
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: 15px;
 }
-.btn-wyloguj-nie:hover { background: var(--habits-obramowanie); }
+.btn-wyloguj-tak { border: none; background: var(--tekst); color: var(--tlo); }
+.btn-wyloguj-tak:disabled { opacity: 0.55; cursor: default; }
+.btn-wyloguj-nie { border: 1px solid var(--linia-mocna); background: none; color: var(--tekst); }
+.btn-wyloguj-nie:active { background: var(--powierzchnia); }
 
 /* ----- Widoki ----- */
 .widok { display: none; opacity: 1; transition: opacity 150ms ease; }
@@ -153,99 +147,98 @@ h1.app-tytul-cytat { font-size: 1.45rem; }
 /* Klasa pomocnicza do animacji fade przy przełączaniu widoków (patrz handler .nav-btn) — na aktywnym widoku daje fade-out (krótszy czas), na nowo pokazywanym jest chwilowo dodana i usuwana, żeby wystartować od opacity:0 i przejść do 1 z domyślnym czasem powyżej */
 .widok.widok-znika { opacity: 0; transition-duration: 120ms; }
 
-/* ----- Karty / formularze ----- */
+/* ----- Karty / formularze: płaska powierzchnia o jeden stopień jaśniejsza od tła, bez ramki i cienia ----- */
 form,
 .karta {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  box-shadow: var(--shadow-warm);
+  background: var(--powierzchnia);
+  border: none;
+  border-radius: var(--promien-karta);
+  box-shadow: none;
 }
 form, .karta { padding: 20px; }
 
 label {
   display: block;
-  font-weight: 600;
-  font-size: 0.9rem;
-  margin: 14px 0 5px;
-  color: var(--ink);
+  font-weight: 500;
+  font-size: 14px;
+  margin: 16px 0 8px;
+  color: var(--tekst);
 }
 form > label:first-of-type { margin-top: 0; }
 select, input, textarea {
   width: 100%;
-  padding: 11px 12px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--card);
+  min-height: 46px;
+  padding: 11px 14px;
+  border: 1px solid var(--linia-mocna);
+  border-radius: var(--promien-pole);
+  background: var(--tlo);
   font: inherit;
   font-size: 16px; /* min. 16px zapobiega automatycznemu przybliżeniu ekranu przy focusie pola w Safari na iOS */
-  color: var(--ink);
+  color: var(--tekst);
 }
-select:focus, input:focus {
+input::placeholder, textarea::placeholder { color: var(--tekst-3); }
+select:focus, input:focus, textarea:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18);
+  border-color: var(--tekst-2);
+  box-shadow: none;
 }
-select:disabled { background: var(--habits-tlo-karta); color: var(--muted); }
+select:disabled { color: var(--tekst-3); }
+:focus-visible { outline: 2px solid var(--tekst); outline-offset: 2px; }
 
-button { font: inherit; cursor: pointer; }
+button { font: inherit; cursor: pointer; border: 0; }
 
+/* Przycisk główny: odwrócenie – jasna pigułka z ciemnym tekstem */
 .btn-submit {
   display: block;
   width: 100%;
+  min-height: 50px;
   margin-top: 18px;
-  padding: 14px 24px;
+  padding: 0 24px;
   border: none;
   border-radius: 999px;
-  background: linear-gradient(135deg, #EF7B50, #E2643F 55%, #CF5330);
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.98rem;
-  letter-spacing: 0.01em;
-  box-shadow: 0 12px 26px -8px rgba(226, 100, 63, 0.55);
-  transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease;
+  background: var(--tekst);
+  color: var(--tlo);
+  font-weight: 600;
+  font-size: 16px;
+  box-shadow: none;
+  transition: opacity 0.15s ease, scale 0.1s ease;
 }
-.btn-submit:hover { filter: brightness(1.05); }
-.btn-submit:active { transform: translateY(1px); }
-.btn-submit:disabled { opacity: 0.55; box-shadow: none; cursor: default; }
+.btn-submit:disabled { opacity: 0.4; cursor: default; }
 
-/* ----- Baner rekordu ----- */
+/* ----- Baner rekordu: wiersz z kolorem danych na znaczku ----- */
 .rekord-baner {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 18px;
-  padding: 12px 20px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #EF7B50, #E2643F 60%, #CF5330);
-  color: #fff;
-  font-size: 1.05rem;
-  box-shadow: 0 12px 26px -10px rgba(226, 100, 63, 0.5);
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: var(--promien-pole);
+  background: var(--powierzchnia);
+  color: var(--tekst);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: none;
 }
-.rekord-baner svg { width: 20px; height: 20px; flex: none; }
-.rekord-baner span { font-style: italic; }
+.rekord-baner svg { width: 18px; height: 18px; flex: none; color: var(--akcent-danych); }
+.rekord-baner span { font-style: normal; }
 
-/* Krótki błysk/pulsowanie przy pojawieniu się banera rekordu — klasa dodawana i po chwili usuwana w renderRekord() */
+/* Krótkie podświetlenie przy pojawieniu się banera rekordu — klasa dodawana i po chwili usuwana w renderRekord() */
 @keyframes rekord-pulsuj-anim {
-  0% { filter: brightness(1); transform: scale(1); }
-  30% { filter: brightness(1.25); transform: scale(1.03); }
-  100% { filter: brightness(1); transform: scale(1); }
+  0% { background: var(--wypukle); }
+  100% { background: var(--powierzchnia); }
 }
-.rekord-baner.rekord-pulsuj {
-  animation: rekord-pulsuj-anim 600ms ease;
-}
+.rekord-baner.rekord-pulsuj { animation: rekord-pulsuj-anim 600ms ease; }
 
 /* ----- Kropki partii ----- */
 .dot {
   display: inline-block;
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   margin-right: 8px;
   flex: none;
   vertical-align: 1px;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
-  background: var(--kolor-partii, var(--muted));
+  background: var(--kolor-partii, var(--tekst-3));
 }
 /* Kolor partii z mapy --partia-* w :root — wspólny dla kropek partii i Mapy ciała */
 .dot-Klata,   .mapa-partia[data-partia="Klata"]   { --kolor-partii: var(--partia-klata); }
@@ -259,12 +252,8 @@ button { font: inherit; cursor: pointer; }
 
 /* ----- Responsywność ----- */
 @media (max-width: 560px) {
-  h1 { font-size: 1.8rem; }
-  h1.app-tytul-cytat { font-size: 1.25rem; }
-  h2 { font-size: 1.3rem; }
-  .kontener { padding: 16px 12px 56px; }
+  .kontener { padding: 16px 16px 56px; }
   form, .karta { padding: 16px; }
-  .rekord-baner { font-size: 0.95rem; padding: 11px 16px; }
 }
 
 /* ----- Ekran logowania ----- */
@@ -275,12 +264,11 @@ button { font: inherit; cursor: pointer; }
   justify-content: center;
   padding: 20px 16px;
 }
-.logowanie-karta { width: 100%; max-width: 380px; }
-.logowanie-karta h1 { padding-left: 0; text-align: center; }
-.logowanie-opis { color: var(--muted); margin: 0 0 4px; text-align: center; }
-.logowanie-karta h1 { color: var(--habits-naglowek); }
-.ekran-logowania form { background: none; border: none; box-shadow: none; }
-.logowanie-status { margin: 14px 0 0; font-size: 0.9rem; font-weight: 600; text-align: center; }
+.logowanie-karta { width: 100%; max-width: 380px; background: none; padding: 0; }
+.logowanie-karta h1 { padding-left: 0; margin-bottom: 6px; font-size: 26px; color: var(--tekst); }
+.logowanie-opis { color: var(--tekst-2); margin: 0 0 24px; }
+.ekran-logowania form { background: none; border: none; padding: 0; }
+.logowanie-status { margin: 14px 0 0; font-size: 14px; font-weight: 500; }
 
 /* ----- Toast (pokazToast) zamiast alert() ----- */
 .toast-kontener {
@@ -298,21 +286,22 @@ button { font: inherit; cursor: pointer; }
   pointer-events: none;
 }
 .toast {
-  padding: 11px 18px;
-  border-radius: 14px;
-  border: 1px solid transparent;
-  font-size: 0.9rem;
-  font-weight: 600;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
   line-height: 1.4;
   text-align: center;
-  box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.7);
+  background: var(--wypukle);
+  color: var(--tekst);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   opacity: 0;
   transform: translateY(16px);
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
 .toast.widoczny { opacity: 1; transform: none; }
-.toast-sukces { background: oklch(0.2 0.035 150); border-color: oklch(0.32 0.06 150); color: oklch(0.86 0.08 150); }
-.toast-blad   { background: oklch(0.2 0.04 28);   border-color: oklch(0.34 0.08 28);  color: oklch(0.85 0.08 28); }
+.toast-sukces { background: var(--pozytyw-tlo); color: var(--pozytyw); }
+.toast-blad   { background: var(--negatyw-tlo); color: var(--negatyw); }
 
 /* ----- Konfetti po odznaczeniu wszystkich nawyków na dziś ----- */
 .konfetti-warstwa {
@@ -334,32 +323,36 @@ button { font: inherit; cursor: pointer; }
   }
 }
 
-/* ----- Kaskadowe wejście elementów list (wjazdKarty) — oba motywy -----
-   fill-mode "backwards": przed startem (w trakcie opóźnienia) element jest niewidoczny, a po końcu animacja
-   niczego nie nadpisuje (np. opacity zrealizowanego celu). Animacja startuje też przy ponownym pokazaniu sekcji. */
-.karta-wjazd { animation: karta-wjazd 0.35s ease-out backwards; }
+/* ----- Wejście elementów list (wjazdKarty): krótkie, bez przesunięcia — tylko przejrzystość ----- */
+.karta-wjazd { animation: karta-wjazd 0.2s ease-out backwards; }
 @keyframes karta-wjazd {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
   .karta-wjazd { animation: none; }
 }
 
-/* ----- Puste stany z ikoną ----- */
+/* ----- Puste stany ----- */
+.pusto {
+  color: var(--tekst-2);
+  font-size: 14px;
+}
 .pusto.pusto-z-ikona {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 24px 18px;
-  text-align: center;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 16px;
+  border: 1px dashed var(--linia-mocna);
+  border-radius: var(--promien-pole);
+  text-align: left;
 }
-.pusto-ikona { font-size: 1.9rem; line-height: 1; font-style: normal; }
+.pusto-ikona { display: none; }
 
 /* ----- Feedback dotykowy przy naciśnięciu przycisku (właściwość scale, żeby nie gryzła się z transform) ----- */
 button { transition: scale 0.1s ease; }
-button:not(:disabled):active { scale: 0.96; }
+button:not(:disabled):active { scale: 0.97; }
 @media (prefers-reduced-motion: reduce) {
   .konfetti-warstwa { display: none; }
 }

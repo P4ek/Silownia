@@ -1,54 +1,45 @@
-/* Menu: przycisk-kropla (#hamburger, ten sam przycisk zamyka menu – kreski → X przez aria-expanded), dzwonek przypomnień,
-   pełnoekranowe menu (#sidebar) z rozdziałami, wiszące zakładki-skróty, Wyloguj. Ładowany po motyw.css.
-   Warstwy: #overlay 70 < #sidebar 75 < #wyloguj-overlay 90 < .topbar-ikony (kropla + dzwonek) 110. */
+/* Menu: przycisk menu (#hamburger, ten sam przycisk zamyka menu – kreski → X przez aria-expanded), dzwonek przypomnień,
+   pełnoekranowe menu (#sidebar): nagłówek, rząd skrótów, rozdziały, Wyloguj. Ładowany po motyw.css.
+   Aktywna pozycja = jaśniejszy tekst (bez koloru), reszta szara. Warstwy: #overlay 70 < #sidebar 75 < #wyloguj-overlay 90 < .topbar-ikony 110. */
 
-/* ----- Kropla + dzwonek ----- */
+/* ----- Przycisk menu + dzwonek ----- */
 .topbar-ikony {
   position: fixed;
-  top: calc(14px + env(safe-area-inset-top, 0px));
-  left: calc(14px + env(safe-area-inset-left, 0px));
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  left: calc(12px + env(safe-area-inset-left, 0px));
   z-index: 110;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 .kropla {
   position: relative;
   flex: none;
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
-  border-radius: 58% 42% 55% 45% / 52% 48% 52% 48%;
-  background: var(--habits-akcent);
-  color: oklch(0.1 0.006 250);
-  box-shadow: 0 14px 30px -14px rgba(var(--habits-akcent-rgb), 0.6);
+  border-radius: 50%;
+  background: var(--powierzchnia);
+  color: var(--tekst);
   cursor: pointer;
-  animation: kropla 9s ease-in-out infinite;
-  transition: transform 0.35s cubic-bezier(0.3, 1.5, 0.5, 1), scale 0.1s ease;
   -webkit-tap-highlight-color: transparent;
 }
-.kropla:not(:disabled):active { scale: 0.92; }
-.kropla:focus-visible { outline: 2px solid var(--habits-akcent); outline-offset: 4px; }
-.kropla[aria-expanded="true"] { transform: rotate(90deg); }
+.kropla:not(:disabled):active { scale: 0.94; background: var(--wypukle); }
 .kropla-l {
   position: absolute;
-  left: 18px;
-  top: 27px;
+  left: 13px;
+  top: 21px;
+  width: 18px;
   height: 2px;
   border-radius: 2px;
   background: currentColor;
-  transition: transform 0.45s cubic-bezier(0.4, 1.6, 0.5, 1), width 0.3s ease;
+  transition: transform 0.25s ease;
 }
-.kropla-l1 { width: 20px; transform: translateY(-4px); }
-.kropla-l2 { width: 12px; transform: translateY(4px); }
+.kropla-l1 { transform: translateY(-4px); }
+.kropla-l2 { transform: translateY(4px); }
 .kropla[aria-expanded="true"] .kropla-l1 { transform: rotate(45deg); }
-.kropla[aria-expanded="true"] .kropla-l2 { width: 20px; transform: rotate(-45deg); }
-@keyframes kropla {
-  0%, 100% { border-radius: 58% 42% 55% 45% / 52% 48% 52% 48%; }
-  33% { border-radius: 45% 55% 40% 60% / 60% 42% 58% 40%; }
-  66% { border-radius: 52% 48% 62% 38% / 45% 58% 42% 55%; }
-}
+.kropla[aria-expanded="true"] .kropla-l2 { transform: rotate(-45deg); }
 
 /* Dzwonek widoczny tylko przy otwartym menu (klasa .panel-otwarty z otworzPanel/zamknijPanel) */
 .topbar-ikony #btn-przypomnienia {
@@ -57,33 +48,37 @@
   display: grid;
   place-items: center;
   padding: 0;
-  border: 1px solid oklch(0.3 0.008 245);
+  border: none;
   border-radius: 50%;
-  background: var(--habits-tlo);
-  color: var(--habits-tekst);
+  background: var(--powierzchnia);
+  color: var(--tekst-2);
   cursor: pointer;
   opacity: 0;
   visibility: hidden;
-  transform: translateX(-6px);
-  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s, scale 0.1s ease;
+  transition: opacity 0.15s ease, visibility 0s linear 0.15s, scale 0.1s ease;
 }
-.topbar-ikony #btn-przypomnienia svg { width: 19px; height: 19px; }
+.topbar-ikony #btn-przypomnienia svg { width: 18px; height: 18px; }
 .topbar-ikony.panel-otwarty #btn-przypomnienia {
   opacity: 1;
   visibility: visible;
-  transform: none;
-  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s, scale 0.1s ease;
+  transition: opacity 0.15s ease, visibility 0s, scale 0.1s ease;
 }
 
-/* Tytuł ekranu odsunięty od większej kropli (56 px zamiast dawnych 42 px) */
-.kontener > h1 { padding-left: 64px; }
+/* Tytuł ekranu w jednej linii z przyciskiem menu */
+.kontener > h1 {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding-left: 56px;
+  margin: -2px 0 16px;
+}
 
 /* ----- Tło pod menu ----- */
 #overlay {
   position: fixed;
   inset: 0;
   z-index: 70;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--tlo);
 }
 
 /* ----- Menu ----- */
@@ -96,140 +91,92 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  background: var(--habits-tlo);
-  color: var(--habits-tekst);
-  /* zamknięte: niewidoczne i niedostępne klawiaturą (visibility), aria-hidden ustawia JS.
-     Otwieranie: koło rozlewa się ze środka kropli (14 px + połowa z 56 px), zamykanie: wraca do kropli */
-  --menu-srodek: calc(42px + env(safe-area-inset-left, 0px)) calc(42px + env(safe-area-inset-top, 0px));
+  background: var(--tlo);
+  color: var(--tekst);
   visibility: hidden;
-  -webkit-clip-path: circle(0 at var(--menu-srodek));
-  clip-path: circle(0 at var(--menu-srodek));
-  transition: clip-path 0.38s cubic-bezier(0.55, 0, 0.75, 0.3), -webkit-clip-path 0.38s cubic-bezier(0.55, 0, 0.75, 0.3), visibility 0s linear 0.38s;
+  opacity: 0;
+  transition: opacity 0.18s ease, visibility 0s linear 0.18s;
 }
 #sidebar.open {
   visibility: visible;
-  -webkit-clip-path: circle(150vmax at var(--menu-srodek));
-  clip-path: circle(150vmax at var(--menu-srodek));
-  transition: clip-path 0.6s cubic-bezier(0.25, 0.9, 0.35, 1), -webkit-clip-path 0.6s cubic-bezier(0.25, 0.9, 0.35, 1), visibility 0s;
+  opacity: 1;
+  transition: opacity 0.18s ease, visibility 0s;
 }
-
-/* Po otwarciu: zakładki spadają z góry, potem kolejno wjeżdżają nagłówek, rozdziały i stopka.
-   fill-mode "backwards": po animacji nic nie zostaje nadpisane (np. transform zakładki przy dotyku) */
-#sidebar.open .menu-zakladka { animation: menu-zakladka 0.6s cubic-bezier(0.3, 1.35, 0.5, 1) backwards; }
-#sidebar.open .menu-zakladka:nth-child(1) { animation-delay: 0.14s; }
-#sidebar.open .menu-zakladka:nth-child(2) { animation-delay: 0.2s; }
-#sidebar.open .menu-zakladka:nth-child(3) { animation-delay: 0.26s; }
-#sidebar.open :is(.menu-naglowek, .menu-rozdzial, .menu-stopka) { animation: menu-wjazd 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) backwards; }
-#sidebar.open .menu-naglowek { animation-delay: 0.08s; }
-#sidebar.open .menu-rozdzial:nth-child(1) { animation-delay: 0.14s; }
-#sidebar.open .menu-rozdzial:nth-child(2) { animation-delay: 0.19s; }
-#sidebar.open .menu-rozdzial:nth-child(3) { animation-delay: 0.24s; }
-#sidebar.open .menu-rozdzial:nth-child(4) { animation-delay: 0.29s; }
-#sidebar.open .menu-stopka { animation-delay: 0.34s; }
-#sidebar.open .menu-pozycja[aria-current="page"]::before { animation: menu-znacznik 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) 0.4s backwards; }
-@keyframes menu-zakladka { from { transform: translateY(-105%); } }
-@keyframes menu-wjazd { from { opacity: 0; transform: translateY(16px); } }
-@keyframes menu-znacznik { from { opacity: 0; transform: translateY(-14px); } }
 .menu-wnetrze {
   position: relative;
   max-width: 560px;
   min-height: 100%;
-  padding:
-    0
-    calc(24px + env(safe-area-inset-right, 0px))
-    calc(40px + env(safe-area-inset-bottom, 0px))
-    calc(24px + env(safe-area-inset-left, 0px));
-}
-
-/* Zakładki-skróty wiszące z górnej krawędzi */
-.menu-zakladki {
-  position: absolute;
-  top: 0;
-  right: calc(22px + env(safe-area-inset-right, 0px));
-  z-index: 2;
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-}
-.menu-zakladka {
-  width: 50px;
-  height: calc(var(--wys) + env(safe-area-inset-top, 0px));
-  padding: 0 0 22px;
-  border: none;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
+  padding:
+    calc(76px + env(safe-area-inset-top, 0px))
+    calc(16px + env(safe-area-inset-right, 0px))
+    calc(32px + env(safe-area-inset-bottom, 0px))
+    calc(16px + env(safe-area-inset-left, 0px));
+}
+
+/* Nagłówek */
+.menu-naglowek { order: 1; }
+.menu-powitanie { display: none; }
+.menu-tytul {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--tekst);
+}
+
+/* Skróty: rząd trzech przycisków pod nagłówkiem */
+.menu-zakladki {
+  order: 2;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 20px;
+}
+.menu-zakladka {
+  min-height: 72px;
+  padding: 12px;
+  border: none;
+  border-radius: var(--promien-pole);
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 10px;
-  background: var(--kolor);
-  color: oklch(0.1 0.006 250);
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 14px), 0 100%);
+  background: var(--powierzchnia);
+  color: var(--tekst);
   cursor: pointer;
-  transform-origin: top center;
-  transition: transform 0.25s cubic-bezier(0.3, 1.4, 0.5, 1), scale 0.1s ease;
   -webkit-tap-highlight-color: transparent;
 }
-.menu-zakladka:not(:disabled):active,
-.menu-zakladka:focus-visible { scale: 1; transform: translateY(10px); }
-.menu-zakladka:focus-visible { outline: none; filter: brightness(1.12); }
-.menu-zakladka svg { width: 20px; height: 20px; flex: none; }
-.menu-zakladka-tekst {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  white-space: nowrap;
-}
-.menu-zakladka-zdjecie { --kolor: oklch(0.72 0.11 175); --wys: 150px; }
-.menu-zakladka-trening { --kolor: oklch(0.7 0.12 250); --wys: 186px; }
-.menu-zakladka-nawyk   { --kolor: var(--habits-akcent); --wys: 128px; }
-
-/* Nagłówek: miejsce na kroplę u góry, potem "CZEŚĆ" i tytuł */
-.menu-naglowek { padding-top: calc(132px + env(safe-area-inset-top, 0px)); }
-.menu-powitanie {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  color: oklch(0.52 0.008 240);
-}
-.menu-tytul {
-  margin: 6px 0 0;
-  font-family: "Instrument Serif", Georgia, serif;
-  font-style: italic;
-  font-weight: 400;
-  font-size: 64px;
-  line-height: 0.9;
-  letter-spacing: 0;
-  color: var(--habits-naglowek);
-}
+.menu-zakladka:not(:disabled):active { background: var(--wypukle); }
+.menu-zakladka svg { width: 20px; height: 20px; flex: none; color: var(--tekst-2); }
+.menu-zakladka-tekst { font-size: 14px; font-weight: 500; white-space: nowrap; }
 
 /* Rozdziały i pozycje */
-.menu-rozdzialy { margin-top: 26px; }
-.menu-rozdzial {
-  padding: 22px 0 6px;
-  border-top: 1px solid oklch(0.18 0.008 245);
-}
+.menu-rozdzialy { order: 3; margin-top: 12px; }
+.menu-rozdzial { padding: 20px 0 4px; }
 .menu-rozdzial-nazwa {
   display: block;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  color: oklch(0.52 0.008 240);
+  margin-bottom: 2px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--tekst-3);
 }
 .menu-pozycja {
   position: relative;
   width: 100%;
-  min-height: 50px;
+  min-height: 48px;
   margin: 0;
   padding: 0;
   border: none;
   border-radius: 0;
   background: transparent;
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
   text-align: left;
   font: inherit;
   color: inherit;
@@ -237,75 +184,50 @@
   -webkit-tap-highlight-color: transparent;
 }
 .menu-pozycja:not(:disabled):active { scale: 1; }
-.menu-pozycja:focus-visible { outline: 2px solid var(--habits-akcent); outline-offset: 2px; border-radius: 6px; }
+.menu-pozycja:focus-visible { outline: 2px solid var(--tekst); outline-offset: 2px; border-radius: 6px; }
 .menu-etykieta {
+  flex: 1;
   min-width: 0;
-  font-family: "Instrument Serif", Georgia, serif;
-  font-style: italic;
-  font-size: 27px;
-  line-height: 1.1;
-  color: oklch(0.9 0.004 240);
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--tekst-2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: color 0.2s ease, font-size 0.2s ease;
+  transition: color 0.15s ease;
 }
-.menu-kropki {
-  flex: 1;
-  min-width: 16px;
-  border-bottom: 2px dotted oklch(0.26 0.008 245);
-  transform: translateY(-6px);
-}
+.menu-kropki { display: none; }
 .menu-wartosc {
   flex: none;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-size: 14px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  color: oklch(0.6 0.008 240);
-  transform: translateY(-3px);
+  color: var(--tekst-3);
 }
-.menu-wartosc-zlota { color: var(--habits-zloto); }
-/* Pigułka celów tygodnia (plan-tygodnia.js): komplet = kolor akcentu */
-.nav-cele-pigulka.pigulka-kompletna { color: var(--habits-akcent); }
+.menu-wartosc-zlota { color: var(--tekst-3); }
+.nav-cele-pigulka.pigulka-kompletna { color: var(--akcent-danych); }
 
-/* Dotyk zamiast :hover */
-.menu-pozycja:active .menu-etykieta { color: #fff; }
-
-/* Aktywna pozycja: większa, w kolorze akcentu, ze złotą zakładką po lewej */
-.menu-pozycja[aria-current="page"] .menu-etykieta { font-size: 34px; color: var(--habits-akcent); }
-.menu-pozycja[aria-current="page"] .menu-wartosc { color: var(--habits-akcent); }
-.menu-pozycja[aria-current="page"]::before {
-  content: "";
-  position: absolute;
-  left: -24px;
-  top: 6px;
-  width: 12px;
-  height: 34px;
-  background: var(--habits-zloto);
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 76%, 0 100%);
-}
+.menu-pozycja:active .menu-etykieta { color: var(--tekst); }
+/* Aktywna pozycja: tylko jaśniejszy tekst */
+.menu-pozycja[aria-current="page"] .menu-etykieta { color: var(--tekst); font-weight: 600; }
+.menu-pozycja[aria-current="page"] .menu-wartosc { color: var(--tekst-2); }
 
 /* Stopka: tylko Wyloguj */
-.menu-stopka {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid oklch(0.18 0.008 245);
-}
+.menu-stopka { order: 4; margin-top: 28px; }
 .nav-wyloguj {
   width: 100%;
   min-height: 48px;
-  border: 1px solid oklch(0.24 0.008 245);
+  border: 1px solid var(--linia-mocna);
   border-radius: 999px;
   background: transparent;
   font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  color: oklch(0.55 0.008 240);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--tekst-2);
   cursor: pointer;
 }
-.nav-wyloguj:active { background: oklch(0.12 0.006 245); color: oklch(0.75 0.13 28); }
+.nav-wyloguj:active { background: var(--negatyw-tlo); color: var(--negatyw); }
 
 /* Blokada przewijania tła przy otwartym menu. Sam overflow:hidden na body nie działa w iOS Safari,
    więc body jest przypinane (position:fixed, top = -scrollY ustawia JS), a po zamknięciu przewijanie wraca na miejsce. */
@@ -319,10 +241,5 @@ html.menu-otwarte body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .kropla { animation: none; border-radius: 50%; }
-  .kropla, .kropla-l, .menu-zakladka, .menu-etykieta, .topbar-ikony #btn-przypomnienia { transition: none; }
-  #sidebar, #sidebar.open { transition: none; }
-  #sidebar.open .menu-zakladka,
-  #sidebar.open :is(.menu-naglowek, .menu-rozdzial, .menu-stopka),
-  #sidebar.open .menu-pozycja[aria-current="page"]::before { animation: none; }
+  .kropla-l, .menu-etykieta, .topbar-ikony #btn-przypomnienia, #sidebar, #sidebar.open { transition: none; }
 }
