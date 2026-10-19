@@ -1,0 +1,176 @@
+/* Blask (ładowany po spojnosc.css): ten sam styl – noc, gwiazdy, krem i złoto – tylko podkręcony.
+   - żywe niebo za całą apką: dwie dryfujące poświaty (złota, błękitna) i migoczący pył gwiezdny na body::before/::after,
+     .kontener ma przezroczyste tło, menu dostaje ten sam pył,
+   - tytuły ekranów z połyskiem (krem → złoto, wolny blask), złota iskra przed nagłówkami sekcji,
+   - wielkie liczby z miękką poświatą, karty z górnym refleksem szkła i cieniem,
+   - przyciski główne z przelatującym błyskiem, paski postępu ze świecącą końcówką,
+   - wejście ekranu: treść wyłania się kaskadą (opacity + przesunięcie + rozmycie).
+   Animacje tylko na transform / opacity / background-position; prefers-reduced-motion wyłącza wszystkie. */
+
+:root {
+  --blask-pyl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Ccircle cx='78' cy='36' r='0.5' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='197' cy='23' r='1.1' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='218' cy='52' r='0.5' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='100' cy='58' r='1.1' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='14' cy='136' r='0.6' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='139' cy='95' r='0.6' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='134' cy='32' r='0.9' fill='%23EFE8D6' opacity='0.35'/%3E%3Ccircle cx='130' cy='137' r='1.1' fill='%23EFE8D6' opacity='0.35'/%3E%3Ccircle cx='25' cy='137' r='0.6' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='23' cy='171' r='1.1' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='149' cy='119' r='1.1' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='187' cy='112' r='0.9' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='72' cy='191' r='0.6' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='138' cy='126' r='0.7' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='69' cy='235' r='0.5' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='40' cy='82' r='0.9' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='9' cy='160' r='1.1' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='82' cy='84' r='0.9' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='17' cy='22' r='0.7' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='167' cy='16' r='0.7' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='68' cy='93' r='0.7' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='226' cy='85' r='1.1' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='118' cy='52' r='0.7' fill='%23EFE8D6' opacity='0.35'/%3E%3Ccircle cx='177' cy='95' r='0.9' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='40' cy='96' r='0.7' fill='%23EFE8D6' opacity='0.35'/%3E%3Ccircle cx='197' cy='207' r='0.7' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='237' cy='164' r='0.9' fill='%23EFE8D6' opacity='0.35'/%3E%3Ccircle cx='36' cy='42' r='0.6' fill='%23EFE8D6' opacity='0.35'/%3E%3Ccircle cx='3' cy='199' r='0.6' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='68' cy='35' r='1.1' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='146' cy='76' r='0.6' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='110' cy='209' r='1.1' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='96' cy='95' r='0.9' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='15' cy='16' r='0.6' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='39' cy='82' r='0.5' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='0' cy='36' r='0.5' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='147' cy='17' r='0.6' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='36' cy='61' r='0.7' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='114' cy='28' r='0.9' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='115' cy='75' r='0.6' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='180' cy='178' r='0.9' fill='%23EFE8D6' opacity='0.35'/%3E%3Ccircle cx='124' cy='49' r='1.1' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='35' cy='130' r='0.5' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='235' cy='207' r='0.7' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='218' cy='85' r='0.6' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='153' cy='147' r='0.6' fill='%23EFE8D6' opacity='0.35'/%3E%3C/svg%3E");
+  --blask-iskra: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 0C10.6 6.2 13.8 9.4 20 10 13.8 10.6 10.6 13.8 10 20 9.4 13.8 6.2 10.6 0 10 6.2 9.4 9.4 6.2 10 0Z'/%3E%3C/svg%3E");
+  --blask-zloto: oklch(0.8 0.1 78);
+}
+
+/* ===== Żywe niebo ===== */
+body.motyw-habits { background: var(--habits-tlo); }
+body.motyw-habits::before,
+body.motyw-habits::after {
+  content: "";
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+}
+/* Poświaty: większe od ekranu, żeby dryf nie odsłaniał krawędzi */
+body.motyw-habits::before {
+  inset: -20%;
+  background:
+    radial-gradient(38% 30% at 82% 12%, oklch(0.72 0.08 75 / 0.2), transparent 70%),
+    radial-gradient(34% 28% at 10% 62%, oklch(0.5 0.08 255 / 0.22), transparent 70%),
+    radial-gradient(30% 24% at 70% 92%, oklch(0.6 0.08 300 / 0.1), transparent 70%);
+  animation: blask-dryf 38s ease-in-out infinite alternate;
+}
+body.motyw-habits::after {
+  inset: 0;
+  background-image: var(--blask-pyl), var(--blask-pyl);
+  background-size: 240px 240px, 380px 380px;
+  background-position: 0 0, 90px 130px;
+  opacity: 0.55;
+  animation: blask-migotanie 7s ease-in-out infinite;
+}
+@keyframes blask-dryf {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-4%, 3%, 0) scale(1.06); }
+  100% { transform: translate3d(3%, -2%, 0) scale(1.02); }
+}
+@keyframes blask-migotanie { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; } }
+#aplikacja, .ekran-logowania { position: relative; z-index: 1; }
+.kontener.motyw-habits { background: transparent; }
+#sidebar { background: var(--blask-pyl) 0 0 / 240px, radial-gradient(60% 40% at 90% 0%, oklch(0.72 0.08 75 / 0.16), transparent 70%), var(--habits-tlo); }
+
+/* Kremowa tarcza u góry kolumny: miękka poświata zamiast ostrej krawędzi */
+.kontener.motyw-habits .habits-poswiata { opacity: 0.11; filter: blur(60px); }
+
+/* ===== Wejście ekranu: kaskada ===== */
+.widok.aktywny > * { animation: blask-wejscie 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.widok.aktywny > :nth-child(2) { animation-delay: 0.05s; }
+.widok.aktywny > :nth-child(3) { animation-delay: 0.1s; }
+.widok.aktywny > :nth-child(4) { animation-delay: 0.15s; }
+.widok.aktywny > :nth-child(5) { animation-delay: 0.2s; }
+.widok.aktywny > :nth-child(6) { animation-delay: 0.25s; }
+.widok.aktywny > :nth-child(n + 7) { animation-delay: 0.3s; }
+@keyframes blask-wejscie { from { opacity: 0; transform: translateY(14px); filter: blur(6px); } }
+
+/* ===== Tytuły ekranów z połyskiem ===== */
+:is(
+  .dzis-powitanie, #widok-wykres .wykres-tytul, #widok-plan .kompas-tytul, #widok-rady .rady-tytul,
+  #widok-finanse .fin-tytul, #widok-medytacja .med-tytul, #widok-dodaj .zapis-tytul
+) {
+  background: linear-gradient(100deg, #F6F1E6 0%, #D6D0C0 38%, var(--blask-zloto) 50%, #D6D0C0 62%, #F6F1E6 100%) 0 0 / 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  animation: blask-polysk 9s ease-in-out infinite;
+  padding-right: 0.08em; /* kursywa nie ucina ostatniej litery */
+}
+@keyframes blask-polysk { 0%, 100% { background-position: 100% 0; } 50% { background-position: 0 0; } }
+
+/* ===== Złota iskra przed nagłówkami sekcji ===== */
+:is(
+  .dzis-tytul, #widok-dodaj .zapis-serie-tytul, .zapis-dzis-naglowek h3, #widok-wykres .wykres-karta-tytul,
+  .wykres-gablota-naglowek h3, #widok-zaplanuj .plany-tytul, #widok-jedzenie .jedz-lista-tytul,
+  #widok-plan .kompas-tydzien-rola, #widok-rady .rady-mapa-tytul, #widok-finanse .fin-sekcja-naglowek h3,
+  #widok-medytacja .med-historia-tytul
+)::before {
+  content: "";
+  display: inline-block;
+  width: 0.42em;
+  height: 0.42em;
+  margin: 0 0.32em 0.12em 0;
+  background: var(--blask-zloto);
+  -webkit-mask: var(--blask-iskra) center / contain no-repeat;
+  mask: var(--blask-iskra) center / contain no-repeat;
+  filter: drop-shadow(0 0 6px oklch(0.8 0.1 78 / 0.8));
+  vertical-align: middle;
+}
+
+/* ===== Wielkie liczby z poświatą ===== */
+:is(
+  #dzis-procent, .rejestr-objetosc-liczba, .katalog-suma-liczba, .habits-dzis-liczba, .jedz-dzien-liczba,
+  #widok-dodaj .zapis-licznik-wartosc, .habits-procent-liczba, .kompas-wynik, .jedz-kolo-liczba,
+  #widok-finanse .fin-kwota-duza > span:first-child, #widok-medytacja .med-czas-duzy > span:first-child, #widok-medytacja .med-zegar-liczba
+) {
+  text-shadow: 0 0 28px rgba(var(--habits-akcent-rgb), 0.28), 0 0 2px rgba(var(--habits-akcent-rgb), 0.2);
+}
+
+/* ===== Karty: refleks szkła u góry i głębia ===== */
+.kontener.motyw-habits :is(
+  .karta, .rejestr-karta, .wykres-karta, .gablota-karta, .plany-karta, .plan-okladka, .zapis-licznik,
+  .habits-tydzien, .habits-kafel-btn, .katalog-kafel, .jedz-posilek, .jedz-cele, .jedz-wynik, .kompas-blok,
+  .rady-bilet, .superseria-karta, .zapis-seria, .zapis-cw-karta, .plan-katalog-wiersz
+) {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 22px 44px -28px rgba(0, 0, 0, 0.9);
+}
+.kontener.motyw-habits :is(.zapis-cw-karta.aktywna, .habits-kafel.zrobiony .habits-kafel-btn) {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 0 22px rgba(var(--habits-akcent-rgb), 0.35);
+}
+.kontener.motyw-habits :is(.rejestr-karta.rekord, .zapis-seria.rekord, .gablota-karta) {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 0 0 1px oklch(0.72 0.08 75 / 0.35), 0 0 30px -6px oklch(0.72 0.08 75 / 0.35);
+}
+
+/* ===== Przyciski główne: przelatujący błysk ===== */
+:is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .btn-zakoncz-tydzien) {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+:is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .btn-zakoncz-tydzien):not(:disabled)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  z-index: -1;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: translateX(-120%) skewX(-18deg);
+  animation: blask-blysk 4.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes blask-blysk { 0%, 62% { transform: translateX(-120%) skewX(-18deg); } 100% { transform: translateX(330%) skewX(-18deg); } }
+
+/* Wybrane chipy świecą */
+.kontener.motyw-habits :is(.plan-chip.aktywny, .kompas-chip.aktywny, #widok-jedzenie .jedz-typ[aria-pressed="true"], .mapa-przelacznik button[aria-pressed="true"], .superseria-liczba-btn[aria-pressed="true"], .zapis-chipy [aria-pressed="true"]) {
+  box-shadow: 0 0 16px rgba(var(--habits-akcent-rgb), 0.35);
+}
+
+/* ===== Paski postępu ze świecącą końcówką ===== */
+:is(.dzis-pasek-wypelnienie, .jedz-kafel-pasek span, .jedz-ladowanie-pasek span) {
+  position: relative;
+  box-shadow: 0 0 10px currentColor;
+}
+.dzis-pasek-wypelnienie { color: oklch(0.74 0.11 175); }
+.jedz-kafel-pasek span { color: var(--kolor-makro); }
+:is(.dzis-pasek-wypelnienie, .jedz-kafel-pasek span)::after {
+  content: "";
+  position: absolute;
+  right: -3px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translateY(-50%);
+  box-shadow: 0 0 10px 2px currentColor;
+}
+
+/* ===== Menu: aktywna pozycja świeci ===== */
+.menu-pozycja[aria-current="page"] .menu-etykieta { text-shadow: 0 0 22px rgba(var(--habits-akcent-rgb), 0.45); }
+.menu-tytul { text-shadow: 0 0 40px rgba(var(--habits-akcent-rgb), 0.18); }
+
+@media (prefers-reduced-motion: reduce) {
+  body.motyw-habits::before, body.motyw-habits::after, .widok.aktywny > *,
+  :is(.dzis-powitanie, #widok-wykres .wykres-tytul, #widok-plan .kompas-tytul, #widok-rady .rady-tytul, #widok-finanse .fin-tytul, #widok-medytacja .med-tytul, #widok-dodaj .zapis-tytul),
+  :is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .btn-zakoncz-tydzien)::after { animation: none; }
+}
