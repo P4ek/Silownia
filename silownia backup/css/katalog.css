@@ -1,0 +1,206 @@
+/* Ekran "Katalog ćwiczeń" (#widok-nowe). */
+
+/* ----- Katalog ćwiczeń (widok #widok-nowe): liczba ćwiczeń, kafle partii, formularz, lista wybranej partii ----- */
+#widok-nowe .katalog-kicker {
+  margin: 0;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--habits-tekst-pomocniczy);
+}
+.katalog-suma { display: flex; align-items: flex-end; gap: 14px; margin-top: 22px; }
+.katalog-suma-liczba {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: clamp(5.5rem, 30vw, 7.5rem);
+  line-height: 0.8;
+  letter-spacing: -0.03em;
+  color: oklch(0.95 0.004 240);
+}
+.katalog-suma-podpis {
+  padding-bottom: 6px;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.5rem, 7.5vw, 1.9rem);
+  line-height: 1.05;
+  color: oklch(0.6 0.008 240);
+}
+.katalog-kafle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 30px;
+}
+.katalog-kafel {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 136px;
+  padding: 16px;
+  border-radius: 24px;
+  border: 1px solid var(--habits-obramowanie);
+  background: var(--habits-tlo-karta);
+  color: oklch(0.8 0.005 240);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 6px;
+  text-align: left;
+  transition: border-color 0.15s ease, background 0.15s ease, scale 0.1s ease;
+}
+.katalog-kafel::before {
+  content: "";
+  position: absolute;
+  right: -34px;
+  top: -34px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--kolor-partii);
+  opacity: 0.22;
+  transition: opacity 0.2s ease;
+}
+.katalog-kafel.aktywny {
+  border-color: var(--kolor-partii);
+  background: oklch(0.12 0.008 248);
+  color: oklch(0.95 0.004 240);
+}
+.katalog-kafel.aktywny::before { opacity: 0.9; }
+.katalog-kafel-liczba { position: relative; font-family: "Instrument Serif", Georgia, serif; font-size: 58px; line-height: 0.9; }
+.katalog-kafel-nazwa { position: relative; font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+.katalog-kafel-nowe {
+  min-height: 136px;
+  border-radius: 24px;
+  border: 1.5px dashed oklch(0.3 0.008 245);
+  background: transparent;
+  color: oklch(0.7 0.006 240);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.katalog-kafel-nowe[aria-expanded="true"] { border-color: var(--habits-akcent); color: var(--habits-tekst); }
+.katalog-kafel-nowe-ikona {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--habits-akcent);
+  color: oklch(0.1 0.006 250);
+  display: grid;
+  place-items: center;
+}
+.katalog-kafel-nowe-ikona svg { width: 20px; height: 20px; }
+#widok-nowe .katalog-formularz {
+  margin: 12px 0 0;
+  padding: 18px;
+  border-radius: 24px;
+  background: var(--habits-tlo-karta);
+  border: 1px solid var(--habits-akcent);
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+#widok-nowe .katalog-formularz label { margin: 0; font-size: 13px; font-weight: 600; color: oklch(0.6 0.008 240); }
+#widok-nowe .katalog-formularz b { color: oklch(0.93 0.004 240); }
+.katalog-formularz-rzad { display: flex; gap: 8px; margin-top: 10px; }
+#widok-nowe .katalog-formularz input {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid var(--habits-obramowanie);
+  background: oklch(0.08 0.005 250);
+  color: oklch(0.9 0.004 240);
+}
+#widok-nowe .katalog-formularz input::placeholder { color: var(--habits-tekst-pomocniczy); }
+#widok-nowe .katalog-formularz input:focus { border-color: var(--habits-akcent); }
+.katalog-btn-zapisz {
+  flex: none;
+  height: 48px;
+  padding: 0 18px;
+  border-radius: 14px;
+  border: none;
+  background: var(--habits-akcent);
+  color: oklch(0.1 0.006 250);
+  font-size: 14px;
+  font-weight: 700;
+}
+.katalog-btn-zapisz:disabled { opacity: 0.55; cursor: default; }
+.katalog-lista-naglowek { display: flex; align-items: baseline; gap: 12px; margin-top: 36px; }
+.katalog-partia-kropka {
+  flex: none;
+  align-self: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--kolor-partii);
+  box-shadow: 0 0 18px var(--kolor-partii);
+}
+#widok-nowe .katalog-partia-tytul {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 1;
+  color: oklch(0.95 0.004 240);
+}
+.katalog-partia-licznik {
+  flex: none;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--habits-tekst-pomocniczy);
+  white-space: nowrap;
+}
+.katalog-lista { list-style: none; margin: 16px 0 0; padding: 0; }
+.katalog-lista > .pusto { margin: 0; }
+.katalog-wiersz {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 64px;
+  border-top: 1px solid oklch(0.16 0.007 248);
+}
+.katalog-wiersz-numer { flex: none; width: 34px; font-family: "Instrument Serif", Georgia, serif; font-size: 26px; color: oklch(0.3 0.008 245); }
+.katalog-wiersz-nazwa { flex: 1; min-width: 0; font-size: 16px; font-weight: 500; color: oklch(0.9 0.004 240); overflow-wrap: anywhere; }
+.katalog-btn-kosz {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: var(--habits-tekst-pomocniczy);
+  display: grid;
+  place-items: center;
+  transition: background 0.15s ease, color 0.15s ease, scale 0.1s ease;
+}
+.katalog-btn-kosz svg { width: 17px; height: 17px; }
+.katalog-btn-kosz:hover { background: rgba(180, 72, 44, 0.12); color: oklch(0.75 0.13 28); }
+.katalog-btn-kosz:disabled { opacity: 0.5; cursor: default; }
+.btn-usun {
+  flex: none;
+  padding: 8px 12px;
+  border: 1px solid #E7C3B4;
+  border-radius: 11px;
+  background: #F8E7E0;
+  color: #B4482C;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.btn-usun:hover { background: #F3D7CC; }
+.btn-usun:disabled { opacity: 0.55; cursor: default; }
+
+/* ----- Status ----- */
+#nowe-status { margin: 12px 0 0; font-size: 0.9rem; font-weight: 600; }

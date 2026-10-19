@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:oklch(0.07 0.004 250)}
+a{color:#D6D0C0;text-decoration:none}a:hover{color:#ffffff}
+button{font-family:inherit;cursor:pointer}
+.ribbon{transition:transform .25s cubic-bezier(.3,1.4,.5,1);transform-origin:top center}
+.ribbon:hover,.ribbon:focus-visible{transform:translateY(10px)}
+.entry:hover .lbl{color:#ffffff}
+.mdrop{animation:mdrop 9s ease-in-out infinite;transition:transform .3s cubic-bezier(.3,1.5,.5,1)}.mdrop:active{transform:scale(.92)}@keyframes mdrop{0%,100%{border-radius:58% 42% 55% 45% / 52% 48% 52% 48%}33%{border-radius:45% 55% 40% 60% / 60% 42% 58% 40%}66%{border-radius:52% 48% 62% 38% / 45% 58% 42% 55%}}@media (prefers-reduced-motion: reduce){.mdrop{animation:none;border-radius:50%}}
+</style>
+</head>
+<body>
+<div id="dc-root"></div>
+<template id="dc-tpl">
+<div style="position: relative; width: 390px; height: 1120px; box-sizing: border-box; background: oklch(0.07 0.004 250); color: oklch(0.85 0.005 240); font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; padding-bottom: 40px">
+
+  <!-- Zakładki = szybkie akcje, wiszą z górnej krawędzi -->
+  <div style="position: absolute; right: 22px; top: 0; display: flex; gap: 8px; align-items: flex-start; z-index: 2">
+    <sc-for list="{{ribbons}}" as="r" hint-placeholder-count="3">
+      <a href="#" class="ribbon" aria-label="{{r.label}}" style="{{r.style}}">
+        <span style="writing-mode: vertical-rl; transform: rotate(180deg); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; white-space: nowrap">{{r.label}}</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{r.icon}}"></path></svg>
+      </a>
+    </sc-for>
+  </div>
+
+  <!-- Nagłówek: jak strona tytułowa -->
+  <header style="position: relative; padding: 52px 24px 0">
+    <button aria-label="Zamknij menu" class="mdrop" style="position: relative; width: 56px; height: 56px; flex: none; padding: 0; border: none; background: #D6D0C0; color: oklch(0.1 0.006 250); box-shadow: 0 14px 30px -14px rgba(214,208,192,0.6)"><span style="position:absolute;left:18px;top:27px;width:20px;height:2px;border-radius:2px;background:currentColor;transform:rotate(45deg)"></span><span style="position:absolute;left:18px;top:27px;width:20px;height:2px;border-radius:2px;background:currentColor;transform:rotate(-45deg)"></span></button>
+    <span style="display: block; margin-top: 70px; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: oklch(0.52 0.008 240)">CZEŚĆ, ANDRZEJ</span>
+    <h1 style="margin: 6px 0 0; font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; font-size: 64px; line-height: 0.9; color: oklch(0.97 0.004 240)">Dokąd<br>dziś?</h1>
+  </header>
+
+  <!-- Rozdziały -->
+  <nav aria-label="Główne menu" style="position: relative; margin: 26px 24px 0">
+    <sc-for list="{{chapters}}" as="c" hint-placeholder-count="4">
+      <section style="position: relative; padding: 22px 0 6px; border-top: 1px solid oklch(0.18 0.008 245)">
+        <span style="display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.2em; color: oklch(0.52 0.008 240)">{{c.name}}</span>
+        <sc-for list="{{c.items}}" as="it" hint-placeholder-count="2">
+          <button onClick="{{it.pick}}" aria-current="{{it.current}}" class="entry" style="position: relative; width: 100%; min-height: 50px; padding: 0; border: none; background: transparent; display: flex; align-items: baseline; gap: 8px; text-align: left">
+            <sc-if value="{{it.on}}" hint-placeholder-val="{{ false }}">
+              <span aria-hidden="true" style="position: absolute; left: -24px; top: 6px; width: 12px; height: 34px; background: oklch(0.72 0.08 75); clip-path: polygon(0 0,100% 0,100% 100%,50% 76%,0 100%)"></span>
+            </sc-if>
+            <span class="lbl" style="{{it.labelStyle}}">{{it.label}}</span>
+            <span aria-hidden="true" style="flex: 1; min-width: 16px; border-bottom: 2px dotted oklch(0.26 0.008 245); transform: translateY(-6px)"></span>
+            <span style="{{it.pageStyle}}">{{it.page}}</span>
+          </button>
+        </sc-for>
+      </section>
+    </sc-for>
+  </nav>
+
+  <!-- Dół -->
+  <footer style="position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 24px 24px 0; padding-top: 20px; border-top: 1px solid oklch(0.18 0.008 245)">
+    <a href="#" style="height: 48px; border-radius: 999px; border: 1px solid oklch(0.24 0.008 245); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: oklch(0.85 0.005 240)">Ustawienia</a>
+    <a href="#" style="height: 48px; border-radius: 999px; border: 1px solid oklch(0.24 0.008 245); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: oklch(0.55 0.008 240)">Wyloguj</a>
+  </footer>
+</div>
+</template>
+<script>
+
+class DCLogic { constructor(props){ this.props = props; this.state = {}; } setState(p){ Object.assign(this.state, p); __render(); } forceUpdate(){ __render(); } }
+
+const ROZDZIALY = [
+  { roman: 'I', name: 'START', items: [{ id: 'dzis', label: 'Dziś', page: '50%' }] },
+  { roman: 'II', name: 'TRENING', items: [
+    { id: 'zapisz', label: 'Zapisz trening', page: 'FBW 1' }, { id: 'rejestr', label: 'Rejestr ćwiczeń', page: '24.09' },
+    { id: 'plan', label: 'Zaplanuj trening', page: '1 plan' }, { id: 'katalog', label: 'Katalog ćwiczeń', page: '12' },
+    { id: 'postep', label: 'Wykres postępu', page: '4 rek.' }
+  ] },
+  { roman: 'III', name: 'CODZIENNIE', items: [{ id: 'nawyki', label: 'Nawyki', page: '2/4' }, { id: 'posilki', label: 'Posiłki', page: '1350' }] },
+  { roman: 'IV', name: 'ROZWÓJ', items: [{ id: 'tydzien', label: 'Plan tygodnia', page: '1/3' }, { id: 'ksiazki', label: 'Rady z książek', page: 'III', gold: true }] }
+];
+
+class Component extends DCLogic {
+  renderVals() {
+    const cur = (this.state && this.state.cur) || 'dzis';
+    return {
+      ribbons: [
+        { label: 'Zdjęcie', icon: 'M4 8h3l2-3h6l2 3h3v11H4zM12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z', c: 'oklch(0.72 0.11 175)', h: 150 },
+        { label: 'Trening', icon: 'M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11', c: 'oklch(0.7 0.12 250)', h: 186 },
+        { label: 'Nawyk', icon: 'M5 12.5l4.5 4.5L19 7.5', c: '#D6D0C0', h: 128 }
+      ].map((r) => Object.assign(r, {
+        style: 'width:50px;height:' + r.h + 'px;padding:0 0 22px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:10px;color:oklch(0.1 0.006 250);background:' + r.c + ';clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 14px),0 100%);box-shadow:0 10px 20px rgba(0,0,0,0.5)'
+      })),
+      chapters: ROZDZIALY.map((c) => ({
+        roman: c.roman, name: c.name,
+        items: c.items.map((it) => {
+          const on = it.id === cur;
+          return {
+            label: it.label, page: it.page, on: on, current: on ? 'page' : 'false',
+            pick: () => this.setState({ cur: it.id }),
+            labelStyle: "font-family:'Instrument Serif',serif;font-style:italic;line-height:1.1;white-space:nowrap;transition:color .2s;font-size:" + (on ? 34 : 27) + 'px;color:' + (on ? '#D6D0C0' : 'oklch(0.9 0.004 240)'),
+            pageStyle: "font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.04em;font-variant-numeric:tabular-nums;white-space:nowrap;transform:translateY(-3px);color:" + (on ? '#D6D0C0' : it.gold ? 'oklch(0.72 0.08 75)' : 'oklch(0.6 0.008 240)')
+          };
+        })
+      }))
+    };
+  }
+}
+
+(function(){
+  const props = {};
+  const comp = new Component(props);
+  const tpl = document.getElementById('dc-tpl');
+  const root = document.getElementById('dc-root');
+  const HOLE = /\{\{\s*([^}]+?)\s*\}\}/g;
+  function look(path, scope){
+    path = path.trim();
+    if (path === 'true') return true; if (path === 'false') return false;
+    if (/^-?\d+(\.\d+)?$/.test(path)) return Number(path);
+    return path.split('.').reduce((o,k)=> o == null ? undefined : o[k], scope);
+  }
+  function interp(str, scope){ return str.replace(HOLE, (_, p) => { const v = look(p, scope); return v == null ? '' : String(v); }); }
+  function proc(node, scope){
+    if (node.nodeType === 3) { if (node.nodeValue.includes('{{')) node.nodeValue = interp(node.nodeValue, scope); return; }
+    if (node.nodeType !== 1) { if (node.nodeType === 8) node.remove(); return; }
+    const tag = node.tagName.toLowerCase();
+    if (tag === 'sc-for') {
+      const m = (node.getAttribute('list')||'').match(/^\{\{\s*([^}]+?)\s*\}\}$/);
+      const list = (m ? look(m[1], scope) : []) || [];
+      const as = node.getAttribute('as') || 'item';
+      const frag = document.createDocumentFragment();
+      list.forEach((item, i) => {
+        const s = Object.assign(Object.create(scope), { [as]: item, $index: i });
+        Array.from(node.childNodes).forEach(c => { const cl = c.cloneNode(true); const holder = document.createElement('div'); holder.appendChild(cl); proc(cl, s); while (holder.firstChild) frag.appendChild(holder.firstChild); });
+      });
+      node.replaceWith(frag); return;
+    }
+    if (tag === 'sc-if') {
+      const m = (node.getAttribute('value')||'').match(/^\{\{\s*([^}]+?)\s*\}\}$/);
+      if (!(m && look(m[1], scope))) { node.remove(); return; }
+      Array.from(node.childNodes).forEach(c => proc(c, scope));
+      node.replaceWith(...Array.from(node.childNodes)); return;
+    }
+    for (const a of Array.from(node.attributes)) {
+      if (a.name.startsWith('hint-')) { node.removeAttribute(a.name); continue; }
+      if (!a.value.includes('{{')) continue;
+      const whole = a.value.match(/^\{\{\s*([^}]+?)\s*\}\}$/);
+      if (a.name.startsWith('on') && whole) {
+        node.removeAttribute(a.name);
+        const fn = look(whole[1], scope);
+        if (typeof fn === 'function') node.addEventListener(a.name.slice(2), fn);
+        continue;
+      }
+      node.setAttribute(a.name, interp(a.value, scope));
+    }
+    Array.from(node.childNodes).forEach(c => proc(c, scope));
+  }
+  window.__render = function(){
+    const saved = {}, ae = document.activeElement, focusId = ae && ae.id;
+    let caret = null; try { caret = ae && ae.selectionStart; } catch (e) {}
+    root.querySelectorAll('input[id],select[id],textarea[id]').forEach(e => { if (e.type === 'file') return; saved[e.id] = e.type === 'checkbox' ? e.checked : e.value; });
+    const frag = tpl.content.cloneNode(true);
+    const vals = comp.renderVals();
+    Array.from(frag.childNodes).forEach(c => proc(c, vals));
+    root.replaceChildren(frag);
+    Object.keys(saved).forEach(id => { const e = document.getElementById(id); if (!e || e.type === 'file' || e.hasAttribute('value') && e.type !== 'date') return; if (e.type === 'checkbox') e.checked = saved[id]; else e.value = saved[id]; });
+    if (focusId) { const f = document.getElementById(focusId); if (f) { f.focus(); try { if (caret != null) f.setSelectionRange(caret, caret); } catch (e) {} } }
+  };
+  __render();
+  if (typeof comp.componentDidMount === 'function') comp.componentDidMount();
+})();
+
+</script>
+</body>
+</html>

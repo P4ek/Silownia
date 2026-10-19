@@ -1,0 +1,244 @@
+/* Ekran "Wykres postępu" (#widok-wykres) + mapa ciała. */
+
+/* ----- Wykres postępu (#widok-wykres): nagłówek odpoczynku, mapa ciała z przełącznikiem, dni odpoczynku, gablota rekordów ----- */
+.wykres-kicker {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--habits-zloto);
+}
+#widok-wykres .wykres-tytul {
+  margin: 10px 0 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(2.6rem, 13vw, 3.4rem);
+  line-height: 0.95;
+  color: oklch(0.95 0.004 240);
+  overflow-wrap: anywhere;
+}
+.wykres-szczegoly { margin: 12px 0 0; font-size: 14px; line-height: 1.5; color: oklch(0.6 0.008 240); }
+.wykres-szczegoly b { color: var(--habits-tekst); font-weight: 600; }
+.wykres-karta {
+  margin-top: 24px;
+  padding: 20px;
+  border-radius: 24px;
+  background: var(--habits-tlo-karta);
+  border: 1px solid var(--habits-obramowanie);
+}
+.wykres-karta-naglowek { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+#widok-wykres .wykres-karta-tytul {
+  margin: 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1;
+  color: oklch(0.93 0.004 240);
+}
+.mapa-przelacznik {
+  flex: none;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid var(--habits-obramowanie);
+  background: oklch(0.08 0.005 250);
+}
+.mapa-przelacznik button {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: oklch(0.6 0.008 240);
+  font-size: 13px;
+  font-weight: 600;
+}
+.mapa-przelacznik button[aria-pressed="true"] { background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+.wykres-odpoczynek { list-style: none; margin: 0; padding: 0; }
+.wykres-odpoczynek li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 64px;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  border-top: 1px solid oklch(0.16 0.007 248);
+}
+.wykres-odpoczynek li:first-child { border-top: none; }
+.wykres-odpoczynek-nazwa { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 15px; font-weight: 600; color: oklch(0.9 0.004 240); }
+.wykres-kropka { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--kolor-partii); }
+.wykres-kreski { display: flex; gap: 4px; }
+.wykres-kreski span { width: 6px; height: 18px; border-radius: 3px; background: oklch(0.2 0.008 245); }
+.wykres-kreski span.pelna { background: var(--kolor-partii); }
+.wykres-odpoczynek li.zloty .wykres-kreski span.pelna { background: var(--habits-zloto); box-shadow: 0 0 8px oklch(0.72 0.08 75 / 0.45); }
+.wykres-odpoczynek-dni { font-size: 13px; font-weight: 600; text-align: right; color: oklch(0.7 0.006 240); white-space: nowrap; }
+.wykres-odpoczynek li.zloty .wykres-odpoczynek-dni { color: var(--habits-zloto); }
+.wykres-gablota-naglowek { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 34px; }
+.wykres-gablota-tydzien { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--habits-zloto); white-space: nowrap; }
+.wykres-gablota {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  overflow-x: auto;
+  margin: 0 -16px;
+  padding: 14px 16px 4px;
+  scrollbar-width: none;
+}
+.wykres-gablota::-webkit-scrollbar { display: none; }
+.wykres-gablota::after { content: ""; flex: none; width: 4px; }
+.gablota-karta {
+  position: relative;
+  flex: none;
+  width: 168px;
+  min-height: 168px;
+  padding: 16px;
+  border-radius: 22px;
+  background: oklch(0.12 0.015 75);
+  border: 1px solid oklch(0.72 0.08 75 / 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow: hidden;
+}
+.gablota-karta::before {
+  content: "";
+  position: absolute;
+  right: -30px;
+  top: -30px;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(circle, oklch(0.72 0.08 75 / 0.35), transparent 70%);
+  pointer-events: none;
+}
+.gablota-data { position: relative; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--habits-zloto); }
+.gablota-data svg { width: 12px; height: 12px; }
+.gablota-wynik { position: relative; margin-top: auto; font-family: "Instrument Serif", Georgia, serif; font-size: 34px; line-height: 1; color: oklch(0.95 0.004 240); white-space: nowrap; }
+.gablota-nazwa { position: relative; display: flex; align-items: flex-start; gap: 7px; font-size: 13px; font-weight: 600; line-height: 1.3; color: oklch(0.8 0.005 240); overflow-wrap: anywhere; }
+.gablota-nazwa .wykres-kropka { margin-top: 5px; }
+.gablota-placeholder {
+  flex: none;
+  width: 168px;
+  min-height: 168px;
+  padding: 16px;
+  border-radius: 22px;
+  border: 1.5px dashed oklch(0.72 0.08 75 / 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.4;
+  color: oklch(0.6 0.008 240);
+}
+.karta-tytul {
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.25rem;
+  color: var(--ink);
+  margin: 0 0 4px;
+}
+.karta-podpis { color: var(--muted); font-size: 0.85rem; margin: 0 0 14px; }
+
+
+/* ----- Mapa ciała: kolor partii wg dni od ostatniego treningu ----- */
+.karta-mapa {
+  --mapa-poziom-0: var(--accent);
+  --mapa-poziom-1: color-mix(in srgb, var(--accent) 55%, var(--card));
+  --mapa-poziom-2: color-mix(in srgb, var(--accent) 24%, var(--card));
+  --mapa-nieaktywna: #DCD4C7;
+  --mapa-cialo: var(--card);
+  --mapa-obrys: #B9AC9B;
+  --mapa-zaznaczenie: var(--ink);
+}
+/* Jedna sylwetka (przód albo tył) w środku, po bokach etykiety partii z liczbą dni (pozycja w % wysokości sylwetki) */
+.mapa-sylwetka {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 170px) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 8px;
+  margin: 0;
+}
+.mapa-sylwetka svg { display: block; width: 100%; height: auto; overflow: visible; }
+.mapa-etykiety { position: relative; min-width: 0; }
+.mapa-etykieta {
+  position: absolute;
+  top: var(--y);
+  transform: translateY(-50%);
+  max-width: 100%;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--habits-obramowanie);
+  background: oklch(0.08 0.005 250);
+  color: oklch(0.7 0.006 240);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.mapa-etykiety.lewe .mapa-etykieta { right: 0; }
+.mapa-etykiety.prawe .mapa-etykieta { left: 0; }
+.mapa-etykieta b { color: oklch(0.93 0.004 240); }
+.mapa-etykieta.zlota { border-color: oklch(0.72 0.08 75 / 0.5); color: var(--habits-zloto); }
+.mapa-etykieta.zlota b { color: var(--habits-zloto); }
+.mapa-etykieta.zaznaczona { border-color: var(--habits-akcent); }
+.mapa-sylwetka path, .mapa-sylwetka circle, .mapa-sylwetka ellipse {
+  stroke: var(--mapa-obrys);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+.mapa-cialo { fill: var(--mapa-cialo); }
+.mapa-linia { fill: none; pointer-events: none; opacity: 0.7; }
+.mapa-partia {
+  fill: var(--mapa-nieaktywna);
+  cursor: pointer;
+  transition: fill 0.3s ease, opacity 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.mapa-partia:hover { opacity: 0.82; }
+.mapa-partia:focus { outline: none; }
+.mapa-partia:focus-visible, .mapa-sylwetka .mapa-partia.zaznaczona {
+  stroke: var(--mapa-zaznaczenie);
+  stroke-width: 2;
+}
+/* Każda partia we własnym kolorze (--kolor-partii); im dawniej trenowana, tym bardziej zlana z tłem karty */
+.mapa-partia.poziom-0 { fill: var(--kolor-partii); }
+.mapa-partia.poziom-1 { fill: color-mix(in srgb, var(--kolor-partii) 62%, var(--habits-tlo-karta)); }
+.mapa-partia.poziom-2 { fill: color-mix(in srgb, var(--kolor-partii) 36%, var(--habits-tlo-karta)); }
+.mapa-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 14px;
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+}
+.mapa-legenda li { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 0.78rem; }
+.mapa-probka {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 1px solid var(--mapa-obrys);
+  flex: none;
+}
+.mapa-probka.poziom-0 { background: var(--mapa-poziom-0); }
+.mapa-probka.poziom-1 { background: var(--mapa-poziom-1); }
+.mapa-probka.poziom-2 { background: var(--mapa-poziom-2); }
+.mapa-probka.poziom-3 { background: var(--mapa-nieaktywna); }
+.mapa-info {
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  text-align: center;
+}
+.mapa-info strong { color: var(--ink); }

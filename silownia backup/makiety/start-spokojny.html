@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ładowanie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:oklch(0.07 0.004 250)}
+a{color:#D6D0C0}a:hover{color:#ffffff}
+.spin{transform-origin:60px 60px;animation:spin 1.6s cubic-bezier(.6,.1,.4,.9) infinite}
+.breathe{animation:br 2.4s ease-in-out infinite}
+.fill{animation:fill 2.8s ease-in-out infinite}
+.fade{animation:fade 2.8s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes br{0%,100%{opacity:.55;transform:scale(.97)}50%{opacity:1;transform:scale(1)}}
+@keyframes fill{0%{width:6%}70%{width:92%}100%{width:92%}}
+@keyframes fade{0%,100%{opacity:.35}50%{opacity:1}}
+@media (prefers-reduced-motion: reduce){.spin,.breathe,.fill,.fade{animation:none}}
+</style>
+</head>
+<body>
+<div id="dc-root"></div>
+<template id="dc-tpl">
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: oklch(0.07 0.004 250); color: oklch(0.85 0.005 240); font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; display: flex; flex-direction: column; align-items: center">
+
+  <!-- Znak + nazwa -->
+  <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px">
+    <div class="breathe" style="position: relative; width: 120px; height: 120px">
+      <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true" style="position: absolute; inset: 0">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="oklch(0.17 0.008 248)" stroke-width="3"></circle>
+        <g class="spin"><path d="M60 6 A54 54 0 0 1 114 60" fill="none" stroke="#D6D0C0" stroke-width="3" stroke-linecap="round"></path></g>
+        <circle cx="60" cy="60" r="40" fill="oklch(0.1 0.006 250)" stroke="oklch(0.19 0.008 245)"></circle>
+      </svg>
+      <span style="position: absolute; inset: 0; display: grid; place-items: center; font-family: 'Instrument Serif', serif; font-style: italic; font-size: 46px; line-height: 1; color: #D6D0C0; padding-bottom: 4px">{{initial}}</span>
+    </div>
+    <div style="text-align: center">
+      <h1 style="margin: 0; font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; font-size: 44px; line-height: 1; color: oklch(0.95 0.004 240)">{{appName}}</h1>
+      <p style="margin: 10px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; color: oklch(0.44 0.008 240)">TRENING · NAWYKI · POSIŁKI</p>
+    </div>
+  </div>
+
+  <!-- Status ładowania -->
+  <div role="status" aria-live="polite" style="width: 220px; display: flex; flex-direction: column; align-items: center; gap: 10px">
+    <div style="width: 100%; height: 3px; border-radius: 2px; background: oklch(0.15 0.007 248); overflow: hidden">
+      <div class="fill" style="height: 100%; border-radius: 2px; background: #D6D0C0"></div>
+    </div>
+    <span class="fade" style="font-size: 13px; color: oklch(0.6 0.008 240)">Wczytuję Twój dzień…</span>
+  </div>
+
+  <!-- Cytat -->
+  <p style="margin: 0; padding: 56px 40px 64px; text-align: center; font-family: 'Instrument Serif', serif; font-style: italic; font-size: 18px; line-height: 1.4; color: oklch(0.44 0.008 240)">„Compare yourself to who you were yesterday, not to who someone else is today.”</p>
+</div>
+</template>
+<script>
+
+class DCLogic { constructor(props){ this.props = props; this.state = {}; } setState(p){ Object.assign(this.state, p); __render(); } forceUpdate(){ __render(); } }
+
+class Component extends DCLogic {
+  renderVals() {
+    const name = this.props.nazwa ?? 'Dziennik';
+    return { appName: name, initial: (name.trim()[0] || 'D').toUpperCase() };
+  }
+}
+
+(function(){
+  const props = {"nazwa": "Dziennik"};
+  const comp = new Component(props);
+  const tpl = document.getElementById('dc-tpl');
+  const root = document.getElementById('dc-root');
+  const HOLE = /\{\{\s*([^}]+?)\s*\}\}/g;
+  function look(path, scope){
+    path = path.trim();
+    if (path === 'true') return true; if (path === 'false') return false;
+    if (/^-?\d+(\.\d+)?$/.test(path)) return Number(path);
+    return path.split('.').reduce((o,k)=> o == null ? undefined : o[k], scope);
+  }
+  function interp(str, scope){ return str.replace(HOLE, (_, p) => { const v = look(p, scope); return v == null ? '' : String(v); }); }
+  function proc(node, scope){
+    if (node.nodeType === 3) { if (node.nodeValue.includes('{{')) node.nodeValue = interp(node.nodeValue, scope); return; }
+    if (node.nodeType !== 1) { if (node.nodeType === 8) node.remove(); return; }
+    const tag = node.tagName.toLowerCase();
+    if (tag === 'sc-for') {
+      const m = (node.getAttribute('list')||'').match(/^\{\{\s*([^}]+?)\s*\}\}$/);
+      const list = (m ? look(m[1], scope) : []) || [];
+      const as = node.getAttribute('as') || 'item';
+      const frag = document.createDocumentFragment();
+      list.forEach((item, i) => {
+        const s = Object.assign(Object.create(scope), { [as]: item, $index: i });
+        Array.from(node.childNodes).forEach(c => { const cl = c.cloneNode(true); const holder = document.createElement('div'); holder.appendChild(cl); proc(cl, s); while (holder.firstChild) frag.appendChild(holder.firstChild); });
+      });
+      node.replaceWith(frag); return;
+    }
+    if (tag === 'sc-if') {
+      const m = (node.getAttribute('value')||'').match(/^\{\{\s*([^}]+?)\s*\}\}$/);
+      if (!(m && look(m[1], scope))) { node.remove(); return; }
+      Array.from(node.childNodes).forEach(c => proc(c, scope));
+      node.replaceWith(...Array.from(node.childNodes)); return;
+    }
+    for (const a of Array.from(node.attributes)) {
+      if (a.name.startsWith('hint-')) { node.removeAttribute(a.name); continue; }
+      if (!a.value.includes('{{')) continue;
+      const whole = a.value.match(/^\{\{\s*([^}]+?)\s*\}\}$/);
+      if (a.name.startsWith('on') && whole) {
+        node.removeAttribute(a.name);
+        const fn = look(whole[1], scope);
+        if (typeof fn === 'function') node.addEventListener(a.name.slice(2), fn);
+        continue;
+      }
+      node.setAttribute(a.name, interp(a.value, scope));
+    }
+    Array.from(node.childNodes).forEach(c => proc(c, scope));
+  }
+  window.__render = function(){
+    const saved = {}, ae = document.activeElement, focusId = ae && ae.id;
+    let caret = null; try { caret = ae && ae.selectionStart; } catch (e) {}
+    root.querySelectorAll('input[id],select[id],textarea[id]').forEach(e => { if (e.type === 'file') return; saved[e.id] = e.type === 'checkbox' ? e.checked : e.value; });
+    const frag = tpl.content.cloneNode(true);
+    const vals = comp.renderVals();
+    Array.from(frag.childNodes).forEach(c => proc(c, vals));
+    root.replaceChildren(frag);
+    Object.keys(saved).forEach(id => { const e = document.getElementById(id); if (!e || e.type === 'file' || e.hasAttribute('value') && e.type !== 'date') return; if (e.type === 'checkbox') e.checked = saved[id]; else e.value = saved[id]; });
+    if (focusId) { const f = document.getElementById(focusId); if (f) { f.focus(); try { if (caret != null) f.setSelectionRange(caret, caret); } catch (e) {} } }
+  };
+  __render();
+  if (typeof comp.componentDidMount === 'function') comp.componentDidMount();
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+/* Ekran "Nawyki" (#widok-habits). */
+
+/* ----- Nawyki (#widok-habits): dziś jako bohater, kafle na dziś, karta tygodnia z siatką gwiazd, dodawanie ----- */
+#widok-habits .habits-kicker {
+  margin: 0;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--habits-tekst-pomocniczy);
+}
+.habits-dzis-data { display: flex; align-items: flex-end; gap: 14px; margin-top: 18px; }
+.habits-dzis-liczba {
+  flex: none;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: clamp(6.5rem, 38vw, 9.4rem);
+  line-height: 0.78;
+  letter-spacing: -0.03em;
+  color: oklch(0.95 0.004 240);
+}
+.habits-dzis-opis { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding-bottom: 6px; }
+.habits-dzis-dzien { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: clamp(1.7rem, 8.5vw, 2.1rem); line-height: 1; color: oklch(0.93 0.004 240); }
+.habits-dzis-miesiac { font-size: 14px; color: oklch(0.52 0.008 240); }
+.habits-sekcja-naglowek { display: flex; align-items: baseline; gap: 12px; margin-top: 34px; }
+.habits-etykieta {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: oklch(0.52 0.008 240);
+}
+.habits-dzis-licznik { font-size: 13px; font-weight: 600; color: var(--habits-akcent); }
+.habits-btn-edytuj {
+  align-self: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--habits-obramowanie);
+  background: transparent;
+  color: oklch(0.7 0.006 240);
+  font-size: 12px;
+  font-weight: 600;
+}
+.habits-btn-edytuj[aria-pressed="true"] { border-color: var(--habits-akcent); background: var(--habits-akcent); color: oklch(0.1 0.006 250); }
+.habits-kafle { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.habits-kafle > .pusto { grid-column: 1 / -1; }
+.habits-kafel { position: relative; min-width: 0; display: flex; }
+.habits-kafel-btn {
+  width: 100%;
+  min-height: 128px;
+  padding: 62px 16px 16px; /* góra zarezerwowana na pieczątkę/kosz, nazwa ma całą szerokość kafla */
+  border-radius: 22px;
+  border: 1px solid var(--habits-obramowanie);
+  background: var(--habits-tlo-karta);
+  color: oklch(0.9 0.004 240);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, scale 0.1s ease;
+}
+.habits-kafel-btn:disabled { cursor: progress; }
+.habits-kafel-nazwa { max-width: 100%; font-size: 16px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.habits-kafel-pod { font-size: 12px; color: oklch(0.52 0.008 240); }
+.habits-pieczatka {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px dashed oklch(0.3 0.008 245);
+  display: grid;
+  place-items: center;
+  transform: rotate(var(--obrot, 0deg));
+  pointer-events: none;
+}
+.habits-pieczatka svg { width: 18px; height: 18px; }
+.habits-kafel.zrobiony .habits-kafel-btn {
+  border-color: transparent;
+  background: var(--habits-akcent);
+  color: oklch(0.1 0.006 250);
+  box-shadow: 0 18px 40px -18px rgba(var(--habits-akcent-rgb), 0.6);
+}
+.habits-kafel.zrobiony .habits-kafel-pod { color: oklch(0.1 0.006 250 / 0.65); }
+.habits-kafel.zrobiony .habits-pieczatka { border: none; background: oklch(0.1 0.006 250); color: var(--habits-akcent); }
+/* Tryb edycji: kosz zamiast pieczątki, kafel nie odhacza */
+.habits-kafle.edycja .habits-kafel-btn { cursor: default; }
+.habits-kafle.edycja .habits-pieczatka { display: none; }
+.habits-kafel-kosz {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 14px;
+  border: 1px solid var(--habits-obramowanie);
+  background: var(--habits-tlo);
+  color: oklch(0.75 0.13 28);
+  display: grid;
+  place-items: center;
+}
+.habits-kafel-kosz svg { width: 17px; height: 17px; }
+.habits-kafel-kosz:hover { background: rgba(180, 72, 44, 0.16); }
+.habits-kafel-kosz:disabled { opacity: 0.5; cursor: default; }
+.habits-tydzien {
+  margin-top: 28px;
+  padding: 22px;
+  border-radius: 28px;
+  background: var(--habits-tlo-karta);
+  border: 1px solid var(--habits-obramowanie);
+}
+.habits-tydzien-gora { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.habits-procent { display: flex; align-items: flex-start; }
+.habits-procent-liczba { font-family: "Instrument Serif", Georgia, serif; font-size: clamp(4.5rem, 24vw, 6rem); line-height: 0.8; color: oklch(0.95 0.004 240); }
+.habits-procent-znak { font-family: "Instrument Serif", Georgia, serif; font-size: 32px; color: oklch(0.52 0.008 240); }
+.habits-tydzien-opis { display: flex; flex-direction: column; gap: 4px; padding-bottom: 4px; text-align: right; }
+.habits-tydzien-gwiazdy { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 24px; color: oklch(0.93 0.004 240); }
+.habits-tydzien-podpis { font-size: 12px; color: oklch(0.52 0.008 240); }
+/* Siatka: kolumna nazw (stała szerokość, nazwy skracane wielokropkiem) + 7 dni; pas "dziś" pod kolumną bieżącego dnia */
+.habits-niebo { position: relative; margin-top: 24px; --kolumna-nazw: 70px; }
+.habits-niebo-dzis {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--kolumna-nazw) + (100% - var(--kolumna-nazw)) / 7 * var(--dzien));
+  width: calc((100% - var(--kolumna-nazw)) / 7);
+  border-radius: 14px;
+  background: oklch(0.14 0.008 248);
+}
+.habits-niebo-siatka {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--kolumna-nazw) repeat(7, minmax(0, 1fr));
+  row-gap: 6px;
+  align-items: center;
+}
+.habits-niebo-dzien {
+  padding: 6px 0 4px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--habits-tekst-pomocniczy);
+}
+.habits-niebo-dzien.dzis { color: var(--habits-akcent); }
+.habits-niebo-nazwa {
+  min-width: 0;
+  padding-right: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: oklch(0.6 0.008 240);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.habits-niebo-komorka {
+  height: 40px;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: grid;
+  place-items: center;
+}
+.habits-niebo-komorka:disabled { cursor: progress; }
+.habits-niebo-komorka svg { width: 22px; height: 22px; color: var(--habits-akcent); filter: drop-shadow(0 0 6px rgba(var(--habits-akcent-rgb), 0.7)); }
+.habits-niebo-kropka { width: 4px; height: 4px; border-radius: 50%; background: oklch(0.3 0.008 245); }
+.habits-niebo-komorka.dzis .habits-niebo-kropka { background: var(--habits-akcent); }
+.habits-niebo-komorka:hover .habits-niebo-kropka { width: 8px; height: 8px; }
+.habits-tydzien-nawigacja {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid oklch(0.16 0.007 248);
+}
+.habits-btn-tydzien {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid var(--habits-obramowanie);
+  background: transparent;
+  color: oklch(0.7 0.006 240);
+  display: grid;
+  place-items: center;
+}
+.habits-btn-tydzien svg { width: 18px; height: 18px; }
+.habits-btn-tydzien:hover { background: var(--habits-obramowanie); }
+.habits-zakres { font-size: 14px; font-weight: 600; color: oklch(0.7 0.006 240); text-align: center; }
+.habits-nowy-btn {
+  width: 100%;
+  height: 64px;
+  margin-top: 16px;
+  border-radius: 22px;
+  border: 1.5px dashed oklch(0.3 0.008 245);
+  background: transparent;
+  color: oklch(0.7 0.006 240);
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.habits-nowy-btn svg { width: 18px; height: 18px; }
+.habits-nowy-btn[aria-expanded="true"] { border-color: var(--habits-akcent); color: var(--habits-tekst); }
+.habits-nowy-panel {
+  margin-top: 12px;
+  padding: 18px;
+  border-radius: 22px;
+  background: var(--habits-tlo-karta);
+  border: 1px solid var(--habits-akcent);
+}
+#widok-habits form { margin: 0; padding: 0; border: none; box-shadow: none; background: none; }
+#widok-habits label { margin: 0; font-size: 13px; font-weight: 600; color: oklch(0.6 0.008 240); }
+.habits-nowy-rzad { display: flex; gap: 8px; margin-top: 10px; }
+#widok-habits input {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  background: oklch(0.08 0.005 250);
+  border-color: var(--habits-obramowanie);
+  border-radius: 14px;
+  color: var(--habits-tekst);
+}
+#widok-habits input::placeholder { color: var(--habits-tekst-pomocniczy); }
+#widok-habits input:focus {
+  border-color: var(--habits-akcent);
+  box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18);
+}
+#widok-habits .habits-btn-dodaj {
+  flex: none;
+  height: 48px;
+  margin: 0;
+  padding: 0 18px;
+  border: none;
+  border-radius: 14px;
+  background: var(--habits-akcent);
+  color: oklch(0.1 0.006 250);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: none;
+}
+#widok-habits .habits-btn-dodaj:disabled { opacity: 0.55; cursor: default; }
+#widok-habits .pusto {
+  background: var(--habits-tlo-karta);
+  border-color: var(--habits-obramowanie-puste);
+  color: var(--habits-tekst-pomocniczy);
+}

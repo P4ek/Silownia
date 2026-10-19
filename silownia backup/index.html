@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="pl" class="motyw-habits">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dziennik treningowy</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="logo/icon-180.png">
+<meta name="theme-color" content="#08090B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Silownia">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/baza.css">
+<link rel="stylesheet" href="css/zapisz-trening.css">
+<link rel="stylesheet" href="css/rejestr.css">
+<link rel="stylesheet" href="css/wykres.css">
+<link rel="stylesheet" href="css/katalog.css">
+<link rel="stylesheet" href="css/zaplanuj-trening.css">
+<link rel="stylesheet" href="css/jedzenie.css">
+<link rel="stylesheet" href="css/plan-tygodnia.css">
+<link rel="stylesheet" href="css/nawyki.css">
+<link rel="stylesheet" href="css/rady-z-ksiazek.css">
+<link rel="stylesheet" href="css/wnioski.css">
+<link rel="stylesheet" href="css/ai-analiza.css">
+<link rel="stylesheet" href="css/motyw.css">
+<link rel="stylesheet" href="css/menu.css">
+<link rel="stylesheet" href="css/dzis.css">
+<link rel="stylesheet" href="css/finanse.css">
+<link rel="stylesheet" href="css/rejestr-superseria.css">
+<link rel="stylesheet" href="css/medytacja.css">
+<style>
+/* Ekran startowy: widoczny, dopóki getSession() nie zwróci wyniku (start.js), potem znika w ~300 ms */
+.ekran-startowy {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  height: 100dvh;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  background: var(--habits-tlo);
+  color: var(--habits-tekst);
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow: hidden;
+  transition: opacity 300ms ease;
+}
+.ekran-startowy.znika { opacity: 0; pointer-events: none; }
+.start-znak-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; min-height: 0; }
+.start-znak { position: relative; width: 120px; height: 120px; }
+.start-znak svg { position: absolute; inset: 0; }
+.start-znak-litera {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-bottom: 4px;
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 46px;
+  line-height: 1;
+  color: var(--habits-akcent);
+}
+.start-nazwa { text-align: center; }
+.ekran-startowy h1 {
+  margin: 0;
+  padding: 0;
+  font-size: 44px;
+  line-height: 1;
+  color: var(--habits-naglowek);
+}
+.start-podtytul { margin: 10px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; color: var(--habits-tekst-pomocniczy); }
+.start-status { width: 220px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.start-pasek { width: 100%; height: 3px; border-radius: 2px; background: var(--tryb-ciemny-tlo-karta); overflow: hidden; }
+.start-pasek-wypelnienie { height: 100%; border-radius: 2px; background: var(--habits-akcent); }
+.start-tekst { font-size: 13px; color: var(--muted); text-align: center; }
+.start-ponow {
+  padding: 8px 18px;
+  border: 1px solid var(--habits-obramowanie);
+  border-radius: 999px;
+  background: var(--habits-tlo-karta);
+  color: var(--habits-akcent);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.start-cytat {
+  margin: 0;
+  padding: 56px 40px 64px;
+  text-align: center;
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--habits-tekst-pomocniczy);
+}
+@media (max-height: 640px) {
+  .start-cytat { padding: 32px 32px 32px; }
+}
+.ekran-startowy .spin { transform-origin: 60px 60px; animation: start-spin 1.6s cubic-bezier(.6,.1,.4,.9) infinite; }
+.ekran-startowy .breathe { animation: start-br 2.4s ease-in-out infinite; }
+.ekran-startowy .fill { animation: start-fill 2.8s ease-in-out infinite; }
+.ekran-startowy .fade { animation: start-fade 2.8s ease-in-out infinite; }
+.ekran-startowy.blad .fill, .ekran-startowy.blad .fade { animation: none; }
+.ekran-startowy.blad .fill { width: 100%; background: var(--habits-obramowanie); }
+@keyframes start-spin { to { transform: rotate(360deg); } }
+@keyframes start-br { 0%, 100% { opacity: .55; transform: scale(.97); } 50% { opacity: 1; transform: scale(1); } }
+@keyframes start-fill { 0% { width: 6%; } 70% { width: 92%; } 100% { width: 92%; } }
+@keyframes start-fade { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .ekran-startowy { transition: none; }
+  .ekran-startowy .spin, .ekran-startowy .breathe, .ekran-startowy .fill, .ekran-startowy .fade { animation: none; }
+  .ekran-startowy .fill { width: 60%; }
+}
+</style>
+</head>
+<body class="motyw-habits">
+
+<div id="ekran-startowy" class="ekran-startowy">
+  <div class="start-znak-wrap">
+    <div class="start-znak breathe">
+      <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="var(--habits-obramowanie)" stroke-width="3"></circle>
+        <g class="spin"><path d="M60 6 A54 54 0 0 1 114 60" fill="none" stroke="var(--habits-akcent)" stroke-width="3" stroke-linecap="round"></path></g>
+        <circle cx="60" cy="60" r="40" fill="var(--habits-tlo-karta)" stroke="var(--habits-obramowanie)"></circle>
+      </svg>
+      <span class="start-znak-litera" aria-hidden="true">D</span>
+    </div>
+    <div class="start-nazwa">
+      <h1>Dziennik</h1>
+      <p class="start-podtytul">TRENING · NAWYKI · POSIŁKI</p>
+    </div>
+  </div>
+  <div class="start-status" role="status" aria-live="polite">
+    <div class="start-pasek"><div class="start-pasek-wypelnienie fill"></div></div>
+    <span id="start-tekst" class="start-tekst fade">Wczytuję Twój dzień…</span>
+    <button type="button" id="start-ponow" class="start-ponow" hidden>Spróbuj ponownie</button>
+  </div>
+  <p class="start-cytat">„Compare yourself to who you were yesterday, not to who someone else is today.”</p>
+</div>
+<script>
+// Ekran startowy: osobno od plików js/, żeby nie zależał od ich wersji. start.js woła schowajEkranStartowy(),
+// gdy wynik getSession() jest znany; bez odpowiedzi po 8 s komunikat i "Spróbuj ponownie"
+(function () {
+  const ekran = document.getElementById("ekran-startowy");
+  const timer = setTimeout(function () {
+    ekran.classList.add("blad");
+    document.getElementById("start-tekst").textContent = "Nie udało się połączyć";
+    document.getElementById("start-ponow").hidden = false;
+  }, 8000);
+  document.getElementById("start-ponow").addEventListener("click", function () {
+    location.reload();
+  });
+  window.schowajEkranStartowy = function () {
+    clearTimeout(timer);
+    if (ekran.hidden) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      ekran.hidden = true;
+      return;
+    }
+    ekran.addEventListener("transitionend", function () { ekran.hidden = true; }, { once: true });
+    ekran.classList.add("znika");
+  };
+})();
+</script>
+
+<div id="ekran-logowania" class="ekran-logowania">
+  <div class="karta logowanie-karta">
+    <h1>Dziennik treningowy</h1>
+    <p class="logowanie-opis">Zaloguj się linkiem wysłanym na e-mail.</p>
+    <form id="form-logowania">
+      <label for="logowanie-email">Adres e-mail</label>
+      <input type="email" id="logowanie-email" autocomplete="email" required placeholder="ty@przyklad.pl">
+      <button type="submit" class="btn-submit">Wyślij link logowania</button>
+    </form>
+    <form id="form-kodu" hidden>
+      <label for="logowanie-kod">Kod logowania</label>
+      <input type="text" id="logowanie-kod" inputmode="numeric" autocomplete="one-time-code" required placeholder="123456">
+      <button type="submit" class="btn-submit">Zaloguj</button>
+    </form>
+    <p id="logowanie-status" class="logowanie-status" hidden></p>
+  </div>
+</div>
+
+<div id="aplikacja" hidden>
+
+<div class="topbar-ikony">
+  <button type="button" class="kropla" id="hamburger" aria-label="Menu" aria-expanded="false" aria-controls="sidebar">
+    <span class="kropla-l kropla-l1"></span>
+    <span class="kropla-l kropla-l2"></span>
+  </button>
+  <button type="button" id="btn-przypomnienia" class="nav-btn" aria-label="Przypomnienia" title="Przypomnienia">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+  </button>
+</div>
+
+<div id="overlay" hidden></div>
+
+<nav id="sidebar" class="menu" aria-label="Główne menu" aria-hidden="true">
+  <div class="menu-wnetrze">
+    <!-- Zakładki = skróty, wiszą z górnej krawędzi; klikają odpowiednią pozycję menu (data-skrot = data-widok) -->
+    <div class="menu-zakladki">
+      <button type="button" class="menu-zakladka menu-zakladka-zdjecie" id="menu-skrot-zdjecie" data-skrot="widok-jedzenie" aria-label="Zdjęcie posiłku" hidden>
+        <span class="menu-zakladka-tekst">Zdjęcie</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4zM12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>
+      </button>
+      <button type="button" class="menu-zakladka menu-zakladka-trening" data-skrot="widok-dodaj" aria-label="Zapisz trening">
+        <span class="menu-zakladka-tekst">Trening</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg>
+      </button>
+      <button type="button" class="menu-zakladka menu-zakladka-nawyk" data-skrot="widok-habits" aria-label="Nawyki">
+        <span class="menu-zakladka-tekst">Nawyk</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      </button>
+    </div>
+
+    <header class="menu-naglowek">
+      <span class="menu-powitanie">CZEŚĆ</span>
+      <h2 class="menu-tytul">Dokąd<br>dziś?</h2>
+    </header>
+
+    <div class="menu-rozdzialy">
+      <section class="menu-rozdzial" aria-labelledby="menu-r-start">
+        <span class="menu-rozdzial-nazwa" id="menu-r-start">START</span>
+        <button type="button" class="nav-btn menu-pozycja aktywny" data-widok="widok-dzis" aria-current="page">
+          <span class="menu-etykieta">Dziś</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc" data-menu-wartosc="dzis"></span>
+        </button>
+      </section>
+
+      <section class="menu-rozdzial" aria-labelledby="menu-r-trening">
+        <span class="menu-rozdzial-nazwa" id="menu-r-trening">TRENING</span>
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-dodaj">
+          <span class="menu-etykieta">Zapisz trening</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc" data-menu-wartosc="zapisz"></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-rejestr">
+          <span class="menu-etykieta">Rejestr ćwiczeń</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc" data-menu-wartosc="rejestr"></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-zaplanuj">
+          <span class="menu-etykieta">Zaplanuj trening</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc" data-menu-wartosc="zaplanuj"></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-nowe">
+          <span class="menu-etykieta">Katalog ćwiczeń</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc" data-menu-wartosc="katalog"></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-wykres">
+          <span class="menu-etykieta">Wykres postępu</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc" data-menu-wartosc="wykres"></span>
+        </button>
+      </section>
+
+      <section class="menu-rozdzial" aria-labelledby="menu-r-codziennie">
+        <span class="menu-rozdzial-nazwa" id="menu-r-codziennie">CODZIENNIE</span>
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-habits">
+          <span class="menu-etykieta">Nawyki</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc" data-menu-wartosc="nawyki"></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" id="nav-jedzenie" data-widok="widok-jedzenie" hidden>
+          <span class="menu-etykieta">Posiłki</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc" data-menu-wartosc="jedzenie"></span>
+        </button>
+      </section>
+
+      <section class="menu-rozdzial" aria-labelledby="menu-r-rozwoj">
+        <span class="menu-rozdzial-nazwa" id="menu-r-rozwoj">ROZWÓJ</span>
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-plan">
+          <span class="menu-etykieta">Plan tygodnia</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span id="cele-tydzien-pigulka" class="menu-wartosc nav-cele-pigulka" hidden></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" id="nav-rady" data-widok="widok-rady" hidden>
+          <span class="menu-etykieta">Rady z książek</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc menu-wartosc-zlota" data-menu-wartosc="rady"></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" id="nav-medytacja" data-widok="widok-medytacja" hidden>
+          <span class="menu-etykieta">Medytacja</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc"></span>
+        </button>
+        <!-- Wnioski i AI Analiza: ukryte w menu (ekrany i kod zostają) -->
+        <button type="button" class="nav-btn menu-pozycja" data-widok="widok-wnioski" hidden>
+          <span class="menu-etykieta">Wnioski</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc"></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" id="nav-ai-analiza" data-widok="widok-ai-analiza" hidden>
+          <span class="menu-etykieta">AI Analiza</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc"></span>
+        </button>
+      </section>
+
+      <section class="menu-rozdzial" id="menu-rozdzial-finanse" aria-labelledby="menu-r-finanse" hidden>
+        <span class="menu-rozdzial-nazwa" id="menu-r-finanse">FINANSE</span>
+        <button type="button" class="nav-btn menu-pozycja" id="nav-finanse" data-widok="widok-finanse">
+          <span class="menu-etykieta">Oszczędności</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc"></span>
+        </button>
+      </section>
+    </div>
+
+    <footer class="menu-stopka">
+      <button type="button" class="nav-btn nav-wyloguj" id="btn-wyloguj">Wyloguj</button>
+    </footer>
+  </div>
+</nav>
+
+<div id="wyloguj-overlay" hidden>
+  <div id="wyloguj-modal" role="dialog" aria-modal="true" aria-labelledby="wyloguj-tytul">
+    <h3 id="wyloguj-tytul">Czy na pewno chcesz się wylogować?</h3>
+    <p>Możesz też zostać zalogowanym i wrócić do panelu.</p>
+    <div class="wyloguj-akcje">
+      <button type="button" class="btn-wyloguj-tak" id="btn-wyloguj-tak">Tak, wyloguj</button>
+      <button type="button" class="btn-wyloguj-nie" id="btn-wyloguj-nie">Zostań zalogowany</button>
+    </div>
+  </div>
+</div>
+
+<div class="kontener motyw-habits">
+  <svg class="habits-poswiata" width="620" height="620" viewBox="0 0 620 620" aria-hidden="true">
+    <circle cx="310" cy="310" r="280" fill="#D6D0C0"/>
+  </svg>
+
+  <h1 id="app-tytul">Dziennik treningowy</h1>
+
+  <!-- ===== Widok 0: Dziś (ekran startowy) – niebo dnia; treść rysuje js/dzis.js ===== -->
+  <section id="widok-dzis" class="widok aktywny">
+    <div class="dzis-naglowek">
+      <span id="dzis-data" class="dzis-data"></span>
+      <h2 id="dzis-powitanie" class="dzis-powitanie"></h2>
+    </div>
+
+    <!-- Niebo dnia: każda zrobiona rzecz zapala gwiazdę -->
+    <div class="dzis-niebo">
+      <div class="dzis-niebo-poswiata" aria-hidden="true"></div>
+      <div class="dzis-wynik">
+        <span class="dzis-wynik-liczba"><span id="dzis-procent">–</span><span class="dzis-wynik-proc">%</span></span>
+        <span class="dzis-wynik-opis">dnia za Tobą<br><span id="dzis-gwiazdy-licznik" class="dzis-wynik-gwiazdy"></span></span>
+      </div>
+      <div class="dzis-gwiazdozbior">
+        <svg id="dzis-niebo-svg" class="dzis-niebo-svg" viewBox="0 0 342 300" aria-hidden="true"></svg>
+        <div id="dzis-gwiazdy-przyciski" class="dzis-gwiazdy-przyciski"></div>
+      </div>
+      <p id="dzis-podpowiedz" class="dzis-podpowiedz" aria-live="polite">Wczytuję Twój dzień…</p>
+    </div>
+
+    <!-- Cztery części dnia -->
+    <div class="dzis-czesci">
+      <div id="dzis-trening" class="dzis-czesc"></div>
+      <div id="dzis-nawyki" class="dzis-czesc"></div>
+      <div id="dzis-posilki" class="dzis-czesc" hidden></div>
+      <div id="dzis-misja" class="dzis-czesc" hidden></div>
+    </div>
+
+    <!-- Tydzień jako rząd gwiazd -->
+    <div class="dzis-tydzien">
+      <h3 class="dzis-tytul">Tydzień</h3>
+      <div id="dzis-tydzien-gwiazdy" class="dzis-tydzien-gwiazdy"></div>
+    </div>
+
+    <!-- Cele tygodnia (z Planu tygodnia) -->
+    <div class="dzis-cele-naglowek">
+      <h3 class="dzis-tytul">Cele tygodnia</h3>
+      <button type="button" id="dzis-cele-plan" class="dzis-link"><span id="dzis-cele-licznik"></span>PLAN →</button>
+    </div>
+    <div id="dzis-cele" class="dzis-cele"></div>
+
+    <!-- Rada na dziś (Rady z książek) -->
+    <div id="dzis-rada" class="dzis-rada" hidden>
+      <div class="dzis-rada-gora">
+        <span id="dzis-rada-licznik" class="dzis-kicker"></span>
+        <button type="button" id="dzis-rada-nastepna" class="dzis-rada-nastepna" aria-label="Następna rada">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg>
+        </button>
+      </div>
+      <p id="dzis-rada-tekst" class="dzis-rada-tekst"></p>
+      <span id="dzis-rada-zrodlo" class="dzis-rada-zrodlo"></span>
+    </div>
+  </section>
+
+  <!-- ===== Widok 1: Zapisz trening ===== -->
+  <section id="widok-dodaj" class="widok">
+    <h2 id="zapis-sesja" class="zapis-sesja">Sesja</h2>
+    <p id="zasada-dnia" class="zasada-dnia"></p>
+
+    <div id="rekord-baner" class="rekord-baner" hidden>
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 1.5c.6 3.6-1.4 5.6-3 7.2-1.6 1.6-3 3.2-3 6.1a5.5 5.5 0 0 0 11 .3c.1-2.3-1-4.2-2-5.4-.6.9-1.4 1.2-2.2 1.2 1.3-2.8 1-7-.8-9.4z"/></svg>
+      <span id="rekord-tekst"></span>
+    </div>
+
+    <div id="plan-trakcie-baner" class="plan-trakcie-baner" hidden>
+      <div class="plan-trakcie-info">
+        <div class="plan-postep" aria-hidden="true">
+          <svg viewBox="0 0 44 44">
+            <circle class="plan-postep-tlo" cx="22" cy="22" r="19"/>
+            <circle id="plan-postep-luk" class="plan-postep-luk" cx="22" cy="22" r="19"/>
+          </svg>
+          <span id="plan-postep-liczba" class="plan-postep-liczba"></span>
+        </div>
+        <span id="plan-trakcie-tekst" class="plan-trakcie-tekst"></span>
+      </div>
+      <div class="plan-trakcie-akcje">
+        <button type="button" id="btn-plan-pomin" class="btn-pill" style="margin-top:0">Pomiń</button>
+        <button type="button" id="btn-plan-zakoncz" class="btn-pill" style="margin-top:0">Zakończ plan</button>
+      </div>
+    </div>
+
+    <!-- Wersja robocza z wcześniejszego dnia: zapisz z tamtą datą albo odrzuć -->
+    <div id="zapis-szkic-stary" class="zapis-szkic-stary" hidden>
+      <p id="zapis-szkic-stary-tekst" class="zapis-szkic-stary-tekst"></p>
+      <div class="zapis-szkic-stary-akcje">
+        <button type="button" id="zapis-szkic-stary-zapisz" class="zapis-btn-maly zloty"></button>
+        <button type="button" id="zapis-szkic-stary-odrzuc" class="zapis-btn-maly">Odrzuć</button>
+      </div>
+    </div>
+
+    <!-- Superseria: pytanie o liczbę ćwiczeń, wybór ćwiczeń i rundy (logika w zapisz-trening.js) -->
+    <div id="superseria-pytanie" class="superseria-karta" hidden>
+      <p class="superseria-pytanie-tekst">Ile ćwiczeń ma mieć superseria?</p>
+      <div class="superseria-liczba" role="group" aria-label="Liczba ćwiczeń w superserii">
+        <button type="button" class="superseria-liczba-btn" data-liczba="2" aria-pressed="true">2 ćwiczenia</button>
+        <button type="button" class="superseria-liczba-btn" data-liczba="3" aria-pressed="false">3 ćwiczenia</button>
+      </div>
+      <div class="zapis-szkic-stary-akcje">
+        <button type="button" id="superseria-dalej" class="zapis-btn-maly zloty">Dalej</button>
+        <button type="button" class="zapis-btn-maly superseria-anuluj">Anuluj</button>
+      </div>
+    </div>
+    <div id="superseria-panel" class="superseria-panel" hidden>
+      <div class="superseria-gora">
+        <span class="superseria-etykieta">Superseria</span>
+        <button type="button" class="zapis-btn-maly superseria-anuluj">Anuluj</button>
+      </div>
+      <div id="superseria-wybor" class="superseria-wybor"></div>
+      <div class="zapis-serie-naglowek">
+        <h3 class="zapis-serie-tytul">Rundy</h3>
+        <span id="superseria-rundy-licznik" class="zapis-serie-licznik"></span>
+      </div>
+      <div id="superseria-rundy" class="superseria-rundy"></div>
+      <button type="button" id="superseria-dodaj-runde" class="zapis-btn-zapisz">+ Dodaj rundę</button>
+      <button type="button" id="superseria-zapisz" class="zapis-btn-zalicz">
+        <span>Zapisz superserię</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      </button>
+    </div>
+
+    <!-- Zwykły zapis (ukrywany w trybie superserii) -->
+    <div id="zapis-zwykly">
+    <!-- Wybór ćwiczenia: chipy partii + karty ćwiczeń wybranej partii -->
+    <div id="zapis-chipy" class="plan-chipy zapis-chipy" role="group" aria-label="Partia mięśniowa"></div>
+    <div id="zapis-cwiczenia" class="zapis-cwiczenia"></div>
+    <div id="zapis-brak" class="zapis-brak" hidden></div>
+
+    <div id="zapis-panel" class="zapis-panel">
+      <section class="zapis-aktualne">
+        <span class="zapis-partia"><span id="zapis-partia-kropka" class="zapis-kropka"></span><span id="zapis-partia-nazwa"></span></span>
+        <h3 id="zapis-tytul" class="zapis-tytul"></h3>
+        <div class="zapis-pobicie-wiersz">
+          <div id="zapis-do-pobicia" class="zapis-do-pobicia" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+            <span class="zapis-do-pobicia-etykieta">Do pobicia</span>
+            <span id="zapis-rekord" class="zapis-do-pobicia-wartosc"></span>
+          </div>
+          <button type="button" id="zapis-btn-superseria" class="zapis-btn-superseria">Super seria</button>
+        </div>
+      </section>
+
+      <!-- Liczniki: kliknięcie w liczbę pozwala wpisać wartość z klawiatury -->
+      <div class="zapis-liczniki">
+        <div class="zapis-licznik">
+          <label for="zapis-kg" class="zapis-licznik-etykieta">Ciężar · kg</label>
+          <input type="text" id="zapis-kg" class="zapis-licznik-wartosc" inputmode="decimal" autocomplete="off" enterkeyhint="done">
+          <div class="zapis-licznik-przyciski">
+            <button type="button" id="zapis-kg-minus" aria-label="Zmniejsz ciężar o 2,5 kg">−</button>
+            <button type="button" id="zapis-kg-plus" aria-label="Zwiększ ciężar o 2,5 kg">+</button>
+          </div>
+        </div>
+        <div class="zapis-licznik">
+          <label for="zapis-powt" class="zapis-licznik-etykieta">Powtórzenia</label>
+          <input type="text" id="zapis-powt" class="zapis-licznik-wartosc" inputmode="numeric" autocomplete="off" enterkeyhint="done">
+          <div class="zapis-licznik-przyciski">
+            <button type="button" id="zapis-powt-minus" aria-label="Mniej powtórzeń">−</button>
+            <button type="button" id="zapis-powt-plus" aria-label="Więcej powtórzeń">+</button>
+          </div>
+        </div>
+      </div>
+      <p id="zapis-podpowiedz" class="zapis-podpowiedz" aria-live="polite"></p>
+
+      <button type="button" id="zapis-zalicz" class="zapis-btn-zalicz">
+        <span id="zapis-zalicz-tekst">Zalicz serię 1</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      </button>
+
+      <div class="zapis-serie-naglowek">
+        <h3 class="zapis-serie-tytul">Zaliczone serie</h3>
+        <span id="zapis-serie-licznik" class="zapis-serie-licznik"></span>
+      </div>
+      <div id="zapis-serie" class="zapis-serie"></div>
+      <button type="button" id="zapis-zapisz" class="zapis-btn-zapisz">Zapisz ćwiczenie i wybierz kolejne</button>
+    </div>
+    </div>
+
+    <div class="zapis-serie-naglowek zapis-dzis-naglowek">
+      <h3 class="zapis-serie-tytul">Dziś zapisane</h3>
+      <span id="zapis-dzis-licznik" class="zapis-serie-licznik"></span>
+    </div>
+    <ul id="lista" class="zapis-dzis"></ul>
+  </section>
+
+  <!-- ===== Widok 2: Rejestr ćwiczeń ===== -->
+  <section id="widok-rejestr" class="widok">
+    <div class="rejestr-gora">
+      <h2 class="rejestr-kicker">Rejestr ćwiczeń</h2>
+      <!-- Przeskok między dniami z zapisanym treningiem; kliknięcie w datę otwiera wybór daty -->
+      <div id="rejestr-nawigacja" class="rejestr-nawigacja" hidden>
+        <button type="button" id="rejestr-poprzedni" class="rejestr-btn-dzien" aria-label="Poprzedni trening">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <div class="rejestr-data">
+          <span id="rejestr-data-tekst"></span>
+          <label for="rejestr-data" class="plan-ukryta-etykieta">Wybierz dzień treningu</label>
+          <input type="date" id="rejestr-data" class="rejestr-data-input">
+        </div>
+        <button type="button" id="rejestr-nastepny" class="rejestr-btn-dzien" aria-label="Następny trening">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="rejestr-szukaj">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <label for="rejestr-szukaj" class="plan-ukryta-etykieta">Szukaj ćwiczenia</label>
+      <input type="text" id="rejestr-szukaj" list="rejestr-cwiczenia-lista" placeholder="Szukaj ćwiczenia" autocomplete="off">
+      <datalist id="rejestr-cwiczenia-lista"></datalist>
+    </div>
+
+    <!-- Widok jednego dnia treningowego (renderRejestrDzien) -->
+    <div id="rejestr-dzien" class="rejestr-dzien" hidden>
+      <span class="rejestr-etykieta">Objętość treningu</span>
+      <div class="rejestr-objetosc">
+        <span id="rejestr-objetosc" class="rejestr-objetosc-liczba">0</span>
+        <span class="rejestr-objetosc-kg">kg</span>
+      </div>
+      <div id="rejestr-pigulki" class="rejestr-pigulki"></div>
+      <section class="rejestr-rozklad">
+        <span class="rejestr-etykieta">Rozkład serii</span>
+        <div id="rejestr-rozklad-pasek" class="rejestr-rozklad-pasek"></div>
+        <div id="rejestr-rozklad-legenda" class="rejestr-rozklad-legenda"></div>
+      </section>
+      <div id="rejestr-karty" class="rejestr-karty"></div>
+    </div>
+
+    <!-- Wyniki wyszukiwania / pusty stan -->
+    <div id="rejestr" class="rejestr-wyniki"></div>
+  </section>
+
+  <!-- ===== Widok 3: Wykres postępu ===== -->
+  <section id="widok-wykres" class="widok">
+    <!-- Nagłówek: 1–2 partie, które najdłużej odpoczywają (renderWykresNaglowek) -->
+    <span id="wykres-kicker" class="wykres-kicker"></span>
+    <h2 id="wykres-tytul" class="wykres-tytul"></h2>
+    <p id="wykres-szczegoly" class="wykres-szczegoly"></p>
+
+    <section class="wykres-karta karta-mapa">
+      <div class="wykres-karta-naglowek">
+        <h3 class="wykres-karta-tytul">Mapa ciała</h3>
+        <div id="mapa-przelacznik" class="mapa-przelacznik" role="group" aria-label="Strona sylwetki">
+          <button type="button" data-strona="przod" aria-pressed="true">Przód</button>
+          <button type="button" data-strona="tyl" aria-pressed="false">Tył</button>
+        </div>
+      </div>
+      <div class="mapa-sylwetki" id="mapa-ciala">
+        <figure class="mapa-sylwetka" data-strona="przod">
+          <div class="mapa-etykiety lewe"></div>
+          <svg class="mapa-svg" viewBox="0 0 120 252" aria-label="Sylwetka z przodu">
+          <circle class="mapa-cialo" cx="60" cy="22" r="14"/>
+          <path class="mapa-cialo" d="M54 35 L66 35 L67 45 L53 45 Z"/>
+          <path class="mapa-cialo" d="M21 101 Q29 105 37 101 L34 140 Q28 143 23 140 Z"/>
+          <path class="mapa-cialo" d="M99 101 Q91 105 83 101 L86 140 Q92 143 97 140 Z"/>
+          <circle class="mapa-cialo" cx="28.5" cy="149" r="6"/>
+          <circle class="mapa-cialo" cx="91.5" cy="149" r="6"/>
+          <ellipse class="mapa-cialo" cx="50" cy="244" rx="8" ry="4.5"/>
+          <ellipse class="mapa-cialo" cx="70" cy="244" rx="8" ry="4.5"/>
+          <path class="mapa-partia" data-partia="Biceps" tabindex="0" role="button" aria-label="Biceps" d="M24 69 L39 62 L38 98 Q30 102 21 98 Z"/>
+          <path class="mapa-partia" data-partia="Biceps" tabindex="0" role="button" aria-label="Biceps" d="M96 69 L81 62 L82 98 Q90 102 99 98 Z"/>
+          <path class="mapa-partia" data-partia="Klata" tabindex="0" role="button" aria-label="Klata" d="M46 47 L74 47 Q78 49 78 60 L77 78 Q68 84 60 82 Q52 84 43 78 L42 60 Q42 49 46 47 Z"/>
+          <path class="mapa-partia" data-partia="Brzuch" tabindex="0" role="button" aria-label="Brzuch" d="M45 82 Q52 86 60 85 Q68 86 75 82 L74 117 Q67 124 60 124 Q53 124 46 117 Z"/>
+          <path class="mapa-cialo" d="M46 120 Q53 128 60 128 Q67 128 74 120 L77 139 L43 139 Z"/>
+          <path class="mapa-linia" d="M60 50 L60 80 M50 96 L70 96 M50 108 L70 108 M60 87 L60 120"/>
+          <path class="mapa-partia" data-partia="Barki" tabindex="0" role="button" aria-label="Barki" d="M45 45 C34 44 25 48 23 60 L24 68 C30 64 36 61 42 59 Z"/>
+          <path class="mapa-partia" data-partia="Barki" tabindex="0" role="button" aria-label="Barki" d="M75 45 C86 44 95 48 97 60 L96 68 C90 64 84 61 78 59 Z"/>
+          <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M43 141 L59 141 L57 238 L45 238 Q40 190 43 141 Z"/>
+          <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M61 141 L77 141 Q80 190 75 238 L63 238 Z"/>
+          </svg>
+          <div class="mapa-etykiety prawe"></div>
+        </figure>
+        <figure class="mapa-sylwetka" data-strona="tyl" hidden>
+          <div class="mapa-etykiety lewe"></div>
+          <svg class="mapa-svg" viewBox="0 0 120 252" aria-label="Sylwetka z tyłu">
+          <circle class="mapa-cialo" cx="60" cy="22" r="14"/>
+          <path class="mapa-cialo" d="M54 35 L66 35 L67 45 L53 45 Z"/>
+          <path class="mapa-cialo" d="M21 101 Q29 105 37 101 L34 140 Q28 143 23 140 Z"/>
+          <path class="mapa-cialo" d="M99 101 Q91 105 83 101 L86 140 Q92 143 97 140 Z"/>
+          <circle class="mapa-cialo" cx="28.5" cy="149" r="6"/>
+          <circle class="mapa-cialo" cx="91.5" cy="149" r="6"/>
+          <ellipse class="mapa-cialo" cx="50" cy="244" rx="8" ry="4.5"/>
+          <ellipse class="mapa-cialo" cx="70" cy="244" rx="8" ry="4.5"/>
+          <path class="mapa-partia" data-partia="Triceps" tabindex="0" role="button" aria-label="Triceps" d="M24 69 L39 62 L38 98 Q30 102 21 98 Z"/>
+          <path class="mapa-partia" data-partia="Triceps" tabindex="0" role="button" aria-label="Triceps" d="M96 69 L81 62 L82 98 Q90 102 99 98 Z"/>
+          <path class="mapa-partia" data-partia="Plecy" tabindex="0" role="button" aria-label="Plecy" d="M45 46 L75 46 Q80 50 79 64 L76 96 Q68 111 60 113 Q52 111 44 96 L41 64 Q40 50 45 46 Z"/>
+          <path class="mapa-cialo" d="M44 99 Q52 114 60 116 Q68 114 76 99 L76 122 L44 122 Z"/>
+          <path class="mapa-partia" data-partia="Dupa" tabindex="0" role="button" aria-label="Dupa" d="M44 123 L59.5 123 L59.5 140 Q50 143 43 138 Z"/>
+          <path class="mapa-partia" data-partia="Dupa" tabindex="0" role="button" aria-label="Dupa" d="M76 123 L60.5 123 L60.5 140 Q70 143 77 138 Z"/>
+          <path class="mapa-linia" d="M60 52 L60 108"/>
+          <path class="mapa-partia" data-partia="Barki" tabindex="0" role="button" aria-label="Barki" d="M45 45 C34 44 25 48 23 60 L24 68 C30 64 36 61 42 59 Z"/>
+          <path class="mapa-partia" data-partia="Barki" tabindex="0" role="button" aria-label="Barki" d="M75 45 C86 44 95 48 97 60 L96 68 C90 64 84 61 78 59 Z"/>
+          <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M43 141 L59 141 L57 238 L45 238 Q40 190 43 141 Z"/>
+          <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M61 141 L77 141 Q80 190 75 238 L63 238 Z"/>
+          </svg>
+          <div class="mapa-etykiety prawe"></div>
+        </figure>
+      </div>
+      <ul class="mapa-legenda karta-podpis">
+        <li><span class="mapa-probka poziom-0"></span>0–1 dzień</li>
+        <li><span class="mapa-probka poziom-1"></span>2–3 dni</li>
+        <li><span class="mapa-probka poziom-2"></span>4–6 dni</li>
+        <li><span class="mapa-probka poziom-3"></span>7+ dni lub nigdy</li>
+      </ul>
+      <p id="mapa-info" class="mapa-info karta-podpis" aria-live="polite">Dotknij partii, aby zobaczyć szczegóły.</p>
+    </section>
+
+    <section class="wykres-karta">
+      <h3 class="wykres-karta-tytul">Dni odpoczynku</h3>
+      <ul id="wykres-odpoczynek" class="wykres-odpoczynek"></ul>
+    </section>
+
+    <div class="wykres-gablota-naglowek">
+      <h3 class="wykres-karta-tytul">Gablota rekordów</h3>
+      <span id="gablota-tydzien" class="wykres-gablota-tydzien"></span>
+    </div>
+    <div id="wykres-gablota" class="wykres-gablota"></div>
+  </section>
+
+  <!-- ===== Widok 4: Dodaj nowe ćwiczenie ===== -->
+  <section id="widok-nowe" class="widok">
+    <h2 class="katalog-kicker">Katalog ćwiczeń</h2>
+    <div class="katalog-suma">
+      <span id="katalog-suma-liczba" class="katalog-suma-liczba">0</span>
+      <span class="katalog-suma-podpis">ćwiczeń<br>w Twojej bazie</span>
+    </div>
+
+    <!-- Kafle partii (renderKatalogKafle) + kafel "Nowe ćwiczenie" -->
+    <div id="katalog-kafle" class="katalog-kafle"></div>
+
+    <form id="form-nowe-cwiczenie" class="katalog-formularz" hidden>
+      <label for="nowe-nazwa">Nowe ćwiczenie w partii: <b id="nowe-partia-nazwa"></b></label>
+      <div class="katalog-formularz-rzad">
+        <input type="text" id="nowe-nazwa" autocomplete="off" required placeholder="np. przysiad ze sztangą">
+        <button type="submit" class="katalog-btn-zapisz">Zapisz</button>
+      </div>
+    </form>
+
+    <div class="katalog-lista-naglowek">
+      <span id="katalog-partia-kropka" class="katalog-partia-kropka" aria-hidden="true"></span>
+      <h3 id="katalog-partia-tytul" class="katalog-partia-tytul"></h3>
+      <span id="katalog-partia-licznik" class="katalog-partia-licznik"></span>
+    </div>
+    <ol id="katalog-lista" class="katalog-lista"></ol>
+  </section>
+
+  <!-- ===== Widok: Zaplanuj trening ===== -->
+  <section id="widok-zaplanuj" class="widok">
+    <h2 class="zaplanuj-kicker">Zaplanuj trening</h2>
+
+    <form id="form-plan-treningu" class="zaplanuj-form">
+      <!-- Okładka nowego planu: koła w kolorach partii ćwiczeń z planu (renderPlanOkladka) -->
+      <section class="plan-okladka">
+        <div id="plan-okladka-kola" class="plan-okladka-kola" aria-hidden="true"></div>
+        <div class="plan-okladka-dol">
+          <span id="plan-licznik" class="plan-okladka-licznik"></span>
+          <label for="plan-nazwa" class="plan-ukryta-etykieta">Nazwa planu</label>
+          <input type="text" id="plan-nazwa" class="plan-okladka-nazwa" autocomplete="off" required placeholder="Nazwij plan…">
+          <div class="plan-okladka-data">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>
+            <span id="plan-data-tekst"></span>
+            <label for="plan-data" class="plan-ukryta-etykieta">Data treningu</label>
+            <input type="date" id="plan-data" class="plan-data-input">
+          </div>
+        </div>
+      </section>
+
+      <ol id="plan-cwiczenia-lista" class="plan-lista"></ol>
+
+      <span class="zaplanuj-etykieta">Dodaj do planu</span>
+      <div id="plan-chipy" class="plan-chipy" role="group" aria-label="Partia mięśniowa"></div>
+      <div id="plan-katalog" class="plan-katalog"></div>
+
+      <button type="button" id="plan-wyslij-notion" class="plan-notion" role="switch" aria-checked="false">
+        <span class="plan-notion-ikona" aria-hidden="true">N</span>
+        <span class="plan-notion-tekst">Wyślij też do Notion</span>
+        <span class="plan-notion-tor" aria-hidden="true"><span class="plan-notion-galka"></span></span>
+      </button>
+
+      <button type="submit" class="plan-btn-zapisz">Zapisz plan</button>
+    </form>
+
+    <div class="plany-naglowek">
+      <h2 class="plany-tytul">Twoje plany</h2>
+      <span id="plany-licznik" class="plany-licznik"></span>
+    </div>
+    <div id="plany-lista" class="plany-pasek"></div>
+  </section>
+
+  <!-- ===== Widok: Jedzenie (tylko konta z JEDZENIE_DOSTEP_IDS) ===== -->
+  <section id="widok-jedzenie" class="widok">
+    <header class="jedz-naglowek">
+      <div class="jedz-dzien">
+        <span id="jedz-dzien-liczba" class="jedz-dzien-liczba"></span>
+        <div class="jedz-dzien-opis">
+          <span id="jedz-dzien-dzis" class="jedz-dzien-dzis" hidden>DZIŚ</span>
+          <span id="jedz-dzien-tygodnia" class="jedz-dzien-tygodnia"></span>
+          <span id="jedz-dzien-miesiac" class="jedz-dzien-miesiac"></span>
+        </div>
+      </div>
+      <div class="jedz-naglowek-akcje">
+        <button type="button" id="jedz-btn-cele" class="jedz-btn-cele" aria-expanded="false" aria-controls="jedz-cele">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+          Cele
+        </button>
+        <div class="jedz-strzalki">
+          <button type="button" id="jedz-poprzedni" class="jedz-strzalka" aria-label="Poprzedni dzień">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+          </button>
+          <button type="button" id="jedz-nastepny" class="jedz-strzalka" aria-label="Następny dzień">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Edycja celów dziennych -->
+    <form id="jedz-cele" class="jedz-cele" hidden>
+      <div class="jedz-cele-gora">
+        <h2 class="jedz-cele-tytul">Twoje cele dzienne</h2>
+        <button type="submit" id="jedz-cele-zapisz" class="jedz-btn-jasny">Zapisz</button>
+      </div>
+      <div class="jedz-cele-pola">
+        <div class="jedz-cele-pole"><label for="jedz-cel-kcal">KALORIE</label><div><input id="jedz-cel-kcal" type="number" min="0" step="1" inputmode="numeric"><span>kcal</span></div></div>
+        <div class="jedz-cele-pole"><label for="jedz-cel-bialko">BIAŁKO</label><div><input id="jedz-cel-bialko" type="number" min="0" step="1" inputmode="numeric"><span>g</span></div></div>
+        <div class="jedz-cele-pole"><label for="jedz-cel-wegle">WĘGLOWODANY</label><div><input id="jedz-cel-wegle" type="number" min="0" step="1" inputmode="numeric"><span>g</span></div></div>
+        <div class="jedz-cele-pole"><label for="jedz-cel-tluszcze">TŁUSZCZE</label><div><input id="jedz-cel-tluszcze" type="number" min="0" step="1" inputmode="numeric"><span>g</span></div></div>
+      </div>
+      <p id="jedz-cele-podpowiedz" class="jedz-cele-podpowiedz"></p>
+    </form>
+
+    <!-- Zachęta, gdy celów brak (zamiast podsumowania) -->
+    <div id="jedz-brak-celow" class="jedz-brak-celow" hidden>
+      <p class="jedz-brak-celow-tytul">Ustaw swoje cele</p>
+      <p class="jedz-brak-celow-opis">Podaj dzienne kalorie i makro, a zobaczysz, ile jeszcze zostało na dziś.</p>
+      <button type="button" id="jedz-brak-celow-btn" class="jedz-btn-jasny">Ustaw cele</button>
+    </div>
+
+    <!-- Podsumowanie oglądanego dnia -->
+    <div id="jedz-podsumowanie" hidden>
+      <div class="jedz-wykres" id="jedz-wykres" role="group" aria-label="Kalorie z kilku dni"></div>
+
+      <section class="jedz-talerz">
+        <div class="jedz-kolo">
+          <svg id="jedz-kolo-svg" viewBox="0 0 190 190" aria-hidden="true"></svg>
+          <div class="jedz-kolo-srodek">
+            <span id="jedz-kolo-etykieta" class="jedz-kolo-etykieta">ZOSTAŁO</span>
+            <span id="jedz-kolo-liczba" class="jedz-kolo-liczba">0</span>
+            <span id="jedz-kolo-opis" class="jedz-kolo-opis"></span>
+          </div>
+        </div>
+        <div id="jedz-kafle" class="jedz-kafle"></div>
+      </section>
+    </div>
+
+    <!-- Aparat + analiza AI -->
+    <section class="jedz-aparat-wrap">
+      <label for="jedz-foto" id="jedz-aparat" class="jedz-aparat">
+        <img id="jedz-foto-podglad" class="jedz-foto-podglad" alt="Zdjęcie posiłku" hidden>
+        <span class="jedz-rog jedz-rog-lg" aria-hidden="true"></span>
+        <span class="jedz-rog jedz-rog-pg" aria-hidden="true"></span>
+        <span class="jedz-rog jedz-rog-ld" aria-hidden="true"></span>
+        <span class="jedz-rog jedz-rog-pd" aria-hidden="true"></span>
+        <span id="jedz-aparat-pusty" class="jedz-aparat-pusty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          <span class="jedz-aparat-tytul">Wyceluj w talerz</span>
+          <span class="jedz-aparat-opis">dotknij, by zrobić lub wybrać zdjęcie</span>
+        </span>
+        <span id="jedz-aparat-skan" class="jedz-aparat-skan" hidden>
+          <span class="jedz-skan-linia"></span>
+          <span class="jedz-skan-tekst jedz-puls"></span>
+        </span>
+        <input id="jedz-foto" type="file" accept="image/*" capture="environment" class="jedz-foto-input">
+      </label>
+      <button type="button" id="jedz-analizuj" class="jedz-analizuj" aria-label="Analizuj posiłek">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6zM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></svg>
+      </button>
+    </section>
+    <p class="jedz-analizuj-podpis">ANALIZUJ</p>
+
+    <div id="jedz-typy" class="jedz-typy" role="group" aria-label="Typ posiłku"></div>
+    <!-- Zjedz ponownie: posiłki z ostatnich 30 dni, dodawane jednym kliknięciem bez AI -->
+    <div id="jedz-ostatnie" class="jedz-ostatnie" hidden>
+      <p class="jedz-kicker jedz-ostatnie-tytul">OSTATNIO JEDZONE</p>
+      <div id="jedz-ostatnie-lista" class="jedz-ostatnie-lista" role="group" aria-label="Zjedz ponownie"></div>
+    </div>
+    <label for="jedz-dopisek" class="jedz-dopisek-etykieta">Dopisek AI – analiza posiłku z tekstu <span>(poprawia trafność)</span></label>
+    <input id="jedz-dopisek" class="jedz-dopisek" type="text" placeholder="np. 200 g ryżu, łyżka oliwy, bez sosu" autocomplete="off">
+
+    <!-- Stan ładowania analizy -->
+    <section id="jedz-ladowanie" class="jedz-ladowanie" role="status" aria-live="polite" hidden>
+      <span id="jedz-ladowanie-tekst" class="jedz-ladowanie-tekst jedz-puls"></span>
+      <div class="jedz-ladowanie-pasek"><span id="jedz-ladowanie-postep"></span></div>
+      <div class="jedz-ladowanie-kafle">
+        <div class="jedz-shimmer"></div><div class="jedz-shimmer"></div><div class="jedz-shimmer"></div><div class="jedz-shimmer"></div>
+      </div>
+    </section>
+
+    <!-- Karta wyniku AI -->
+    <section id="jedz-wynik" class="jedz-wynik" aria-label="Wynik analizy" hidden>
+      <div class="jedz-wynik-gora">
+        <span class="jedz-kicker">WYNIK AI</span>
+        <span id="jedz-pewnosc" class="jedz-pewnosc"></span>
+      </div>
+      <label for="jedz-wynik-nazwa" class="jedz-sr">Nazwa posiłku</label>
+      <input id="jedz-wynik-nazwa" class="jedz-wynik-nazwa" type="text" autocomplete="off">
+      <div class="jedz-wynik-pola">
+        <div class="jedz-wynik-pole"><input id="jedz-wynik-kcal" type="number" min="0" inputmode="numeric" aria-label="kcal"><span class="jedz-kolor-kcal">kcal</span></div>
+        <div class="jedz-wynik-pole"><input id="jedz-wynik-bialko" type="number" min="0" inputmode="numeric" aria-label="białko"><span class="jedz-kolor-bialko">białko</span></div>
+        <div class="jedz-wynik-pole"><input id="jedz-wynik-wegle" type="number" min="0" inputmode="numeric" aria-label="węgle"><span class="jedz-kolor-wegle">węgle</span></div>
+        <div class="jedz-wynik-pole"><input id="jedz-wynik-tluszcze" type="number" min="0" inputmode="numeric" aria-label="tłuszcz"><span class="jedz-kolor-tluszcze">tłuszcz</span></div>
+      </div>
+      <ul id="jedz-wynik-skladniki" class="jedz-wynik-skladniki" hidden></ul>
+      <p id="jedz-wynik-uwaga" class="jedz-wynik-uwaga" hidden></p>
+      <div class="jedz-wynik-akcje">
+        <button type="button" id="jedz-wynik-odrzuc" class="jedz-btn-obrys">Odrzuć</button>
+        <button type="button" id="jedz-wynik-zapisz" class="jedz-btn-jasny">Zapisz</button>
+      </div>
+    </section>
+
+    <div class="jedz-lista-naglowek">
+      <h2 class="jedz-lista-tytul">Na talerzu</h2>
+      <span id="jedz-lista-licznik" class="jedz-kicker"></span>
+    </div>
+    <div id="jedz-lista" class="jedz-lista"></div>
+  </section>
+
+  <!-- ===== Widok 5: Plan tygodnia ===== -->
+  <section id="widok-plan" class="widok">
+    <span class="kompas-kicker">Nawyk 3 · Najpierw to, co najważniejsze</span>
+    <h2 class="kompas-tytul">Kompas tygodnia</h2>
+    <div class="kompas-nawigacja">
+      <button type="button" id="tydzien-poprzedni" class="kompas-btn-tydzien" aria-label="Poprzedni tydzień">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <span id="tydzien-data" class="kompas-zakres">—</span>
+      <button type="button" id="tydzien-nastepny" class="kompas-btn-tydzien" aria-label="Następny tydzień">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+
+    <div id="tydzien-podsumowanie" class="rekord-baner rekord-baner-rozowy" hidden>
+      <svg viewBox="0 0 36 36" aria-hidden="true">
+        <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="3"/>
+        <circle id="tydzien-progress-ring" cx="18" cy="18" r="15.5" fill="none" stroke="oklch(0.1 0.006 250)" stroke-width="3" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+      </svg>
+      <span id="tydzien-podsumowanie-tekst"></span>
+    </div>
+
+    <!-- Kompas: zewnętrzny pierścień = role (złoty łuk = postęp celów), wewnętrzny = 4 wymiary ostrzenia piły -->
+    <div id="kompas-wrap" class="kompas-wrap" hidden>
+      <div class="kompas">
+        <svg id="kompas-svg" viewBox="0 0 300 300" role="group" aria-label="Kompas tygodnia"></svg>
+        <div class="kompas-srodek" aria-live="polite">
+          <span id="kompas-wynik" class="kompas-wynik"></span>
+          <span id="kompas-rola" class="kompas-rola"></span>
+        </div>
+      </div>
+      <p id="kompas-legenda" class="kompas-legenda"></p>
+    </div>
+
+    <div class="kompas-sekcja-naglowek">
+      <span class="kompas-etykieta">Twoje role</span>
+      <button type="button" id="btn-edytuj-role" class="kompas-btn-maly" aria-pressed="false">Edytuj role</button>
+    </div>
+    <div id="role-lista" class="kompas-role"></div>
+    <form id="form-rola" class="kompas-form" hidden>
+      <label for="nowa-rola">Nowa rola</label>
+      <input type="text" id="nowa-rola" autocomplete="off" placeholder="np. Pracownik, Rodzic, Sportowiec" required>
+      <span class="kompas-pole-etykieta">Wymiar roli</span>
+      <div id="nowa-rola-wymiary" class="kompas-wymiary" role="group" aria-label="Wymiar roli"></div>
+      <button type="submit" class="kompas-btn-glowny">Dodaj rolę</button>
+    </form>
+
+    <!-- Tydzień wybranej roli: "Na cały tydzień" + 7 dni z celami (renderCeleWszystkie) -->
+    <div id="cele-lista"></div>
+
+    <form id="form-cel" class="kompas-form" hidden>
+      <p id="form-cel-tytul" class="kompas-form-tytul"></p>
+      <label for="cel-tresc" class="plan-ukryta-etykieta">Najważniejszy cel tej roli</label>
+      <input type="text" id="cel-tresc" autocomplete="off" required placeholder="Najważniejszy cel tej roli…">
+      <label for="cel-plan" class="plan-ukryta-etykieta">Jak?</label>
+      <input type="text" id="cel-plan" autocomplete="off" placeholder="Jak? np. o 17:00 na siłowni">
+      <div class="kompas-form-akcje">
+        <button type="button" id="cel-caly-tydzien" class="kompas-btn-maly" aria-pressed="true">Cały tydzień</button>
+        <button type="submit" class="kompas-btn-glowny">Wpisz w tydzień</button>
+      </div>
+    </form>
+
+    <button type="button" id="btn-zakoncz-tydzien" class="btn-zakoncz-tydzien">Zakończ tydzień</button>
+
+    <div id="podsumowanie-tydzien-szczegoly" class="karta" hidden>
+      <h3 style="margin:0 0 4px">Podsumowanie tygodnia</h3>
+      <div class="wykres-kolowy-wrap">
+        <canvas id="wykres-tydzien-kolowy"></canvas>
+      </div>
+      <p id="wykres-tydzien-brak" class="pusto" hidden>Brak celów w tym tygodniu.</p>
+      <div id="niezrealizowane-lista"></div>
+      <button type="button" id="btn-zapisz-podsumowanie" class="btn-zakoncz-tydzien" hidden>Zapisz podsumowanie</button>
+    </div>
+  </section>
+
+  <!-- ===== Widok 6: Nawyki ===== -->
+  <section id="widok-habits" class="widok">
+    <!-- Dziś jako bohater ekranu (renderHabitsNaglowek) -->
+    <header class="habits-dzis">
+      <h2 id="habits-kicker" class="habits-kicker">Nawyki</h2>
+      <div class="habits-dzis-data">
+        <span id="habits-dzis-liczba" class="habits-dzis-liczba"></span>
+        <div class="habits-dzis-opis">
+          <span id="habits-dzis-dzien" class="habits-dzis-dzien"></span>
+          <span id="habits-dzis-miesiac" class="habits-dzis-miesiac"></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dzisiejsze kafle: zawsze dotyczą dzisiaj, niezależnie od tygodnia oglądanego niżej -->
+    <div class="habits-sekcja-naglowek">
+      <span class="habits-etykieta">Dziś do odhaczenia</span>
+      <span id="habits-dzis-licznik" class="habits-dzis-licznik"></span>
+      <button type="button" id="habits-edytuj" class="habits-btn-edytuj" aria-pressed="false">Edytuj</button>
+    </div>
+    <div id="nawyki-lista" class="habits-kafle"></div>
+
+    <!-- Karta tygodnia: procent + siatka nawyki × dni (Pn–Nd) + nawigacja tygodni -->
+    <section id="habits-podsumowanie" class="habits-tydzien" hidden>
+      <div class="habits-tydzien-gora">
+        <div class="habits-procent">
+          <span id="habits-progress-procent" class="habits-procent-liczba">0</span><span class="habits-procent-znak">%</span>
+        </div>
+        <div class="habits-tydzien-opis">
+          <span id="habits-podsumowanie-tekst" class="habits-tydzien-gwiazdy"></span>
+          <span id="habits-podsumowanie-podpis" class="habits-tydzien-podpis"></span>
+        </div>
+      </div>
+      <div id="habits-niebo" class="habits-niebo"></div>
+      <div class="habits-tydzien-nawigacja">
+        <button type="button" id="habits-tydzien-poprzedni" class="habits-btn-tydzien" aria-label="Poprzedni tydzień">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <span id="habits-zakres" class="habits-zakres"></span>
+        <button type="button" id="habits-tydzien-nastepny" class="habits-btn-tydzien" aria-label="Następny tydzień">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <button type="button" id="habits-nowy-btn" class="habits-nowy-btn" aria-expanded="false" aria-controls="habits-nowy-panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      Nowy nawyk – nowa gwiazda
+    </button>
+    <div id="habits-nowy-panel" class="habits-nowy-panel" hidden>
+      <form id="form-nawyk">
+        <label for="nowy-nawyk">Nowy nawyk</label>
+        <div class="habits-nowy-rzad">
+          <input type="text" id="nowy-nawyk" autocomplete="off" placeholder="np. Pić 2l wody" required>
+          <button type="submit" class="btn-pill habits-btn-dodaj">Dodaj</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== Widok: Rady z książek (tylko konta z RADY_DOSTEP_IDS) ===== -->
+  <section id="widok-rady" class="widok">
+    <header class="rady-naglowek">
+      <div>
+        <h2 class="rady-tytul">Rady<br>z książek</h2>
+        <div class="rady-statystyki">
+          <span id="rady-ranga" class="rady-ranga"></span>
+          <span class="rady-kropka" aria-hidden="true"></span>
+          <span id="rady-pd"></span>
+          <span class="rady-kropka" aria-hidden="true"></span>
+          <span id="rady-do-poziomu"></span>
+        </div>
+      </div>
+      <div id="rady-odznaka" class="rady-odznaka" role="img">
+        <div class="rady-odznaka-srodek">
+          <span class="rady-odznaka-etykieta">POZ.</span>
+          <span id="rady-poziom" class="rady-odznaka-poziom">1</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="rady-polka-naglowek">
+      <span class="rady-kicker">Twoja półka</span>
+      <span id="rady-polka-licznik" class="rady-kicker"></span>
+    </div>
+    <div class="rady-polka-wrap">
+      <div id="rady-polka" class="rady-polka"></div>
+      <div class="rady-polka-deska" aria-hidden="true"></div>
+    </div>
+
+    <!-- Bilet misji: aktywna zasada / formularz planu jeśli–to / zachęta / gwiazdozbiór ukończony -->
+    <div id="rady-aktywna"></div>
+
+    <div class="rady-mapa-naglowek">
+      <span id="rady-mapa-licznik" class="rady-kicker"></span>
+      <h3 class="rady-mapa-tytul">Gwiazdozbiór zasad</h3>
+      <p id="rady-mapa-opis" class="rady-mapa-opis"></p>
+    </div>
+    <div id="rady-mapa" class="rady-mapa"></div>
+  </section>
+
+  <!-- ===== Widok: AI Analiza ===== -->
+  <section id="widok-wnioski" class="widok">
+    <h2>Wnioski</h2>
+    <div id="wnioski-lista"></div>
+  </section>
+
+  <section id="widok-ai-analiza" class="widok">
+    <h2>AI Analiza (2 użycia na tydzień)</h2>
+
+    <div class="karta">
+      <button type="button" id="btn-analizuj-tydzien" class="btn-submit" style="margin-top:0">Przeanalizuj tydzień</button>
+      <div id="ai-analiza-wynik" class="ai-analiza-wynik" hidden></div>
+    </div>
+  </section>
+
+  <!-- ===== Widok: Finanse → Oszczędności (tylko konta z FINANSE_DOSTEP_IDS); dane i punktowe aktualizacje w js/finanse.js ===== -->
+  <section id="widok-finanse" class="widok">
+    <!-- Tło ekranu: poświaty + drobne gwiazdy (pył z ekranu Dziś, rysuje finanse.js) -->
+    <div class="fin-tlo" aria-hidden="true">
+      <svg id="fin-gwiazdy-tla" class="fin-gwiazdy-tla" viewBox="0 0 342 300" preserveAspectRatio="xMidYMid slice"></svg>
+    </div>
+
+    <!-- Nagłówek: miejsce na kroplę menu po lewej, kapsuła tygodnia po prawej -->
+    <div class="fin-gora">
+      <div class="fin-tydzien fin-szklo">
+        <button type="button" id="fin-tydzien-poprzedni" class="fin-btn-tydzien" aria-label="Poprzedni tydzień">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <span id="fin-tydzien-data" class="fin-zakres" aria-live="polite">—</span>
+        <button type="button" id="fin-tydzien-nastepny" class="fin-btn-tydzien" aria-label="Następny tydzień">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <h2 class="fin-tytul">Oszczędności</h2>
+
+    <!-- Karta główna: zostało / zaoszczędzone, pasek zużycia, gwiazdki dni -->
+    <div class="fin-glowna fin-szklo">
+      <div class="fin-glowna-gora">
+        <div class="fin-glowna-lewa">
+          <span id="fin-glowna-etykieta" class="fin-etykieta">Zostało na tydzień</span>
+          <div class="fin-kwota-duza"><span id="fin-zostalo">…</span><span class="fin-zl">zł</span></div>
+        </div>
+        <span class="fin-glowna-bok">z <span id="fin-budzet-lacznie">0</span> zł<span id="fin-dziennie" class="fin-dziennie"></span></span>
+      </div>
+      <span class="fin-pasek" aria-hidden="true"><span id="fin-pasek-zuzycie"></span></span>
+      <div id="fin-dni-gwiazdki" class="fin-dni-gwiazdki" role="group" aria-label="Dni tygodnia – wybierz dzień nowego wydatku"></div>
+      <p class="fin-podpowiedz">Gwiazdka świeci, gdy dzień zmieścił się w dziennym limicie. Stuknij dzień, żeby dopisać do niego wydatek.</p>
+    </div>
+
+    <!-- Fiolki budżetów kategorii -->
+    <div class="fin-sekcja-naglowek">
+      <h3>Budżety</h3>
+      <span id="fin-wydane-z"></span>
+    </div>
+    <div id="fin-fiolki" class="fin-fiolki"></div>
+    <p id="fin-fiolki-pusto" class="fin-pusto" hidden></p>
+
+    <button type="button" id="fin-budzety-przelacz" class="fin-btn-panel fin-szklo" aria-expanded="false" aria-controls="fin-budzety-panel">
+      <span>Edytuj budżety</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div id="fin-budzety-panel" class="fin-panel fin-szklo" hidden>
+      <p id="fin-panel-info" class="fin-panel-info"></p>
+      <div id="fin-budzety-lista" class="fin-budzety-lista"></div>
+      <form id="fin-budzet-form" class="fin-budzet-form">
+        <input type="text" id="fin-budzet-nazwa" placeholder="Kategoria" aria-label="Nazwa kategorii" maxlength="40" autocomplete="off">
+        <input type="text" id="fin-budzet-kwota" inputmode="decimal" placeholder="Kwota" aria-label="Kwota budżetu" autocomplete="off">
+        <button type="submit" class="fin-btn-dodaj">Dodaj</button>
+      </form>
+    </div>
+
+    <!-- Nowy wydatek -->
+    <div class="fin-nowy fin-szklo">
+      <div class="fin-nowy-gora">
+        <span class="fin-nowy-tytul">Nowy wydatek</span>
+        <span id="fin-nowy-dzien" class="fin-nowy-dzien"></span>
+      </div>
+      <label class="fin-kwota-pole">
+        <input type="text" id="fin-kwota" inputmode="decimal" placeholder="0" aria-label="Kwota w złotych" autocomplete="off">
+        <span class="fin-zl" aria-hidden="true">zł</span>
+      </label>
+      <div class="fin-szybkie">
+        <button type="button" class="fin-szybki" data-dodaj="10" aria-label="Dodaj 10 zł">+10</button>
+        <button type="button" class="fin-szybki" data-dodaj="20" aria-label="Dodaj 20 zł">+20</button>
+        <button type="button" class="fin-szybki" data-dodaj="50" aria-label="Dodaj 50 zł">+50</button>
+        <button type="button" class="fin-szybki" data-dodaj="100" aria-label="Dodaj 100 zł">+100</button>
+      </div>
+      <div id="fin-kategorie" class="fin-kategorie" role="group" aria-label="Kategoria wydatku">
+        <span id="fin-kategorie-kropla" class="fin-kategorie-kropla" aria-hidden="true"></span>
+      </div>
+      <input type="text" id="fin-opis" class="fin-opis" placeholder="Na co? np. Biedronka" aria-label="Na co?" maxlength="120" autocomplete="off">
+      <div id="fin-czesto" class="fin-czesto" hidden>
+        <span class="fin-czesto-etykieta">Często:</span>
+        <div id="fin-czesto-lista" class="fin-czesto-lista"></div>
+      </div>
+      <button type="button" id="fin-zapisz" class="fin-zapisz">Wpisz kwotę</button>
+    </div>
+
+    <!-- Wydatki tygodnia -->
+    <div class="fin-sekcja-naglowek">
+      <h3>Wydatki</h3>
+      <span id="fin-wydatki-licznik"></span>
+    </div>
+    <div id="fin-wydatki-lista" class="fin-wydatki-lista"></div>
+    <p id="fin-wydatki-pusto" class="fin-pusto" hidden></p>
+
+    <!-- Podsumowanie tygodnia -->
+    <div class="fin-podsumowanie fin-szklo">
+      <h3 class="fin-karta-tytul">Podsumowanie tygodnia</h3>
+      <div class="fin-podsumowanie-wiersz"><span>Budżet łącznie</span><b id="fin-tydz-budzet">–</b></div>
+      <div class="fin-podsumowanie-wiersz"><span>Wydano</span><b id="fin-tydz-wydano">–</b></div>
+      <div class="fin-podsumowanie-wiersz fin-podsumowanie-glowny"><span>Zaoszczędzone</span><b id="fin-tydz-zaoszczedzone">–</b></div>
+    </div>
+
+    <!-- Łącznie od początku (widok oszczednosci) -->
+    <div class="fin-ogolem fin-szklo">
+      <span class="fin-etykieta">Łącznie od początku</span>
+      <div class="fin-kwota-duza fin-kwota-ogolem"><span id="fin-suma-ogolna">…</span><span class="fin-zl">zł</span></div>
+      <span class="fin-ogolem-opis">Suma zaoszczędzona we wszystkich tygodniach, razem z bieżącym.</span>
+    </div>
+  </section>
+
+  <!-- ===== Widok: Medytacja (tylko konta z MEDYTACJA_DOSTEP_IDS); start, odliczanie, koniec - logika w js/medytacja.js ===== -->
+  <section id="widok-medytacja" class="widok">
+    <div class="med-tlo" aria-hidden="true"></div>
+
+    <!-- Nagłówek: miejsce na kroplę menu po lewej, data po prawej -->
+    <div class="med-gora">
+      <span class="med-data"><span id="med-dzien-tyg"></span><span id="med-data-tekst" class="med-data-dzien"></span></span>
+    </div>
+
+    <!-- Sesja skończona, a jeszcze niezapisana (powrót do apki po czasie albo nieudany zapis) -->
+    <div id="med-karta-zapis" class="med-szklo med-karta-zapis" hidden>
+      <p id="med-karta-zapis-tekst" class="med-karta-zapis-tekst"></p>
+      <p id="med-karta-zapis-blad" class="med-blad" hidden></p>
+      <button type="button" id="med-karta-zapis-btn" class="med-szklo med-szklo-tint med-btn-glowny">Zapisz</button>
+    </div>
+
+    <!-- 1. Start -->
+    <div id="med-start" class="med-etap">
+      <h2 class="med-tytul">Medytacja</h2>
+      <span class="med-podtytul">Nawlecz czas na nić</span>
+      <div class="med-wybor-czasu">
+        <div class="med-czas-duzy"><span id="med-czas-liczba">7</span><span class="med-czas-min"> min</span></div>
+        <div id="med-nic-start" class="med-nic med-nic-start"></div>
+        <div id="med-koraliki" class="med-koraliki" role="radiogroup" aria-label="Czas medytacji"></div>
+      </div>
+      <!-- Własny czas: pokazywany koralikiem "+" -->
+      <form id="med-wlasny" class="med-szklo med-wlasny" novalidate hidden>
+        <label for="med-wlasny-pole" class="med-wlasny-etykieta">Własny czas</label>
+        <input type="number" id="med-wlasny-pole" class="med-wlasny-pole" inputmode="numeric" min="1" max="20" step="1" placeholder="max 20 min" required>
+        <span class="med-wlasny-min">min</span>
+        <button type="submit" class="med-szklo med-szklo-tint med-wlasny-btn">Ustaw</button>
+      </form>
+      <section class="med-szklo med-ocena">
+        <div class="med-ocena-gora">
+          <span class="med-ocena-tytul">Która nić to Ty teraz?</span>
+          <button type="button" id="med-przed-pomin" class="med-btn-tekst">Pomiń</button>
+        </div>
+        <div id="med-przed" class="med-nitki" role="radiogroup" aria-label="Ocena przed medytacją"></div>
+        <div class="med-nitki-podpis"><span>splątany</span><span>gładki</span></div>
+      </section>
+      <button type="button" id="med-zacznij" class="med-szklo med-szklo-tint med-btn-glowny med-btn-zacznij">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        <span id="med-zacznij-tekst">Zacznij 7 min</span>
+      </button>
+      <p class="med-podpowiedz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Możesz zablokować ekran, gong zabrzmi na końcu</p>
+      <button type="button" id="med-bez-timera" class="med-link">Zaliczyłem bez timera</button>
+    </div>
+
+    <!-- 2. Odliczanie -->
+    <div id="med-trwa" class="med-etap" hidden>
+      <div class="med-trwa-gora"><span id="med-trwa-opis">Medytacja · 7 min</span><span>nić wygładza się</span></div>
+      <div class="med-trwa-pole">
+        <div class="med-oddech"><div id="med-nic-trwa" class="med-nic med-nic-trwa"></div></div>
+        <div class="med-szklo med-zegar"><span id="med-zegar" class="med-zegar-liczba" role="timer" aria-live="off">7:00</span></div>
+      </div>
+      <div class="med-postep"><span>splątana</span><span class="med-postep-pasek"><span id="med-postep-wypelnienie"></span></span><span>gładka</span></div>
+      <button type="button" id="med-zakoncz" class="med-szklo med-btn-glowny med-btn-zakoncz">Zakończ wcześniej</button>
+      <p class="med-podpowiedz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Możesz zablokować ekran, gong zabrzmi na końcu</p>
+    </div>
+
+    <!-- 3. Koniec: ocena "po" i notatka (aktualizują zapisany już wiersz) -->
+    <div id="med-koniec" class="med-etap" hidden>
+      <div class="med-koniec-pole">
+        <span class="med-koniec-napis">Nić się wygładziła</span>
+        <div id="med-nic-koniec" class="med-nic med-nic-koniec"></div>
+        <div class="med-czas-duzy med-koniec-czas"><span id="med-koniec-minuty">7</span><span class="med-czas-min"> min</span></div>
+      </div>
+      <section class="med-szklo med-ocena">
+        <div class="med-ocena-gora">
+          <span class="med-ocena-tytul">A teraz?</span>
+          <span id="med-roznica" class="med-roznica" hidden></span>
+        </div>
+        <div id="med-po" class="med-nitki" role="radiogroup" aria-label="Ocena po medytacji"></div>
+        <div class="med-nitki-podpis"><span>splątany</span><span>gładki</span></div>
+        <div id="med-porownanie" class="med-porownanie" hidden>
+          <span>przed</span><svg id="med-porownanie-przed" viewBox="0 0 70 26" aria-hidden="true"></svg>
+          <span class="med-strzalka">→</span>
+          <span>po</span><svg id="med-porownanie-po" class="med-porownanie-po" viewBox="0 0 70 26" aria-hidden="true"></svg>
+        </div>
+      </section>
+      <label for="med-notatka" class="plan-ukryta-etykieta">Co zauważyłem?</label>
+      <textarea id="med-notatka" class="med-szklo med-notatka" rows="3" placeholder="Co zauważyłem? (opcjonalnie)"></textarea>
+      <p id="med-koniec-blad" class="med-blad" hidden></p>
+      <button type="button" id="med-zapisz" class="med-szklo med-szklo-tint med-btn-glowny">Zapisz</button>
+    </div>
+
+    <!-- Spis ukończonych medytacji z bazy (ukryty w trakcie odliczania) -->
+    <section id="med-historia" class="med-historia" aria-labelledby="med-historia-tytul">
+      <div class="med-historia-gora">
+        <h3 id="med-historia-tytul" class="med-historia-tytul">Ukończone medytacje</h3>
+        <span id="med-historia-suma" class="med-historia-suma"></span>
+      </div>
+      <ul id="med-historia-lista" class="med-historia-lista"></ul>
+      <button type="button" id="med-historia-wiecej" class="med-link" hidden>Pokaż więcej</button>
+    </section>
+  </section>
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Skrypty aplikacji: zwykłe skrypty z defer, wykonywane po kolei; start.js na końcu uruchamia logowanie (patrz CLAUDE.md) -->
+<script src="js/konfiguracja.js" defer></script>
+<script src="js/wspolne.js" defer></script>
+<script src="js/logowanie.js" defer></script>
+<script src="js/zapisz-trening.js" defer></script>
+<script src="js/rejestr.js" defer></script>
+<script src="js/wykres.js" defer></script>
+<script src="js/katalog.js" defer></script>
+<script src="js/zaplanuj-trening.js" defer></script>
+<script src="js/jedzenie.js" defer></script>
+<script src="js/plan-tygodnia.js" defer></script>
+<script src="js/nawyki.js" defer></script>
+<script src="js/rady-z-ksiazek.js" defer></script>
+<script src="js/wnioski.js" defer></script>
+<script src="js/ai-analiza.js" defer></script>
+<script src="js/powiadomienia.js" defer></script>
+<script src="js/dzis.js" defer></script>
+<script src="js/finanse.js" defer></script>
+<script src="js/medytacja.js" defer></script>
+<script src="js/nawigacja.js" defer></script>
+<script src="js/start.js" defer></script>
+</body>
+</html>
