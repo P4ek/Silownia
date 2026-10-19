@@ -1,101 +1,222 @@
-/* Rejestr ćwiczeń: karta superserii (budujRamkeSuperserii w rejestr.js) + pigułka "N superserii". Ładowany po motyw.css.
-   Płasko: powierzchnia jak inne karty, bez obwódki, poświat i iskier (.ssw-iskry, .core, .bridge ukryte lub statyczne).
-   Słupki ćwiczeń w kolorze partii, rekord w kolorze danych. Klasy .ssw-animowana i .widoczna z rejestr.js nic już nie animują. */
+/* Rejestr ćwiczeń: ramka superserii (wg makiety rejestr-superseria) + pigułka "N superserii".
+   Ładowany po motyw.css. Animacje tylko dla ramek na ekranie (.widoczna z IntersectionObserver w rejestr.js),
+   animowane głównie transform/opacity; box-shadow animuje tylko rdzeń. */
+
+/* Kąt obwódki: animowany tylko tam, gdzie działa @property (klasa .ssw-animowana z rejestr.js) */
+@property --ssw-ang {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+#widok-rejestr :is(.ssw, .rejestr-pigulka-superseria) {
+  --ss-zloto: oklch(0.76 0.09 75);
+  --ss-zloto-jasne: oklch(0.86 0.12 75);
+  --ss-zloto-ciemne: oklch(0.58 0.1 65);
+  --ss-miedz: oklch(0.62 0.15 45);
+  --ss-zloto-mglo: oklch(0.72 0.08 75 / 0.25);
+  --ss-linia: oklch(0.72 0.08 75 / 0.2);
+  --ss-etykieta: oklch(0.84 0.1 72);
+  --ss-tekst-cieply: oklch(0.66 0.03 70);
+  --ss-tlo: oklch(0.085 0.006 60);
+}
 
 /* ----- Pigułka "N superserii" ----- */
-#widok-rejestr .rejestr-pigulka-superseria { padding-left: 10px; }
-#widok-rejestr .rejestr-pigulka-superseria svg { width: 14px; height: 14px; color: var(--tekst-2); }
+#widok-rejestr .rejestr-pigulka-superseria {
+  padding-left: 10px;
+  border-color: oklch(0.8 0.12 65 / 0.6);
+  background: oklch(0.14 0.03 60);
+  color: var(--ss-etykieta);
+  font-weight: 700;
+}
+#widok-rejestr .rejestr-pigulka-superseria svg { width: 14px; height: 14px; }
 
-/* ----- Karta ----- */
-#widok-rejestr .ssw { position: relative; }
+/* ----- Obwódka: statyczna złota, obracająca się przy obsłudze @property ----- */
+#widok-rejestr .ssw {
+  position: relative;
+  padding: 2px;
+  border-radius: 34px;
+  background: linear-gradient(135deg, var(--ss-zloto-jasne), var(--ss-zloto-mglo) 35%, var(--ss-zloto-mglo) 65%, var(--ss-zloto-jasne));
+  box-shadow: 0 30px 60px -30px oklch(0.62 0.15 45 / 0.7);
+}
+#widok-rejestr .ssw.ssw-animowana {
+  background: conic-gradient(from var(--ssw-ang), var(--ss-zloto-mglo), var(--ss-zloto-jasne), var(--ss-miedz),
+    var(--ss-zloto-mglo) 40%, var(--ss-zloto-mglo) 60%, var(--ss-zloto-jasne), var(--ss-zloto-mglo));
+  /* longhandy: skrót "animation" zresetowałby animation-play-state z reguł .widoczna niżej */
+  animation-name: ssw-obrot;
+  animation-duration: 5s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes ssw-obrot { to { --ssw-ang: 360deg; } }
+
 #widok-rejestr .ssw-wnetrze {
   position: relative;
-  padding: 20px;
-  border-radius: var(--promien-karta);
-  background: var(--powierzchnia);
+  isolation: isolate;
+  overflow: hidden;
+  padding: 20px 16px 16px;
+  border-radius: 32px;
+  background: radial-gradient(260px 160px at 100% 0%, oklch(0.72 0.08 75 / 0.14), transparent 70%), var(--ss-tlo);
 }
-#widok-rejestr .ssw-iskry { display: none; }
+/* Ciepła poświata od dołu - oddycha przez opacity */
+#widok-rejestr .ssw-wnetrze::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(340px 210px at 50% 118%, oklch(0.55 0.13 55 / 0.38), transparent 70%);
+  animation: ssw-poswiata 4s ease-in-out infinite;
+}
+@keyframes ssw-poswiata { 0%, 100% { opacity: 0.65; } 50% { opacity: 1; } }
+
+/* Iskry unoszące się od dołu */
+#widok-rejestr .ssw-iskry { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+#widok-rejestr .spark {
+  position: absolute;
+  bottom: -6px;
+  border-radius: 50%;
+  background: oklch(0.86 0.12 72);
+  box-shadow: 0 0 8px oklch(0.8 0.14 60);
+  opacity: 0;
+  animation-name: ssw-iskra;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+}
+@keyframes ssw-iskra {
+  0% { transform: translate(0, 0) scale(1); opacity: 0; }
+  15% { opacity: 0.9; }
+  100% { transform: translate(10px, -190px) scale(0.3); opacity: 0; }
+}
+
+/* Poza ekranem wszystko stoi; .widoczna włącza animacje */
+#widok-rejestr .ssw,
+#widok-rejestr .ssw .ssw-wnetrze::before,
+#widok-rejestr .ssw :is(.spark, .core, .bridge) { animation-play-state: paused; }
+#widok-rejestr .ssw.widoczna,
+#widok-rejestr .ssw.widoczna .ssw-wnetrze::before,
+#widok-rejestr .ssw.widoczna :is(.spark, .core, .bridge) { animation-play-state: running; }
 
 /* ----- Nagłówek ----- */
 #widok-rejestr .ssw-gora { display: flex; align-items: center; gap: 12px; }
-#widok-rejestr .ssw-numer { display: none; }
+#widok-rejestr .ssw-numer {
+  flex: none;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 50px;
+  line-height: 0.9;
+  background: linear-gradient(180deg, oklch(0.88 0.1 75), oklch(0.58 0.13 55));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 #widok-rejestr .ssw-opis { flex: 1; min-width: 0; }
-#widok-rejestr .ssw-etykieta { display: block; font-size: 14px; font-weight: 600; color: var(--tekst); }
-#widok-rejestr .ssw-podpis { display: block; margin-top: 2px; font-size: 13px; color: var(--tekst-2); }
-#widok-rejestr .ssw .rejestr-btn-usun { flex: none; width: 40px; height: 40px; color: var(--tekst-3); }
+#widok-rejestr .ssw-etykieta { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ss-etykieta); }
+#widok-rejestr .ssw-podpis { display: block; margin-top: 3px; font-size: 12px; color: var(--ss-tekst-cieply); }
+#widok-rejestr .ssw .rejestr-btn-usun { flex: none; width: 40px; height: 40px; color: oklch(0.5 0.02 70); }
 #widok-rejestr .ssw .rejestr-btn-usun svg { width: 18px; height: 18px; }
 
-/* ----- Nazwy ćwiczeń + znak wymiany ----- */
-#widok-rejestr .ssw-nazwy { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
+/* ----- Nazwy ćwiczeń + rdzeń z ikoną wymiany ----- */
+#widok-rejestr .ssw-nazwy { display: flex; align-items: center; gap: 8px; margin-top: 16px; }
 #widok-rejestr .ssw-nazwa { flex: 1; min-width: 0; }
 #widok-rejestr .ssw-nazwa:last-child { text-align: right; }
 #widok-rejestr .ssw-3 .ssw-nazwa:nth-child(3) { text-align: center; }
 #widok-rejestr .ssw-nazwa-partia {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: var(--tekst-2);
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: oklch(0.62 0.008 240);
 }
 #widok-rejestr .ssw-nazwa:last-child .ssw-nazwa-partia { flex-direction: row-reverse; }
 #widok-rejestr .ssw-nazwa-tekst {
   display: block;
   margin-top: 2px;
-  font-size: 17px;
-  font-weight: 600;
-  line-height: 1.2;
-  color: var(--tekst);
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 23px;
+  line-height: 1.05;
+  color: oklch(0.96 0.004 240);
   overflow-wrap: anywhere;
 }
 /* Przy 3 nazwach dzielenie wyrazów zamiast cięcia w środku słowa */
-#widok-rejestr .ssw-3 .ssw-nazwa-tekst { font-size: 15px; overflow-wrap: break-word; hyphens: auto; }
+#widok-rejestr .ssw-3 .ssw-nazwa-tekst { font-size: 16px; overflow-wrap: break-word; hyphens: auto; }
+#widok-rejestr .ssw-3 .ssw-nazwa-partia { font-size: 11px; letter-spacing: 0.1em; }
 
 #widok-rejestr .core {
+  position: relative;
   flex: none;
-  width: 32px;
-  height: 32px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: var(--wypukle);
-  color: var(--tekst-2);
+  background: radial-gradient(circle at 35% 30%, oklch(0.9 0.09 80), oklch(0.62 0.14 52));
+  color: oklch(0.14 0.03 60);
+  box-shadow: 0 0 0 0 oklch(0.8 0.13 65 / 0.55), 0 0 24px -4px oklch(0.75 0.15 60);
+  animation: ssw-rdzen 2.2s ease-in-out infinite;
 }
-#widok-rejestr .core svg { width: 15px; height: 15px; }
-#widok-rejestr .ssw-3 .core { width: 28px; height: 28px; }
-#widok-rejestr .ssw-3 .core svg { width: 13px; height: 13px; }
+#widok-rejestr .core svg { width: 20px; height: 20px; }
+#widok-rejestr .ssw-3 .core { width: 34px; height: 34px; }
+#widok-rejestr .ssw-3 .core svg { width: 15px; height: 15px; }
+@keyframes ssw-rdzen {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.8 0.13 65 / 0.55), 0 0 24px -4px oklch(0.75 0.15 60); }
+  50% { box-shadow: 0 0 0 10px oklch(0.8 0.13 65 / 0), 0 0 34px 0 oklch(0.75 0.15 60); }
+}
 
-/* ----- Rundy: słupki ćwiczeń obok siebie, wyniki ----- */
+/* ----- Rundy: słupki ćwiczeń obok siebie, świecący mostek, wyniki ----- */
 #widok-rejestr .ssw-rundy {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
+  gap: 6px;
   margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ss-linia);
 }
 #widok-rejestr .ssw-rundy.przewijane { overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 #widok-rejestr .ssw-rundy.przewijane::-webkit-scrollbar { display: none; }
 #widok-rejestr .ssw-runda { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-#widok-rejestr .ssw-rundy.przewijane .ssw-runda { flex: 0 0 calc((100% - 24px) / 4); scroll-snap-align: start; }
-#widok-rejestr .ssw-slupki { position: relative; display: flex; align-items: flex-end; gap: 2px; height: 96px; }
-#widok-rejestr .ssw-slupek { width: 24px; border-radius: 4px 4px 0 0; background: var(--kolor-partii); }
-#widok-rejestr .ssw-3 .ssw-slupek { width: 16px; }
-#widok-rejestr .ssw-slupek.rekord { background: var(--akcent-danych); }
-#widok-rejestr .ssw-slupek.brak { height: 2px; background: var(--linia-mocna); }
-#widok-rejestr .bridge { display: none; }
+#widok-rejestr .ssw-rundy.przewijane .ssw-runda { flex: 0 0 calc((100% - 18px) / 4); scroll-snap-align: start; }
+#widok-rejestr .ssw-slupki { position: relative; display: flex; align-items: flex-end; gap: 3px; height: 100px; }
+#widok-rejestr .ssw-slupek {
+  width: 28px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, var(--kolor-partii), color-mix(in oklch, var(--kolor-partii) 62%, black));
+}
+#widok-rejestr .ssw-slupek:first-of-type { border-radius: 11px 4px 4px 11px; }
+#widok-rejestr .ssw-slupek:last-of-type { border-radius: 4px 11px 11px 4px; }
+#widok-rejestr .ssw-3 .ssw-slupek { width: 18px; }
+#widok-rejestr .ssw-slupek.rekord { background: linear-gradient(180deg, var(--ss-zloto-jasne), var(--ss-zloto-ciemne)); }
+#widok-rejestr .ssw-slupek.brak { height: 4px; background: oklch(0.3 0.008 245 / 0.6); }
+#widok-rejestr .bridge {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--kolor-a), var(--ss-zloto-jasne), var(--kolor-b));
+  box-shadow: 0 0 10px oklch(0.85 0.12 70);
+  animation: ssw-most 2.2s ease-in-out infinite;
+}
+#widok-rejestr .ssw-3 .bridge { left: 10px; right: 10px; }
+@keyframes ssw-most { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
 #widok-rejestr .ssw-wynik {
   display: inline-flex;
   align-items: center;
   gap: 3px;
   font-size: 12px;
-  font-weight: 500;
-  line-height: 1.2;
+  font-weight: 700;
+  line-height: 1.15;
   white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-  color: var(--tekst-2);
+  color: color-mix(in oklch, var(--kolor-partii) 65%, white);
 }
 #widok-rejestr .ssw-wynik + .ssw-wynik { margin-top: -4px; }
-#widok-rejestr .ssw-wynik.rekord { color: var(--akcent-danych); }
+#widok-rejestr .ssw-3 .ssw-wynik { font-size: 11px; }
+#widok-rejestr .ssw-wynik.rekord { color: var(--ss-zloto); }
 #widok-rejestr .ssw-wynik svg { width: 10px; height: 10px; flex: none; }
-#widok-rejestr .ssw-runda-nr { font-size: 12px; color: var(--tekst-3); }
+#widok-rejestr .ssw-runda-nr { font-size: 11px; color: oklch(0.5 0.008 240); }
 
 /* ----- Stopka: objętość superserii ----- */
 #widok-rejestr .ssw-stopka {
@@ -103,9 +224,16 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 12px;
-  margin-top: 16px;
+  margin-top: 14px;
   padding-top: 12px;
-  border-top: 1px solid var(--linia);
+  border-top: 1px solid var(--ss-linia);
 }
-#widok-rejestr .ssw-stopka-opis { font-size: 13px; color: var(--tekst-2); }
-#widok-rejestr .ssw-objetosc { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--tekst); white-space: nowrap; }
+#widok-rejestr .ssw-stopka-opis { font-size: 12.5px; color: var(--ss-tekst-cieply); }
+#widok-rejestr .ssw-objetosc { font-family: "Instrument Serif", Georgia, serif; font-size: 28px; color: oklch(0.9 0.08 75); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  #widok-rejestr .ssw.ssw-animowana,
+  #widok-rejestr .ssw .ssw-wnetrze::before,
+  #widok-rejestr .ssw :is(.spark, .core, .bridge) { animation: none; }
+  #widok-rejestr .ssw .spark { display: none; }
+}

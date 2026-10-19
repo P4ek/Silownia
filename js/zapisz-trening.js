@@ -428,20 +428,9 @@ function renderZapisTrening() {
   renderZapisSerie();
 }
 
-// Sztanga nad licznikami: przerysowana tylko przy zmianie załadunku, więc nowe talerze "wjeżdżają", a te same stoją
-function renderZapisSztanga() {
-  const zapisSztangaRys = document.getElementById("zapis-sztanga-rys");
-  const zapisSztangaOpis = document.getElementById("zapis-sztanga-opis");
-  const opis = sztangaOpis(zapisKg);
-  if (zapisSztangaOpis.textContent === opis) return;
-  zapisSztangaOpis.textContent = opis;
-  zapisSztangaRys.innerHTML = sztangaSVG(zapisKg);
-}
-
 function renderZapisLiczniki() {
   if (document.activeElement !== inputZapisKg) inputZapisKg.value = formatKg(zapisKg);
   if (document.activeElement !== inputZapisPowt) inputZapisPowt.value = String(zapisPowt);
-  renderZapisSztanga();
 
   const doPobicia = wynikDoPobicia();
   const wynik = zapisKg * zapisPowt;

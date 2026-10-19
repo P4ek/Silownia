@@ -75,7 +75,7 @@ function czyWPlanie(partia, cwiczenie) {
 function renderPlanCwiczeniaListy() {
   const n = planCwiczeniaRobocze.length;
   renderOkladkePlanu(planOkladkaKola, planCwiczeniaRobocze, 342, 300, 1);
-  planLicznik.textContent = "Nowy plan · " + n + " " + odmianaLiczby(n, "ćwiczenie", "ćwiczenia", "ćwiczeń");
+  planLicznik.textContent = ("Nowy plan · " + n + " " + odmianaLiczby(n, "ćwiczenie", "ćwiczenia", "ćwiczeń")).toUpperCase();
 
   planCwiczeniaLista.innerHTML = "";
   if (n === 0) {
@@ -90,7 +90,7 @@ function renderPlanCwiczeniaListy() {
 
     const numer = document.createElement("span");
     numer.className = "plan-lista-numer";
-    numer.textContent = String(indeks + 1) + ".";
+    numer.textContent = String(indeks + 1).padStart(2, "0");
 
     const opis = document.createElement("span");
     opis.className = "plan-lista-opis";
@@ -247,7 +247,7 @@ function budujKartePlanu(plan) {
 function renderPlanyListy() {
   planyLista.innerHTML = "";
   const n = plany.length;
-  planyLicznik.textContent = n + " " + odmianaLiczby(n, "zapisany", "zapisane", "zapisanych");
+  planyLicznik.textContent = (n + " " + odmianaLiczby(n, "zapisany", "zapisane", "zapisanych")).toUpperCase();
   plany.forEach(function (plan, i) {
     planyLista.appendChild(wjazdKarty(budujKartePlanu(plan), i));
   });

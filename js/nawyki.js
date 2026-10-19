@@ -272,7 +272,7 @@ function odpalKonfettiRazDziennie(data) {
 
 // Kolorowe kwadraciki/kółka spadające z góry ekranu przez ~2 s (czysty CSS/JS)
 function odpalKonfetti() {
-  const KOLORY = ["#f2c230", "#f0efed", "#b8b3ab", "#f2c230", "#625e57"];
+  const KOLORY = ["#E2643F", "#E3A9B4", "#E0A82E", "#12A594", "#3F7DE2", "#8B5CF6", "#D6D0C0"];
   const warstwa = document.createElement("div");
   warstwa.className = "konfetti-warstwa";
   for (let i = 0; i < 80; i++) {

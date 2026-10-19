@@ -410,7 +410,7 @@ function radyBiletMisji(aktywny, zasada) {
       p.innerHTML = IKONA_PTASZEK;
     } else if (i === liczba && !dzisPrzybita) {
       p.className = "rady-pieczatka dzis";
-      p.textContent = "Dziś";
+      p.textContent = "DZIŚ";
     } else {
       p.className = "rady-pieczatka";
       p.textContent = String(i + 1);
@@ -705,7 +705,7 @@ function renderRadyMapa() {
   radyMapa.insertAdjacentHTML("beforeend",
     '<svg class="rady-mapa-linie" viewBox="0 0 100 ' + wysokosc + '" preserveAspectRatio="none" style="height:' + wysokosc + 'px" aria-hidden="true">' +
       '<path d="' + trasa + '" fill="none" stroke="oklch(0.26 0.008 245)" stroke-width="1" stroke-dasharray="3 5" vector-effect="non-scaling-stroke"/>' +
-      (jasne ? '<path d="' + jasne.trim() + '" fill="none" stroke="#f2c230" stroke-width="1.5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' : "") +
+      (jasne ? '<path d="' + jasne.trim() + '" fill="none" stroke="#D6D0C0" stroke-width="1.5" stroke-linecap="round" vector-effect="non-scaling-stroke" style="filter: drop-shadow(0 0 4px rgba(214,208,192,0.6))"/>' : "") +
     "</svg>");
 
   punkty.forEach(function (p) {
@@ -795,7 +795,7 @@ function renderRadyMapa() {
     }
     const numerEl = document.createElement("span");
     numerEl.className = "rady-wezel-numer";
-    numerEl.textContent = (p.stan === "aktywna" ? "Teraz · " : "") + numer;
+    numerEl.textContent = (p.stan === "aktywna" ? "TERAZ · " : "") + numer;
     const nazwaEl = document.createElement("span");
     nazwaEl.className = "rady-wezel-nazwa";
     nazwaEl.textContent = zasada.nazwa;

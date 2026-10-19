@@ -1,96 +1,70 @@
-/* Baza: tokeny stylu, kolory partii, typografia, karty i formularze, przyciski, banery, toasty, konfetti, puste stany, ekran logowania, responsywność.
-   Styl „Kreda i żelazo”: apka jak siłownia. Tło = gumowa podłoga z kolorowymi drobinkami (--guma), tekst = kreda,
-   kolory = barwy talerzy olimpijskich (25 kg czerwony, 20 niebieski, 15 żółty, 10 zielony, 5 biały), nagłówki i liczby
-   wąskim tablicowym krojem (--font-tablica, Big Shoulders Display, WERSALIKI), tekst Archivo. Bez gradientów, szkła i poświat. */
+/* Baza: zmienne (ciemny motyw, kolory partii), typografia, karty i formularze, przyciski, banery, toasty, konfetti, animacje wejścia, puste stany, ekran logowania, responsywność. */
 
+/* Apka ma zawsze ciemny motyw (ten z sekcji Nawyki) — zmienne bazowe mają od razu ciemne wartości, więc także elementy poza .kontener (ekran logowania, okno wylogowania, menu) są ciemne */
 :root {
-  --tlo: #121110;
-  --powierzchnia: #1c1b19;
-  --wypukle: #292724;
-  --linia: #2d2b28;
-  --linia-mocna: #46433e;
-  --tekst: #efebe3;
-  --tekst-2: #bdb7ac;
-  --tekst-3: #9a9489;
-  /* Talerze olimpijskie */
-  --talerz-25: #e23b2e;
-  --talerz-20: #2a62d9;
-  --talerz-15: #f4c20d;
-  --talerz-10: #1e9e57;
-  --talerz-5: #efebe3;
-  --akcent-danych: var(--talerz-15);
-  --akcent-danych-rgb: 244, 194, 13;
-  --pozytyw: #2fbf6c;
-  --negatyw: #f0584b;
-  --pozytyw-tlo: #12261a;
-  --negatyw-tlo: #2e1714;
-  --promien-karta: 10px;
-  --promien-pole: 8px;
-  --font: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-tablica: "Big Shoulders Display", "Archivo", sans-serif;
-  --guma: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cellipse cx='174' cy='2' rx='1.5' ry='1.1' transform='rotate(61 174 2)' fill='%23f4c20d' opacity='0.3'/%3E%3Cellipse cx='3' cy='158' rx='1.5' ry='1.0' transform='rotate(61 3 158)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='21' cy='84' rx='1.1' ry='0.8' transform='rotate(67 21 84)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='62' cy='168' rx='0.9' ry='0.7' transform='rotate(80 62 168)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='40' cy='166' rx='1.3' ry='0.9' transform='rotate(147 40 166)' fill='%231e9e57' opacity='0.3'/%3E%3Cellipse cx='82' cy='76' rx='0.8' ry='0.6' transform='rotate(112 82 76)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='103' cy='167' rx='1.4' ry='1.0' transform='rotate(16 103 167)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='88' cy='170' rx='0.7' ry='0.5' transform='rotate(136 88 170)' fill='%23f4c20d' opacity='0.3'/%3E%3Cellipse cx='31' cy='169' rx='1.5' ry='1.1' transform='rotate(73 31 169)' fill='%23e23b2e' opacity='0.3'/%3E%3Cellipse cx='95' cy='27' rx='1.7' ry='1.2' transform='rotate(101 95 27)' fill='%232a62d9' opacity='0.3'/%3E%3Cellipse cx='9' cy='84' rx='1.6' ry='1.2' transform='rotate(75 9 84)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='72' cy='90' rx='0.9' ry='0.6' transform='rotate(90 72 90)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='14' cy='56' rx='0.9' ry='0.6' transform='rotate(99 14 56)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='163' cy='61' rx='1.2' ry='0.9' transform='rotate(69 163 61)' fill='%232a62d9' opacity='0.3'/%3E%3Cellipse cx='85' cy='21' rx='1.3' ry='0.9' transform='rotate(3 85 21)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='151' cy='167' rx='1.5' ry='1.1' transform='rotate(16 151 167)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='7' cy='161' rx='1.8' ry='1.3' transform='rotate(127 7 161)' fill='%23f4c20d' opacity='0.3'/%3E%3Cellipse cx='102' cy='157' rx='1.3' ry='0.9' transform='rotate(15 102 157)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='85' cy='15' rx='1.8' ry='1.3' transform='rotate(151 85 15)' fill='%231e9e57' opacity='0.3'/%3E%3Cellipse cx='81' cy='130' rx='1.5' ry='1.0' transform='rotate(14 81 130)' fill='%23e23b2e' opacity='0.3'/%3E%3Cellipse cx='60' cy='117' rx='1.1' ry='0.8' transform='rotate(14 60 117)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='111' cy='127' rx='1.4' ry='1.0' transform='rotate(140 111 127)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='148' cy='144' rx='1.7' ry='1.2' transform='rotate(3 148 144)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='161' cy='165' rx='1.4' ry='1.0' transform='rotate(0 161 165)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='26' cy='45' rx='1.8' ry='1.3' transform='rotate(83 26 45)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='164' cy='123' rx='1.1' ry='0.8' transform='rotate(0 164 123)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='109' cy='126' rx='1.1' ry='0.8' transform='rotate(44 109 126)' fill='%23e23b2e' opacity='0.3'/%3E%3Cellipse cx='115' cy='91' rx='1.8' ry='1.3' transform='rotate(85 115 91)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='157' cy='154' rx='1.1' ry='0.8' transform='rotate(87 157 154)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='83' cy='110' rx='1.4' ry='1.0' transform='rotate(100 83 110)' fill='%232a62d9' opacity='0.3'/%3E%3Cellipse cx='167' cy='105' rx='0.8' ry='0.6' transform='rotate(167 167 105)' fill='%23f4c20d' opacity='0.3'/%3E%3Cellipse cx='83' cy='29' rx='0.9' ry='0.7' transform='rotate(140 83 29)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='111' cy='58' rx='1.2' ry='0.8' transform='rotate(165 111 58)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='94' cy='21' rx='1.3' ry='0.9' transform='rotate(150 94 21)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='28' cy='127' rx='1.6' ry='1.1' transform='rotate(117 28 127)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='156' cy='178' rx='1.4' ry='1.0' transform='rotate(7 156 178)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='49' cy='23' rx='1.0' ry='0.7' transform='rotate(15 49 23)' fill='%23f4c20d' opacity='0.3'/%3E%3Cellipse cx='84' cy='179' rx='1.4' ry='1.0' transform='rotate(25 84 179)' fill='%231e9e57' opacity='0.3'/%3E%3Cellipse cx='12' cy='45' rx='1.5' ry='1.1' transform='rotate(113 12 45)' fill='%232a62d9' opacity='0.3'/%3E%3Cellipse cx='96' cy='159' rx='1.0' ry='0.7' transform='rotate(157 96 159)' fill='%23f4c20d' opacity='0.3'/%3E%3Cellipse cx='156' cy='10' rx='1.2' ry='0.8' transform='rotate(43 156 10)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='67' cy='102' rx='1.3' ry='0.9' transform='rotate(121 67 102)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='166' cy='84' rx='0.9' ry='0.6' transform='rotate(108 166 84)' fill='%232a62d9' opacity='0.3'/%3E%3Cellipse cx='49' cy='80' rx='1.5' ry='1.1' transform='rotate(115 49 80)' fill='%23e23b2e' opacity='0.3'/%3E%3Cellipse cx='60' cy='162' rx='0.9' ry='0.6' transform='rotate(156 60 162)' fill='%23e23b2e' opacity='0.3'/%3E%3Cellipse cx='122' cy='80' rx='1.1' ry='0.8' transform='rotate(152 122 80)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='142' cy='70' rx='1.6' ry='1.1' transform='rotate(178 142 70)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='114' cy='137' rx='0.9' ry='0.6' transform='rotate(115 114 137)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='164' cy='59' rx='1.5' ry='1.1' transform='rotate(133 164 59)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='15' cy='153' rx='0.9' ry='0.6' transform='rotate(129 15 153)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='72' cy='20' rx='1.1' ry='0.8' transform='rotate(82 72 20)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='162' cy='156' rx='1.0' ry='0.7' transform='rotate(106 162 156)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='22' cy='159' rx='1.5' ry='1.1' transform='rotate(41 22 159)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='104' cy='166' rx='0.9' ry='0.6' transform='rotate(61 104 166)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='172' cy='87' rx='1.3' ry='0.9' transform='rotate(167 172 87)' fill='%232a62d9' opacity='0.3'/%3E%3Cellipse cx='44' cy='39' rx='1.8' ry='1.3' transform='rotate(157 44 39)' fill='%231e9e57' opacity='0.3'/%3E%3Cellipse cx='52' cy='73' rx='1.4' ry='1.0' transform='rotate(120 52 73)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='139' cy='58' rx='1.1' ry='0.8' transform='rotate(96 139 58)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='59' cy='60' rx='1.6' ry='1.1' transform='rotate(57 59 60)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='173' cy='132' rx='1.3' ry='1.0' transform='rotate(45 173 132)' fill='%232a62d9' opacity='0.3'/%3E%3Cellipse cx='124' cy='126' rx='1.0' ry='0.7' transform='rotate(127 124 126)' fill='%231e9e57' opacity='0.3'/%3E%3Cellipse cx='45' cy='89' rx='0.9' ry='0.6' transform='rotate(124 45 89)' fill='%231e9e57' opacity='0.3'/%3E%3Cellipse cx='169' cy='29' rx='1.3' ry='0.9' transform='rotate(143 169 29)' fill='%231e9e57' opacity='0.3'/%3E%3Cellipse cx='153' cy='109' rx='1.4' ry='1.0' transform='rotate(159 153 109)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='20' cy='108' rx='1.0' ry='0.7' transform='rotate(56 20 108)' fill='%23e23b2e' opacity='0.3'/%3E%3Cellipse cx='7' cy='153' rx='1.1' ry='0.8' transform='rotate(151 7 153)' fill='%23efebe3' opacity='0.3'/%3E%3Cellipse cx='115' cy='164' rx='1.1' ry='0.8' transform='rotate(167 115 164)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='100' cy='113' rx='1.5' ry='1.1' transform='rotate(145 100 113)' fill='%236d6860' opacity='0.5'/%3E%3Cellipse cx='114' cy='75' rx='0.8' ry='0.6' transform='rotate(111 114 75)' fill='%23f4c20d' opacity='0.3'/%3E%3Cellipse cx='25' cy='11' rx='0.8' ry='0.6' transform='rotate(154 25 11)' fill='%236d6860' opacity='0.5'/%3E%3C/svg%3E");
-
-  /* Stare nazwy (używane w arkuszach ekranów) – przypięte do nowych tokenów */
-  --habits-akcent: var(--talerz-15);          /* wypełnienie przycisku głównego, zaznaczenia: żółty talerz */
-  --habits-akcent-rgb: 244, 194, 13;
-  --habits-tlo: var(--tlo);
-  --habits-tlo-karta: var(--powierzchnia);
-  --habits-obramowanie: var(--linia);
-  --habits-obramowanie-puste: var(--linia-mocna);
-  --habits-naglowek: var(--tekst);
-  --habits-tekst: var(--tekst);
-  --habits-tekst-pomocniczy: var(--tekst-3);
-  --habits-zloto: var(--talerz-15);            /* rekordy, PD, poziom */
-  --tryb-ciemny-tlo-karta: var(--powierzchnia);
-  --cream: var(--tlo);
-  --card: var(--powierzchnia);
-  --ink: var(--tekst);
-  --muted: var(--tekst-2);
-  --border: var(--linia);
-  --accent: var(--talerz-15);
-  --accent-soft: var(--wypukle);
-  --accent-pink: var(--talerz-15);
-  --accent-pink-soft: var(--wypukle);
-  --shadow-warm: none;
-
-  /* Kolory partii – barwy talerzy i taśm; jedna mapa dla całej apki */
-  --partia-klata: var(--talerz-25);
-  --partia-plecy: var(--talerz-20);
-  --partia-barki: var(--talerz-15);
-  --partia-nogi: var(--talerz-10);
-  --partia-brzuch: var(--talerz-5);
-  --partia-biceps: #f07a22;
-  --partia-triceps: #20b2a6;
-  --partia-dupa: #e8559a;
+  --habits-akcent: #D6D0C0;
+  --habits-akcent-rgb: 214, 208, 192;
+  --habits-tlo: oklch(0.07 0.004 250);
+  --habits-tlo-karta: oklch(0.1 0.006 250);
+  --habits-obramowanie: oklch(0.19 0.008 245);
+  --habits-obramowanie-puste: oklch(0.24 0.01 245);
+  --habits-naglowek: oklch(0.97 0.004 240);
+  --habits-tekst: oklch(0.85 0.005 240);
+  --habits-tekst-pomocniczy: oklch(0.56 0.008 240);
+  --habits-zloto: oklch(0.72 0.08 75); /* złoty akcent z "Rad z książek" (PD, poziom, planety) */
+  /* Jaśniejsze tło kart/formularzy poza sekcją "Nawyki" — --habits-tlo-karta zostaje bez zmian dla samej sekcji Nawyki */
+  --tryb-ciemny-tlo-karta: oklch(0.14 0.006 250);
+  --cream: var(--habits-tlo);
+  --card: var(--tryb-ciemny-tlo-karta);
+  --ink: var(--habits-tekst);
+  --muted: oklch(0.6 0.008 240);
+  --border: var(--habits-obramowanie);
+  --accent: var(--habits-akcent);
+  --accent-soft: var(--habits-tlo-karta);
+  --accent-pink: var(--habits-akcent);
+  --accent-pink-soft: var(--habits-tlo-karta);
+  --shadow-warm: 0 14px 34px -16px rgba(0, 0, 0, 0.7);
+  /* Kolory partii — jedna mapa dla całej apki (kropki partii, Mapa ciała) */
+  --partia-klata: #D6D0C0;
+  --partia-plecy: oklch(0.66 0.13 250);
+  --partia-barki: oklch(0.72 0.14 50);
+  --partia-biceps: oklch(0.66 0.15 300);
+  --partia-triceps: oklch(0.7 0.11 180);
+  --partia-brzuch: oklch(0.74 0.13 140);
+  --partia-nogi: oklch(0.7 0.15 25);
+  --partia-dupa: oklch(0.72 0.14 350);
+  /* Bardzo subtelna tekstura szumu (film grain) na tło strony — SVG feTurbulence, jak w ikonce PWA; opacity 0.04 wpisane w sam SVG (rect) */
+  --tekstura-szumu: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
 }
 * { box-sizing: border-box; }
 /* Gwarantuje, że atrybut [hidden] zawsze ukrywa element, nawet gdy jakaś
    reguła w tym arkuszu ustawia mu display (np. .rekord-baner{display:flex}) */
 [hidden] { display: none !important; }
-html { -webkit-text-size-adjust: 100%; background: var(--tlo); }
+html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
-  color: var(--tekst);
-  font-family: var(--font);
+  color: var(--ink);
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 15px;
   line-height: 1.5;
-  background: var(--guma), var(--tlo);
+  background:
+    var(--tekstura-szumu) repeat,
+    radial-gradient(1000px 620px at 100% -5%, rgba(226, 100, 63, 0.16), rgba(226, 100, 63, 0) 62%),
+    var(--cream);
+  background-attachment: fixed;
   min-height: 100vh;
 }
-input, select, textarea, button { font-family: var(--font); }
-::selection { background: var(--tekst); color: var(--tlo); }
 
-h1, h2, legend {
-  font-family: var(--font-tablica);
-  font-style: normal;
-  font-weight: 800;
-  text-transform: uppercase;
+h1, h2, legend, .rekord-baner {
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
   letter-spacing: 0.01em;
 }
-h1 { font-size: 30px; margin: 0 0 20px; line-height: 1; }
-h2 { font-size: 30px; margin: 0 0 12px; line-height: 1; }
-/* Cytat zamiast tytułu (konto AI_UZYTKOWNIK_ID) – cichy, w pasku górnym */
-h1.app-tytul-cytat { font-family: var(--font); font-size: 13px; font-weight: 400; line-height: 1.4; text-transform: none; color: var(--tekst-2); letter-spacing: 0; }
+h1 { font-size: 2.1rem; margin: 4px 0 20px; padding-left: 52px; line-height: 1.15; }
+h2 { font-size: 1.5rem; margin: 0 0 14px; }
+/* Dłuższy cytat zamiast tytułu (konto AI_UZYTKOWNIK_ID) — mniejszy, żeby nie zajmował pół ekranu */
+h1.app-tytul-cytat { font-size: 1.45rem; }
 
 .kontener {
   position: relative;
@@ -100,13 +74,21 @@ h1.app-tytul-cytat { font-family: var(--font); font-size: 13px; font-weight: 400
 }
 .kontener > h1,
 .kontener > section { position: relative; z-index: 1; }
-.habits-poswiata { display: none !important; }
+.habits-poswiata {
+  display: none;
+  position: absolute;
+  top: -220px;
+  right: -120px;
+  z-index: 0;
+  opacity: 0.14;
+  pointer-events: none;
+}
 
 /* ----- Okno potwierdzenia wylogowania ----- */
 #wyloguj-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.6);
   z-index: 90;
   display: flex;
   align-items: center;
@@ -116,38 +98,54 @@ h1.app-tytul-cytat { font-family: var(--font); font-size: 13px; font-weight: 400
 #wyloguj-modal {
   width: 100%;
   max-width: 340px;
-  background: var(--wypukle);
-  border-radius: var(--promien-karta);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
-  padding: 24px 20px 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-warm);
+  padding: 26px 22px 22px;
+  text-align: center;
 }
 #wyloguj-modal h3 {
-  margin: 0 0 6px;
-  font-size: 17px;
-  font-weight: 600;
+  margin: 0 0 8px;
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.35rem;
 }
 #wyloguj-modal p {
-  margin: 0 0 20px;
-  color: var(--tekst-2);
-  font-size: 14px;
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 0.88rem;
 }
 .wyloguj-akcje {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
-.btn-wyloguj-tak,
-.btn-wyloguj-nie {
-  min-height: 46px;
-  padding: 0 20px;
+.btn-wyloguj-tak {
+  padding: 13px 20px;
+  border: none;
   border-radius: 999px;
-  font-weight: 600;
-  font-size: 15px;
+  background: var(--habits-akcent);
+  color: oklch(0.07 0.004 250);
+  font-weight: 700;
+  font-size: 0.92rem;
+  box-shadow: 0 0 10px rgba(var(--habits-akcent-rgb), 0.35);
+  transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease;
 }
-.btn-wyloguj-tak { border: none; background: var(--tekst); color: var(--tlo); }
-.btn-wyloguj-tak:disabled { opacity: 0.55; cursor: default; }
-.btn-wyloguj-nie { border: 1px solid var(--linia-mocna); background: none; color: var(--tekst); }
-.btn-wyloguj-nie:active { background: var(--powierzchnia); }
+.btn-wyloguj-tak:hover { filter: brightness(1.05); }
+.btn-wyloguj-tak:active { transform: translateY(1px); }
+.btn-wyloguj-tak:disabled { opacity: 0.55; box-shadow: none; cursor: default; }
+.btn-wyloguj-nie {
+  padding: 13px 20px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: none;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+.btn-wyloguj-nie:hover { background: var(--habits-obramowanie); }
 
 /* ----- Widoki ----- */
 .widok { display: none; opacity: 1; transition: opacity 150ms ease; }
@@ -155,98 +153,99 @@ h1.app-tytul-cytat { font-family: var(--font); font-size: 13px; font-weight: 400
 /* Klasa pomocnicza do animacji fade przy przełączaniu widoków (patrz handler .nav-btn) — na aktywnym widoku daje fade-out (krótszy czas), na nowo pokazywanym jest chwilowo dodana i usuwana, żeby wystartować od opacity:0 i przejść do 1 z domyślnym czasem powyżej */
 .widok.widok-znika { opacity: 0; transition-duration: 120ms; }
 
-/* ----- Karty / formularze: płaska powierzchnia o jeden stopień jaśniejsza od tła, bez ramki i cienia ----- */
+/* ----- Karty / formularze ----- */
 form,
 .karta {
-  background: var(--powierzchnia);
-  border: none;
-  border-radius: var(--promien-karta);
-  box-shadow: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-warm);
 }
 form, .karta { padding: 20px; }
 
 label {
   display: block;
-  font-weight: 500;
-  font-size: 14px;
-  margin: 16px 0 8px;
-  color: var(--tekst);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin: 14px 0 5px;
+  color: var(--ink);
 }
 form > label:first-of-type { margin-top: 0; }
 select, input, textarea {
   width: 100%;
-  min-height: 46px;
-  padding: 11px 14px;
-  border: 1px solid var(--linia-mocna);
-  border-radius: var(--promien-pole);
-  background: var(--tlo);
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
   font: inherit;
   font-size: 16px; /* min. 16px zapobiega automatycznemu przybliżeniu ekranu przy focusie pola w Safari na iOS */
-  color: var(--tekst);
+  color: var(--ink);
 }
-input::placeholder, textarea::placeholder { color: var(--tekst-3); }
-select:focus, input:focus, textarea:focus {
+select:focus, input:focus {
   outline: none;
-  border-color: var(--tekst-2);
-  box-shadow: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--habits-akcent-rgb), 0.18);
 }
-select:disabled { color: var(--tekst-3); }
-:focus-visible { outline: 2px solid var(--tekst); outline-offset: 2px; }
+select:disabled { background: var(--habits-tlo-karta); color: var(--muted); }
 
-button { font: inherit; cursor: pointer; border: 0; }
+button { font: inherit; cursor: pointer; }
 
-/* Przycisk główny: odwrócenie – jasna pigułka z ciemnym tekstem */
 .btn-submit {
   display: block;
   width: 100%;
-  min-height: 50px;
   margin-top: 18px;
-  padding: 0 24px;
+  padding: 14px 24px;
   border: none;
   border-radius: 999px;
-  background: var(--tekst);
-  color: var(--tlo);
-  font-weight: 600;
-  font-size: 16px;
-  box-shadow: none;
-  transition: opacity 0.15s ease, scale 0.1s ease;
+  background: linear-gradient(135deg, #EF7B50, #E2643F 55%, #CF5330);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.98rem;
+  letter-spacing: 0.01em;
+  box-shadow: 0 12px 26px -8px rgba(226, 100, 63, 0.55);
+  transition: filter 0.15s ease, transform 0.1s ease, scale 0.1s ease;
 }
-.btn-submit:disabled { opacity: 0.4; cursor: default; }
+.btn-submit:hover { filter: brightness(1.05); }
+.btn-submit:active { transform: translateY(1px); }
+.btn-submit:disabled { opacity: 0.55; box-shadow: none; cursor: default; }
 
-/* ----- Baner rekordu: wiersz z kolorem danych na znaczku ----- */
+/* ----- Baner rekordu ----- */
 .rekord-baner {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 16px;
-  padding: 12px 16px;
-  border-radius: var(--promien-pole);
-  background: var(--powierzchnia);
-  color: var(--tekst);
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: none;
+  margin-bottom: 18px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #EF7B50, #E2643F 60%, #CF5330);
+  color: #fff;
+  font-size: 1.05rem;
+  box-shadow: 0 12px 26px -10px rgba(226, 100, 63, 0.5);
 }
-.rekord-baner svg { width: 18px; height: 18px; flex: none; color: var(--akcent-danych); }
-.rekord-baner span { font-style: normal; }
+.rekord-baner svg { width: 20px; height: 20px; flex: none; }
+.rekord-baner span { font-style: italic; }
 
-/* Krótkie podświetlenie przy pojawieniu się banera rekordu — klasa dodawana i po chwili usuwana w renderRekord() */
+/* Krótki błysk/pulsowanie przy pojawieniu się banera rekordu — klasa dodawana i po chwili usuwana w renderRekord() */
 @keyframes rekord-pulsuj-anim {
-  0% { background: var(--wypukle); }
-  100% { background: var(--powierzchnia); }
+  0% { filter: brightness(1); transform: scale(1); }
+  30% { filter: brightness(1.25); transform: scale(1.03); }
+  100% { filter: brightness(1); transform: scale(1); }
 }
-.rekord-baner.rekord-pulsuj { animation: rekord-pulsuj-anim 600ms ease; }
+.rekord-baner.rekord-pulsuj {
+  animation: rekord-pulsuj-anim 600ms ease;
+}
 
 /* ----- Kropki partii ----- */
 .dot {
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   margin-right: 8px;
   flex: none;
   vertical-align: 1px;
-  background: var(--kolor-partii, var(--tekst-3));
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+  background: var(--kolor-partii, var(--muted));
 }
 /* Kolor partii z mapy --partia-* w :root — wspólny dla kropek partii i Mapy ciała */
 .dot-Klata,   .mapa-partia[data-partia="Klata"]   { --kolor-partii: var(--partia-klata); }
@@ -260,8 +259,12 @@ button { font: inherit; cursor: pointer; border: 0; }
 
 /* ----- Responsywność ----- */
 @media (max-width: 560px) {
-  .kontener { padding: 16px 16px 56px; }
+  h1 { font-size: 1.8rem; }
+  h1.app-tytul-cytat { font-size: 1.25rem; }
+  h2 { font-size: 1.3rem; }
+  .kontener { padding: 16px 12px 56px; }
   form, .karta { padding: 16px; }
+  .rekord-baner { font-size: 0.95rem; padding: 11px 16px; }
 }
 
 /* ----- Ekran logowania ----- */
@@ -272,11 +275,12 @@ button { font: inherit; cursor: pointer; border: 0; }
   justify-content: center;
   padding: 20px 16px;
 }
-.logowanie-karta { width: 100%; max-width: 380px; background: none; padding: 0; }
-.logowanie-karta h1 { padding-left: 0; margin-bottom: 6px; font-size: 26px; color: var(--tekst); }
-.logowanie-opis { color: var(--tekst-2); margin: 0 0 24px; }
-.ekran-logowania form { background: none; border: none; padding: 0; }
-.logowanie-status { margin: 14px 0 0; font-size: 14px; font-weight: 500; }
+.logowanie-karta { width: 100%; max-width: 380px; }
+.logowanie-karta h1 { padding-left: 0; text-align: center; }
+.logowanie-opis { color: var(--muted); margin: 0 0 4px; text-align: center; }
+.logowanie-karta h1 { color: var(--habits-naglowek); }
+.ekran-logowania form { background: none; border: none; box-shadow: none; }
+.logowanie-status { margin: 14px 0 0; font-size: 0.9rem; font-weight: 600; text-align: center; }
 
 /* ----- Toast (pokazToast) zamiast alert() ----- */
 .toast-kontener {
@@ -294,22 +298,21 @@ button { font: inherit; cursor: pointer; border: 0; }
   pointer-events: none;
 }
 .toast {
-  padding: 11px 16px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 500;
+  padding: 11px 18px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+  font-weight: 600;
   line-height: 1.4;
   text-align: center;
-  background: var(--wypukle);
-  color: var(--tekst);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.7);
   opacity: 0;
   transform: translateY(16px);
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
 .toast.widoczny { opacity: 1; transform: none; }
-.toast-sukces { background: var(--pozytyw-tlo); color: var(--pozytyw); }
-.toast-blad   { background: var(--negatyw-tlo); color: var(--negatyw); }
+.toast-sukces { background: oklch(0.2 0.035 150); border-color: oklch(0.32 0.06 150); color: oklch(0.86 0.08 150); }
+.toast-blad   { background: oklch(0.2 0.04 28);   border-color: oklch(0.34 0.08 28);  color: oklch(0.85 0.08 28); }
 
 /* ----- Konfetti po odznaczeniu wszystkich nawyków na dziś ----- */
 .konfetti-warstwa {
@@ -331,36 +334,32 @@ button { font: inherit; cursor: pointer; border: 0; }
   }
 }
 
-/* ----- Wejście elementów list (wjazdKarty): krótkie, bez przesunięcia — tylko przejrzystość ----- */
-.karta-wjazd { animation: karta-wjazd 0.2s ease-out backwards; }
+/* ----- Kaskadowe wejście elementów list (wjazdKarty) — oba motywy -----
+   fill-mode "backwards": przed startem (w trakcie opóźnienia) element jest niewidoczny, a po końcu animacja
+   niczego nie nadpisuje (np. opacity zrealizowanego celu). Animacja startuje też przy ponownym pokazaniu sekcji. */
+.karta-wjazd { animation: karta-wjazd 0.35s ease-out backwards; }
 @keyframes karta-wjazd {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 @media (prefers-reduced-motion: reduce) {
   .karta-wjazd { animation: none; }
 }
 
-/* ----- Puste stany ----- */
-.pusto {
-  color: var(--tekst-2);
-  font-size: 14px;
-}
+/* ----- Puste stany z ikoną ----- */
 .pusto.pusto-z-ikona {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  padding: 16px;
-  border: 1px dashed var(--linia-mocna);
-  border-radius: var(--promien-pole);
-  text-align: left;
+  align-items: center;
+  gap: 6px;
+  padding: 24px 18px;
+  text-align: center;
 }
-.pusto-ikona { display: none; }
+.pusto-ikona { font-size: 1.9rem; line-height: 1; font-style: normal; }
 
 /* ----- Feedback dotykowy przy naciśnięciu przycisku (właściwość scale, żeby nie gryzła się z transform) ----- */
 button { transition: scale 0.1s ease; }
-button:not(:disabled):active { scale: 0.97; }
+button:not(:disabled):active { scale: 0.96; }
 @media (prefers-reduced-motion: reduce) {
   .konfetti-warstwa { display: none; }
 }

@@ -481,13 +481,12 @@ function renderWykresTygodniaKolowy() {
       labels: ["Zrealizowane", "Niezrealizowane"],
       datasets: [{
         data: [zrealizowane, wszystkie - zrealizowane],
-        backgroundColor: ["#f2c230", "#22201d"],
+        backgroundColor: ["#D6D0C0", "oklch(0.24 0.01 245)"],
         borderWidth: 0
       }]
     },
     options: {
-      cutout: "82%",
-      plugins: { legend: { position: "bottom", labels: { color: "#b8b3ab", font: { family: "Archivo" } } } }
+      plugins: { legend: { position: "bottom", labels: { color: "oklch(0.85 0.005 240)" } } }
     }
   });
 }
