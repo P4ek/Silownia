@@ -51,7 +51,7 @@
   justify-content: center;
   color: var(--habits-zloto);
 }
-.rady-odznaka-etykieta { font-size: 8px; font-weight: 700; letter-spacing: 0.14em; }
+.rady-odznaka-etykieta { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; }
 .rady-odznaka-poziom { font-family: "Instrument Serif", Georgia, serif; font-size: 22px; line-height: 1; }
 .rady-kicker {
   font-size: 11px;

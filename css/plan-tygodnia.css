@@ -54,7 +54,7 @@
   height: 40px;
   padding: 0;
   border: none;
-  border-radius: 10px;
+  border-radius: 14px;
   background: transparent;
   color: oklch(0.7 0.006 240);
   display: grid;
@@ -147,7 +147,7 @@
   align-items: center;
   gap: 8px 10px;
   padding: 12px 14px;
-  border-radius: 18px;
+  border-radius: 16px;
   border: 1px solid var(--habits-obramowanie);
   background: var(--habits-tlo-karta);
 }
@@ -174,7 +174,7 @@
   height: 36px;
   padding: 0;
   border: none;
-  border-radius: 10px;
+  border-radius: 14px;
   background: transparent;
   color: var(--habits-tekst-pomocniczy);
   display: grid;
@@ -186,7 +186,7 @@
 #widok-plan .kompas-form {
   margin: 14px 0 0;
   padding: 18px;
-  border-radius: 22px;
+  border-radius: 24px;
   border: 1px solid var(--habits-akcent);
   background: var(--habits-tlo-karta);
   box-shadow: none;
@@ -232,7 +232,7 @@
   color: oklch(0.95 0.004 240);
   overflow-wrap: anywhere;
 }
-.kompas-blok { margin-top: 18px; padding: 14px 16px; border-radius: 20px; border: 1px solid var(--habits-obramowanie); background: var(--habits-tlo-karta); }
+.kompas-blok { margin-top: 18px; padding: 14px 16px; border-radius: 24px; border: 1px solid var(--habits-obramowanie); background: var(--habits-tlo-karta); }
 .kompas-blok-tytul { display: block; margin-bottom: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--habits-zloto); }
 .kompas-dni { list-style: none; margin: 14px 0 0; padding: 0; }
 .kompas-dzien { padding: 10px 12px; border-radius: 16px; border-top: 1px solid oklch(0.16 0.007 248); }
@@ -314,7 +314,7 @@
   padding: 12px 14px;
   margin-bottom: 10px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
   background: #FCFAF4;
 }
 .przeszkoda-tytul { font-weight: 600; font-size: 0.88rem; margin-bottom: 8px; }

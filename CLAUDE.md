@@ -37,6 +37,8 @@ Pozostałe:
 - `css/motyw.css` – reguły ciemnego motywu (`.kontener.motyw-habits`, `#sidebar.motyw-habits`), zawsze włączonego.
 - `css/menu.css` – menu: przycisk-kropla, pełnoekranowe menu, zakładki-skróty (logika w `js/nawigacja.js`). Ładowany po `motyw.css`, potem `dzis.css`, `finanse.css`, `rejestr-superseria.css` i `medytacja.css`.
 - `css/rejestr-superseria.css` – ramka superserii w Rejestrze (`budujRamkeSuperserii` w `js/rejestr.js`, wg `makiety/rejestr-superseria.html`) i pigułka „N superserii”; zakres `#widok-rejestr`, ładowany ostatni. Rundy = podejścia ćwiczeń sparowane po indeksie (brak = „–”), maks. 4 rundy widoczne, więcej przewija się w bok. Animacje (obwódka przez `@property --ssw-ang`, poświata, rdzeń, mostek, 4 iskry) działają tylko dla ramek na ekranie: `IntersectionObserver` przełącza `.widoczna`, reszta ma `animation-play-state: paused`; bez `@property` statyczna złota obwódka; `prefers-reduced-motion` wyłącza wszystko.
+- `css/spojnosc.css` – ładowany jako ostatni: jedna skala dla wszystkich ekranów (kicker 11 px wersaliki, tytuł ekranu serif kursywą 42 px, nagłówek sekcji 28 px, 36 px nad sekcją, przycisk główny pigułka 56 px, chipy 40 px) i style sztangi. Zaokrąglenia w arkuszach trzymają skalę: 24 karty, 16 wiersze, 14 kontrolki, 999 pigułki. Nowe nagłówki/etykiety dopisuj do list w tym pliku.
+- Sztanga w Zapisz trening: `sztangaSVG(kg)` / `sztangaOpis(kg)` / `sztangaTalerzeNaStrone(kg)` w `js/wspolne.js` (gryf 20 kg, talerze 25–1,25 zachłannie, kolory z `--partia-*` i `--habits-zloto`); `renderZapisSztanga` w `js/zapisz-trening.js` przerysowuje ją tylko przy zmianie załadunku (karta `.zapis-sztanga` nad licznikami).
 
 ## Kolejność ładowania i dlaczego
 

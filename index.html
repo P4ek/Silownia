@@ -31,6 +31,7 @@
 <link rel="stylesheet" href="css/finanse.css">
 <link rel="stylesheet" href="css/rejestr-superseria.css">
 <link rel="stylesheet" href="css/medytacja.css">
+<link rel="stylesheet" href="css/spojnosc.css">
 <style>
 /* Ekran startowy: widoczny, dopóki getSession() nie zwróci wyniku (start.js), potem znika w ~300 ms */
 .ekran-startowy {
@@ -482,6 +483,13 @@
           <button type="button" id="zapis-btn-superseria" class="zapis-btn-superseria">Super seria</button>
         </div>
       </section>
+
+      <!-- Sztanga ładowana talerzami wg ciężaru (sztangaSVG z wspolne.js) -->
+      <div class="karta zapis-sztanga">
+        <span class="zapis-sztanga-etykieta">Na sztandze</span>
+        <div id="zapis-sztanga-rys" class="zapis-sztanga-rys"></div>
+        <p id="zapis-sztanga-opis" class="zapis-sztanga-opis" aria-live="polite"></p>
+      </div>
 
       <!-- Liczniki: kliknięcie w liczbę pozwala wpisać wartość z klawiatury -->
       <div class="zapis-liczniki">

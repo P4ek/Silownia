@@ -1,4 +1,4 @@
-const CACHE_NAME = "silownia-v45";
+const CACHE_NAME = "silownia-v46";
 const ASSETS = [
   "./",
   "./index.html",
@@ -20,6 +20,7 @@ const ASSETS = [
   "./css/finanse.css",
   "./css/rejestr-superseria.css",
   "./css/medytacja.css",
+  "./css/spojnosc.css",
   "./js/konfiguracja.js",
   "./js/wspolne.js",
   "./js/logowanie.js",

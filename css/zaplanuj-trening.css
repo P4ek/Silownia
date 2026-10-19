@@ -33,7 +33,7 @@
   position: relative;
   margin-top: 24px;
   height: 300px;
-  border-radius: 28px;
+  border-radius: 24px;
   background: var(--habits-tlo-karta);
   border: 1px solid var(--habits-obramowanie);
   overflow: hidden;
@@ -127,7 +127,7 @@
   height: 44px;
   padding: 0;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   background: transparent;
   color: var(--habits-tekst-pomocniczy);
   display: grid;
@@ -202,7 +202,7 @@
   min-height: 56px;
   margin-top: 20px;
   padding: 0 16px;
-  border-radius: 18px;
+  border-radius: 16px;
   border: 1px solid var(--habits-obramowanie);
   background: var(--habits-tlo-karta);
   color: var(--habits-tekst);

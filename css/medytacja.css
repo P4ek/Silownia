@@ -222,7 +222,7 @@
   min-height: 72px;
   padding: 8px 0 6px;
   border: none;
-  border-radius: 22px;
+  border-radius: 24px;
   background: transparent;
   display: flex;
   flex-direction: column;
@@ -357,7 +357,7 @@
   min-height: 84px;
   margin-top: 12px;
   padding: 16px 20px;
-  border-radius: 30px;
+  border-radius: 24px;
   resize: none;
   color: #fff;
   font-family: inherit;

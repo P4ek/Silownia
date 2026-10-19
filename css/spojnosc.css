@@ -1,0 +1,160 @@
+/* Spójność ekranów (ładowany jako ostatni): jedna skala dla wszystkich widoków, bez zmiany charakteru apki.
+   - kicker (mała etykieta nad tytułem / licznik po prawej): 11 px, 700, rozstrzelone wersaliki, szary pomocniczy,
+   - tytuł ekranu: Instrument Serif kursywą 42 px,
+   - nagłówek sekcji: Instrument Serif kursywą 28 px, 36 px odstępu nad sekcją,
+   - przycisk główny: pigułka 56 px w kolorze akcentu z poświatą,
+   - sztanga w Zapisz trening (sztangaSVG z wspolne.js). Zaokrąglenia w arkuszach: 24 karty, 16 wiersze, 14 kontrolki, 999 pigułki. */
+
+:root {
+  --sp-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --sp-tytul: 42px;
+  --sp-sekcja: 28px;
+  --sp-odstep-sekcji: 36px;
+}
+
+/* ----- Kicker: etykiety nad tytułami i liczniki sekcji ----- */
+:is(
+  .dzis-data, .dzis-kicker,
+  #widok-dodaj .zapis-sesja, .zapis-serie-licznik, #widok-dodaj .zapis-licznik-etykieta,
+  #widok-rejestr .rejestr-kicker, .rejestr-etykieta,
+  .wykres-kicker, .wykres-gablota-tydzien,
+  #widok-nowe .katalog-kicker, .katalog-partia-licznik,
+  #widok-zaplanuj .zaplanuj-kicker, .zaplanuj-etykieta, .plany-licznik, .plan-okladka-licznik,
+  #widok-jedzenie .jedz-kicker, .jedz-dzien-dzis,
+  .kompas-kicker, .kompas-etykieta, .kompas-blok-tytul,
+  #widok-habits .habits-kicker, .habits-etykieta,
+  .rady-kicker,
+  #widok-finanse .fin-sekcja-naglowek > span,
+  #widok-medytacja .med-historia-suma
+) {
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--habits-tekst-pomocniczy);
+}
+
+/* ----- Tytuł ekranu ----- */
+:is(
+  .dzis-powitanie, #widok-wykres .wykres-tytul, #widok-plan .kompas-tytul, #widok-rady .rady-tytul,
+  #widok-finanse .fin-tytul, #widok-medytacja .med-tytul
+) {
+  font-family: var(--sp-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--sp-tytul);
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--habits-naglowek);
+}
+
+/* ----- Nagłówki sekcji ----- */
+:is(
+  .dzis-tytul, .dzis-czesc-tytul,
+  #widok-dodaj .zapis-serie-tytul, .zapis-dzis-naglowek h3,
+  #widok-wykres .wykres-karta-tytul, .wykres-gablota-naglowek h3,
+  #widok-nowe .katalog-partia-tytul,
+  #widok-zaplanuj .plany-tytul,
+  #widok-jedzenie .jedz-lista-tytul, #widok-jedzenie .jedz-cele-tytul,
+  #widok-plan .kompas-tydzien-rola,
+  #widok-rady .rady-mapa-tytul,
+  #widok-finanse .fin-sekcja-naglowek h3, #widok-finanse .fin-karta-tytul,
+  #widok-medytacja .med-historia-tytul
+) {
+  font-family: var(--sp-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--sp-sekcja);
+  line-height: 1.05;
+  letter-spacing: 0;
+  color: var(--habits-naglowek);
+}
+
+/* ----- Odstęp nad sekcjami ----- */
+.dzis-tydzien, .zapis-serie-naglowek, .zapis-dzis-naglowek, .plany-naglowek, .jedz-lista-naglowek,
+.katalog-lista-naglowek, .wykres-gablota-naglowek, .habits-sekcja-naglowek, .rady-mapa-naglowek,
+.kompas-sekcja-naglowek, .kompas-tydzien-roli, #widok-medytacja .med-historia { margin-top: var(--sp-odstep-sekcji); }
+#widok-finanse .fin-sekcja-naglowek { margin-top: var(--sp-odstep-sekcji); }
+.dzis-cele-naglowek { padding-top: var(--sp-odstep-sekcji); }
+/* Nagłówek sekcji z licznikiem: linia bazowa wspólna */
+:is(.zapis-serie-naglowek, .plany-naglowek, .jedz-lista-naglowek, .katalog-lista-naglowek, .wykres-gablota-naglowek, .dzis-cele-naglowek) {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* ----- Przycisk główny: jedna pigułka ----- */
+:is(
+  .btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .btn-zakoncz-tydzien
+) {
+  min-height: 56px;
+  border-radius: 999px;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+.kontener.motyw-habits :is(.zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny):not(:disabled) {
+  background: var(--habits-akcent);
+  color: oklch(0.1 0.006 250);
+  box-shadow: 0 0 14px rgba(var(--habits-akcent-rgb), 0.3);
+}
+.zapis-btn-zalicz { height: 60px; }
+
+/* ----- Chipy wyboru: jedna wysokość ----- */
+:is(.plan-chip, .kompas-chip, #widok-jedzenie .jedz-typ) { height: 40px; }
+
+/* ----- Sztanga w Zapisz trening ----- */
+#widok-dodaj .zapis-sztanga {
+  position: relative;
+  margin-top: 20px;
+  padding: 16px 14px 14px;
+  border-radius: 24px;
+  overflow: hidden;
+}
+.zapis-sztanga::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 280px;
+  height: 160px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(var(--habits-akcent-rgb), 0.12), transparent);
+  pointer-events: none;
+}
+.zapis-sztanga-etykieta {
+  position: relative;
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--habits-tekst-pomocniczy);
+}
+.zapis-sztanga-rys { position: relative; height: 118px; margin-top: 6px; }
+.zapis-sztanga-opis {
+  position: relative;
+  margin: 8px 0 0;
+  text-align: center;
+  font-family: var(--sp-serif);
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--habits-tekst);
+}
+.sztanga { display: block; width: 100%; height: 100%; overflow: visible; }
+.sztanga-gryf { fill: oklch(0.62 0.01 245); }
+.sztanga-radelko { stroke: oklch(0.42 0.01 245); stroke-width: 6; stroke-dasharray: 1.5 1.5; }
+.sztanga-zacisk { fill: oklch(0.78 0.01 245); }
+.sztanga-tuleja { fill: oklch(0.7 0.01 245); }
+.sztanga-talerz { animation: sztanga-zaloz 0.4s cubic-bezier(0.2, 1.3, 0.4, 1) backwards; }
+.sztanga-talerz rect:first-child { fill: var(--kolor); filter: drop-shadow(0 0 5px color-mix(in oklch, var(--kolor) 55%, transparent)); }
+.sztanga-blik { fill: rgba(255, 255, 255, 0.35); }
+@keyframes sztanga-zaloz { from { opacity: 0; transform: translateY(-16px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sztanga-talerz { animation: none; }
+}
