@@ -1,6 +1,6 @@
 /* Blask (ładowany po spojnosc.css): ten sam styl – noc, gwiazdy, krem i złoto – tylko podkręcony.
-   - żywe niebo za całą apką: dwie dryfujące poświaty (złota, błękitna) i migoczący pył gwiezdny na body::before/::after,
-     .kontener ma przezroczyste tło, menu dostaje ten sam pył,
+   - żywe niebo za całą apką: dwie dryfujące poświaty (złota, błękitna) i miękkie ukośne smugi światła na body::after,
+     .kontener ma przezroczyste tło, menu dostaje te same smugi,
    - tytuły ekranów z połyskiem (krem → złoto, wolny blask), złota iskra przed nagłówkami sekcji,
    - wielkie liczby z miękką poświatą, karty z górnym refleksem szkła i cieniem,
    - przyciski główne z przelatującym błyskiem, paski postępu ze świecącą końcówką,
@@ -8,7 +8,6 @@
    Animacje tylko na transform / opacity / background-position; prefers-reduced-motion wyłącza wszystkie. */
 
 :root {
-  --blask-pyl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Ccircle cx='78' cy='36' r='0.5' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='197' cy='23' r='1.1' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='218' cy='52' r='0.5' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='100' cy='58' r='1.1' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='14' cy='136' r='0.6' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='139' cy='95' r='0.6' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='134' cy='32' r='0.9' fill='%23EFE8D6' opacity='0.35'/%3E%3Ccircle cx='130' cy='137' r='1.1' fill='%23EFE8D6' opacity='0.35'/%3E%3Ccircle cx='25' cy='137' r='0.6' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='23' cy='171' r='1.1' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='149' cy='119' r='1.1' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='187' cy='112' r='0.9' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='72' cy='191' r='0.6' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='138' cy='126' r='0.7' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='69' cy='235' r='0.5' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='40' cy='82' r='0.9' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='9' cy='160' r='1.1' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='82' cy='84' r='0.9' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='17' cy='22' r='0.7' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='167' cy='16' r='0.7' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='68' cy='93' r='0.7' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='226' cy='85' r='1.1' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='118' cy='52' r='0.7' fill='%23EFE8D6' opacity='0.35'/%3E%3Ccircle cx='177' cy='95' r='0.9' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='40' cy='96' r='0.7' fill='%23EFE8D6' opacity='0.35'/%3E%3Ccircle cx='197' cy='207' r='0.7' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='237' cy='164' r='0.9' fill='%23EFE8D6' opacity='0.35'/%3E%3Ccircle cx='36' cy='42' r='0.6' fill='%23EFE8D6' opacity='0.35'/%3E%3Ccircle cx='3' cy='199' r='0.6' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='68' cy='35' r='1.1' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='146' cy='76' r='0.6' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='110' cy='209' r='1.1' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='96' cy='95' r='0.9' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='15' cy='16' r='0.6' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='39' cy='82' r='0.5' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='0' cy='36' r='0.5' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='147' cy='17' r='0.6' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='36' cy='61' r='0.7' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='114' cy='28' r='0.9' fill='%23EFE8D6' opacity='0.7'/%3E%3Ccircle cx='115' cy='75' r='0.6' fill='%23EFE8D6' opacity='0.25'/%3E%3Ccircle cx='180' cy='178' r='0.9' fill='%23EFE8D6' opacity='0.35'/%3E%3Ccircle cx='124' cy='49' r='1.1' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='35' cy='130' r='0.5' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='235' cy='207' r='0.7' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='218' cy='85' r='0.6' fill='%23EFE8D6' opacity='0.5'/%3E%3Ccircle cx='153' cy='147' r='0.6' fill='%23EFE8D6' opacity='0.35'/%3E%3C/svg%3E");
   --blask-iskra: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 0C10.6 6.2 13.8 9.4 20 10 13.8 10.6 10.6 13.8 10 20 9.4 13.8 6.2 10.6 0 10 6.2 9.4 9.4 6.2 10 0Z'/%3E%3C/svg%3E");
   --blask-zloto: oklch(0.8 0.1 78);
 }
@@ -32,22 +31,27 @@ body.motyw-habits::before {
   animation: blask-dryf 38s ease-in-out infinite alternate;
 }
 body.motyw-habits::after {
-  inset: 0;
-  background-image: var(--blask-pyl), var(--blask-pyl);
-  background-size: 240px 240px, 380px 380px;
-  background-position: 0 0, 90px 130px;
-  opacity: 0.55;
-  animation: blask-migotanie 7s ease-in-out infinite;
+  inset: -30% -60%;
+  /* Smugi: miękkie, ukośne pasma światła (krem, złoto, błękit), bardzo wolno sunące po tle */
+  background:
+    linear-gradient(118deg, transparent 22%, rgba(214, 208, 192, 0.045) 27%, transparent 33%),
+    linear-gradient(118deg, transparent 41%, oklch(0.8 0.1 78 / 0.05) 44%, transparent 48%),
+    linear-gradient(118deg, transparent 58%, oklch(0.62 0.1 255 / 0.06) 63%, transparent 69%),
+    linear-gradient(118deg, transparent 76%, rgba(214, 208, 192, 0.035) 79%, transparent 83%);
+  animation: blask-smugi 46s ease-in-out infinite alternate;
+}
+@keyframes blask-smugi {
+  from { transform: translate3d(-6%, 0, 0); }
+  to { transform: translate3d(6%, -3%, 0); }
 }
 @keyframes blask-dryf {
   0% { transform: translate3d(0, 0, 0) scale(1); }
   50% { transform: translate3d(-4%, 3%, 0) scale(1.06); }
   100% { transform: translate3d(3%, -2%, 0) scale(1.02); }
 }
-@keyframes blask-migotanie { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; } }
 #aplikacja, .ekran-logowania { position: relative; z-index: 1; }
 .kontener.motyw-habits { background: transparent; }
-#sidebar { background: var(--blask-pyl) 0 0 / 240px, radial-gradient(60% 40% at 90% 0%, oklch(0.72 0.08 75 / 0.16), transparent 70%), var(--habits-tlo); }
+#sidebar { background: linear-gradient(118deg, transparent 35%, rgba(214, 208, 192, 0.04) 42%, transparent 50%), linear-gradient(118deg, transparent 62%, oklch(0.62 0.1 255 / 0.05) 68%, transparent 75%), radial-gradient(60% 40% at 90% 0%, oklch(0.72 0.08 75 / 0.16), transparent 70%), var(--habits-tlo); }
 
 /* Kremowa tarcza u góry kolumny: miękka poświata zamiast ostrej krawędzi */
 .kontener.motyw-habits .habits-poswiata { opacity: 0.11; filter: blur(60px); }
