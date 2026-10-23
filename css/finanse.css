@@ -208,6 +208,11 @@
 #widok-finanse .fin-dzien[aria-pressed="true"] { background: rgba(255, 255, 255, 0.08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22); }
 #widok-finanse .fin-dzien[aria-pressed="true"] .fin-dzien-skrot { color: #fff; }
 #widok-finanse .fin-dzien:disabled { cursor: default; }
+/* Okres miesięczny: kalendarz 7 kolumn, mniejsze gwiazdki */
+#widok-finanse .fin-dni-gwiazdki.fin-dni-dlugi { row-gap: 2px; }
+#widok-finanse .fin-dni-dlugi .fin-dzien { min-height: 42px; gap: 2px; }
+#widok-finanse .fin-dni-dlugi .fin-dzien svg { width: 17px; height: 17px; }
+#widok-finanse .fin-dni-dlugi .fin-dzien-skrot { font-variant-numeric: tabular-nums; }
 #widok-finanse .fin-podpowiedz { margin: 8px 0 0; font-size: 12px; line-height: 1.4; color: oklch(0.55 0.008 240); }
 
 /* ----- Nagłówki sekcji ----- */
@@ -335,6 +340,36 @@
 #widok-finanse .fin-panel { margin-top: 10px; padding: 16px; border-radius: 24px; }
 #widok-finanse .fin-panel[hidden] { display: none; }
 #widok-finanse .fin-panel-info { margin: 0 4px 10px; font-size: 12px; color: var(--fin-pomocniczy); }
+/* Co ile odnawia się budżet: przełącznik Tydzień / Miesiąc */
+#widok-finanse .fin-okres {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin: 0 4px 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+#widok-finanse .fin-okres-etykieta { font-size: 14px; font-weight: 600; color: var(--fin-jasny); }
+#widok-finanse .fin-okres-wybor { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); }
+#widok-finanse .fin-okres-wybor button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fin-pomocniczy);
+  font-size: 13px;
+  font-weight: 700;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+#widok-finanse .fin-okres-wybor button[aria-pressed="true"] {
+  background: rgba(214, 208, 192, 0.26);
+  color: #fff;
+  box-shadow: inset 1px 1px 0 -0.5px rgba(255, 255, 255, 0.5);
+}
+#widok-finanse .fin-okres-wybor button:disabled { opacity: 0.6; cursor: default; }
 #widok-finanse .fin-panel-wiersz {
   --k: var(--fin-k-brak);
   display: flex;
@@ -619,7 +654,28 @@
 #widok-finanse .fin-podsumowanie-glowny span { color: var(--fin-tekst); font-weight: 600; }
 #widok-finanse .fin-podsumowanie-glowny b { font-family: var(--fin-serif); font-size: 26px; font-weight: 400; color: var(--fin-akcent); }
 
-#widok-finanse .fin-ogolem { margin-top: 14px; padding: 22px; border-radius: 32px; background: rgba(214, 208, 192, 0.1); }
+/* Wypłać: cała suma zaoszczędzona, drugi krok potwierdzenia złoty */
+#widok-finanse .fin-wyplac {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 14px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(214, 208, 192, 0.2);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: inset 1px 1px 0 -0.5px rgba(255, 255, 255, 0.5);
+  transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+#widok-finanse .fin-wyplac.fin-uzbrojony { background: rgba(var(--habits-akcent-rgb), 0.3); color: var(--fin-jasny); }
+#widok-finanse .fin-wyplac:disabled { opacity: 0.45; cursor: default; }
+#widok-finanse .fin-wyplac-opis { margin: 8px 4px 0; font-size: 12px; text-align: center; color: var(--fin-wyciszony); }
+
+#widok-finanse .fin-btn-ogolem { margin-top: 14px; }
+#widok-finanse .fin-ogolem { margin-top: 10px; padding: 22px; border-radius: 32px; background: rgba(214, 208, 192, 0.1); }
+#widok-finanse .fin-ogolem[hidden] { display: none; }
 #widok-finanse .fin-kwota-ogolem > span:first-child { font-size: 52px; }
 #widok-finanse .fin-ogolem-opis { display: block; margin-top: 8px; font-size: 12px; color: oklch(0.55 0.008 240); }
 
@@ -643,6 +699,8 @@
   #widok-finanse .fin-kategorie-kropla,
   #widok-finanse .fin-dzien path,
   #widok-finanse .fin-szybki,
+  #widok-finanse .fin-okres-wybor button,
+  #widok-finanse .fin-wyplac,
   #widok-finanse .fin-fiolka,
   #widok-finanse .fin-zapisz { transition: none; }
 }

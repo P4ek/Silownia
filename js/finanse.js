@@ -1,8 +1,12 @@
-// Finanse → Oszczędności: tygodniowe budżety na kategorie (tabela budzety), wydatki (tabela wydatki)
-// i suma zaoszczędzona od początku (widok oszczednosci, tylko odczyt). Tylko konta z FINANSE_DOSTEP_IDS (dostęp ustawia start.js).
-// Zapytania: budżety i wydatki tylko oglądanego tygodnia + po jednym o sumę ogólną, najwcześniejszy tydzień i podpowiedzi "Często".
-// Rysowanie punktowe: elementy list są kluczowane (kategoria / id wydatku) i tylko aktualizowane, a formularz nowego wydatku
-// jest stałym HTML-em – pola tekstowe nie tracą fokusu przy zmianie danych.
+// Finanse → Oszczędności: budżety na kategorie odnawiane co tydzień albo co miesiąc (tabela budzety, ustawienie w
+// finanse_ustawienia), wydatki (tabela wydatki), wypłaty (tabela wyplaty) i suma zaoszczędzona od ostatniej wypłaty
+// (widok oszczednosci − wyplaty). Tylko konta z FINANSE_DOSTEP_IDS (dostęp ustawia start.js).
+// Okres = wiersze budzety o tym samym tydzien_od (początek) i okres_do (koniec). Pełny okres to pn–nd albo 1.–ostatni dzień
+// miesiąca; zmiana ustawienia zamienia bieżący okres na nowy rodzaj od tego samego początku (kwoty przeliczone na dni),
+// więc okresy nigdy na siebie nie nachodzą.
+// Zapytania: budżety i wydatki tylko oglądanego okresu + po jednym o okresy z oszczędnościami, wypłaty, ustawienie i "Często".
+// Rysowanie punktowe: elementy list są kluczowane (kategoria / id wydatku / data) i tylko aktualizowane, a formularz nowego
+// wydatku jest stałym HTML-em – pola tekstowe nie tracą fokusu przy zmianie danych.
 
 const navFinanse = document.getElementById("nav-finanse");
 const menuRozdzialFinanse = document.getElementById("menu-rozdzial-finanse");
@@ -11,16 +15,22 @@ const FIN_LICZBA_KOLOROW = 7;   // paleta --fin-k1..--fin-k7 w finanse.css; kolo
 const FIN_CZESTO_MAKS = 6;
 const FIN_ISKRA = dzisIskra(15, 15, 13); // ta sama czteroramienna gwiazdka co na ekranie Dziś
 const FIN_FALA = "M0 6 Q14 0 28 6 T56 6 T84 6 T112 6 T140 6 V12 H0Z";
+const FIN_MIESIACE = ["styczeń", "luty", "marzec", "kwiecień", "maj", "czerwiec", "lipiec", "sierpień", "wrzesień", "październik", "listopad", "grudzień"];
 
 let finDostep = false;
-let finTydzienOd = null;        // "RRRR-MM-DD" – poniedziałek oglądanego tygodnia
-let finNajwczesniejszy = null;  // najwcześniejszy tydzien_od z budzety (null = brak danych)
-let finBudzety = [];            // [{ kategoria, kwota }] oglądanego tygodnia
-let finWydatki = [];            // [{ id, data, kategoria, kwota, opis }] oglądanego tygodnia
-let finSumaOgolna = null;       // suma zaoszczedzone ze wszystkich tygodni
+let finUstawienie = "tydzien";  // "tydzien" | "miesiac" – co ile odnawia się budżet (finanse_ustawienia, brak wiersza = tydzień)
+let finOkresOd = null;          // "RRRR-MM-DD" – pierwszy dzień oglądanego okresu
+let finOkresDo = null;          // "RRRR-MM-DD" – ostatni dzień oglądanego okresu
+let finOkresy = [];             // [{ od, koniec, zaoszczedzone }] z widoku oszczednosci, rosnąco po od
+let finBudzety = [];            // [{ kategoria, kwota }] oglądanego okresu
+let finWydatki = [];            // [{ id, data, kategoria, kwota, opis }] oglądanego okresu
+let finSumaOgolna = null;       // suma zaoszczedzone ze wszystkich okresów minus wypłaty
+let finOstatniaWyplata = null;  // { data, kwota } najnowszej wypłaty
 let finWczytane = false;
-let finLadowanie = false;       // trwa wczytywanie oglądanego tygodnia
-let finZapytanieNr = 0;         // chroni przed spóźnioną odpowiedzią po szybkim przełączaniu tygodni
+let finLadowanie = false;       // trwa wczytywanie oglądanego okresu
+let finZapytanieNr = 0;         // chroni przed spóźnioną odpowiedzią po szybkim przełączaniu okresów
+let finZmianaOkresuTrwa = false;
+let finWyplataTrwa = false;
 let finWybranyDzien = null;     // dzień nowego wydatku (domyślnie dziś)
 let finWybranaKat = null;       // kategoria nowego wydatku
 let finCzesto = [];             // [{ opis, kategoria }] z 50 ostatnich wydatków
@@ -58,18 +68,27 @@ const finEl = {
   tydzBudzet: document.getElementById("fin-tydz-budzet"),
   tydzWydano: document.getElementById("fin-tydz-wydano"),
   tydzZaoszczedzone: document.getElementById("fin-tydz-zaoszczedzone"),
-  sumaOgolna: document.getElementById("fin-suma-ogolna")
+  sumaOgolna: document.getElementById("fin-suma-ogolna"),
+  podsumowanieTytul: document.getElementById("fin-podsumowanie-tytul"),
+  wyplac: document.getElementById("fin-wyplac"),
+  ogolemPrzelacz: document.getElementById("fin-ogolem-przelacz"),
+  ogolem: document.getElementById("fin-ogolem"),
+  ostatniaWyplata: document.getElementById("fin-ostatnia-wyplata"),
+  okresWybor: document.getElementById("fin-okres-wybor")
 };
 
 function ustawDostepFinansow(dostep) {
   finDostep = dostep;
   menuRozdzialFinanse.hidden = !dostep;
   if (!dostep) {
-    finTydzienOd = null;
-    finNajwczesniejszy = null;
+    finUstawienie = "tydzien";
+    finOkresOd = null;
+    finOkresDo = null;
+    finOkresy = [];
     finBudzety = [];
     finWydatki = [];
     finSumaOgolna = null;
+    finOstatniaWyplata = null;
     finCzesto = [];
     finWczytane = false;
     if (navFinanse.classList.contains("aktywny")) {
@@ -83,10 +102,6 @@ function finUid() {
   return sesjaUzytkownika && sesjaUzytkownika.user ? sesjaUzytkownika.user.id : null;
 }
 
-function finBiezacyTydzien() {
-  return isoZDaty(poniedzialekTygodnia(new Date()));
-}
-
 function finDataZIso(iso) {
   return new Date(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10));
 }
@@ -96,8 +111,65 @@ function finPrzesunDni(iso, dni) {
   return isoZDaty(new Date(d.getFullYear(), d.getMonth(), d.getDate() + dni));
 }
 
-function finWTygodniu(iso) {
-  return !!finTydzienOd && iso >= finTydzienOd && iso <= finPrzesunDni(finTydzienOd, 6);
+function finWOkresie(iso) {
+  return !!finOkresOd && iso >= finOkresOd && iso <= finOkresDo;
+}
+
+// Liczba dni od..koniec włącznie (zaokrąglenie znosi zmianę czasu)
+function finDni(od, koniec) {
+  return Math.round((finDataZIso(koniec) - finDataZIso(od)) / 864e5) + 1;
+}
+
+function finKoniecMiesiaca(iso) {
+  const d = finDataZIso(iso);
+  return isoZDaty(new Date(d.getFullYear(), d.getMonth() + 1, 0));
+}
+
+// Rodzaj pełnego okresu: "tydzien" (pn–nd), "miesiac" (1. – ostatni dzień) albo null (okres przy zmianie ustawienia)
+function finRodzajOkresu(od, koniec) {
+  if (finDataZIso(od).getDay() === 1 && koniec === finPrzesunDni(od, 6)) return "tydzien";
+  if (od.slice(8) === "01" && koniec === finKoniecMiesiaca(od)) return "miesiac";
+  return null;
+}
+
+// Pełny okres wg ustawienia, w którym leży dzień
+function finOkresWgUstawienia(dzien) {
+  if (finUstawienie === "miesiac") return { od: dzien.slice(0, 8) + "01", koniec: finKoniecMiesiaca(dzien) };
+  const od = isoZDaty(poniedzialekTygodnia(finDataZIso(dzien)));
+  return { od: od, koniec: finPrzesunDni(od, 6) };
+}
+
+// Okres zawierający dzień: zapisany w bazie (ma budżety) albo wyliczony z ustawienia i przycięty do sąsiednich zapisanych
+function finOkresZawierajacy(dzien) {
+  const zapisany = finOkresy.find(function (o) { return o.od <= dzien && dzien <= o.koniec; });
+  if (zapisany) return { od: zapisany.od, koniec: zapisany.koniec };
+  const okres = finOkresWgUstawienia(dzien);
+  finOkresy.forEach(function (o) {
+    if (o.koniec < dzien && o.koniec >= okres.od) okres.od = finPrzesunDni(o.koniec, 1);
+    if (o.od > dzien && o.od <= okres.koniec) okres.koniec = finPrzesunDni(o.od, -1);
+  });
+  return okres;
+}
+
+function finCzyBiezacy() {
+  const dzis = dzisiaj();
+  return !!finOkresOd && finOkresOd <= dzis && dzis <= finOkresDo;
+}
+
+// Kwoty budżetów przeniesione z okresu z na okres na: ten sam pełny rodzaj = bez zmian, inaczej proporcjonalnie do dni
+function finPrzeliczKwoty(budzety, z, na) {
+  const rodzaj = finRodzajOkresu(z.od, z.koniec);
+  const bezZmian = rodzaj && rodzaj === finRodzajOkresu(na.od, na.koniec);
+  const mnoznik = finDni(na.od, na.koniec) / finDni(z.od, z.koniec);
+  return budzety.map(function (b) {
+    return { kategoria: b.kategoria, kwota: bezZmian ? Number(b.kwota) : Math.round(Number(b.kwota) * mnoznik) };
+  });
+}
+
+// "tygodnia" / "miesiąca" / "okresu" itd. dla oglądanego okresu
+function finSlowoOkresu(tydzien, miesiac, inny) {
+  const rodzaj = finRodzajOkresu(finOkresOd, finOkresDo);
+  return rodzaj === "tydzien" ? tydzien : (rodzaj === "miesiac" ? miesiac : inny);
 }
 
 // Kwota z pola: przecinek albo kropka, spacje ignorowane, zaokrąglenie do 2 miejsc; null dla pustej, błędnej lub ujemnej
@@ -129,12 +201,13 @@ function finDzienMies(d) {
   return d.getDate() + " " + MIESIACE_SKROT[d.getMonth()];
 }
 
-// "5 – 11 paź", "28 wrz – 4 paź", rok tylko spoza bieżącego
-function finZakresTygodnia(od) {
+// "5 – 11 paź", "28 wrz – 4 paź", pełny miesiąc "październik"; rok tylko spoza bieżącego
+function finZakresOkresu(od, koniec) {
   const p = finDataZIso(od);
-  const n = finDataZIso(finPrzesunDni(od, 6));
-  const poczatek = p.getMonth() === n.getMonth() ? String(p.getDate()) : finDzienMies(p);
+  const n = finDataZIso(koniec);
   const rok = n.getFullYear() !== new Date().getFullYear() ? " " + n.getFullYear() : "";
+  if (finRodzajOkresu(od, koniec) === "miesiac") return FIN_MIESIACE[p.getMonth()] + rok;
+  const poczatek = p.getMonth() === n.getMonth() ? String(p.getDate()) : finDzienMies(p);
   return poczatek + " – " + finDzienMies(n) + rok;
 }
 
@@ -162,11 +235,11 @@ function finSortujBudzety() {
 
 function finDomyslnyDzien() {
   const dzis = dzisiaj();
-  return finWTygodniu(dzis) ? dzis : finPrzesunDni(finTydzienOd, 6);
+  return finWOkresie(dzis) ? dzis : finOkresDo;
 }
 
 function finPoprawWybor() {
-  if (!finWybranyDzien || !finWTygodniu(finWybranyDzien) || finWybranyDzien > dzisiaj()) finWybranyDzien = finDomyslnyDzien();
+  if (!finWybranyDzien || !finWOkresie(finWybranyDzien) || finWybranyDzien > dzisiaj()) finWybranyDzien = finDomyslnyDzien();
   const jest = finBudzety.some(function (b) { return b.kategoria === finWybranaKat; });
   if (!jest) finWybranaKat = finBudzety.length ? finBudzety[0].kategoria : null;
 }
@@ -234,43 +307,53 @@ function finAnimujRaz(el, klasa) {
 }
 
 // ----- Wczytywanie -----
-// Wejście na ekran: przy pierwszym wejściu bieżący tydzień + najwcześniejszy tydzień + suma ogólna + podpowiedzi
-function finWejscie() {
+// Wejście na ekran: przy pierwszym wejściu ustawienie okresu + okresy z sumą + podpowiedzi, potem bieżący okres
+async function finWejscie() {
   if (!finDostep || finWczytane) return;
   finWczytane = true;
-  finTydzienOd = finBiezacyTydzien();
-  finWybranyDzien = dzisiaj();
   finLadowanie = true;
-  renderFinanse();
-  wczytajNajwczesniejszyTydzien();
-  wczytajSumeOszczednosci();
   wczytajCzesteWydatki();
-  wczytajTydzienFinansow(finTydzienOd);
+  await Promise.all([wczytajUstawienieOkresu(), wczytajSumeOszczednosci()]);
+  if (!finDostep) return;
+  finUstawOgladanyOkres(finOkresZawierajacy(dzisiaj()));
+  finWybranyDzien = dzisiaj();
+  renderFinanse();
+  wczytajOkresFinansow(finOkresOd, finOkresDo);
 }
 
-async function wczytajNajwczesniejszyTydzien() {
-  const { data, error } = await db
-    .from("budzety")
-    .select("tydzien_od")
-    .eq("user_id", finUid())
-    .order("tydzien_od", { ascending: true })
-    .limit(1);
+function finUstawOgladanyOkres(okres) {
+  finOkresOd = okres.od;
+  finOkresDo = okres.koniec;
+}
+
+async function wczytajUstawienieOkresu() {
+  const { data, error } = await db.from("finanse_ustawienia").select("okres").eq("user_id", finUid()).maybeSingle();
   if (error) {
     console.error(error);
     return;
   }
-  const z = data && data[0] ? data[0].tydzien_od : null;
-  if (z && (!finNajwczesniejszy || z < finNajwczesniejszy)) finNajwczesniejszy = z;
-  renderFinNawigacje();
+  finUstawienie = data && data.okres === "miesiac" ? "miesiac" : "tydzien";
+  renderFinOkresWybor();
 }
 
+// Okresy z oszczędnościami (widok oszczednosci, jeden wiersz na okres) i wypłaty → suma od ostatniej wypłaty
 async function wczytajSumeOszczednosci() {
-  const { data, error } = await db.from("oszczednosci").select("zaoszczedzone");
-  if (error) {
-    console.error(error);
+  const uid = finUid();
+  const [osz, wyp] = await Promise.all([
+    db.from("oszczednosci").select("tydzien_od, okres_do, zaoszczedzone").eq("user_id", uid).order("tydzien_od", { ascending: true }),
+    db.from("wyplaty").select("data, kwota").eq("user_id", uid).order("data", { ascending: false }).order("id", { ascending: false })
+  ]);
+  if (osz.error || wyp.error) {
+    console.error(osz.error || wyp.error);
     return;
   }
-  finSumaOgolna = (data || []).reduce(function (s, r) { return s + (Number(r.zaoszczedzone) || 0); }, 0);
+  finOkresy = (osz.data || []).map(function (r) {
+    return { od: r.tydzien_od, koniec: r.okres_do, zaoszczedzone: Number(r.zaoszczedzone) || 0 };
+  });
+  const wyplaty = wyp.data || [];
+  finOstatniaWyplata = wyplaty[0] || null;
+  finSumaOgolna = finOkresy.reduce(function (s, o) { return s + o.zaoszczedzone; }, 0) - finSuma(wyplaty);
+  renderFinNawigacje();
   renderFinSumaOgolna();
 }
 
@@ -302,10 +385,9 @@ async function wczytajCzesteWydatki() {
   renderFinCzesto();
 }
 
-async function wczytajTydzienFinansow(od) {
+async function wczytajOkresFinansow(od, nd) {
   const nr = ++finZapytanieNr;
   const uid = finUid();
-  const nd = finPrzesunDni(od, 6);
   const [budz, wyd] = await Promise.all([
     db.from("budzety").select("kategoria, kwota").eq("user_id", uid).eq("tydzien_od", od),
     db.from("wydatki").select("id, data, kategoria, kwota, opis").eq("user_id", uid)
@@ -321,7 +403,7 @@ async function wczytajTydzienFinansow(od) {
   }
   let budzety = budz.data || [];
   if (!budzety.length) {
-    budzety = await finSkopiujBudzety(od);
+    budzety = await finSkopiujBudzety(od, nd);
     if (nr !== finZapytanieNr) return;
   }
   finBudzety = budzety;
@@ -332,68 +414,109 @@ async function wczytajTydzienFinansow(od) {
   if (!finBudzety.length) finUstawPanel(true);
 }
 
-// Tydzień bez budżetów: kopia z ostatniego wcześniejszego tygodnia, który je ma, zapisana dla tego tygodnia
-async function finSkopiujBudzety(od) {
-  const uid = finUid();
-  const ostatni = await db
-    .from("budzety")
-    .select("tydzien_od")
-    .eq("user_id", uid)
-    .lt("tydzien_od", od)
-    .order("tydzien_od", { ascending: false })
-    .limit(1);
-  if (ostatni.error || !ostatni.data || !ostatni.data.length) {
-    if (ostatni.error) console.error(ostatni.error);
-    return [];
-  }
+// Okres bez budżetów: kopia z ostatniego wcześniejszego okresu, który je ma, zapisana dla tego okresu
+// (inny rodzaj okresu albo okres przy zmianie ustawienia → kwoty przeliczone na dni)
+async function finSkopiujBudzety(od, nd) {
+  const wczesniejsze = finOkresy.filter(function (o) { return o.od < od; });
+  const okresZrodla = wczesniejsze[wczesniejsze.length - 1];
+  if (!okresZrodla) return [];
   const zrodlo = await db
     .from("budzety")
     .select("kategoria, kwota")
-    .eq("user_id", uid)
-    .eq("tydzien_od", ostatni.data[0].tydzien_od);
+    .eq("user_id", finUid())
+    .eq("tydzien_od", okresZrodla.od);
   if (zrodlo.error || !zrodlo.data || !zrodlo.data.length) {
     if (zrodlo.error) console.error(zrodlo.error);
     return [];
   }
-  const wiersze = zrodlo.data.map(function (b) { return { tydzien_od: od, kategoria: b.kategoria, kwota: b.kwota }; });
+  const budzety = finPrzeliczKwoty(zrodlo.data, okresZrodla, { od: od, koniec: nd });
+  const wiersze = budzety.map(function (b) { return { tydzien_od: od, okres_do: nd, kategoria: b.kategoria, kwota: b.kwota }; });
   const { error } = await db.from("budzety").upsert(wiersze, { onConflict: "user_id,tydzien_od,kategoria" });
   if (error) {
     console.error(error);
-    pokazToast("Nie udało się skopiować budżetów z poprzedniego tygodnia.", "blad");
+    pokazToast("Nie udało się skopiować budżetów z poprzedniego okresu.", "blad");
     return [];
   }
-  pokazToast("Skopiowano budżety z poprzedniego tygodnia.", "sukces");
+  pokazToast("Skopiowano budżety z poprzedniego okresu.", "sukces");
   wczytajSumeOszczednosci();
-  return zrodlo.data.map(function (b) { return { kategoria: b.kategoria, kwota: b.kwota }; });
+  return budzety;
+}
+
+// Zmiana co ile odnawia się budżet: zapis ustawienia, a bieżący okres z budżetami zamieniany na nowy rodzaj od tego samego
+// początku do końca bieżącego tygodnia/miesiąca (te same kategorie, kwoty przeliczone na dni), więc okresy nie nachodzą na siebie
+async function finZmienUstawienieOkresu(nowe) {
+  if (finZmianaOkresuTrwa || nowe === finUstawienie || !finOkresOd) return;
+  finZmianaOkresuTrwa = true;
+  renderFinOkresWybor();
+  const uid = finUid();
+  const { error } = await db.from("finanse_ustawienia").upsert({ okres: nowe }, { onConflict: "user_id" });
+  if (error) {
+    console.error(error);
+    finZmianaOkresuTrwa = false;
+    renderFinOkresWybor();
+    pokazToast("Nie udało się zmienić okresu budżetu.", "blad");
+    return;
+  }
+  finUstawienie = nowe;
+
+  const dzis = dzisiaj();
+  const biezacy = finOkresZawierajacy(dzis);
+  const zapisany = finOkresy.some(function (o) { return o.od === biezacy.od; });
+  if (zapisany && finRodzajOkresu(biezacy.od, biezacy.koniec) !== nowe) {
+    const nowy = { od: biezacy.od, koniec: finOkresWgUstawienia(dzis).koniec };
+    const budz = await db.from("budzety").select("kategoria, kwota").eq("user_id", uid).eq("tydzien_od", biezacy.od);
+    const wiersze = budz.error ? [] : finPrzeliczKwoty(budz.data || [], biezacy, nowy).map(function (b) {
+      return { tydzien_od: nowy.od, okres_do: nowy.koniec, kategoria: b.kategoria, kwota: b.kwota };
+    });
+    const zapis = budz.error ? budz : (wiersze.length
+      ? await db.from("budzety").upsert(wiersze, { onConflict: "user_id,tydzien_od,kategoria" })
+      : { error: null });
+    if (zapis.error) {
+      console.error(zapis.error);
+      pokazToast("Ustawienie zapisane, ale nie udało się przeliczyć bieżących budżetów.", "blad");
+    }
+  }
+  await wczytajSumeOszczednosci();
+  finZmianaOkresuTrwa = false;
+  renderFinOkresWybor();
+  pokazToast(nowe === "miesiac" ? "Budżet odnawia się teraz co miesiąc." : "Budżet odnawia się teraz co tydzień.", "sukces");
+
+  if (finCzyBiezacy()) {
+    finUstawOgladanyOkres(finOkresZawierajacy(dzis));
+    finBudzety = [];
+    finWydatki = [];
+    finLadowanie = true;
+    renderFinanse();
+    wczytajOkresFinansow(finOkresOd, finOkresDo);
+  }
 }
 
 // ----- Zapis -----
 async function finZapiszBudzet(kategoria, kwota) {
-  const od = finTydzienOd;
+  const od = finOkresOd;
   kategoria = kategoria.trim();
   const { error } = await db
     .from("budzety")
-    .upsert({ tydzien_od: od, kategoria: kategoria, kwota: kwota }, { onConflict: "user_id,tydzien_od,kategoria" });
+    .upsert({ tydzien_od: od, okres_do: finOkresDo, kategoria: kategoria, kwota: kwota }, { onConflict: "user_id,tydzien_od,kategoria" });
   if (error) {
     console.error(error);
     pokazToast("Nie udało się zapisać budżetu.", "blad");
     return false;
   }
-  if (od !== finTydzienOd) return true;
+  if (od !== finOkresOd) return true;
   const istniejacy = finBudzety.find(function (b) { return b.kategoria === kategoria; });
   if (istniejacy) istniejacy.kwota = kwota;
   else {
     finBudzety.push({ kategoria: kategoria, kwota: kwota });
     finSortujBudzety();
   }
-  if (!finNajwczesniejszy || od < finNajwczesniejszy) finNajwczesniejszy = od;
   renderFinanse();
   wczytajSumeOszczednosci();
   return true;
 }
 
 async function finUsunBudzet(kategoria) {
-  const od = finTydzienOd;
+  const od = finOkresOd;
   const { error } = await db
     .from("budzety")
     .delete()
@@ -405,7 +528,7 @@ async function finUsunBudzet(kategoria) {
     pokazToast("Nie udało się usunąć kategorii.", "blad");
     return;
   }
-  if (od === finTydzienOd) {
+  if (od === finOkresOd) {
     finBudzety = finBudzety.filter(function (b) { return b.kategoria !== kategoria; });
     renderFinanse();
   }
@@ -424,7 +547,7 @@ async function finDodajWydatek(data, kwota, kategoria, opis) {
     pokazToast("Nie udało się zapisać wydatku.", "blad");
     return false;
   }
-  if (finWTygodniu(data)) {
+  if (finWOkresie(data)) {
     finWydatki.push(wynik);
     finNowyWydatekId = wynik.id;
     renderFinanse();
@@ -458,7 +581,7 @@ function finDopiszCzesto(opis, kategoria) {
 
 // ----- Rysowanie (punktowe) -----
 function renderFinanse() {
-  if (!finTydzienOd) return;
+  if (!finOkresOd) return;
   finPoprawWybor();
   renderFinNawigacje();
   renderFinGlowna();
@@ -468,35 +591,40 @@ function renderFinanse() {
   renderFinCzesto();
   renderFinFormularz();
   renderFinWydatki();
-  renderFinPodsumowanieTygodnia();
+  renderFinPodsumowanieOkresu();
   renderFinSumaOgolna();
+  renderFinOkresWybor();
 }
 
 function renderFinNawigacje() {
-  if (!finTydzienOd) return;
-  finEl.zakres.textContent = finZakresTygodnia(finTydzienOd);
-  const biezacy = finBiezacyTydzien();
-  const najwczesniejszy = finNajwczesniejszy && finNajwczesniejszy < biezacy ? finNajwczesniejszy : biezacy;
-  finEl.poprzedni.disabled = finTydzienOd <= najwczesniejszy;
-  finEl.nastepny.disabled = finTydzienOd >= biezacy;
+  if (!finOkresOd) return;
+  finEl.zakres.textContent = finZakresOkresu(finOkresOd, finOkresDo);
+  const biezacyOd = finOkresZawierajacy(dzisiaj()).od;
+  const najwczesniejszy = finOkresy.length && finOkresy[0].od < biezacyOd ? finOkresy[0].od : biezacyOd;
+  const slowo = finUstawienie === "miesiac" ? "okres" : "tydzień";
+  finEl.poprzedni.disabled = finOkresOd <= najwczesniejszy;
+  finEl.nastepny.disabled = finOkresDo >= dzisiaj();
+  finEl.poprzedni.setAttribute("aria-label", "Poprzedni " + slowo);
+  finEl.nastepny.setAttribute("aria-label", "Następny " + slowo);
 }
 
 function renderFinGlowna() {
   const budzet = finSuma(finBudzety);
   const wydano = finSuma(finWydatki);
   const zostalo = budzet - wydano;
-  const biezacy = finTydzienOd === finBiezacyTydzien();
+  const biezacy = finCzyBiezacy();
   const dzis = dzisiaj();
+  const dni = finDni(finOkresOd, finOkresDo);
 
-  finEl.etykieta.textContent = biezacy ? "Zostało na tydzień" : "Zaoszczędzone";
+  finEl.etykieta.textContent = biezacy ? "Zostało na " + finSlowoOkresu("tydzień", "miesiąc", "ten okres") : "Zaoszczędzone";
   finEl.zostalo.textContent = finLadowanie ? "…" : finKwota(zostalo, true);
   finEl.zostalo.classList.toggle("fin-minus", !finLadowanie && zostalo < 0);
   finEl.budzetLacznie.textContent = finKwota(budzet);
 
-  // Kwota dzienna: zostało / dni do końca tygodnia (z dzisiejszym); tylko bieżący tydzień
+  // Kwota dzienna: zostało / dni do końca okresu (z dzisiejszym); tylko bieżący okres
   finEl.dziennie.hidden = !biezacy || finLadowanie || budzet <= 0;
   if (biezacy && budzet > 0) {
-    const dniZostalo = 7 - ((finDataZIso(dzis).getDay() + 6) % 7);
+    const dniZostalo = finDni(dzis, finOkresDo);
     finEl.dziennie.textContent = zostalo < 0 ? "limit przekroczony" : finKwota(zostalo / dniZostalo) + " zł / dzień";
     finEl.dziennie.classList.toggle("fin-minus", zostalo < 0);
   }
@@ -505,24 +633,45 @@ function renderFinGlowna() {
   finEl.pasek.style.width = (finLadowanie ? 0 : proc) + "%";
   finEl.pasek.classList.toggle("fin-minus-tlo", zostalo < 0);
 
-  // Gwiazdki dni: świeci, gdy wydatki dnia ≤ budżet tygodnia / 7; przyszłe dni puste i nieklikalne
-  const limit = budzet / 7;
-  Array.from(finEl.dni.children).forEach(function (btn, i) {
-    const data = finPrzesunDni(finTydzienOd, i);
+  // Gwiazdki dni (kalendarz: 7 kolumn pn–nd, pierwszy dzień w kolumnie swojego dnia tygodnia):
+  // świeci, gdy wydatki dnia ≤ budżet okresu / liczba dni; przyszłe dni puste i nieklikalne
+  const limit = budzet / dni;
+  const dlugi = dni > 7;
+  finEl.dni.classList.toggle("fin-dni-dlugi", dlugi);
+  const daty = [];
+  for (let i = 0; i < dni; i++) daty.push(finPrzesunDni(finOkresOd, i));
+  finSynchronizuj(finEl.dni, daty, finUtworzDzien, function (btn, data, i) {
+    const d = finDataZIso(data);
+    const dzienTyg = (d.getDay() + 6) % 7;
     const przyszly = data > dzis;
     const wydanoDnia = finSuma(finWydatki.filter(function (w) { return w.data === data; }));
     const oceniany = !przyszly && !finLadowanie && budzet > 0;
     const ok = oceniany && wydanoDnia <= limit + 0.005;
+    btn.style.gridColumnStart = i === 0 ? String(dzienTyg + 1) : "";
     btn.disabled = przyszly;
     btn.classList.toggle("on", ok);
     btn.classList.toggle("ponad", oceniany && !ok);
     btn.classList.toggle("dzis", data === dzis);
     btn.setAttribute("aria-pressed", String(data === finWybranyDzien));
-    btn.querySelector(".fin-dzien-skrot").textContent = data === dzis ? "dziś" : finSkrotDnia(data);
-    const d = finDataZIso(data);
-    btn.setAttribute("aria-label", DNI_TYGODNIA_PELNE[i] + " " + finDzienMies(d) +
+    btn.querySelector(".fin-dzien-skrot").textContent = data === dzis ? "dziś" : (dlugi ? String(d.getDate()) : finSkrotDnia(data));
+    btn.setAttribute("aria-label", DNI_TYGODNIA_PELNE[dzienTyg] + " " + finDzienMies(d) +
       (przyszly ? "" : ": wydano " + finZl(wydanoDnia) + (oceniany ? (ok ? ", w limicie" : ", ponad limit") : "")));
   });
+}
+
+// Przycisk-gwiazdka dnia (stan ustawia renderFinGlowna); data w data-klucz
+function finUtworzDzien() {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "fin-dzien";
+  btn.innerHTML = '<svg viewBox="0 0 30 30" aria-hidden="true"><path d="' + FIN_ISKRA + '"/></svg><span class="fin-dzien-skrot"></span>';
+  btn.addEventListener("click", function () {
+    if (!finOkresOd || btn.disabled) return;
+    finWybranyDzien = btn.dataset.klucz;
+    renderFinGlowna();
+    renderFinFormularz();
+  });
+  return btn;
 }
 
 function renderFinFiolki() {
@@ -531,7 +680,8 @@ function renderFinFiolki() {
   finEl.wydaneZ.textContent = finLadowanie ? "" : finKwota(wydano) + " z " + finKwota(budzet) + " zł wydane";
 
   finEl.fiolkiPusto.hidden = finLadowanie || finBudzety.length > 0;
-  finEl.fiolkiPusto.textContent = "Brak budżetów w tym tygodniu. Dodaj pierwszą kategorię w panelu niżej.";
+  finEl.fiolkiPusto.textContent = "Brak budżetów " + finSlowoOkresu("w tym tygodniu", "w tym miesiącu", "w tym okresie") +
+    ". Dodaj pierwszą kategorię w panelu niżej.";
 
   finSynchronizuj(finEl.fiolki, finBudzety.map(function (b) { return b.kategoria; }), function () {
     const btn = document.createElement("button");
@@ -567,7 +717,8 @@ function renderFinFiolki() {
 }
 
 function renderFinPanel() {
-  finEl.panelInfo.textContent = "Zmiany dotyczą tylko tygodnia " + finZakresTygodnia(finTydzienOd) + ".";
+  finEl.panelInfo.textContent = "Zmiany kwot dotyczą tylko " + finSlowoOkresu("tygodnia", "miesiąca", "okresu") + " " +
+    finZakresOkresu(finOkresOd, finOkresDo) + ".";
   finSynchronizuj(finEl.panelLista, finBudzety.map(function (b) { return b.kategoria; }), function (kat) {
     const wiersz = document.createElement("div");
     wiersz.className = "fin-panel-wiersz";
@@ -700,9 +851,10 @@ function renderFinWydatki() {
     return a.data === b.data ? b.id - a.id : (a.data < b.data ? 1 : -1);
   });
   const n = lista.length;
-  finEl.wydatkiLicznik.textContent = finLadowanie ? "" : n + " " + odmianaLiczby(n, "wydatek", "wydatki", "wydatków") + " w tym tygodniu";
+  const wTym = finSlowoOkresu("w tym tygodniu", "w tym miesiącu", "w tym okresie");
+  finEl.wydatkiLicznik.textContent = finLadowanie ? "" : n + " " + odmianaLiczby(n, "wydatek", "wydatki", "wydatków") + " " + wTym;
   finEl.wydatkiPusto.hidden = finLadowanie || n > 0;
-  finEl.wydatkiPusto.textContent = "Brak wydatków w tym tygodniu.";
+  finEl.wydatkiPusto.textContent = "Brak wydatków " + wTym + ".";
 
   finSynchronizuj(finEl.wydatkiLista, lista.map(function (w) { return String(w.id); }), function (k) {
     const w = finWydatki.find(function (x) { return String(x.id) === k; });
@@ -742,10 +894,11 @@ function renderFinWydatki() {
   });
 }
 
-function renderFinPodsumowanieTygodnia() {
+function renderFinPodsumowanieOkresu() {
   const budzet = finSuma(finBudzety);
   const wydano = finSuma(finWydatki);
   const zaoszczedzone = budzet - wydano;
+  finEl.podsumowanieTytul.textContent = "Podsumowanie " + finSlowoOkresu("tygodnia", "miesiąca", "okresu");
   finEl.tydzBudzet.textContent = finLadowanie ? "…" : finZl(budzet);
   finEl.tydzWydano.textContent = finLadowanie ? "…" : finZl(wydano);
   finEl.tydzZaoszczedzone.textContent = finLadowanie ? "…" : finZl(zaoszczedzone);
@@ -755,6 +908,35 @@ function renderFinPodsumowanieTygodnia() {
 function renderFinSumaOgolna() {
   finEl.sumaOgolna.textContent = finSumaOgolna === null ? "…" : finKwota(finSumaOgolna, true);
   finEl.sumaOgolna.classList.toggle("fin-minus", finSumaOgolna !== null && finSumaOgolna < 0);
+  finEl.ostatniaWyplata.hidden = !finOstatniaWyplata;
+  if (finOstatniaWyplata) {
+    finEl.ostatniaWyplata.textContent = "Ostatnia wypłata: " + finDzienMies(finDataZIso(finOstatniaWyplata.data)) +
+      ", " + finZl(finOstatniaWyplata.kwota) + ".";
+  }
+  renderFinWyplata();
+}
+
+// "Wypłać X zł" – cała suma zaoszczędzona; przy 0 lub minusie nieaktywny
+function renderFinWyplata() {
+  const btn = finEl.wyplac;
+  const kwota = finSumaOgolna === null ? 0 : Math.round(finSumaOgolna * 100) / 100;
+  const mozna = kwota > 0 && !finWyplataTrwa;
+  btn.disabled = !mozna;
+  if (!mozna && btn.classList.contains("fin-uzbrojony")) finRozbrojWyplate();
+  if (btn.classList.contains("fin-uzbrojony")) return;
+  btn.textContent = finWyplataTrwa ? "Wypłacam…" : (kwota > 0 ? "Wypłać " + finZl(kwota) : "Nic do wypłaty");
+}
+
+function finRozbrojWyplate() {
+  clearTimeout(finEl.wyplac._finTimer);
+  finEl.wyplac.classList.remove("fin-uzbrojony");
+}
+
+function renderFinOkresWybor() {
+  Array.from(finEl.okresWybor.querySelectorAll("button")).forEach(function (btn) {
+    btn.setAttribute("aria-pressed", String(btn.dataset.okres === finUstawienie));
+    btn.disabled = finZmianaOkresuTrwa;
+  });
 }
 
 // ----- Akcje -----
@@ -765,15 +947,37 @@ function finWybierzKategorie(kat) {
   renderFinFormularz();
 }
 
-function finZmienTydzien(przesuniecie) {
-  if (!finTydzienOd) return;
-  finTydzienOd = finPrzesunDni(finTydzienOd, przesuniecie);
+// Poprzedni / następny okres: ten, w którym leży dzień tuż przed początkiem / po końcu oglądanego
+function finZmienOkres(kierunek) {
+  if (!finOkresOd) return;
+  finUstawOgladanyOkres(finOkresZawierajacy(kierunek < 0 ? finPrzesunDni(finOkresOd, -1) : finPrzesunDni(finOkresDo, 1)));
   finBudzety = [];
   finWydatki = [];
   finWybranyDzien = finDomyslnyDzien();
   finLadowanie = true;
   renderFinanse();
-  wczytajTydzienFinansow(finTydzienOd);
+  wczytajOkresFinansow(finOkresOd, finOkresDo);
+}
+
+// Wypłata: zapis całej sumy w wyplaty, więc licznik "Łącznie zaoszczędzone" liczy od zera; historia okresów zostaje
+async function finWyplac() {
+  const kwota = finSumaOgolna === null ? 0 : Math.round(finSumaOgolna * 100) / 100;
+  if (finWyplataTrwa || !(kwota > 0)) return;
+  finWyplataTrwa = true;
+  renderFinWyplata();
+  const { error } = await db.from("wyplaty").insert({ data: dzisiaj(), kwota: kwota });
+  finWyplataTrwa = false;
+  if (error) {
+    console.error(error);
+    renderFinWyplata();
+    pokazToast("Nie udało się zapisać wypłaty.", "blad");
+    return;
+  }
+  finSumaOgolna -= kwota;
+  finOstatniaWyplata = { data: dzisiaj(), kwota: kwota };
+  renderFinSumaOgolna();
+  pokazToast("Wypłacono " + finZl(kwota) + ". Licznik liczy od zera.", "sukces");
+  wczytajSumeOszczednosci();
 }
 
 async function finZapiszWydatek() {
@@ -806,32 +1010,45 @@ async function finZapiszWydatek() {
   document.getElementById("fin-gwiazdy-tla").innerHTML = DZIS_PYL.slice(0, 14).map(function (d) {
     return '<circle class="dzis-pyl" cx="' + d.x + '" cy="' + d.y + '" r="' + d.r + '" style="animation-delay:' + d.opoznienie + 's"/>';
   }).join("");
-
-  // 7 przycisków-gwiazdek dni (stan ustawia renderFinGlowna)
-  for (let i = 0; i < 7; i++) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "fin-dzien";
-    btn.innerHTML = '<svg viewBox="0 0 30 30" aria-hidden="true"><path d="' + FIN_ISKRA + '"/></svg><span class="fin-dzien-skrot"></span>';
-    btn.addEventListener("click", function () {
-      if (!finTydzienOd || btn.disabled) return;
-      finWybranyDzien = finPrzesunDni(finTydzienOd, i);
-      renderFinGlowna();
-      renderFinFormularz();
-    });
-    finEl.dni.appendChild(btn);
-  }
 })();
 
 // ----- Zdarzenia -----
 navFinanse.addEventListener("click", finWejscie);
 
-finEl.poprzedni.addEventListener("click", function () { finZmienTydzien(-7); });
+finEl.poprzedni.addEventListener("click", function () { finZmienOkres(-1); });
 finEl.nastepny.addEventListener("click", function () {
-  if (finTydzienOd && finTydzienOd < finBiezacyTydzien()) finZmienTydzien(7);
+  if (finOkresDo && finOkresDo < dzisiaj()) finZmienOkres(1);
 });
 
 finEl.panelPrzelacz.addEventListener("click", function () { finUstawPanel(finEl.panel.hidden); });
+
+finEl.okresWybor.addEventListener("click", function (e) {
+  const btn = e.target.closest("button[data-okres]");
+  if (btn && !btn.disabled) finZmienUstawienieOkresu(btn.dataset.okres);
+});
+
+// Wypłata w dwóch stuknięciach: pierwsze pyta "Na pewno?", drugie w ciągu 3,5 s wypłaca
+finEl.wyplac.addEventListener("click", function () {
+  const btn = finEl.wyplac;
+  if (btn.disabled) return;
+  if (btn.classList.contains("fin-uzbrojony")) {
+    finRozbrojWyplate();
+    finWyplac();
+    return;
+  }
+  btn.classList.add("fin-uzbrojony");
+  btn.textContent = "Na pewno wypłacić " + finZl(finSumaOgolna) + "?";
+  btn._finTimer = setTimeout(function () {
+    finRozbrojWyplate();
+    renderFinWyplata();
+  }, 3500);
+});
+
+finEl.ogolemPrzelacz.addEventListener("click", function () {
+  const otwarty = finEl.ogolem.hidden;
+  finEl.ogolem.hidden = !otwarty;
+  finEl.ogolemPrzelacz.setAttribute("aria-expanded", String(otwarty));
+});
 
 document.getElementById("fin-budzet-form").addEventListener("submit", async function (e) {
   e.preventDefault();
@@ -839,7 +1056,7 @@ document.getElementById("fin-budzet-form").addEventListener("submit", async func
   const poleKwota = document.getElementById("fin-budzet-kwota");
   const nazwa = poleNazwa.value.trim();
   const kwota = finParsujKwote(poleKwota.value);
-  if (!finTydzienOd || finLadowanie) return;
+  if (!finOkresOd || finLadowanie) return;
   if (!nazwa) {
     pokazToast("Podaj nazwę kategorii.", "blad");
     return;

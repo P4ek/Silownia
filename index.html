@@ -1145,6 +1145,13 @@ try { if (localStorage.getItem("styl-szklo") === "1") document.documentElement.c
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
     </button>
     <div id="fin-budzety-panel" class="fin-panel fin-szklo" hidden>
+      <div class="fin-okres">
+        <span class="fin-okres-etykieta">Budżet odnawia się co</span>
+        <div id="fin-okres-wybor" class="fin-okres-wybor" role="group" aria-label="Co ile odnawia się budżet">
+          <button type="button" data-okres="tydzien" aria-pressed="true">Tydzień</button>
+          <button type="button" data-okres="miesiac" aria-pressed="false">Miesiąc</button>
+        </div>
+      </div>
       <p id="fin-panel-info" class="fin-panel-info"></p>
       <div id="fin-budzety-lista" class="fin-budzety-lista"></div>
       <form id="fin-budzet-form" class="fin-budzet-form">
@@ -1189,19 +1196,26 @@ try { if (localStorage.getItem("styl-szklo") === "1") document.documentElement.c
     <div id="fin-wydatki-lista" class="fin-wydatki-lista"></div>
     <p id="fin-wydatki-pusto" class="fin-pusto" hidden></p>
 
-    <!-- Podsumowanie tygodnia -->
+    <!-- Podsumowanie oglądanego okresu + wypłata całej sumy zaoszczędzonej -->
     <div class="fin-podsumowanie fin-szklo">
-      <h3 class="fin-karta-tytul">Podsumowanie tygodnia</h3>
+      <h3 id="fin-podsumowanie-tytul" class="fin-karta-tytul">Podsumowanie tygodnia</h3>
       <div class="fin-podsumowanie-wiersz"><span>Budżet łącznie</span><b id="fin-tydz-budzet">–</b></div>
       <div class="fin-podsumowanie-wiersz"><span>Wydano</span><b id="fin-tydz-wydano">–</b></div>
       <div class="fin-podsumowanie-wiersz fin-podsumowanie-glowny"><span>Zaoszczędzone</span><b id="fin-tydz-zaoszczedzone">–</b></div>
+      <button type="button" id="fin-wyplac" class="fin-wyplac" disabled>Wypłać</button>
+      <p class="fin-wyplac-opis">Wypłata zeruje licznik „Łącznie zaoszczędzone”.</p>
     </div>
 
-    <!-- Łącznie od początku (widok oszczednosci) -->
-    <div class="fin-ogolem fin-szklo">
-      <span class="fin-etykieta">Łącznie od początku</span>
+    <!-- Łącznie zaoszczędzone (widok oszczednosci minus wypłaty), rozwijane przyciskiem -->
+    <button type="button" id="fin-ogolem-przelacz" class="fin-btn-panel fin-btn-ogolem fin-szklo" aria-expanded="false" aria-controls="fin-ogolem">
+      <span>Łącznie zaoszczędzone</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div id="fin-ogolem" class="fin-ogolem fin-szklo" hidden>
+      <span class="fin-etykieta">Łącznie zaoszczędzone</span>
       <div class="fin-kwota-duza fin-kwota-ogolem"><span id="fin-suma-ogolna">…</span><span class="fin-zl">zł</span></div>
-      <span class="fin-ogolem-opis">Suma zaoszczędzona we wszystkich tygodniach, razem z bieżącym.</span>
+      <span class="fin-ogolem-opis">Suma ze wszystkich tygodni i miesięcy, razem z bieżącym, minus wypłaty.</span>
+      <span id="fin-ostatnia-wyplata" class="fin-ogolem-opis" hidden></span>
     </div>
   </section>
 
