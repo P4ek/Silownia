@@ -230,7 +230,6 @@ html.styl-premium .dzis-nawyk.on .dzis-nawyk-nazwa { color: var(--dzis-pomocnicz
 
 /* ----- Tydzień: mini-pierścienie ----- */
 html.styl-premium .dzis-tydzien { margin-top: 30px; }
-html.styl-premium .dzis-tydzien > .dzis-tytul { margin: 0 6px 12px; }
 html.styl-premium .dzis-tydzien-gwiazdy { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; padding: 16px 10px 14px; border-radius: 26px; }
 html.styl-premium .dzis-tydzien-dzien { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 html.styl-premium .dzis-tydzien-dzien svg { width: 34px; height: 34px; transform: rotate(-90deg); }

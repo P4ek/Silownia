@@ -39,6 +39,7 @@
 <link rel="stylesheet" href="css/kosmetyki.css">
 <link rel="stylesheet" href="css/premium.css">
 <link rel="stylesheet" href="css/odslanianie.css">
+<link rel="stylesheet" href="css/podsumowanie.css">
 <script>
 // Wygląd ustawiany przed narysowaniem strony (przełączniki w stopce menu, nawigacja.js):
 // "Nowy wygląd" (css/premium.css, html.styl-premium) – domyślnie włączony, "0" w localStorage "styl-premium" wraca do starego;
@@ -399,6 +400,17 @@ try {
       <h2 id="dzis-powitanie" class="dzis-powitanie"></h2>
     </div>
 
+    <!-- Baner podsumowania tygodnia: niedziela od 18:00 i poniedziałek (js/podsumowanie.js) -->
+    <div id="dzis-podsum-baner" class="dzis-podsum-baner" hidden>
+      <button type="button" class="dzis-podsum-baner-otworz" id="dzis-podsum-baner-otworz">
+        <span class="dzis-podsum-baner-ikona" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="dzis-podsum-baner-teksty"><strong id="dzis-podsum-baner-tytul">Twój tydzień w skrócie</strong><span id="dzis-podsum-baner-opis"></span></span>
+      </button>
+      <button type="button" class="dzis-podsum-baner-zamknij" id="dzis-podsum-baner-zamknij" aria-label="Schowaj podsumowanie tygodnia">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
     <!-- Stary wygląd (bez klasy styl-premium): niebo dnia, każda zrobiona rzecz zapala gwiazdę – js/dzis-klasyczny.js -->
     <div class="dzis-niebo">
       <div class="dzis-niebo-poswiata" aria-hidden="true"></div>
@@ -440,7 +452,10 @@ try {
 
     <!-- Tydzień jako mini-pierścienie wyniku dnia -->
     <div class="dzis-tydzien">
-      <h3 class="dzis-tytul">Tydzień</h3>
+      <div class="dzis-tydzien-naglowek">
+        <h3 class="dzis-tytul">Tydzień</h3>
+        <button type="button" id="dzis-podsum-otworz" class="dzis-link dzis-podsum-link">Podsumowanie<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
       <div id="dzis-tydzien-gwiazdy" class="dzis-tydzien-gwiazdy"></div>
     </div>
 
@@ -1475,6 +1490,23 @@ try {
   </section>
 </div>
 
+<!-- Podsumowanie tygodnia: pełnoekranowe relacje (js/podsumowanie.js, css/podsumowanie.css) -->
+<div id="podsum" class="podsum" role="dialog" aria-modal="true" aria-labelledby="podsum-etykieta" hidden>
+  <div class="podsum-swiatlo" aria-hidden="true"><span></span><span></span><span></span></div>
+  <div class="podsum-gora">
+    <div id="podsum-paski" class="podsum-paski" aria-hidden="true"></div>
+    <div class="podsum-gora-wiersz">
+      <span id="podsum-etykieta" class="podsum-etykieta">Tydzień w skrócie</span>
+      <button type="button" id="podsum-zamknij" class="podsum-zamknij" aria-label="Zamknij podsumowanie">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </div>
+  <div id="podsum-slajdy" class="podsum-slajdy" aria-live="polite"></div>
+  <button type="button" id="podsum-wstecz" class="podsum-strefa podsum-strefa-wstecz" aria-label="Poprzedni slajd"></button>
+  <button type="button" id="podsum-dalej" class="podsum-strefa podsum-strefa-dalej" aria-label="Następny slajd"></button>
+</div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1503,6 +1535,7 @@ try {
 <script src="js/medytacja.js" defer></script>
 <script src="js/kosmetyki.js" defer></script>
 <script src="js/nawigacja.js" defer></script>
+<script src="js/podsumowanie.js" defer></script>
 <script src="js/odslanianie.js" defer></script>
 <script src="js/start.js" defer></script>
 </body>

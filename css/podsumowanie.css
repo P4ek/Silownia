@@ -1,0 +1,308 @@
+/* Podsumowanie tygodnia (#podsum, js/podsumowanie.js): pełnoekranowe relacje – paski postępu, slajd z wielką liczbą
+   liczoną od zera, słupki dni, siatka nawyków, kula tygodnia; tło z płynącym światłem w kolorze slajdu (--k).
+   Do tego baner i link "Podsumowanie" na ekranie Dziś. Działa w obu wyglądach (własne kolory, bez zmiennych motywu). */
+
+html.podsum-otwarte,
+html.podsum-otwarte body { overflow: hidden; }
+
+.podsum {
+  --k: #7AA2FF;
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #050608;
+  color: #F2F3F5;
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  animation: podsum-otwarcie 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.podsum[hidden] { display: none; }
+@keyframes podsum-otwarcie { from { opacity: 0; transform: scale(1.04); } }
+
+/* Światło: trzy rozmyte plamy, główna w kolorze slajdu */
+.podsum-swiatlo { position: absolute; inset: 0; pointer-events: none; }
+.podsum-swiatlo span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  transition: background 0.9s ease;
+  animation: podsum-dryf 26s ease-in-out infinite alternate;
+}
+.podsum-swiatlo span:nth-child(1) { width: 420px; height: 420px; left: -140px; top: -80px; background: var(--k); opacity: 0.42; }
+.podsum-swiatlo span:nth-child(2) { width: 320px; height: 320px; right: -140px; top: 38%; background: var(--k); opacity: 0.22; animation-delay: -9s; }
+.podsum-swiatlo span:nth-child(3) { width: 300px; height: 300px; left: 18%; bottom: -150px; background: #E8C27A; opacity: 0.16; animation-delay: -16s; }
+@keyframes podsum-dryf {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(40px, 30px, 0) scale(1.15); }
+}
+
+/* Góra: paski postępu i zamknięcie */
+.podsum-gora {
+  position: relative;
+  z-index: 3;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 0;
+}
+.podsum-paski { display: flex; gap: 4px; }
+.podsum-paski span { flex: 1; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.2); overflow: hidden; }
+.podsum-paski i { display: block; width: 100%; height: 100%; background: #fff; transform: scaleX(0); transform-origin: left; }
+.podsum-paski span.pelny i { transform: none; }
+.podsum-paski span.biezacy i { animation: podsum-pasek var(--czas, 6500ms) linear forwards; }
+.podsum.pauza .podsum-paski span.biezacy i { animation-play-state: paused; }
+@keyframes podsum-pasek { to { transform: none; } }
+.podsum-gora-wiersz { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.podsum-etykieta { font-size: 13px; font-weight: 600; color: rgba(242, 243, 245, 0.7); }
+.podsum-zamknij {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.podsum-zamknij svg { width: 18px; height: 18px; }
+
+/* Strefy stuknięcia: lewa trzecia wstecz, reszta dalej (pod treścią slajdu, nad tłem) */
+.podsum-strefa {
+  position: absolute;
+  top: calc(80px + env(safe-area-inset-top, 0px));
+  bottom: 0;
+  z-index: 2;
+  padding: 0;
+  border: none;
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.podsum-strefa:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.6); outline-offset: -6px; }
+.podsum-strefa-wstecz { left: 0; width: 32%; }
+.podsum-strefa-dalej { right: 0; width: 68%; }
+
+/* Slajd */
+.podsum-slajdy {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 24px calc(48px + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+}
+.podsum-slajd { width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: flex-start; }
+.podsum-slajd > * { animation: podsum-wjazd 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+.podsum-slajd > :nth-child(2) { animation-delay: 0.08s; }
+.podsum-slajd > :nth-child(3) { animation-delay: 0.18s; }
+.podsum-slajd > :nth-child(4) { animation-delay: 0.28s; }
+.podsum-slajd > :nth-child(n + 5) { animation-delay: 0.38s; }
+@keyframes podsum-wjazd { from { opacity: 0; transform: translateY(26px); filter: blur(8px); } }
+
+.podsum-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(242, 243, 245, 0.75);
+}
+.podsum-kicker::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--k); box-shadow: 0 0 12px var(--k); }
+.podsum-tytul {
+  margin: 14px 0 0;
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+  padding-bottom: 0.12em; /* gradient przycięty do tekstu nie ucina ogonków liter (j, p, y) */
+  background: linear-gradient(180deg, #FFFFFF 35%, #9AA0AB 120%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.podsum-liczba { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.podsum-liczba > span {
+  font-size: clamp(64px, 22vw, 104px);
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #FFFFFF 30%, #8D94A3 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 30px color-mix(in srgb, var(--k) 30%, transparent));
+}
+.podsum-liczba-zlota > span { background-image: linear-gradient(180deg, #FFF3D1 30%, #E2B25A 100%); }
+.podsum-liczba-mniejsza > span { font-size: clamp(52px, 17vw, 76px); }
+.podsum-liczba small { font-size: 17px; font-weight: 600; color: rgba(242, 243, 245, 0.72); }
+.podsum-opis { margin: 12px 0 0; font-size: 15px; line-height: 1.45; color: rgba(242, 243, 245, 0.72); }
+.podsum-chip {
+  margin-top: 14px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.1);
+}
+.podsum-chip.plus { color: #5ED1B0; background: rgba(94, 209, 176, 0.15); }
+.podsum-chip.minus { color: #F08A7E; background: rgba(240, 138, 126, 0.15); }
+
+/* Słupki objętości dni tygodnia */
+.podsum-slupki { width: 100%; display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; height: 130px; margin-top: 26px; }
+.podsum-slupek { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; height: 100%; }
+.podsum-slupek i {
+  width: 100%;
+  height: var(--h);
+  border-radius: 6px 6px 3px 3px;
+  background: color-mix(in srgb, var(--k) 45%, rgba(255, 255, 255, 0.08));
+  transform-origin: bottom;
+  animation: podsum-rosnij 0.9s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(0.35s + var(--d, 0) * 0.06s);
+}
+.podsum-slupek.maks i { background: var(--k); box-shadow: 0 0 18px color-mix(in srgb, var(--k) 60%, transparent); }
+.podsum-slupek b { font-size: 12px; font-weight: 600; color: rgba(242, 243, 245, 0.6); }
+@keyframes podsum-rosnij { from { transform: scaleY(0); } }
+
+/* Lista rekordów */
+.podsum-lista { width: 100%; margin: 22px 0 0; padding: 0; list-style: none; }
+.podsum-lista li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 15px;
+  font-weight: 600;
+  animation: podsum-wjazd 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(0.4s + var(--d, 0) * 0.08s);
+}
+.podsum-lista li > span:nth-child(2) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.podsum-lista b { font-weight: 600; color: rgba(242, 243, 245, 0.72); font-variant-numeric: tabular-nums; }
+.podsum-gwiazdka { display: inline-flex; color: #E8C27A; }
+.podsum-gwiazdka svg { width: 16px; height: 16px; filter: drop-shadow(0 0 6px rgba(232, 194, 122, 0.7)); }
+
+/* Kafle i siatka nawyków */
+.podsum-kafle { width: 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 22px; }
+.podsum-kafel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 1px 1px 0 -0.5px rgba(255, 255, 255, 0.45), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+.podsum-kafel span { font-size: 12px; color: rgba(242, 243, 245, 0.65); }
+.podsum-kafel strong { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.podsum-kafel strong.plus { color: #5ED1B0; }
+.podsum-kafel strong.minus { color: #F08A7E; }
+.podsum-kafel em { font-style: normal; font-size: 13px; color: rgba(242, 243, 245, 0.72); }
+.podsum-siatka { width: 100%; margin-top: 18px; display: flex; flex-direction: column; gap: 8px; }
+.podsum-siatka-wiersz { display: grid; grid-template-columns: minmax(0, 1fr) repeat(7, 16px); align-items: center; gap: 6px; }
+.podsum-siatka-wiersz span { font-size: 12.5px; color: rgba(242, 243, 245, 0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.podsum-siatka-wiersz i {
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  animation: podsum-kropka 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  animation-delay: calc(0.4s + var(--d, 0) * 0.025s);
+}
+.podsum-siatka-wiersz i.on { background: var(--k); box-shadow: 0 0 10px color-mix(in srgb, var(--k) 55%, transparent); }
+@keyframes podsum-kropka { from { transform: scale(0); } }
+
+/* Kula tygodnia */
+.podsum-kula-box { position: relative; width: 248px; max-width: 70vw; aspect-ratio: 1; align-self: center; }
+.podsum-kula-box::before {
+  content: "";
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  bottom: -6%;
+  height: 46%;
+  border-radius: 50%;
+  background: var(--kula-poswiata, transparent);
+  opacity: 0.45;
+  filter: blur(34px);
+  transition: background 0.8s ease;
+}
+.podsum-kula-box canvas { position: relative; display: block; width: 100%; height: 100%; }
+.podsum-slajd[data-klucz="final"] { align-items: center; text-align: center; }
+.podsum-slajd[data-klucz="final"] .podsum-liczba { justify-content: center; }
+
+/* ----- Ekran Dziś: baner i link ----- */
+.dzis-podsum-baner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 16px 0 0;
+  border-radius: 24px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 140% at 0% 50%, rgba(122, 162, 255, 0.28), transparent 60%),
+    radial-gradient(90% 140% at 100% 50%, rgba(232, 194, 122, 0.2), transparent 60%),
+    rgba(255, 255, 255, 0.05);
+  box-shadow: inset 1px 1px 0 -0.5px rgba(255, 255, 255, 0.5), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.16), 0 20px 40px -24px rgba(0, 0, 0, 0.85);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+}
+.dzis-podsum-baner[hidden] { display: none; }
+.dzis-podsum-baner-otworz {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 72px;
+  padding: 12px 6px 12px 16px;
+  border: none;
+  background: transparent;
+  color: #F2F3F5;
+  text-align: left;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+.dzis-podsum-baner-otworz:active { transform: scale(0.99); }
+.dzis-podsum-baner-ikona { flex: none; display: flex; gap: 3px; }
+.dzis-podsum-baner-ikona i { width: 8px; height: 34px; border-radius: 4px; background: rgba(255, 255, 255, 0.25); }
+.dzis-podsum-baner-ikona i:nth-child(1) { background: #7AA2FF; }
+.dzis-podsum-baner-ikona i:nth-child(2) { background: #EADFC8; }
+.dzis-podsum-baner-ikona i:nth-child(3) { background: #E8C27A; }
+.dzis-podsum-baner-teksty { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.dzis-podsum-baner-teksty strong { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+.dzis-podsum-baner-teksty span { font-size: 13px; color: rgba(242, 243, 245, 0.65); }
+.dzis-podsum-baner-zamknij {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin-right: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: rgba(242, 243, 245, 0.6);
+}
+.dzis-podsum-baner-zamknij svg { width: 16px; height: 16px; }
+
+.dzis-podsum-link { display: inline-flex; align-items: center; gap: 2px; }
+.dzis-podsum-link svg { width: 14px; height: 14px; }
+html.styl-premium .dzis-tydzien-naglowek { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 0 6px 12px; }
+html.styl-premium .dzis-tydzien-naglowek .dzis-tytul { margin: 0; }
+html.styl-premium .dzis-tydzien-naglowek .dzis-link { min-height: 32px; }
+html:not(.styl-premium) .dzis-tydzien-naglowek { display: flex; flex-direction: column; align-items: flex-start; }
+html:not(.styl-premium) .dzis-tydzien-naglowek .dzis-link { min-height: 28px; font-size: 11px; letter-spacing: 0.1em; }
+
+@media (prefers-reduced-motion: reduce) {
+  .podsum, .podsum-swiatlo span, .podsum-slajd > *, .podsum-slupek i, .podsum-lista li, .podsum-siatka-wiersz i { animation: none; }
+  .podsum-paski span.biezacy i { animation: none; transform: none; }
+}

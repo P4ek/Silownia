@@ -233,6 +233,7 @@ function renderDzis() {
   }
   renderDzisCele();
   renderDzisRada();
+  if (typeof podsumRenderBaner === "function") podsumRenderBaner(); // baner podsumowania tygodnia (js/podsumowanie.js, ładowany później)
 
   if (fokus) {
     const el = document.querySelector('#widok-dzis [data-dzis-fokus="' + fokus + '"]');
