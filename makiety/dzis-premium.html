@@ -9,7 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!-- Makieta ekranu Dziś w kierunku „premium”: liquid glass + styl Majątku (gradientowe liczby, kafle ze światłem).
-     Pierścień 9 segmentów zamiast konstelacji, widżety 2×2, tydzień jako mini-pierścienie. Dane przykładowe; nawyki i cele można stuknąć. -->
+     Wynik dnia jako szklana kula z płynem: poziom = odsetek gwiazd, warstwy w kolorach zaliczonych gwiazd, fale i bąbelki,
+     przechylenie telefonu przelewa płyn (stuknij kulę). Posiłki schowane. Dane przykładowe; nawyki można stuknąć. -->
 <style>
 :root {
   --tlo: #050608;
@@ -18,7 +19,6 @@
   --wyciszony: #5C626C;
   --linia: rgba(255, 255, 255, 0.08);
   --trening: #7AA2FF;
-  --posilki: #5ED1B0;
   --nawyki: #E9E4D8;
   --misja: #E8C27A;
   --szklo: rgba(255, 255, 255, 0.055);
@@ -53,7 +53,7 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   animation: dryf 34s ease-in-out infinite alternate;
 }
 .swiatlo span:nth-child(1) { width: 340px; height: 340px; left: -120px; top: 60px; background: var(--trening); }
-.swiatlo span:nth-child(2) { width: 300px; height: 300px; right: -110px; top: 300px; background: var(--posilki); opacity: 0.28; animation-duration: 41s; animation-delay: -12s; }
+.swiatlo span:nth-child(2) { width: 300px; height: 300px; right: -110px; top: 300px; background: var(--nawyki); opacity: 0.16; animation-duration: 41s; animation-delay: -12s; }
 .swiatlo span:nth-child(3) { width: 260px; height: 260px; left: 30%; top: 760px; background: var(--misja); opacity: 0.22; animation-duration: 47s; animation-delay: -20s; }
 @keyframes dryf {
   0% { transform: translate3d(0, 0, 0) scale(1); }
@@ -136,30 +136,39 @@ h1 {
   color: transparent;
 }
 
-/* ----- Bohater: pierścień 9 segmentów ----- */
-.bohater { margin-top: 20px; padding: 22px 20px 20px; border-radius: 32px; }
-.pierscien-box { position: relative; width: 236px; height: 236px; margin: 4px auto 0; }
-.pierscien { width: 100%; height: 100%; overflow: visible; transform: rotate(-90deg); }
-.pierscien .tor { fill: none; stroke: rgba(255, 255, 255, 0.07); stroke-width: 14; stroke-linecap: round; }
-.pierscien .seg {
-  fill: none;
-  stroke-width: 14;
-  stroke-linecap: round;
-  stroke-dashoffset: var(--dl);
-  transition: stroke-dashoffset 0.9s var(--wyhamowanie), opacity 0.4s ease;
-}
-.pierscien .seg.on { stroke-dashoffset: 0; filter: drop-shadow(0 0 6px var(--k)); }
-.srodek {
+/* ----- Bohater: szklana kula z płynem ----- */
+.bohater { margin-top: 20px; padding: 18px 20px 20px; border-radius: 32px; overflow: hidden; }
+.kula-box { position: relative; width: 248px; height: 248px; margin: 0 auto; }
+.kula-box::before {
+  content: "";
   position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  left: 15%;
+  right: 15%;
+  bottom: -6%;
+  height: 46%;
+  border-radius: 50%;
+  background: var(--poswiata, transparent);
+  opacity: 0.4;
+  filter: blur(34px);
+  transition: background 0.8s ease;
+  pointer-events: none;
 }
+.kula-box canvas { position: relative; display: block; width: 100%; height: 100%; touch-action: manipulation; cursor: pointer; }
+.kula-podpis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--wyciszony);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.kula-podpis.widoczny { opacity: 1; }
+.wynik-wiersz { display: flex; align-items: baseline; justify-content: center; gap: 12px; margin-top: 10px; }
 .wynik {
-  font-size: 74px;
+  font-size: 64px;
   font-weight: 600;
   letter-spacing: -0.06em;
   line-height: 0.9;
@@ -170,15 +179,17 @@ h1 {
   color: transparent;
 }
 .wynik sup { font-size: 0.36em; letter-spacing: 0; margin-left: 2px; vertical-align: 1.35em; }
-.wynik-opis { margin-top: 8px; font-size: 13px; color: var(--cichy); }
+.wynik-opis { font-size: 13px; color: var(--cichy); }
 .wynik-opis b { color: var(--tusz); font-weight: 600; }
-.legenda { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 18px; }
+.legenda { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 18px; }
 .legenda div { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 12px; color: var(--cichy); }
 .legenda strong { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; color: var(--tusz); font-variant-numeric: tabular-nums; }
 .legenda strong::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--k); box-shadow: 0 0 8px var(--k); }
 
 /* ----- Widżety 2×2 ----- */
 .widzety { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.widzet.szeroki { grid-column: 1 / -1; min-height: 150px; }
+.widzet.szeroki .widzet-viz { height: 40px; }
 .widzet {
   --k: var(--tusz);
   display: flex;
@@ -327,28 +338,23 @@ h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.025em; }
   </div>
 
   <section class="bohater szklo" aria-label="Wynik dnia">
-    <div class="pierscien-box">
-      <svg class="pierscien" viewBox="0 0 236 236" id="pierscien" aria-hidden="true"></svg>
-      <div class="srodek">
-        <div class="wynik"><span id="wynik">0</span><sup>%</sup></div>
-        <div class="wynik-opis"><b id="ile">0 z 9</b> gwiazd dziś</div>
-      </div>
+    <div class="kula-box">
+      <canvas id="kula" role="img" aria-label="Wynik dnia"></canvas>
+      <div class="kula-podpis" id="kula-podpis">Przechyl telefon</div>
+    </div>
+    <div class="wynik-wiersz">
+      <div class="wynik"><span id="wynik">0</span><sup>%</sup></div>
+      <div class="wynik-opis"><b id="ile">0 z 6</b><br>gwiazd dziś</div>
     </div>
     <div class="legenda" id="legenda"></div>
   </section>
 
   <div class="widzety">
-    <button class="widzet szklo" style="--k: var(--trening)">
+    <button class="widzet szklo szeroki" style="--k: var(--trening)">
       <div class="widzet-gora"><span>Trening</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
       <div class="widzet-viz" id="serie"></div>
       <div class="widzet-liczba">5<small>serii</small></div>
       <div class="widzet-opis">Klata · 2 ćwiczenia · 1947 kg</div>
-    </button>
-    <button class="widzet szklo" style="--k: var(--posilki)">
-      <div class="widzet-gora"><span>Posiłki</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
-      <div class="widzet-viz"><div class="pasek"><i style="width: 48%"></i></div></div>
-      <div class="widzet-liczba"><span data-licz="1260">0</span><small>/ 2600 kcal</small></div>
-      <div class="makro"><span>B <b>77</b></span><span>W <b>170</b></span><span>T <b>27</b></span></div>
     </button>
     <button class="widzet szklo" style="--k: var(--nawyki)">
       <div class="widzet-gora"><span>Nawyki</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
@@ -374,7 +380,7 @@ h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.025em; }
 </main>
 
 <script>
-// Stan dnia: 9 gwiazd = trening (1), posiłki (3), nawyki (4), misja (1)
+// Stan dnia: 6 gwiazd = trening (1), nawyki (4), misja (1); posiłki schowane
 const NAWYKI = [
   { nazwa: "Medytacja", seria: "12 dni", on: true },
   { nazwa: "Czytanie 20 stron", seria: "5 dni", on: true },
@@ -382,12 +388,11 @@ const NAWYKI = [
   { nazwa: "Bez cukru", seria: "–", on: false }
 ];
 const KATEGORIE = [
-  { klucz: "trening", nazwa: "Trening", kolor: "var(--trening)", wszystkie: 1, zrobione: () => 1 },
-  { klucz: "posilki", nazwa: "Posiłki", kolor: "var(--posilki)", wszystkie: 3, zrobione: () => 2 },
-  { klucz: "nawyki", nazwa: "Nawyki", kolor: "var(--nawyki)", wszystkie: 4, zrobione: () => NAWYKI.filter(n => n.on).length },
-  { klucz: "misja", nazwa: "Misja", kolor: "var(--misja)", wszystkie: 1, zrobione: () => 0 }
+  { nazwa: "Trening", kolor: "#7AA2FF", css: "var(--trening)", wszystkie: 1, zrobione: () => 1 },
+  { nazwa: "Nawyki", kolor: "#EADFC8", css: "var(--nawyki)", wszystkie: 4, zrobione: () => NAWYKI.filter(n => n.on).length },
+  { nazwa: "Misja", kolor: "#E8C27A", css: "var(--misja)", wszystkie: 1, zrobione: () => 0 }
 ];
-const OGOLEM = 9;
+const OGOLEM = 6;
 const CICHO = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const MIESIACE = ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"];
 const DNI = ["niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"];
@@ -401,57 +406,289 @@ function licz(el, cel, czas) {
   if (CICHO) { el.textContent = cel.toLocaleString("pl-PL"); return; }
   const t0 = performance.now();
   (function klatka(t) {
-    const p = Math.min(1, (t - t0) / (czas || 900));
+    const p = Math.max(0, Math.min(1, (t - t0) / (czas || 900)));
     const e = 1 - Math.pow(1 - p, 3);
     el.textContent = Math.round(start + (cel - start) * e).toLocaleString("pl-PL");
     if (p < 1) requestAnimationFrame(klatka);
   })(t0);
 }
 
-// Pierścień: 9 łuków z przerwą, w kolejności kategorii
-const R = 104, C = 2 * Math.PI * R, PRZERWA = 9;
-const dlugosc = C / OGOLEM - PRZERWA;
-const svg = document.getElementById("pierscien");
-const ns = "http://www.w3.org/2000/svg";
-const segmenty = [];
-let poz = 0;
-KATEGORIE.forEach(k => {
-  for (let i = 0; i < k.wszystkie; i++) {
-    const tor = document.createElementNS(ns, "circle");
-    const seg = document.createElementNS(ns, "circle");
-    [tor, seg].forEach(c => {
-      c.setAttribute("cx", 118); c.setAttribute("cy", 118); c.setAttribute("r", R);
-      c.setAttribute("stroke-dasharray", dlugosc + " " + (C - dlugosc));
-      c.style.transform = "rotate(" + (poz * 360 / OGOLEM) + "deg)";
-      c.style.transformOrigin = "118px 118px";
-    });
-    tor.setAttribute("class", "tor");
-    seg.setAttribute("class", "seg");
-    seg.style.stroke = k.kolor;
-    seg.style.setProperty("--k", k.kolor);
-    seg.style.setProperty("--dl", dlugosc + "px");
-    seg.style.strokeDasharray = dlugosc + " " + (C - dlugosc + dlugosc);
-    svg.append(tor, seg);
-    segmenty.push({ el: seg, kat: k, nr: i });
-    poz++;
-  }
-});
+// ===== Szklana kula z płynem =====
+// Warstwy płynu = zaliczone gwiazdy w kolejności kategorii (od dna): kolor kategorii, wysokość 1/6 średnicy.
+// Wysokość warstwy dąży sprężyście do celu (dolewanie), powierzchnia faluje, przechylenie obraca lustro płynu.
+const kula = document.getElementById("kula");
+const ctx = kula.getContext("2d");
+const ROZMIAR = 248, R = 104, SX = ROZMIAR / 2, SY = ROZMIAR / 2 - 4;
+const dpr = Math.min(3, window.devicePixelRatio || 1);
+kula.width = ROZMIAR * dpr;
+kula.height = ROZMIAR * dpr;
 
-function rysuj(pierwszy) {
-  let zrobione = 0;
-  KATEGORIE.forEach(k => {
-    const ile = k.zrobione();
-    zrobione += ile;
-    segmenty.filter(s => s.kat === k).forEach((s, i) => {
-      const on = i < ile;
-      if (pierwszy && on && !CICHO) setTimeout(() => s.el.classList.add("on"), 350 + segmenty.indexOf(s) * 110);
-      else s.el.classList.toggle("on", on);
-    });
+let warstwy = [];          // [{ kolor, h, cel, v, znika }] od dna; h jako ułamek średnicy
+let faza = 0;
+let amplituda = 3, amplitudaCel = 3;
+let przechyl = 0, przechylCel = 0;
+const babelki = [];
+let animuje = false, widoczna = true;
+
+function koloryGwiazd() {
+  const lista = [];
+  KATEGORIE.forEach(k => { for (let i = 0; i < k.zrobione(); i++) lista.push(k.kolor); });
+  return lista;
+}
+
+// Warstwy wg gwiazd: nowe dolewane od zera (fala i bąbelki), zabrane spływają do zera i znikają
+function przelicz(zFala) {
+  const kolory = koloryGwiazd();
+  const wolne = warstwy.filter(w => !w.znika);
+  const nowe = kolory.map(kolor => {
+    const i = wolne.findIndex(w => w.kolor === kolor);
+    if (i >= 0) return Object.assign(wolne.splice(i, 1)[0], { cel: 1 / OGOLEM });
+    return { kolor: kolor, h: 0, cel: 1 / OGOLEM, v: 0 };
   });
-  licz(document.getElementById("wynik"), Math.round(zrobione / OGOLEM * 100), pierwszy ? 1400 : 600);
+  wolne.forEach(w => { w.cel = 0; w.znika = true; });
+  warstwy = nowe.concat(wolne, warstwy.filter(w => w.znika && wolne.indexOf(w) < 0));
+  if (zFala) {
+    amplitudaCel = 14;
+    setTimeout(() => { amplitudaCel = 3; }, 350);
+    for (let i = 0; i < 14; i++) babelki.push(nowyBabelek());
+  }
+  start();
+}
+
+function nowyBabelek() {
+  return { x: SX + (Math.random() - 0.5) * R * 1.4, y: SY + R - Math.random() * 20, r: 1 + Math.random() * 2.6, v: 0.4 + Math.random() * 1.1, dryf: Math.random() * 6.28 };
+}
+
+// Kolor #RRGGBB rozjaśniony do bieli / przyciemniony do czerni o ułamek t
+function mieszaj(hex, cel, t) {
+  const n = parseInt(hex.slice(1), 16);
+  const k = [n >> 16, (n >> 8) & 255, n & 255].map(v => Math.round(v + (cel - v) * t));
+  return "rgb(" + k.join(",") + ")";
+}
+function rozjasnij(hex, t) { return mieszaj(hex, 255, t); }
+function przyciemnij(hex, t) { return mieszaj(hex, 10, t); }
+
+function poziomCalkowity() { return warstwy.reduce((s, w) => s + w.h, 0); }
+
+// Obszar płynu pod linią na wysokości y0 (px): fala o danej amplitudzie, nachylona o kąt przechylenia
+function sciezkaFali(y0, amp, przesuniecie) {
+  ctx.beginPath();
+  ctx.moveTo(SX - R - 2, SY + R + 2);
+  for (let x = SX - R - 2; x <= SX + R + 2; x += 3) {
+    const y = y0 + Math.tan(przechyl) * (x - SX)
+      + amp * Math.sin(x * 0.045 + faza + przesuniecie)
+      + amp * 0.45 * Math.sin(x * 0.083 - faza * 1.3 + przesuniecie);
+    ctx.lineTo(x, y);
+  }
+  ctx.lineTo(SX + R + 2, SY + R + 2);
+  ctx.closePath();
+}
+
+function rysujKule() {
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, ROZMIAR, ROZMIAR);
+  const poziom = poziomCalkowity();
+  const widoczne = warstwy.filter(w => w.h > 0.002);
+  const wierzch = widoczne[widoczne.length - 1];
+
+  // Poświata pod kulą (CSS za canvasem) w kolorze wierzchniej warstwy
+  const kolorPoswiaty = wierzch ? wierzch.kolor : "transparent";
+  if (kula._poswiata !== kolorPoswiaty) { kula._poswiata = kolorPoswiaty; kula.parentNode.style.setProperty("--poswiata", kolorPoswiaty); }
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(SX, SY, R, 0, Math.PI * 2);
+  ctx.clip();
+
+  const wn = ctx.createRadialGradient(SX - R * 0.3, SY - R * 0.4, R * 0.1, SX, SY, R);
+  wn.addColorStop(0, "rgba(255,255,255,0.07)");
+  wn.addColorStop(1, "rgba(255,255,255,0.015)");
+  ctx.fillStyle = wn;
+  ctx.fillRect(SX - R, SY - R, R * 2, R * 2);
+
+  // Warstwy od wierzchu w dół: każda wypełnia wszystko pod swoją linią, niższa przykrywa dół wyższej
+  let wysokosc = poziom;
+  for (let i = warstwy.length - 1; i >= 0; i--) {
+    const w = warstwy[i];
+    if (w.h > 0.001) {
+      const y0 = SY + R - wysokosc * 2 * R;
+      const gorna = w === wierzch;
+      const amp = gorna ? amplituda : amplituda * 0.35;
+      if (gorna) {
+        sciezkaFali(y0 - 2, amp * 0.8, 2.1);
+        ctx.fillStyle = w.kolor + "55";
+        ctx.fill();
+      }
+      sciezkaFali(y0, amp, i * 0.9);
+      const dol = Math.min(SY + R, y0 + w.h * 2 * R + 6);
+      const g = ctx.createLinearGradient(0, y0 - amp, 0, dol);
+      g.addColorStop(0, rozjasnij(w.kolor, 0.45));
+      g.addColorStop(0.35, w.kolor);
+      g.addColorStop(1, przyciemnij(w.kolor, 0.35));
+      ctx.fillStyle = g;
+      ctx.fill();
+      ctx.strokeStyle = gorna ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.18)";
+      ctx.lineWidth = gorna ? 1.4 : 0.8;
+      ctx.stroke();
+    }
+    wysokosc -= w.h;
+  }
+
+  // Światło w płynie: jasny pas tuż pod powierzchnią (załamanie) i poświata od środka (tryb „lighter”)
+  if (poziom > 0.01) {
+    const yp = SY + R - poziom * 2 * R;
+    ctx.save();
+    const wierzchIdx = warstwy.indexOf(wierzch);
+    sciezkaFali(yp, amplituda, wierzchIdx * 0.9);
+    ctx.clip();
+    ctx.globalCompositeOperation = "lighter";
+    const pas = ctx.createLinearGradient(0, yp - 8, 0, yp + 26);
+    pas.addColorStop(0, "rgba(255,255,255,0.22)");
+    pas.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = pas;
+    ctx.fillRect(SX - R, yp - R * 0.6, R * 2, R * 0.6 + 30);
+    const srodek = ctx.createRadialGradient(SX + Math.sin(faza * 0.3) * 18, SY + R * 0.45, 0, SX, SY + R * 0.45, R * 0.9);
+    srodek.addColorStop(0, "rgba(255,255,255,0.16)");
+    srodek.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = srodek;
+    ctx.fillRect(SX - R, yp, R * 2, SY + R - yp);
+    ctx.restore();
+  }
+
+  // Głębia: przyciemnienie ku dnu i zaciemnione brzegi (kula, nie kubek)
+  if (poziom > 0) {
+    const gl = ctx.createLinearGradient(0, SY - R, 0, SY + R);
+    gl.addColorStop(0, "rgba(5,6,8,0)");
+    gl.addColorStop(1, "rgba(5,6,8,0.3)");
+    ctx.fillStyle = gl;
+    ctx.fillRect(SX - R, SY - R, R * 2, R * 2);
+  }
+  const brzeg = ctx.createRadialGradient(SX, SY, R * 0.62, SX, SY, R);
+  brzeg.addColorStop(0, "rgba(5,6,8,0)");
+  brzeg.addColorStop(1, "rgba(5,6,8,0.45)");
+  ctx.fillStyle = brzeg;
+  ctx.fillRect(SX - R, SY - R, R * 2, R * 2);
+
+  const powierzchnia = SY + R - poziom * 2 * R;
+  babelki.forEach(b => {
+    if (b.y < powierzchnia + 4) return;
+    ctx.beginPath();
+    ctx.arc(b.x + Math.sin(b.dryf) * 2, b.y, b.r, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.35)";
+    ctx.fill();
+  });
+  ctx.restore();
+
+  // Szkło: obręcz, odblask w lewym górnym rogu, refleks u dołu
+  ctx.beginPath();
+  ctx.arc(SX, SY, R, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(255,255,255,0.22)";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.save();
+  ctx.translate(SX - R * 0.42, SY - R * 0.5);
+  ctx.rotate(-0.6);
+  ctx.scale(1, 0.5);
+  const od = ctx.createRadialGradient(0, 0, 0, 0, 0, R * 0.42);
+  od.addColorStop(0, "rgba(255,255,255,0.42)");
+  od.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = od;
+  ctx.beginPath();
+  ctx.arc(0, 0, R * 0.42, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  ctx.beginPath();
+  ctx.arc(SX, SY, R - 5, Math.PI * 0.18, Math.PI * 0.82);
+  ctx.strokeStyle = "rgba(255,255,255,0.12)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+// Jedna klatka fizyki: sprężyna wysokości warstw, wygaszanie fali, wygładzone przechylenie, bąbelki
+function krok() {
+  warstwy.forEach(w => {
+    w.v = (w.v + (w.cel - w.h) * 0.06) * 0.84;
+    w.h += w.v;
+    if (w.h < 0) { w.h = 0; w.v = 0; }
+  });
+  warstwy = warstwy.filter(w => !(w.znika && w.h <= 0.0005));
+  amplituda += (amplitudaCel - amplituda) * 0.08;
+  przechyl += (przechylCel - przechyl) * 0.08;
+  faza += 0.045;
+  const powierzchnia = SY + R - poziomCalkowity() * 2 * R;
+  for (let i = babelki.length - 1; i >= 0; i--) {
+    const b = babelki[i];
+    b.y -= b.v;
+    b.dryf += 0.08;
+    if (b.y < powierzchnia) babelki.splice(i, 1);
+  }
+}
+
+function klatka() {
+  if (!widoczna || document.hidden) { animuje = false; return; }
+  krok();
+  rysujKule();
+  requestAnimationFrame(klatka);
+}
+function start() {
+  if (CICHO) {
+    warstwy = warstwy.filter(w => !w.znika);
+    warstwy.forEach(w => { w.h = w.cel; w.v = 0; });
+    rysujKule();
+    return;
+  }
+  if (!animuje && widoczna && !document.hidden) { animuje = true; requestAnimationFrame(klatka); }
+}
+// Animacja tylko, gdy kula jest na ekranie i karta aktywna
+new IntersectionObserver(w => { widoczna = w[0].isIntersecting; start(); }).observe(kula);
+document.addEventListener("visibilitychange", start);
+
+// Przechylenie: żyroskop (iOS pyta o zgodę po stuknięciu), na komputerze ruch kursora nad kulą
+function naOrientacje(e) {
+  if (e.gamma == null) return;
+  przechylCel = Math.max(-0.45, Math.min(0.45, -e.gamma * Math.PI / 180 * 0.9));
+}
+let zyroskop = false;
+function wlaczZyroskop() {
+  if (zyroskop || CICHO) return;
+  const D = window.DeviceOrientationEvent;
+  if (D && typeof D.requestPermission === "function") {
+    D.requestPermission().then(z => { if (z === "granted") { zyroskop = true; addEventListener("deviceorientation", naOrientacje); } }).catch(() => {});
+  } else if (D) {
+    zyroskop = true;
+    addEventListener("deviceorientation", naOrientacje);
+  }
+}
+kula.addEventListener("pointermove", e => {
+  if (e.pointerType !== "mouse") return;
+  const r = kula.getBoundingClientRect();
+  przechylCel = ((e.clientX - r.left) / r.width - 0.5) * -0.7;
+});
+kula.addEventListener("pointerleave", () => { if (!zyroskop) przechylCel = 0; });
+// Stuknięcie: chlupnięcie i włączenie żyroskopu
+kula.addEventListener("click", () => {
+  wlaczZyroskop();
+  document.getElementById("kula-podpis").classList.remove("widoczny");
+  if (CICHO) return;
+  amplitudaCel = 12;
+  setTimeout(() => { amplitudaCel = 3; }, 300);
+  for (let i = 0; i < 8; i++) babelki.push(nowyBabelek());
+  start();
+});
+if (window.DeviceOrientationEvent && !CICHO && matchMedia("(pointer: coarse)").matches) {
+  setTimeout(() => document.getElementById("kula-podpis").classList.add("widoczny"), 1800);
+}
+
+// ===== Liczby, legenda, nawyki =====
+function rysuj(zFala) {
+  let zrobione = 0;
+  KATEGORIE.forEach(k => { zrobione += k.zrobione(); });
+  przelicz(zFala);
+  licz(document.getElementById("wynik"), Math.round(zrobione / OGOLEM * 100), zFala ? 600 : 1400);
   document.getElementById("ile").textContent = zrobione + " z " + OGOLEM;
+  kula.setAttribute("aria-label", "Wynik dnia: " + zrobione + " z " + OGOLEM + " gwiazd");
   document.getElementById("legenda").innerHTML = KATEGORIE.map(k =>
-    '<div style="--k:' + k.kolor + '"><strong>' + k.zrobione() + "/" + k.wszystkie + "</strong>" + k.nazwa + "</div>").join("");
+    '<div style="--k:' + k.css + '"><strong>' + k.zrobione() + "/" + k.wszystkie + "</strong>" + k.nazwa + "</div>").join("");
   const n = NAWYKI.filter(x => x.on).length;
   document.getElementById("nawyki-ile").textContent = n;
   document.getElementById("nawyki-licznik").textContent = n + " z " + NAWYKI.length;
@@ -459,9 +696,8 @@ function rysuj(pierwszy) {
   document.getElementById("nawyki-kropki").innerHTML = NAWYKI.map(x => "<i" + (x.on ? ' class="on"' : "") + "></i>").join("");
 }
 
-// Nawyki do odhaczenia: stuknięcie zapala gwiazdę i przelicza pierścień
 const lista = document.getElementById("nawyki");
-NAWYKI.forEach((n, i) => {
+NAWYKI.forEach(n => {
   const b = document.createElement("button");
   b.className = "nawyk" + (n.on ? " on" : "");
   b.innerHTML = '<span class="nawyk-znak"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>' +
@@ -473,7 +709,7 @@ NAWYKI.forEach((n, i) => {
     n.on = !n.on;
     b.classList.toggle("on", n.on);
     b.setAttribute("aria-pressed", n.on);
-    rysuj(false);
+    rysuj(true);
   });
   lista.append(b);
 });
@@ -483,17 +719,18 @@ document.getElementById("serie").innerHTML = [640, 510, 425, 192, 180].map((v, i
   '<span class="slupek" style="height:' + Math.round(v / 640 * 100) + '%;animation-delay:' + (0.35 + i * 0.07) + 's"></span>').join("");
 
 // Tydzień: mini-pierścienie (odsetek gwiazd dnia), dziś wyróżnione, przyszłe puste
-const tydzien = [0.78, 0.44, 0.56, 0.33, 0.89, 0.67, 0];
+const tydzien = [0.83, 0.5, 0.67, 0.33, 1, 0.67, 0];
 const r = 14, c = 2 * Math.PI * r;
 const dzisIdx = (teraz.getDay() + 6) % 7;
-tydzien[dzisIdx] = 5 / 9;
+tydzien[dzisIdx] = 3 / 6;
 document.getElementById("tydzien").innerHTML = ["pn", "wt", "śr", "cz", "pt", "so", "nd"].map((d, i) =>
   '<div class="dzien' + (i === dzisIdx ? " dzis" : "") + (i > dzisIdx ? " przyszly" : "") + '"><svg viewBox="0 0 34 34"><circle class="t" cx="17" cy="17" r="' + r + '"/>' +
   '<circle class="p" cx="17" cy="17" r="' + r + '" stroke-dasharray="' + c + '" stroke-dashoffset="' + c + '" data-cel="' + (c * (1 - tydzien[i])) + '"/></svg>' + (i === dzisIdx ? "dziś" : d) + "</div>").join("");
 setTimeout(() => document.querySelectorAll(".dzien .p").forEach((p, i) => { p.style.transitionDelay = (i * 0.06) + "s"; p.style.strokeDashoffset = p.dataset.cel; }), CICHO ? 0 : 500);
 
-document.querySelectorAll("[data-licz]").forEach(el => setTimeout(() => licz(el, +el.dataset.licz, 1200), CICHO ? 0 : 300));
-rysuj(true);
+// Wejście: pusta kula, po chwili napełnia się warstwa po warstwie
+rysujKule();
+setTimeout(() => rysuj(false), CICHO ? 0 : 450);
 </script>
 </body>
 </html>
