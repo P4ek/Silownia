@@ -69,7 +69,7 @@ body.motyw-habits::after {
 /* ===== Tytuły ekranów z połyskiem ===== */
 :is(
   .dzis-powitanie, #widok-wykres .wykres-tytul, #widok-plan .kompas-tytul, #widok-rady .rady-tytul,
-  #widok-finanse .fin-tytul, #widok-medytacja .med-tytul, #widok-dodaj .zapis-tytul
+  #widok-finanse .fin-tytul, #widok-medytacja .med-tytul, #widok-majatek .maj-tytul, #widok-dodaj .zapis-tytul
 ) {
   background: linear-gradient(100deg, #F6F1E6 0%, #D6D0C0 38%, var(--blask-zloto) 50%, #D6D0C0 62%, #F6F1E6 100%) 0 0 / 250% 100%;
   -webkit-background-clip: text;
@@ -85,7 +85,7 @@ body.motyw-habits::after {
   .dzis-tytul, #widok-dodaj .zapis-serie-tytul, .zapis-dzis-naglowek h3, #widok-wykres .wykres-karta-tytul,
   .wykres-gablota-naglowek h3, #widok-zaplanuj .plany-tytul, #widok-jedzenie .jedz-lista-tytul,
   #widok-plan .kompas-tydzien-rola, #widok-rady .rady-mapa-tytul, #widok-finanse .fin-sekcja-naglowek h3,
-  #widok-medytacja .med-historia-tytul
+  #widok-medytacja .med-historia-tytul, #widok-majatek .maj-sekcja-naglowek h3
 )::before {
   content: "";
   position: absolute;
@@ -103,7 +103,7 @@ body.motyw-habits::after {
   .dzis-tytul, #widok-dodaj .zapis-serie-tytul, .zapis-dzis-naglowek h3, #widok-wykres .wykres-karta-tytul,
   .wykres-gablota-naglowek h3, #widok-zaplanuj .plany-tytul, #widok-jedzenie .jedz-lista-tytul,
   #widok-plan .kompas-tydzien-rola, #widok-rady .rady-mapa-tytul, #widok-finanse .fin-sekcja-naglowek h3,
-  #widok-medytacja .med-historia-tytul
+  #widok-medytacja .med-historia-tytul, #widok-majatek .maj-sekcja-naglowek h3
 ) {
   position: relative;
   padding-left: 0.74em;
@@ -228,6 +228,6 @@ body.motyw-habits::after {
 @media (prefers-reduced-motion: reduce) {
   #widok-finanse .fin-fala, #widok-finanse .fin-fala-2,
   body.motyw-habits::before, body.motyw-habits::after, .widok.aktywny > *,
-  :is(.dzis-powitanie, #widok-wykres .wykres-tytul, #widok-plan .kompas-tytul, #widok-rady .rady-tytul, #widok-finanse .fin-tytul, #widok-medytacja .med-tytul, #widok-dodaj .zapis-tytul),
+  :is(.dzis-powitanie, #widok-wykres .wykres-tytul, #widok-plan .kompas-tytul, #widok-rady .rady-tytul, #widok-finanse .fin-tytul, #widok-medytacja .med-tytul, #widok-majatek .maj-tytul, #widok-dodaj .zapis-tytul),
   :is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .btn-zakoncz-tydzien)::after { animation: none; }
 }

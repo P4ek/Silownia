@@ -24,7 +24,7 @@
   .kompas-kicker, .kompas-etykieta, .kompas-blok-tytul,
   #widok-habits .habits-kicker, .habits-etykieta,
   .rady-kicker,
-  #widok-finanse .fin-sekcja-naglowek > span,
+  #widok-finanse .fin-sekcja-naglowek > span, #widok-majatek .maj-sekcja-naglowek > span,
   #widok-medytacja .med-historia-suma
 ) {
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
@@ -39,7 +39,7 @@
 /* ----- Tytuł ekranu ----- */
 :is(
   .dzis-powitanie, #widok-wykres .wykres-tytul, #widok-plan .kompas-tytul, #widok-rady .rady-tytul,
-  #widok-finanse .fin-tytul, #widok-medytacja .med-tytul
+  #widok-finanse .fin-tytul, #widok-medytacja .med-tytul, #widok-majatek .maj-tytul
 ) {
   font-family: var(--sp-serif);
   font-style: italic;
@@ -60,7 +60,7 @@
   #widok-jedzenie .jedz-lista-tytul, #widok-jedzenie .jedz-cele-tytul,
   #widok-plan .kompas-tydzien-rola,
   #widok-rady .rady-mapa-tytul,
-  #widok-finanse .fin-sekcja-naglowek h3, #widok-finanse .fin-karta-tytul,
+  #widok-finanse .fin-sekcja-naglowek h3, #widok-finanse .fin-karta-tytul, #widok-majatek .maj-sekcja-naglowek h3,
   #widok-medytacja .med-historia-tytul
 ) {
   font-family: var(--sp-serif);

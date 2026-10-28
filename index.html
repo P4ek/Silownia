@@ -29,6 +29,7 @@
 <link rel="stylesheet" href="css/menu.css">
 <link rel="stylesheet" href="css/dzis.css">
 <link rel="stylesheet" href="css/finanse.css">
+<link rel="stylesheet" href="css/majatek.css">
 <link rel="stylesheet" href="css/rejestr-superseria.css">
 <link rel="stylesheet" href="css/medytacja.css">
 <link rel="stylesheet" href="css/spojnosc.css">
@@ -338,6 +339,11 @@ try { if (localStorage.getItem("styl-szklo") === "1") document.documentElement.c
         <span class="menu-rozdzial-nazwa" id="menu-r-finanse">FINANSE</span>
         <button type="button" class="nav-btn menu-pozycja" id="nav-finanse" data-widok="widok-finanse">
           <span class="menu-etykieta">Oszczędności</span>
+          <span class="menu-kropki" aria-hidden="true"></span>
+          <span class="menu-wartosc"></span>
+        </button>
+        <button type="button" class="nav-btn menu-pozycja" id="nav-majatek" data-widok="widok-majatek">
+          <span class="menu-etykieta">Majątek</span>
           <span class="menu-kropki" aria-hidden="true"></span>
           <span class="menu-wartosc"></span>
         </button>
@@ -1219,6 +1225,102 @@ try { if (localStorage.getItem("styl-szklo") === "1") document.documentElement.c
     </div>
   </section>
 
+  <!-- ===== Widok: Finanse → Majątek (konta z FINANSE_DOSTEP_IDS): gotówka + osobne konta Inwestycje i Side hustle (nie wliczane do gotówki); js/majatek.js ===== -->
+  <section id="widok-majatek" class="widok">
+    <div class="maj-tlo" aria-hidden="true">
+      <svg id="maj-gwiazdy-tla" class="maj-gwiazdy-tla" viewBox="0 0 342 300" preserveAspectRatio="xMidYMid slice"></svg>
+    </div>
+
+    <!-- Wiersz kropli menu (tytuł aplikacji jest na tym ekranie ukryty) -->
+    <div class="maj-gora"></div>
+
+    <h2 class="maj-tytul">Majątek</h2>
+
+    <!-- Gotówka: wielka kwota, fakty miesiąca, dodanie pieniędzy -->
+    <div class="maj-bohater" aria-live="polite">
+      <p class="maj-bohater-opis">Gotówka, którą masz</p>
+      <p class="maj-kwota"><span id="maj-gotowka">…</span><span class="maj-zl">zł</span></p>
+      <div id="maj-fakty" class="maj-fakty"></div>
+      <button type="button" class="maj-btn-glowny" data-dodaj-konto="gotowka">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Dodaj pieniądze
+      </button>
+    </div>
+
+    <!-- Osobne konta: każde pokazywane własnym przyciskiem -->
+    <div class="maj-przelaczniki" role="group" aria-label="Pokaż osobne konta">
+      <button type="button" class="maj-przelacz" data-konto="inwestycje" aria-expanded="false" aria-controls="maj-konto-inwestycje">
+        <span class="maj-przelacz-kropka" aria-hidden="true"></span>Inwestycje
+      </button>
+      <button type="button" class="maj-przelacz" data-konto="side_hustle" aria-expanded="false" aria-controls="maj-konto-side_hustle">
+        <span class="maj-przelacz-kropka" aria-hidden="true"></span>Side hustle
+      </button>
+    </div>
+
+    <section id="maj-konto-inwestycje" class="maj-kafel" data-konto="inwestycje" aria-label="Inwestycje" hidden>
+      <div class="maj-kafel-gora">
+        <h3 class="maj-kafel-tytul">Inwestycje</h3>
+        <span class="maj-kafel-status">osobno od gotówki</span>
+      </div>
+      <p class="maj-kafel-kwota"><span data-saldo>…</span><span class="maj-zl">zł</span></p>
+      <p class="maj-kafel-miesiac" data-miesiac></p>
+      <button type="button" class="maj-btn-kafel" data-dodaj-konto="inwestycje">Dodaj do inwestycji</button>
+      <div class="maj-lista" data-lista></div>
+      <button type="button" class="maj-wiecej" data-wiecej hidden>Pokaż więcej</button>
+    </section>
+
+    <section id="maj-konto-side_hustle" class="maj-kafel" data-konto="side_hustle" aria-label="Side hustle" hidden>
+      <div class="maj-kafel-gora">
+        <h3 class="maj-kafel-tytul">Side hustle</h3>
+        <span class="maj-kafel-status">osobno od gotówki</span>
+      </div>
+      <p class="maj-kafel-kwota"><span data-saldo>…</span><span class="maj-zl">zł</span></p>
+      <p class="maj-kafel-miesiac" data-miesiac></p>
+      <button type="button" class="maj-btn-kafel" data-dodaj-konto="side_hustle">Dodaj do side hustle</button>
+      <div class="maj-lista" data-lista></div>
+      <button type="button" class="maj-wiecej" data-wiecej hidden>Pokaż więcej</button>
+    </section>
+
+    <!-- Historia gotówki -->
+    <div class="maj-sekcja-naglowek">
+      <h3>Historia gotówki</h3>
+      <span id="maj-historia-licznik"></span>
+    </div>
+    <div id="maj-historia" class="maj-lista maj-lista-glowna" data-konto="gotowka">
+      <div class="maj-lista-wiersze" data-lista></div>
+      <button type="button" class="maj-wiecej" data-wiecej hidden>Pokaż więcej</button>
+    </div>
+
+    <!-- Okno dodawania (wspólne dla trzech kont) -->
+    <dialog id="maj-okno" class="maj-okno" aria-labelledby="maj-okno-tytul">
+      <form id="maj-form" method="dialog" novalidate>
+        <h3 id="maj-okno-tytul" class="maj-okno-tytul">Dodaj pieniądze</h3>
+        <p id="maj-okno-opis" class="maj-okno-opis"></p>
+        <div id="maj-kierunek" class="maj-kierunek" role="group" aria-label="Wpłata czy wypłata">
+          <button type="button" data-kierunek="1" aria-pressed="true">Dodaję</button>
+          <button type="button" data-kierunek="-1" aria-pressed="false">Odejmuję</button>
+        </div>
+        <label class="maj-pole-kwota">
+          <span class="plan-ukryta-etykieta">Kwota w złotych</span>
+          <input type="text" id="maj-kwota" inputmode="decimal" placeholder="0" autocomplete="off">
+          <span class="maj-zl" aria-hidden="true">zł</span>
+        </label>
+        <label class="maj-pole">
+          <span>Skąd albo na co <em>opcjonalnie</em></span>
+          <input type="text" id="maj-opis" maxlength="120" placeholder="np. wypłata, sprzedaż roweru" autocomplete="off">
+        </label>
+        <label class="maj-pole">
+          <span>Dzień</span>
+          <input type="date" id="maj-data">
+        </label>
+        <div class="maj-okno-przyciski">
+          <button type="button" id="maj-anuluj" class="maj-btn-cichy">Anuluj</button>
+          <button type="submit" id="maj-zapisz" class="maj-btn-glowny">Dodaj</button>
+        </div>
+      </form>
+    </dialog>
+  </section>
+
   <!-- ===== Widok: Medytacja (tylko konta z MEDYTACJA_DOSTEP_IDS); start, odliczanie, koniec - logika w js/medytacja.js ===== -->
   <section id="widok-medytacja" class="widok">
     <div class="med-tlo" aria-hidden="true"></div>
@@ -1339,6 +1441,7 @@ try { if (localStorage.getItem("styl-szklo") === "1") document.documentElement.c
 <script src="js/powiadomienia.js" defer></script>
 <script src="js/dzis.js" defer></script>
 <script src="js/finanse.js" defer></script>
+<script src="js/majatek.js" defer></script>
 <script src="js/medytacja.js" defer></script>
 <script src="js/kosmetyki.js" defer></script>
 <script src="js/nawigacja.js" defer></script>

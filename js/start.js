@@ -24,9 +24,10 @@ function inicjalizujDaneAplikacji() {
   ustawDostepJedzenia(dostepJedzenie);
   if (dostepJedzenie) wczytajJedzenie().then(function () { dzisDaneGotowe("jedzenie"); });
 
-  // Finanse: tylko widoczność menu; dane wczytuje finanse.js przy pierwszym wejściu na ekran
+  // Finanse (Oszczędności i Majątek): tylko widoczność menu; dane wczytują finanse.js / majatek.js przy pierwszym wejściu na ekran
   const dostepFinanse = !!(sesjaUzytkownika && sesjaUzytkownika.user && FINANSE_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));
   ustawDostepFinansow(dostepFinanse);
+  ustawDostepMajatku(dostepFinanse);
 
   // Medytacja: widoczność menu; trwająca/skończona sesja z tego urządzenia wraca po wczytaniu nawyków (automatyczne odznaczenie)
   const dostepMedytacja = !!(sesjaUzytkownika && sesjaUzytkownika.user && MEDYTACJA_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));

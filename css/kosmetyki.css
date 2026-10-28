@@ -51,6 +51,7 @@ html.kosm-widoczna .kontener.motyw-habits { padding-top: calc(80px + env(safe-ar
 /* Nagłówki, które robiły miejsce na kroplę obok siebie, są teraz pod nią – bez wcięcia i bez wyrównania do kropli */
 html.kosm-widoczna .kontener > h1 { padding-left: 0; }
 html.kosm-widoczna #widok-finanse .fin-gora,
+html.kosm-widoczna #widok-majatek .maj-gora,
 html.kosm-widoczna #widok-medytacja .med-gora { padding-left: 0; min-height: 0; margin-top: 0; }
 
 /* Menu otwarte: pigułka schowana pod nakładką i niewidoczna */

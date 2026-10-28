@@ -1,0 +1,456 @@
+/* Finanse → Majątek (#widok-majatek): wygląd z Flip Hub (wielka kwota z gradientem, pigułki faktów, kafle ze światłem od dołu
+   i ziarnem) połączony z apką (tytuł i "zł" w Instrument Serif kursywą, złota iskra, pył gwiezdny i poświaty tła, szkło).
+   Ładowany po motyw.css (selektory z #widok-majatek wygrywają z motywem). Kolory kont: inwestycje = zieleń, side hustle = bursztyn. */
+
+/* Na tym ekranie wiersz kropli menu jest pusty, więc tytuł aplikacji jest ukryty (jak w Oszczędnościach) */
+.kontener:has(> #widok-majatek.aktywny) > #app-tytul { display: none; }
+
+#widok-majatek {
+  --maj-tekst: oklch(0.88 0.005 240);
+  --maj-jasny: oklch(0.96 0.004 240);
+  --maj-cichy: oklch(0.64 0.008 240);
+  --maj-linia: rgba(255, 255, 255, 0.08);
+  --maj-zloto: oklch(0.8 0.1 78);
+  --maj-inwestycje: #4FD1A5;
+  --maj-inwestycje-swiatlo: rgba(60, 200, 160, 0.34);
+  --maj-side: #FFB547;
+  --maj-side-swiatlo: rgba(255, 160, 60, 0.4);
+  --maj-minus: oklch(0.74 0.14 25);
+  --maj-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  position: relative;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  color: var(--maj-tekst);
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+}
+
+/* ----- Tło: chłodna poświata od góry (Flip Hub) + złota (apka) i drobny pył gwiezdny ----- */
+#widok-majatek .maj-tlo {
+  position: absolute;
+  top: calc(-18px - env(safe-area-inset-top, 0px));
+  bottom: -22px;
+  left: -16px;
+  right: -16px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 380px at 50% 120px, rgba(110, 130, 255, 0.16), transparent 70%),
+    radial-gradient(360px 300px at 92% 420px, oklch(0.72 0.08 75 / 0.16), transparent 70%),
+    radial-gradient(360px 320px at 0% 760px, rgba(79, 209, 165, 0.07), transparent 70%);
+}
+#widok-majatek .maj-gwiazdy-tla { display: block; width: 100%; height: 520px; }
+
+#widok-majatek button { font-family: inherit; -webkit-tap-highlight-color: transparent; cursor: pointer; }
+#widok-majatek button:focus-visible,
+#widok-majatek input:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+#widok-majatek .maj-minus { color: var(--maj-minus) !important; -webkit-text-fill-color: var(--maj-minus); }
+
+#widok-majatek .maj-gora { min-height: 56px; margin-top: -4px; }
+
+#widok-majatek .maj-tytul { margin: 26px 8px 0; text-align: center; }
+
+/* ----- Gotówka: wielka kwota ----- */
+#widok-majatek .maj-bohater { margin-top: 30px; text-align: center; container-type: inline-size; }
+#widok-majatek .maj-bohater-opis { margin: 0 0 8px; font-size: 15px; color: var(--maj-cichy); }
+#widok-majatek .maj-kwota {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+}
+/* Rozmiar cyfr wg liczby znaków kwoty (--maj-znaki ustawia majatek.js), żeby długa kwota mieściła się w jednej linii obok "zł" */
+#widok-majatek .maj-kwota > span:first-child {
+  font-size: min(104px, calc((100cqi - 52px) / (var(--maj-znaki, 5) * 0.6)));
+  white-space: nowrap;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #FFFFFF 30%, #8D94A3 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  overflow-wrap: anywhere;
+  filter: drop-shadow(0 0 26px rgba(var(--habits-akcent-rgb), 0.18));
+}
+#widok-majatek .maj-zl { font-family: var(--maj-serif); font-style: italic; font-size: 34px; color: var(--maj-zloto); }
+
+#widok-majatek .maj-fakty { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+#widok-majatek .maj-fakt {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--maj-linia);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 14px;
+  color: var(--maj-cichy);
+}
+#widok-majatek .maj-fakt strong { color: var(--maj-jasny); font-weight: 600; font-variant-numeric: tabular-nums; }
+#widok-majatek .maj-fakt-plus strong { color: var(--maj-inwestycje); }
+#widok-majatek .maj-fakt-minus strong { color: var(--maj-minus); }
+
+/* Przycisk główny: pigułka 56 px w kremowym akcencie */
+#widok-majatek .maj-btn-glowny {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 0 28px;
+  border: none;
+  border-radius: 999px;
+  background: var(--habits-akcent);
+  color: #0a0b10;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.7), 0 0 22px rgba(var(--habits-akcent-rgb), 0.3);
+  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+#widok-majatek .maj-bohater .maj-btn-glowny { margin-top: 26px; }
+#widok-majatek .maj-btn-glowny svg { width: 18px; height: 18px; }
+#widok-majatek .maj-btn-glowny:active { transform: scale(0.97); }
+#widok-majatek .maj-btn-glowny:disabled { opacity: 0.45; cursor: default; transform: none; }
+
+/* ----- Przełączniki osobnych kont ----- */
+#widok-majatek .maj-przelaczniki {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 40px;
+}
+#widok-majatek .maj-przelacz {
+  --kolor: var(--maj-inwestycje);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 8px;
+  min-height: 56px;
+  padding: 8px 16px;
+  border: 1px solid var(--maj-linia);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--maj-jasny);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+#widok-majatek .maj-przelacz[data-konto="side_hustle"] { --kolor: var(--maj-side); }
+#widok-majatek .maj-przelacz-kropka {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--kolor);
+  box-shadow: 0 0 10px var(--kolor);
+}
+#widok-majatek .maj-przelacz-wartosc {
+  flex-basis: 100%;
+  padding-left: 15px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--maj-cichy);
+  font-variant-numeric: tabular-nums;
+}
+#widok-majatek .maj-przelacz-wartosc:empty { display: none; }
+#widok-majatek .maj-przelacz[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--kolor) 12%, transparent);
+  border-color: color-mix(in srgb, var(--kolor) 45%, transparent);
+}
+
+/* ----- Kafle kont (Flip Hub): światło od dołu w kolorze konta, ziarno, odblask krawędzi ----- */
+#widok-majatek .maj-kafel {
+  --swiatlo: var(--maj-inwestycje-swiatlo);
+  --kolor: var(--maj-inwestycje);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-top: 12px;
+  padding: 20px 18px 14px;
+  border-radius: 24px;
+  background:
+    radial-gradient(120% 50% at 50% 115%, var(--swiatlo), transparent 65%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
+    #111318;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 30px 60px -30px rgba(0, 0, 0, 0.9);
+  animation: maj-rozwin 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  container-type: inline-size;
+}
+#widok-majatek .maj-kafel[hidden] { display: none; }
+#widok-majatek .maj-kafel[data-konto="side_hustle"] { --swiatlo: var(--maj-side-swiatlo); --kolor: var(--maj-side); }
+#widok-majatek .maj-kafel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.14;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+#widok-majatek .maj-kafel-gora { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+#widok-majatek .maj-kafel-tytul {
+  margin: 0;
+  font-family: var(--maj-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 28px;
+  color: var(--maj-jasny);
+}
+#widok-majatek .maj-kafel-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #C4C8D0;
+}
+#widok-majatek .maj-kafel-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kolor);
+  box-shadow: 0 0 10px var(--kolor);
+}
+#widok-majatek .maj-kafel-kwota { display: flex; align-items: baseline; gap: 6px; margin: 22px 0 0; }
+#widok-majatek .maj-kafel-kwota > span:first-child {
+  font-size: min(56px, calc((100cqi - 40px) / (var(--maj-znaki, 5) * 0.6)));
+  white-space: nowrap;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #FFFFFF 35%, rgba(255, 255, 255, 0.62) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  overflow-wrap: anywhere;
+}
+#widok-majatek .maj-kafel-kwota .maj-zl { font-size: 26px; color: var(--kolor); }
+#widok-majatek .maj-kafel-miesiac { margin: 8px 0 0; font-size: 13px; color: #C4C8D0; font-variant-numeric: tabular-nums; }
+#widok-majatek .maj-btn-kafel {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 18px;
+  border: 1px solid color-mix(in srgb, var(--kolor) 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--kolor) 14%, transparent);
+  color: var(--maj-jasny);
+  font-size: 14px;
+  font-weight: 700;
+}
+#widok-majatek .maj-btn-kafel:active { transform: scale(0.98); }
+#widok-majatek .maj-kafel .maj-lista { margin-top: 14px; border-top: 1px solid var(--maj-linia); }
+#widok-majatek .maj-kafel .maj-ruch { padding-left: 0; padding-right: 0; }
+#widok-majatek .maj-kafel .maj-ruch:not(.maj-ruch-minus) .maj-ruch-znak { color: var(--kolor); background: color-mix(in srgb, var(--kolor) 14%, transparent); }
+
+/* ----- Nagłówek sekcji (skala z spojnosc.css, złota iskra z blask.css) ----- */
+#widok-majatek .maj-sekcja-naglowek {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 40px 8px 0;
+}
+#widok-majatek .maj-sekcja-naglowek h3 { margin: 0; }
+
+/* ----- Listy ruchów: wiersze oddzielone liniami (jak lista Flip Hub), w panelu ze szkła ----- */
+#widok-majatek .maj-lista-glowna {
+  margin-top: 14px;
+  padding: 4px 16px;
+  border-radius: 24px;
+  border: 1px solid var(--maj-linia);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02));
+}
+#widok-majatek .maj-ruch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 62px;
+  padding: 6px 0;
+  border-top: 1px solid var(--maj-linia);
+}
+#widok-majatek [data-lista] > .maj-ruch:first-child { border-top: none; }
+#widok-majatek .maj-ruch.maj-wjazd { animation: maj-wjazd 0.5s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+#widok-majatek .maj-ruch-znak {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--maj-inwestycje);
+  background: rgba(79, 209, 165, 0.12);
+}
+#widok-majatek .maj-ruch-minus .maj-ruch-znak { color: var(--maj-minus); background: oklch(0.66 0.16 25 / 0.14); }
+#widok-majatek .maj-ruch-znak svg { width: 15px; height: 15px; }
+#widok-majatek .maj-ruch-teksty { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+#widok-majatek .maj-ruch-opis { font-size: 15px; font-weight: 600; color: var(--maj-jasny); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#widok-majatek .maj-ruch-meta { font-size: 12px; color: var(--maj-cichy); }
+#widok-majatek .maj-ruch-kwota { flex: none; font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--maj-jasny); }
+#widok-majatek .maj-ruch-minus .maj-ruch-kwota { color: var(--maj-minus); }
+#widok-majatek .maj-pusto { margin: 14px 0; font-size: 14px; color: var(--maj-cichy); }
+#widok-majatek .maj-wiecej {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  border: none;
+  border-top: 1px solid var(--maj-linia);
+  background: transparent;
+  color: var(--maj-cichy);
+  font-size: 13px;
+  font-weight: 700;
+}
+#widok-majatek .maj-wiecej[hidden] { display: none; }
+
+/* Usuwanie w dwóch stuknięciach (finPrzyciskUsun z finanse.js) */
+#widok-majatek .fin-usun {
+  flex: none;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 6px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(238, 240, 246, 0.4);
+  font-size: 18px;
+  line-height: 1;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+#widok-majatek .fin-usun.fin-uzbrojony {
+  padding: 0 12px;
+  background: oklch(0.66 0.16 25 / 0.22);
+  color: var(--maj-minus);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ----- Okno dodawania (szkło nad rozmytym tłem) ----- */
+#widok-majatek .maj-okno {
+  width: min(420px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 0;
+  border: none;
+  border-radius: 28px;
+  color: var(--maj-tekst);
+  background: rgba(22, 24, 30, 0.86);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  box-shadow:
+    inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07),
+    0 40px 80px -20px rgba(0, 0, 0, 0.9);
+  overflow: auto;
+}
+#widok-majatek .maj-okno::backdrop { background: rgba(4, 5, 8, 0.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+#widok-majatek .maj-okno[open] { animation: maj-okno 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+#widok-majatek .maj-okno form { padding: 22px 20px 20px; }
+#widok-majatek .maj-okno-tytul { margin: 0; font-family: var(--maj-serif); font-style: italic; font-weight: 400; font-size: 32px; color: var(--maj-jasny); }
+#widok-majatek .maj-okno-opis { margin: 4px 0 16px; font-size: 13px; color: var(--maj-cichy); }
+
+#widok-majatek .maj-kierunek { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); }
+#widok-majatek .maj-kierunek button {
+  min-height: 40px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--maj-cichy);
+  font-size: 14px;
+  font-weight: 700;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+#widok-majatek .maj-kierunek button[aria-pressed="true"] { background: var(--maj-jasny); color: #0a0b10; }
+#widok-majatek .maj-okno-minus .maj-kierunek button[aria-pressed="true"] { background: var(--maj-minus); }
+
+#widok-majatek .maj-pole-kwota {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  margin: 18px 0 10px;
+}
+#widok-majatek .maj-pole-kwota input {
+  width: 100%;
+  max-width: 260px;
+  min-height: 0;
+  padding: 0 0 4px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #fff;
+  font-family: inherit;
+  font-size: 56px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+/* Sama kwota, bez ramki pola; fokus = kremowa linia pod cyframi */
+#widok-majatek .maj-okno .maj-pole-kwota input:focus,
+#widok-majatek .maj-okno .maj-pole-kwota input:focus-visible {
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  border-bottom-color: rgba(var(--habits-akcent-rgb), 0.5);
+}
+#widok-majatek .maj-pole-kwota input::placeholder { color: rgba(255, 255, 255, 0.22); }
+#widok-majatek .maj-okno-minus .maj-pole-kwota input { color: var(--maj-minus); }
+
+#widok-majatek .maj-pole { display: block; margin-top: 12px; }
+#widok-majatek .maj-pole > span { display: block; margin: 0 4px 6px; font-size: 13px; font-weight: 600; color: var(--maj-tekst); }
+#widok-majatek .maj-pole em { font-style: normal; font-weight: 500; color: var(--maj-cichy); }
+#widok-majatek .maj-pole input {
+  width: 100%;
+  min-height: 46px;
+  margin: 0;
+  padding: 0 16px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.28);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+  color: var(--maj-jasny);
+  font-family: inherit;
+  font-size: 16px;
+  color-scheme: dark;
+  -webkit-appearance: none;
+  appearance: none;
+}
+#widok-majatek .maj-pole input::placeholder { color: rgba(235, 238, 245, 0.4); }
+#widok-majatek .maj-pole input:focus { outline: none; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(var(--habits-akcent-rgb), 0.45); }
+
+#widok-majatek .maj-okno-przyciski { display: grid; grid-template-columns: auto 1fr; gap: 10px; margin-top: 22px; }
+#widok-majatek .maj-btn-cichy {
+  min-height: 56px;
+  padding: 0 20px;
+  border: 1px solid var(--maj-linia);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--maj-cichy);
+  font-size: 15px;
+  font-weight: 600;
+}
+#widok-majatek .maj-okno .maj-btn-glowny { padding: 0 16px; }
+
+@keyframes maj-rozwin { from { opacity: 0; transform: translateY(-8px) scale(0.98); } }
+@keyframes maj-wjazd { from { opacity: 0; transform: scale(0.94) translateY(-8px); } }
+@keyframes maj-okno { from { opacity: 0; transform: translateY(16px) scale(0.97); } }
+
+@media (max-width: 360px) {
+  #widok-majatek .maj-przelacz { padding: 8px 12px; font-size: 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #widok-majatek .maj-kafel,
+  #widok-majatek .maj-ruch.maj-wjazd,
+  #widok-majatek .maj-okno[open] { animation: none; }
+  #widok-majatek .maj-przelacz,
+  #widok-majatek .maj-kierunek button,
+  #widok-majatek .maj-btn-glowny,
+  #widok-majatek .fin-usun { transition: none; }
+}
