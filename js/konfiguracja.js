@@ -9,6 +9,7 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let sesjaUzytkownika = null; // aktualna sesja Supabase, ustawiana przez onAuthStateChange
 let aplikacjaZainicjowana = false;
 const AI_UZYTKOWNIK_ID = "1f1fc4a4-1b87-4ea7-9ddd-785873e98cbc"; // jedyne konto z dostępem do sekcji "AI Analiza" (i customowego nagłówka)
+const JEDZENIE_WLACZONE = false; // Posiłki chwilowo schowane (menu, skrót "Zdjęcie", gwiazdy i sekcja na ekranie Dziś); kod, tabele i dane zostają – true przywraca
 const JEDZENIE_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z dostępem do sekcji "Jedzenie" (tabele posilki, jedzenie_cele)
 const FINANSE_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z dostępem do sekcji "Finanse" (tabele wydatki, budzety, widok oszczednosci) (te same konta co Jedzenie)
 const MEDYTACJA_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z dostępem do sekcji "Medytacja" (tabele medytacje, medytacja_ustawienia) - te same co Jedzenie

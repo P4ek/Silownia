@@ -20,7 +20,7 @@ function inicjalizujDaneAplikacji() {
   ustawDostepRadZKsiazek(dostepRady);
   if (dostepRady) wczytajRadyZKsiazek().then(function () { dzisDaneGotowe("rady"); });
 
-  const dostepJedzenie = !!(sesjaUzytkownika && sesjaUzytkownika.user && JEDZENIE_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));
+  const dostepJedzenie = JEDZENIE_WLACZONE && !!(sesjaUzytkownika && sesjaUzytkownika.user && JEDZENIE_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));
   ustawDostepJedzenia(dostepJedzenie);
   if (dostepJedzenie) wczytajJedzenie().then(function () { dzisDaneGotowe("jedzenie"); });
 

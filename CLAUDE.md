@@ -17,7 +17,7 @@ Bez bundlera, npm i kroku build. Dane w Supabase (`js/konfiguracja.js`), wykresy
 | Wykres postępu | `#widok-wykres` | `js/wykres.js` | `css/wykres.css` |
 | Katalog ćwiczeń | `#widok-nowe` | `js/katalog.js` | `css/katalog.css` |
 | Zaplanuj trening | `#widok-zaplanuj` | `js/zaplanuj-trening.js` | `css/zaplanuj-trening.css` |
-| Jedzenie (tylko konta z `JEDZENIE_DOSTEP_IDS`) | `#widok-jedzenie` | `js/jedzenie.js` | `css/jedzenie.css` |
+| Jedzenie (tylko konta z `JEDZENIE_DOSTEP_IDS`; chwilowo schowane: `JEDZENIE_WLACZONE = false` w `konfiguracja.js` wyłącza dostęp w `start.js`, kod i dane zostają) | `#widok-jedzenie` | `js/jedzenie.js` | `css/jedzenie.css` |
 | Plan tygodnia (Kompas) | `#widok-plan` | `js/plan-tygodnia.js` | `css/plan-tygodnia.css` |
 | Nawyki | `#widok-habits` | `js/nawyki.js` | `css/nawyki.css` |
 | Rady z książek (tylko konta z `RADY_DOSTEP_IDS`) | `#widok-rady` | `js/rady-z-ksiazek.js` | `css/rady-z-ksiazek.css` |
