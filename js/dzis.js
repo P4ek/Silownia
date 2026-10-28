@@ -1,5 +1,6 @@
-// Ekran "Dziś" (#widok-dzis, ekran startowy): niebo dnia (gwiazdozbiór z dzisiejszych posiłków, treningu, misji i nawyków),
-// cztery części dnia, tydzień, cele tygodnia i rada z książek. Bez własnych zapytań do bazy: korzysta z danych,
+// Ekran "Dziś" (#widok-dzis, ekran startowy): wynik dnia jako szklana kula z płynem (js/kula.js – warstwa na każdą zaliczoną
+// rzecz w kolorze kategorii, poziom = wynik dnia), widżety treningu / misji / posiłków, nawyki do odhaczenia, tydzień
+// jako mini-pierścienie, cele tygodnia i rada z książek. Bez własnych zapytań do bazy: korzysta z danych,
 // które wczytuje start (wpisy, nawyki, nawykiWpisy, plany, role/cele, jedzPosilki/jedzCele, rady*). start.js woła
 // dzisDaneGotowe(klucz) po każdym wczytaniu, więc ekran rysuje się od razu jako szkielet i uzupełnia w miarę nadejścia danych.
 // Zapis: tylko istniejące funkcje innych ekranów (przelaczNawykDzien, przybijPieczatke, przelaczCel, rozpocznijTreningZPlanu).
@@ -8,8 +9,8 @@ const dzisDataEl = document.getElementById("dzis-data");
 const dzisPowitanieEl = document.getElementById("dzis-powitanie");
 const dzisProcentEl = document.getElementById("dzis-procent");
 const dzisGwiazdyLicznikEl = document.getElementById("dzis-gwiazdy-licznik");
-const dzisNieboSvg = document.getElementById("dzis-niebo-svg");
-const dzisGwiazdyPrzyciski = document.getElementById("dzis-gwiazdy-przyciski");
+const dzisKulaCanvas = document.getElementById("dzis-kula");
+const dzisLegendaEl = document.getElementById("dzis-legenda");
 const dzisPodpowiedzEl = document.getElementById("dzis-podpowiedz");
 const dzisTreningEl = document.getElementById("dzis-trening");
 const dzisNawykiEl = document.getElementById("dzis-nawyki");
@@ -38,7 +39,8 @@ const DZIS_MIEJSCA_NAWYKOW = [
   { x: 140, y: 250, r: 7, a: "b" },
   { x: 52, y: 214, r: 7, a: "b" }
 ];
-const DZIS_LINIE = [["sn", "ob"], ["ob", "ko"], ["ko", "tr"], ["tr", "mi"], ["mi", "h0"], ["h0", "h1"], ["h1", "ko"], ["h1", "h2"], ["h2", "h3"]];
+// Kolory warstw kuli i kropek kategorii
+const DZIS_KOLORY = { trening: "#7AA2FF", nawyk: "#EADFC8", posilek: "#5ED1B0", misja: "#E8C27A" };
 const DZIS_TYPY_POSILKOW = [["sniadanie", "śniadanie"], ["obiad", "obiad"], ["kolacja", "kolacja"]];
 const DZIS_KOLORY_CELOW = ["dzis-k-nawyk", "dzis-k-posilek", "dzis-k-trening", "dzis-k-misja"];
 const DZIS_DNI_SKROT = ["nd", "pn", "wt", "śr", "czw", "pt", "sob"];
@@ -55,7 +57,7 @@ const DZIS_PYL = Array.from({ length: 22 }, function (_, i) {
 // Które dane startowe już dotarły (ustawia start.js); do tego czasu sekcja pokazuje szkielet
 const dzisGotowe = { treningi: false, plany: false, nawyki: false, nawykiWpisy: false, cele: false, jedzenie: false, rady: false };
 let dzisOczekujace = {};       // klucz gwiazdy -> stan docelowy zapisu w toku (zmiana widoczna od razu, cofana przy błędzie)
-let dzisNowaGwiazda = null;    // { klucz, czas } – gwiazda zapalona dotknięciem (animacja "born")
+let dzisKula = null;           // szklana kula z płynem (js/kula.js), tworzona na końcu pliku
 let dzisCeleTygodnia = [];     // cele BIEŻĄCEGO tygodnia (Plan tygodnia może przeglądać inny tydzień)
 let dzisRadaIndeks = 0;
 
@@ -89,10 +91,6 @@ function dzisIskra(x, y, r) {
     "C" + f(x + k) + " " + f(y + k * 0.4) + " " + f(x + k * 0.4) + " " + f(y + k) + " " + x + " " + f(y + r) +
     "C" + f(x - k * 0.4) + " " + f(y + k) + " " + f(x - k) + " " + f(y + k * 0.4) + " " + f(x - r) + " " + y +
     "C" + f(x - k) + " " + f(y - k * 0.4) + " " + f(x - k * 0.4) + " " + f(y - k) + " " + x + " " + f(y - r) + "Z";
-}
-function dzisIkonaGwiazdy(r, wlaczona, klasaKoloru, rozmiar) {
-  return '<svg class="dzis-glif ' + klasaKoloru + (wlaczona ? " on" : "") + '" width="' + rozmiar + '" height="' + rozmiar +
-    '" viewBox="0 0 30 30" aria-hidden="true"><path d="' + dzisIskra(15, 15, r) + '"/></svg>';
 }
 
 // ----- Stan dnia z wczytanych danych -----
@@ -214,7 +212,7 @@ function renderDzis() {
   const stan = dzisStan();
 
   renderDzisNaglowek();
-  renderDzisNiebo(stan);
+  renderDzisKula(stan);
   renderDzisTrening(stan);
   renderDzisNawyki(stan);
   renderDzisPosilki(stan);
@@ -231,68 +229,45 @@ function renderDzis() {
 
 function renderDzisNaglowek() {
   const teraz = new Date();
-  dzisDataEl.textContent = (DNI_TYGODNIA_PELNE[(teraz.getDay() + 6) % 7] + " · " + teraz.getDate() + " " + MIESIACE_SKROT[teraz.getMonth()]).toUpperCase();
+  const dzien = DNI_TYGODNIA_PELNE[(teraz.getDay() + 6) % 7];
+  dzisDataEl.textContent = dzien.charAt(0).toUpperCase() + dzien.slice(1).toLowerCase() + ", " + teraz.getDate() + " " + MIESIACE_SKROT[teraz.getMonth()];
   const h = teraz.getHours();
-  dzisPowitanieEl.textContent = h < 5 ? "Dobrej nocy." : h < 12 ? "Dzień dobry." : h < 18 ? "Miłego popołudnia." : h < 22 ? "Dobry wieczór." : "Dobrej nocy.";
+  dzisPowitanieEl.textContent = h < 5 ? "Dobrej nocy" : h < 12 ? "Dzień dobry" : h < 18 ? "Miłego popołudnia" : h < 22 ? "Dobry wieczór" : "Dobrej nocy";
 }
 
-function renderDzisNiebo(stan) {
-  dzisProcentEl.textContent = stan.wynik == null ? "–" : String(stan.wynik);
-  dzisGwiazdyLicznikEl.textContent = stan.gwiazdWszystkich ? stan.gwiazdZapalonych + " z " + stan.gwiazdWszystkich + " " + odmianaLiczby(stan.gwiazdWszystkich, "gwiazdy", "gwiazd", "gwiazd") : "";
-
-  const poId = {};
-  stan.gwiazdy.forEach(function (g) { poId[g.id] = g; });
-  const linie = DZIS_LINIE.slice();
-  if (!poId.mi) linie.push(["tr", "h0"]); // bez misji trening łączy się wprost z nawykami
-
-  let svg =
-    '<circle class="dzis-orbita" cx="171" cy="160" r="150"/>' +
-    '<circle class="dzis-okrag" cx="171" cy="160" r="104"/>';
-  DZIS_PYL.forEach(function (d) {
-    svg += '<circle class="dzis-pyl" cx="' + d.x + '" cy="' + d.y + '" r="' + d.r + '" style="animation-delay:' + d.opoznienie + 's"/>';
-  });
-  linie.forEach(function (l) {
-    const A = poId[l[0]], B = poId[l[1]];
-    if (!A || !B) return;
-    svg += '<line class="dzis-linia' + (A.on && B.on ? " on" : "") + '" x1="' + A.x + '" y1="' + A.y + '" x2="' + B.x + '" y2="' + B.y + '"/>';
-  });
-
-  let przyciski = "";
-  const teraz = Date.now();
-  stan.gwiazdy.forEach(function (g) {
-    let klasaAnimacji = "";
-    let styl = "";
-    if (g.on) {
-      klasaAnimacji = "lit";
-      if (dzisNowaGwiazda && dzisNowaGwiazda.klucz === g.klucz && teraz - dzisNowaGwiazda.czas < 700) {
-        // Kontynuacja animacji "born" po przerysowaniu (np. gdy zapis skończy się w trakcie animacji)
-        const minelo = (teraz - dzisNowaGwiazda.czas) / 1000;
-        klasaAnimacji = "born";
-        styl = ' style="animation-delay:-' + minelo.toFixed(2) + "s," + (0.7 - minelo).toFixed(2) + 's"';
-      }
-    }
-    const lx = g.a === "r" ? g.x + g.r + 8 : g.x;
-    const ly = g.a === "t" ? g.y - g.r - 9 : g.a === "b" ? g.y + g.r + 16 : g.y + 4;
-    svg +=
-      '<g class="dzis-gw dzis-k-' + g.k + (g.on ? " on" : "") + '">' +
-      '<circle class="dzis-gw-halo" cx="' + g.x + '" cy="' + g.y + '" r="' + (g.r * 1.9).toFixed(1) + '"/>' +
-      '<path class="dzis-gw-ksztalt ' + klasaAnimacji + '"' + styl + ' d="' + dzisIskra(g.x, g.y, g.on ? g.r * 1.25 : g.r * 0.8) + '"/>' +
-      '<text class="dzis-gw-podpis" x="' + lx + '" y="' + ly + '" text-anchor="' + (g.a === "r" ? "start" : "middle") + '">' + dzisEsc(g.nazwa) + "</text></g>";
-
-    const nazwa = g.pelnaNazwa || g.nazwa;
-    przyciski +=
-      '<button type="button" class="dzis-gw-przycisk" data-gwiazda="' + g.klucz + '" data-dzis-fokus="gw-' + g.klucz + '"' +
-      ' style="left:' + (g.x / 342 * 100).toFixed(2) + "%;top:" + (g.y / 300 * 100).toFixed(2) + '%"' +
-      ' aria-pressed="' + (g.on ? "true" : "false") + '" aria-label="' + dzisEsc(nazwa + (g.on ? " – zrobione" : " – do zrobienia")) + '"></button>';
-  });
-  const reszta = stan.nawykiGotowe ? nawyki.length - stan.nawykiNaNiebie : 0;
-  if (reszta > 0) {
-    svg += '<text class="dzis-gw-reszta" x="336" y="294" text-anchor="end">+' + reszta + " " + odmianaLiczby(reszta, "nawyk", "nawyki", "nawyków") + "</text>";
+// Kategorie wyniku dnia (tylko dostępne): każda to równy kawałek kuli, dzielony między jej rzeczy do zrobienia.
+// Dzięki temu poziom płynu = wynik dnia (średnia kategorii), a każda zaliczona rzecz to osobna warstwa w kolorze kategorii.
+function dzisKategorie(stan) {
+  const kat = [];
+  if (dzisGotowe.treningi) kat.push({ nazwa: "Trening", kolor: DZIS_KOLORY.trening, zrobione: stan.trenowal ? ["tr"] : [], wszystkie: 1 });
+  if (stan.nawykiGotowe && nawyki.length) {
+    kat.push({ nazwa: "Nawyki", kolor: DZIS_KOLORY.nawyk, wszystkie: nawyki.length,
+      zrobione: nawyki.filter(stan.nawykZrobiony).map(function (n) { return "n" + n.id; }) });
   }
-  dzisNieboSvg.innerHTML = svg;
-  dzisGwiazdyPrzyciski.innerHTML = przyciski;
+  if (stan.posilki && stan.posilki.gotowe) {
+    kat.push({ nazwa: "Posiłki", kolor: DZIS_KOLORY.posilek, wszystkie: DZIS_TYPY_POSILKOW.length,
+      zrobione: DZIS_TYPY_POSILKOW.filter(function (t) { return stan.posilki.typy[t[0]]; }).map(function (t) { return "p-" + t[0]; }) });
+  }
+  if (stan.misja) kat.push({ nazwa: "Misja", kolor: DZIS_KOLORY.misja, zrobione: stan.misja.dzisPrzybita ? ["mi"] : [], wszystkie: 1 });
+  return kat;
+}
 
-  // Podpowiedź pod niebem: co jeszcze zostało
+function renderDzisKula(stan) {
+  dzisProcentEl.textContent = stan.wynik == null ? "–" : String(stan.wynik);
+  dzisGwiazdyLicznikEl.textContent = stan.gwiazdWszystkich ? stan.gwiazdZapalonych + " z " + stan.gwiazdWszystkich : "";
+
+  const kat = dzisKategorie(stan);
+  const warstwy = [];
+  kat.forEach(function (k) {
+    k.zrobione.forEach(function (klucz) { warstwy.push({ klucz: klucz, kolor: k.kolor, h: 1 / kat.length / k.wszystkie }); });
+  });
+  if (dzisKula) dzisKula.ustaw(warstwy);
+  dzisKulaCanvas.setAttribute("aria-label", stan.wynik == null ? "Wynik dnia: wczytywanie" : "Wynik dnia: " + stan.wynik + "%, " + stan.gwiazdZapalonych + " z " + stan.gwiazdWszystkich);
+
+  dzisLegendaEl.innerHTML = kat.map(function (k) {
+    return '<span class="dzis-legenda-poz" style="--k:' + k.kolor + '"><strong>' + k.zrobione.length + "/" + k.wszystkie + "</strong>" + k.nazwa + "</span>";
+  }).join("");
+
   if (stan.wynik == null) {
     dzisPodpowiedzEl.textContent = "Wczytuję Twój dzień…";
     return;
@@ -305,77 +280,132 @@ function renderDzisNiebo(stan) {
   }
   const nawykowZostalo = stan.nawykiGotowe ? nawyki.length - stan.nawykiZrobione : 0;
   if (nawykowZostalo > 0) zostalo.push(nawykowZostalo + " " + odmianaLiczby(nawykowZostalo, "nawyk", "nawyki", "nawyków"));
-  dzisPodpowiedzEl.textContent = zostalo.length
-    ? "Dotknij gwiazdy, żeby ją zapalić. Zostało: " + zostalo.join(", ") + "."
-    : "Cały gwiazdozbiór zapalony. Dobra robota.";
+  dzisPodpowiedzEl.textContent = zostalo.length ? "Zostało: " + zostalo.join(", ") + "." : "Wszystko na dziś zrobione. Dobra robota.";
 }
 
-// Wiersz nagłówka części dnia: gwiazdka, tytuł, wartość po prawej
-function dzisWierszCzesci(tytul, klasaKoloru, postep, wartosc) {
-  const pelna = postep >= 1;
-  return '<div class="dzis-czesc-wiersz">' + dzisIkonaGwiazdy(pelna ? 12 : 9, pelna, klasaKoloru, 22) +
-    '<span class="dzis-czesc-tytul">' + tytul + "</span>" +
-    '<span class="dzis-czesc-wartosc ' + klasaKoloru + (pelna ? " on" : "") + '">' + dzisEsc(wartosc) + "</span></div>";
+// Nagłówek widżetu: kropka i nazwa kategorii, stan po prawej
+function dzisGoraWidzetu(nazwa, stanTekst, zrobione) {
+  return '<div class="dzis-widzet-gora"><span class="dzis-widzet-nazwa">' + nazwa + "</span>" +
+    (stanTekst ? '<span class="dzis-widzet-stan' + (zrobione ? " on" : "") + '">' + dzisEsc(stanTekst) + "</span>" : "") + "</div>";
 }
 
+function dzisObjetosc(lista) {
+  return lista.reduce(function (s, w) {
+    return s + (w.podejscia || []).reduce(function (a, p) { return a + wynikSerii(p); }, 0);
+  }, 0);
+}
+
+function dzisKg(n) {
+  return Math.round(n).toLocaleString("pl-PL");
+}
+
+// Ile dni temu (0 = dziś)
+function dzisDniTemu(data) {
+  const d = new Date(+data.slice(0, 4), +data.slice(5, 7) - 1, +data.slice(8, 10));
+  const t = new Date();
+  return Math.round((new Date(t.getFullYear(), t.getMonth(), t.getDate()) - d) / 864e5);
+}
+
+// Trening: dzisiejsza objętość, porównanie z poprzednim treningiem tej samej partii i najlepsze serie;
+// bez treningu – plan na dziś albo kiedy i co było ostatnio
 function renderDzisTrening(stan) {
   if (!dzisGotowe.treningi || !dzisGotowe.plany) {
-    dzisTreningEl.innerHTML = dzisWierszCzesci("Trening", "dzis-k-trening", 0, "") + '<div class="dzis-czesc-tresc"><span class="dzis-opis">Wczytuję…</span></div>';
+    dzisTreningEl.innerHTML = dzisGoraWidzetu("Trening", "", false) + '<span class="dzis-opis">Wczytuję…</span>';
     return;
   }
   const plan = stan.planDzis;
-  let opis;
+  let tresc = "";
   if (stan.trenowal) {
     const serie = stan.wpisyDzis.reduce(function (s, w) { return s + (w.podejscia || []).length; }, 0);
-    opis = "Zrobiony: " + stan.wpisyDzis.length + " " + odmianaLiczby(stan.wpisyDzis.length, "ćwiczenie", "ćwiczenia", "ćwiczeń") + ", " +
-      serie + " " + odmianaLiczby(serie, "seria", "serie", "serii") + ".";
+    // Partia główna: ta z największą liczbą serii dziś
+    const seriePartii = {};
+    stan.wpisyDzis.forEach(function (w) { seriePartii[w.partia] = (seriePartii[w.partia] || 0) + (w.podejscia || []).length; });
+    const partia = Object.keys(seriePartii).sort(function (a, b) { return seriePartii[b] - seriePartii[a]; })[0];
+    const dzisPartia = dzisObjetosc(stan.wpisyDzis.filter(function (w) { return w.partia === partia; }));
+    const poprzednia = wpisy.filter(function (w) { return w.partia === partia && w.data < stan.dzis; })
+      .reduce(function (max, w) { return w.data > max ? w.data : max; }, "");
+    let porownanie;
+    if (poprzednia) {
+      const wtedy = dzisObjetosc(wpisy.filter(function (w) { return w.partia === partia && w.data === poprzednia; }));
+      const zmiana = wtedy > 0 ? Math.round((dzisPartia / wtedy - 1) * 100) : null;
+      const kiedy = +poprzednia.slice(8, 10) + " " + MIESIACE_SKROT[+poprzednia.slice(5, 7) - 1];
+      porownanie = zmiana === null ? "" :
+        '<span class="dzis-trening-zmiana' + (zmiana > 0 ? " plus" : zmiana < 0 ? " minus" : "") + '">' +
+        (zmiana > 0 ? "+" : zmiana < 0 ? "−" : "±") + Math.abs(zmiana) + "%</span>" +
+        '<span class="dzis-opis-inline">vs ' + dzisEsc(partia.toLowerCase()) + ", " + kiedy + "</span>";
+    } else {
+      porownanie = '<span class="dzis-opis-inline">Pierwszy zapisany trening: ' + dzisEsc(partia.toLowerCase()) + "</span>";
+    }
+    const rekordy = obliczRekordy();
+    let lista = '<div class="dzis-trening-lista">';
+    stan.wpisyDzis.slice(0, DZIS_MAKS_CWICZEN).forEach(function (w) {
+      const najlepsza = (w.podejscia || []).reduce(function (n, p) { return !n || wynikSerii(p) > wynikSerii(n) ? p : n; }, null);
+      const rekord = czyWpisMaRekord(w, rekordy);
+      lista += '<span class="dzis-trening-cw">' + kropkaPartii(w.partia).outerHTML +
+        '<span class="dzis-trening-cw-nazwa">' + dzisEsc(w.cwiczenie) + "</span>" +
+        (rekord ? '<span class="dzis-trening-rekord" title="Rekord">' + IKONA_GWIAZDKA_REKORD + "</span>" : "") +
+        '<span class="dzis-trening-cw-seria">' + (najlepsza ? formatKg(Number(najlepsza["cieżar"]) || 0) + " kg × " + najlepsza.powtorzenia : "") + "</span></span>";
+    });
+    const reszta = stan.wpisyDzis.length - DZIS_MAKS_CWICZEN;
+    if (reszta > 0) lista += '<span class="dzis-cwiczenia-reszta">+' + reszta + " " + odmianaLiczby(reszta, "ćwiczenie", "ćwiczenia", "ćwiczeń") + "</span>";
+    lista += "</div>";
+    tresc =
+      '<div class="dzis-trening-liczba"><span class="dzis-duza">' + dzisKg(dzisObjetosc(stan.wpisyDzis)) + '</span><span class="dzis-jednostka">kg</span></div>' +
+      '<span class="dzis-opis">' + stan.wpisyDzis.length + " " + odmianaLiczby(stan.wpisyDzis.length, "ćwiczenie", "ćwiczenia", "ćwiczeń") + " · " +
+      serie + " " + odmianaLiczby(serie, "seria", "serie", "serii") + "</span>" +
+      '<div class="dzis-trening-porownanie">' + porownanie + "</div>" + lista;
   } else if (plan) {
-    const partie = plan.cwiczenia.map(function (c) { return c.partia; }).filter(function (p, i, t) { return p && t.indexOf(p) === i; });
-    opis = plan.nazwa + (partie.length ? ", " + partie.join(", ").toLowerCase() : "") + ". " +
-      plan.cwiczenia.length + " " + odmianaLiczby(plan.cwiczenia.length, "ćwiczenie", "ćwiczenia", "ćwiczeń") + ".";
-  } else {
-    opis = "Brak planu na dziś.";
-  }
-  let lista = "";
-  if (plan && plan.cwiczenia.length) {
-    lista = '<div class="dzis-cwiczenia">';
+    let lista = '<div class="dzis-trening-lista">';
     plan.cwiczenia.slice(0, DZIS_MAKS_CWICZEN).forEach(function (c) {
-      lista += '<span class="dzis-cwiczenie">' + dzisEsc(c.cwiczenie) + '<span class="dzis-kropki" aria-hidden="true"></span><span class="dzis-cwiczenie-partia">' + dzisEsc(c.partia) + "</span></span>";
+      lista += '<span class="dzis-trening-cw">' + kropkaPartii(c.partia).outerHTML + '<span class="dzis-trening-cw-nazwa">' + dzisEsc(c.cwiczenie) + "</span>" +
+        '<span class="dzis-trening-cw-seria">' + dzisEsc(c.partia) + "</span></span>";
     });
     const reszta = plan.cwiczenia.length - DZIS_MAKS_CWICZEN;
     if (reszta > 0) lista += '<span class="dzis-cwiczenia-reszta">+' + reszta + " " + odmianaLiczby(reszta, "ćwiczenie", "ćwiczenia", "ćwiczeń") + "</span>";
     lista += "</div>";
+    tresc = '<div class="dzis-trening-liczba"><span class="dzis-srednia">' + dzisEsc(plan.nazwa) + "</span></div>" +
+      '<span class="dzis-opis">Plan na dziś · ' + plan.cwiczenia.length + " " + odmianaLiczby(plan.cwiczenia.length, "ćwiczenie", "ćwiczenia", "ćwiczeń") + "</span>" + lista;
+  } else {
+    const ostatnia = wpisy.reduce(function (max, w) { return w.data > max ? w.data : max; }, "");
+    if (ostatnia) {
+      const dni = dzisDniTemu(ostatnia);
+      const partie = wpisy.filter(function (w) { return w.data === ostatnia; }).map(function (w) { return w.partia; })
+        .filter(function (p, i, t) { return p && t.indexOf(p) === i; });
+      tresc = '<div class="dzis-trening-liczba"><span class="dzis-duza">' + dni + '</span><span class="dzis-jednostka">' +
+        odmianaLiczby(dni, "dzień", "dni", "dni") + " temu</span></div>" +
+        '<span class="dzis-opis">Ostatnio: ' + dzisEsc(partie.join(", ")) + ". Brak planu na dziś.</span>";
+    } else {
+      tresc = '<span class="dzis-opis">Nie ma jeszcze zapisanych treningów.</span>';
+    }
   }
-  const wartosc = stan.trenowal ? "zrobiony" : plan ? "plan na dziś" : "";
   dzisTreningEl.innerHTML =
-    dzisWierszCzesci("Trening", "dzis-k-trening", stan.trenowal ? 1 : 0, wartosc) +
-    '<div class="dzis-czesc-tresc"><span class="dzis-opis">' + dzisEsc(opis) + "</span>" + lista +
-    '<button type="button" class="dzis-btn dzis-k-trening" id="dzis-btn-trening" data-dzis-fokus="btn-trening">' +
-    (stan.trenowal ? "Dopisz ćwiczenie" : "Rozpocznij trening") + "</button></div>";
+    dzisGoraWidzetu("Trening", stan.trenowal ? "zrobiony" : plan ? "plan na dziś" : "", stan.trenowal) + tresc +
+    '<button type="button" class="dzis-btn" id="dzis-btn-trening" data-dzis-fokus="btn-trening">' +
+    (stan.trenowal ? "Dopisz ćwiczenie" : "Rozpocznij trening") + "</button>";
 }
 
+// Nawyki: lista do odhaczenia (stuknięcie zapala gwiazdę i dolewa warstwę do kuli)
 function renderDzisNawyki(stan) {
+  const ile = stan.nawykiGotowe && nawyki.length ? stan.nawykiZrobione + " z " + nawyki.length : "";
+  let html = '<div class="dzis-sekcja-naglowek"><h3 class="dzis-tytul">Nawyki</h3><span class="dzis-kicker">' + ile + "</span></div>";
   if (!stan.nawykiGotowe) {
-    dzisNawykiEl.innerHTML = dzisWierszCzesci("Nawyki", "dzis-k-nawyk", 0, "") + '<div class="dzis-czesc-tresc"><span class="dzis-opis">Wczytuję…</span></div>';
+    dzisNawykiEl.innerHTML = html + '<div class="dzis-lista"><span class="dzis-opis dzis-lista-opis">Wczytuję…</span></div>';
     return;
   }
   if (!nawyki.length) {
-    dzisNawykiEl.innerHTML = dzisWierszCzesci("Nawyki", "dzis-k-nawyk", 0, "") +
-      '<div class="dzis-czesc-tresc"><span class="dzis-opis">Nie masz jeszcze nawyków.</span>' +
-      '<button type="button" class="dzis-btn dzis-k-nawyk" data-przejdz="widok-habits">Dodaj nawyk</button></div>';
+    dzisNawykiEl.innerHTML = html + '<div class="dzis-lista"><span class="dzis-opis dzis-lista-opis">Nie masz jeszcze nawyków.</span>' +
+      '<button type="button" class="dzis-btn" data-przejdz="widok-habits">Dodaj nawyk</button></div>';
     return;
   }
-  let siatka = '<div class="dzis-nawyki-siatka">';
+  html += '<div class="dzis-lista">';
   nawyki.forEach(function (n) {
     const on = stan.nawykZrobiony(n);
-    siatka +=
+    html +=
       '<button type="button" class="dzis-nawyk' + (on ? " on" : "") + '" data-gwiazda="n' + n.id + '" data-dzis-fokus="nawyk-' + n.id + '" aria-pressed="' + on + '">' +
-      '<span class="dzis-nawyk-nazwa">' + dzisEsc(n.nazwa) + "</span>" + dzisIkonaGwiazdy(on ? 11 : 8, on, "dzis-k-nawyk", 18) + "</button>";
+      '<span class="dzis-nawyk-znak" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>' +
+      '<span class="dzis-nawyk-nazwa">' + dzisEsc(n.nazwa) + "</span></button>";
   });
-  siatka += "</div>";
-  dzisNawykiEl.innerHTML =
-    dzisWierszCzesci("Nawyki", "dzis-k-nawyk", stan.nawykiZrobione / nawyki.length, stan.nawykiZrobione + " z " + nawyki.length) +
-    '<div class="dzis-czesc-tresc dzis-czesc-tresc-siatka">' + siatka + "</div>";
+  dzisNawykiEl.innerHTML = html + "</div>";
 }
 
 function renderDzisPosilki(stan) {
@@ -383,22 +413,21 @@ function renderDzisPosilki(stan) {
   if (!stan.posilki) return;
   const p = stan.posilki;
   if (!p.gotowe) {
-    dzisPosilkiEl.innerHTML = dzisWierszCzesci("Posiłki", "dzis-k-posilek", 0, "") + '<div class="dzis-czesc-tresc"><span class="dzis-opis">Wczytuję…</span></div>';
+    dzisPosilkiEl.innerHTML = dzisGoraWidzetu("Posiłki", "", false) + '<span class="dzis-opis">Wczytuję…</span>';
     return;
   }
   const typy = DZIS_TYPY_POSILKOW.filter(function (t) { return p.typy[t[0]]; }).length;
   const udzial = p.cel ? Math.min(1, p.suma.kcal / p.cel.kcal) : 0;
-  const makro = [["B", p.suma.bialko, " g"], ["W", p.suma.wegle, " g"], ["T", p.suma.tluszcze, " g"]].map(function (m) {
-    return '<span class="dzis-makro">' + m[0] + " <strong>" + jedzFormat(m[1]) + m[2] + "</strong></span>";
+  const makro = [["B", p.suma.bialko], ["W", p.suma.wegle], ["T", p.suma.tluszcze]].map(function (m) {
+    return '<span class="dzis-makro">' + m[0] + " <strong>" + jedzFormat(m[1]) + " g</strong></span>";
   }).join("");
   dzisPosilkiEl.innerHTML =
-    dzisWierszCzesci("Posiłki", "dzis-k-posilek", typy / DZIS_TYPY_POSILKOW.length, typy + " z " + DZIS_TYPY_POSILKOW.length) +
-    '<div class="dzis-czesc-tresc">' +
-    '<div class="dzis-kcal"><span class="dzis-kcal-liczba">' + jedzFormat(p.suma.kcal) + "</span>" +
-    '<span class="dzis-opis">' + (p.cel ? "z " + jedzFormat(p.cel.kcal) + " kcal" : "kcal dziś") + "</span></div>" +
+    dzisGoraWidzetu("Posiłki", typy + " z " + DZIS_TYPY_POSILKOW.length, typy === DZIS_TYPY_POSILKOW.length) +
+    '<div class="dzis-trening-liczba"><span class="dzis-duza">' + jedzFormat(p.suma.kcal) + '</span><span class="dzis-jednostka">' +
+    (p.cel ? "/ " + jedzFormat(p.cel.kcal) + " kcal" : "kcal") + "</span></div>" +
     (p.cel ? '<span class="dzis-pasek"><span class="dzis-pasek-wypelnienie" style="width:' + Math.round(udzial * 100) + '%"></span></span>' : "") +
     '<div class="dzis-makra">' + makro + "</div>" +
-    '<button type="button" class="dzis-btn dzis-k-posilek" data-przejdz="widok-jedzenie">Zrób zdjęcie</button></div>';
+    '<button type="button" class="dzis-btn" data-przejdz="widok-jedzenie">Zrób zdjęcie</button>';
 }
 
 function renderDzisMisja(stan) {
@@ -406,50 +435,50 @@ function renderDzisMisja(stan) {
   dzisMisjaEl.hidden = !widoczna;
   if (!widoczna) return;
   if (!dzisGotowe.rady) {
-    dzisMisjaEl.innerHTML = dzisWierszCzesci("Misja", "dzis-k-misja", 0, "") + '<div class="dzis-czesc-tresc"><span class="dzis-opis">Wczytuję…</span></div>';
+    dzisMisjaEl.innerHTML = dzisGoraWidzetu("Misja", "", false) + '<span class="dzis-opis">Wczytuję…</span>';
     return;
   }
   if (!stan.misja) {
-    dzisMisjaEl.innerHTML = dzisWierszCzesci("Misja", "dzis-k-misja", 0, "") +
-      '<div class="dzis-czesc-tresc"><span class="dzis-opis">Brak aktywnej misji. Wybierz zasadę w Radach z książek.</span>' +
-      '<button type="button" class="dzis-btn dzis-k-misja" data-przejdz="widok-rady">Wybierz zasadę</button></div>';
+    dzisMisjaEl.innerHTML = dzisGoraWidzetu("Misja", "", false) +
+      '<span class="dzis-opis">Brak aktywnej misji. Wybierz zasadę w Radach z książek.</span>' +
+      '<button type="button" class="dzis-btn" data-przejdz="widok-rady">Wybierz zasadę</button>';
     return;
   }
   const m = stan.misja;
   const nrDnia = m.dzisPrzybita ? m.liczba : m.liczba + 1;
-  let pieczatki = '<div class="dzis-pieczatki" role="img" aria-label="Pieczątki: ' + m.liczba + " z " + RADY_PIECZATKI_WYMAGANE + '">';
-  for (let i = 0; i < RADY_PIECZATKI_WYMAGANE; i++) {
-    pieczatki += dzisIkonaGwiazdy(i === nrDnia - 1 ? 12 : 10, i < m.liczba, "dzis-k-misja", 18);
-  }
-  pieczatki += "</div>";
+  let pieczatki = '<span class="dzis-pieczatki" role="img" aria-label="Pieczątki: ' + m.liczba + " z " + RADY_PIECZATKI_WYMAGANE + '">';
+  for (let i = 0; i < RADY_PIECZATKI_WYMAGANE; i++) pieczatki += "<i" + (i < m.liczba ? ' class="on"' : "") + "></i>";
+  pieczatki += "</span>";
   let przycisk;
   if (m.komplet) {
-    przycisk = '<button type="button" class="dzis-btn dzis-k-misja" data-przejdz="widok-rady">Zalicz zasadę</button>';
+    przycisk = '<button type="button" class="dzis-btn" data-przejdz="widok-rady">Zalicz zasadę</button>';
   } else if (m.dzisPrzybita) {
     przycisk = '<button type="button" class="dzis-btn dzis-btn-zrobione" disabled>Dzień ' + nrDnia + " zaliczony</button>";
   } else {
-    przycisk = '<button type="button" class="dzis-btn dzis-k-misja" data-gwiazda="mi" data-dzis-fokus="btn-misja">Zalicz dzień ' + nrDnia + "</button>";
+    przycisk = '<button type="button" class="dzis-btn" data-gwiazda="mi" data-dzis-fokus="btn-misja">Zalicz dzień ' + nrDnia + "</button>";
   }
-  const wartosc = m.komplet ? "komplet" : m.dzisPrzybita ? "dzień " + nrDnia + " ✓" : "dzień " + nrDnia + " z " + RADY_PIECZATKI_WYMAGANE;
+  const wartosc = m.komplet ? "komplet" : "dzień " + nrDnia + " z " + RADY_PIECZATKI_WYMAGANE;
   dzisMisjaEl.innerHTML =
-    dzisWierszCzesci("Misja", "dzis-k-misja", m.dzisPrzybita ? 1 : 0, wartosc) +
-    '<div class="dzis-czesc-tresc"><span class="dzis-misja-tekst">' + dzisEsc(m.zasada.nazwa) + "</span>" + pieczatki + przycisk + "</div>";
+    dzisGoraWidzetu("Misja", wartosc, m.dzisPrzybita) +
+    '<div class="dzis-misja-srodek"><span class="dzis-misja-tekst">' + dzisEsc(m.zasada.nazwa) + "</span>" + pieczatki + "</div>" + przycisk;
 }
 
+// Tydzień: siedem mini-pierścieni z wynikiem dnia, dziś wyróżnione
 function renderDzisTydzien(stan) {
+  const r = 14, obwod = 2 * Math.PI * r;
   let html = "";
   for (let i = 6; i >= 0; i--) {
     const data = dataSprzedDni(i);
     const d = new Date(+data.slice(0, 4), +data.slice(5, 7) - 1, +data.slice(8, 10));
     const wynik = dzisSkladnikiDnia(data, stan);
     const dzis = i === 0;
-    const r = wynik == null ? 4 : 4 + wynik * 10;
-    const klasa = dzis ? "dzis" : wynik == null ? "brak" : wynik >= 0.5 ? "jasna" : "ciemna";
     const nazwa = dzis ? "dziś" : DZIS_DNI_SKROT[d.getDay()];
     html +=
-      '<span class="dzis-tydzien-dzien ' + klasa + '" role="img" aria-label="' + (dzis ? "Dziś" : DNI_TYGODNIA_PELNE[(d.getDay() + 6) % 7]) + ": " +
-      (wynik == null ? "brak danych" : Math.round(wynik * 100) + "%") + '">' +
-      '<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path d="' + dzisIskra(15, 15, r) + '"/></svg>' +
+      '<span class="dzis-tydzien-dzien' + (dzis ? " dzis" : "") + (wynik == null ? " brak" : "") + '" role="img" aria-label="' +
+      (dzis ? "Dziś" : DNI_TYGODNIA_PELNE[(d.getDay() + 6) % 7]) + ": " + (wynik == null ? "brak danych" : Math.round(wynik * 100) + "%") + '">' +
+      '<svg viewBox="0 0 34 34" aria-hidden="true"><circle class="dzis-tydzien-tor" cx="17" cy="17" r="' + r + '"/>' +
+      '<circle class="dzis-tydzien-luk" cx="17" cy="17" r="' + r + '" stroke-dasharray="' + obwod.toFixed(2) + '" stroke-dashoffset="' +
+      (obwod * (1 - (wynik || 0))).toFixed(2) + '"/></svg>' +
       '<span class="dzis-tydzien-nazwa">' + nazwa + "</span></span>";
   }
   dzisTydzienEl.innerHTML = html;
@@ -550,7 +579,6 @@ async function dzisPrzelaczNawyk(nawyk, przycisk) {
   const dzis = dzisiaj();
   const zapal = !czyNawykZrobiony(nawyk.id, dzis);
   dzisOczekujace[klucz] = zapal;
-  if (zapal) dzisNowaGwiazda = { klucz: klucz, czas: Date.now() };
   renderDzis();
   try {
     await przelaczNawykDzien(nawyk, dzis, przycisk);
@@ -569,7 +597,6 @@ async function dzisZaliczMisje(przycisk) {
     return;
   }
   dzisOczekujace.mi = true;
-  dzisNowaGwiazda = { klucz: "mi", czas: Date.now() };
   renderDzis();
   try {
     await przybijPieczatke(postep, [przycisk]);
@@ -613,4 +640,5 @@ document.getElementById("dzis-rada-nastepna").addEventListener("click", function
   renderDzisRada();
 });
 
+dzisKula = utworzKule(dzisKulaCanvas, document.getElementById("dzis-kula-podpis"));
 renderDzis();

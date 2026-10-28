@@ -36,9 +36,10 @@
 <link rel="stylesheet" href="css/blask.css">
 <link rel="stylesheet" href="css/szklo.css">
 <link rel="stylesheet" href="css/kosmetyki.css">
+<link rel="stylesheet" href="css/premium.css">
 <script>
-// Tryb "liquid glass" (css/szklo.css) – klasa ustawiana przed narysowaniem strony; przełącznik w stopce menu (nawigacja.js)
-try { if (localStorage.getItem("styl-szklo") === "1") document.documentElement.classList.add("styl-szklo"); } catch (e) {}
+// Tryb "liquid glass" (css/szklo.css) – domyślnie włączony, klasa ustawiana przed narysowaniem strony; przełącznik w stopce menu (nawigacja.js), "0" wyłącza
+try { if (localStorage.getItem("styl-szklo") !== "0") document.documentElement.classList.add("styl-szklo"); } catch (e) { document.documentElement.classList.add("styl-szklo"); }
 </script>
 <style>
 /* Ekran startowy: widoczny, dopóki getSession() nie zwróci wyniku (start.js), potem znika w ~300 ms */
@@ -385,29 +386,31 @@ try { if (localStorage.getItem("styl-szklo") === "1") document.documentElement.c
       <h2 id="dzis-powitanie" class="dzis-powitanie"></h2>
     </div>
 
-    <!-- Niebo dnia: każda zrobiona rzecz zapala gwiazdę -->
-    <div class="dzis-niebo">
-      <div class="dzis-niebo-poswiata" aria-hidden="true"></div>
+    <!-- Wynik dnia: szklana kula z płynem (js/kula.js); każda zaliczona rzecz dolewa warstwę w swoim kolorze -->
+    <div class="dzis-bohater">
+      <div class="dzis-kula-box">
+        <canvas id="dzis-kula" class="dzis-kula" role="img" aria-label="Wynik dnia"></canvas>
+        <span id="dzis-kula-podpis" class="dzis-kula-podpis" aria-hidden="true">Przechyl telefon</span>
+      </div>
       <div class="dzis-wynik">
         <span class="dzis-wynik-liczba"><span id="dzis-procent">–</span><span class="dzis-wynik-proc">%</span></span>
-        <span class="dzis-wynik-opis">dnia za Tobą<br><span id="dzis-gwiazdy-licznik" class="dzis-wynik-gwiazdy"></span></span>
+        <span class="dzis-wynik-opis"><span id="dzis-gwiazdy-licznik" class="dzis-wynik-gwiazdy"></span><br>dnia za Tobą</span>
       </div>
-      <div class="dzis-gwiazdozbior">
-        <svg id="dzis-niebo-svg" class="dzis-niebo-svg" viewBox="0 0 342 300" aria-hidden="true"></svg>
-        <div id="dzis-gwiazdy-przyciski" class="dzis-gwiazdy-przyciski"></div>
-      </div>
+      <div id="dzis-legenda" class="dzis-legenda"></div>
       <p id="dzis-podpowiedz" class="dzis-podpowiedz" aria-live="polite">Wczytuję Twój dzień…</p>
     </div>
 
-    <!-- Cztery części dnia -->
+    <!-- Widżety: trening (szeroki), misja, posiłki -->
     <div class="dzis-czesci">
-      <div id="dzis-trening" class="dzis-czesc"></div>
-      <div id="dzis-nawyki" class="dzis-czesc"></div>
-      <div id="dzis-posilki" class="dzis-czesc" hidden></div>
-      <div id="dzis-misja" class="dzis-czesc" hidden></div>
+      <div id="dzis-trening" class="dzis-czesc dzis-k-trening"></div>
+      <div id="dzis-misja" class="dzis-czesc dzis-k-misja" hidden></div>
+      <div id="dzis-posilki" class="dzis-czesc dzis-k-posilek" hidden></div>
     </div>
 
-    <!-- Tydzień jako rząd gwiazd -->
+    <!-- Nawyki do odhaczenia -->
+    <div id="dzis-nawyki" class="dzis-nawyki-sekcja"></div>
+
+    <!-- Tydzień jako mini-pierścienie wyniku dnia -->
     <div class="dzis-tydzien">
       <h3 class="dzis-tytul">Tydzień</h3>
       <div id="dzis-tydzien-gwiazdy" class="dzis-tydzien-gwiazdy"></div>
@@ -1464,6 +1467,7 @@ try { if (localStorage.getItem("styl-szklo") === "1") document.documentElement.c
 <script src="js/wnioski.js" defer></script>
 <script src="js/ai-analiza.js" defer></script>
 <script src="js/powiadomienia.js" defer></script>
+<script src="js/kula.js" defer></script>
 <script src="js/dzis.js" defer></script>
 <script src="js/finanse.js" defer></script>
 <script src="js/majatek.js" defer></script>
