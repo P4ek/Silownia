@@ -437,6 +437,123 @@
 }
 #widok-majatek .maj-okno .maj-btn-glowny { padding: 0 16px; }
 
+/* ----- Inwestycje: akcje z cenami na żywo ----- */
+#widok-majatek .maj-kafel-fakty { justify-content: flex-start; margin-top: 14px; }
+#widok-majatek .maj-kafel-fakty .maj-fakt { padding: 5px 12px; font-size: 13px; background: rgba(0, 0, 0, 0.2); }
+#widok-majatek .maj-podsekcja {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 24px;
+}
+#widok-majatek .maj-podtytul { margin: 0; font-size: 15px; font-weight: 700; color: var(--maj-jasny); }
+#widok-majatek .maj-podsekcja + .maj-btn-kafel { margin-top: 10px; }
+#widok-majatek .maj-ceny-stan {
+  min-height: 32px;
+  padding: 0 2px;
+  border: none;
+  background: transparent;
+  color: var(--maj-cichy);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+#widok-majatek .maj-ceny-stan[hidden] { display: none; }
+#widok-majatek .maj-ceny-stan.maj-ceny-blad { color: var(--maj-minus); }
+#widok-majatek .maj-ceny-stan:disabled { cursor: default; opacity: 0.7; }
+
+#widok-majatek .maj-akcje-lista { margin-top: 6px; }
+#widok-majatek .maj-akcja {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 62px;
+  padding: 6px 0;
+  border-top: 1px solid var(--maj-linia);
+}
+#widok-majatek .maj-akcja:first-child { border-top: none; }
+#widok-majatek .maj-akcja.maj-wjazd { animation: maj-wjazd 0.5s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+#widok-majatek .maj-akcja-ticker {
+  flex: none;
+  min-width: 52px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--kolor) 14%, transparent);
+  color: var(--kolor);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+#widok-majatek .maj-akcja-teksty { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+#widok-majatek .maj-akcja-nazwa { font-size: 14px; font-weight: 600; color: var(--maj-jasny); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#widok-majatek .maj-akcja-meta { font-size: 12px; color: var(--maj-cichy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+#widok-majatek .maj-akcja-prawa { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-variant-numeric: tabular-nums; }
+#widok-majatek .maj-akcja-wartosc { font-size: 15px; font-weight: 600; color: var(--maj-jasny); }
+#widok-majatek .maj-akcja-zmiana { font-size: 12px; font-weight: 600; color: var(--maj-cichy); }
+#widok-majatek .maj-plus { color: var(--maj-inwestycje); }
+#widok-majatek .maj-minus-tekst { color: var(--maj-minus); }
+#widok-majatek .maj-akcja .fin-usun { min-width: 34px; }
+
+#widok-majatek .maj-akcje-form {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 72px auto;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 6px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.22);
+}
+#widok-majatek .maj-rynek { display: flex; padding: 3px; border-radius: 14px; background: rgba(255, 255, 255, 0.05); }
+#widok-majatek .maj-rynek button {
+  min-height: 34px;
+  padding: 0 9px;
+  border: none;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--maj-cichy);
+  font-size: 12px;
+  font-weight: 700;
+}
+#widok-majatek .maj-rynek button[aria-pressed="true"] { background: var(--maj-jasny); color: #0a0b10; }
+#widok-majatek .maj-akcje-form input {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  margin: 0;
+  padding: 0 10px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: none;
+  color: var(--maj-jasny);
+  font-family: inherit;
+  font-size: 16px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+#widok-majatek .maj-akcje-form input::placeholder { color: rgba(235, 238, 245, 0.4); }
+#widok-majatek .maj-akcje-form input:focus { outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--kolor) 55%, transparent); }
+#widok-majatek .maj-akcje-dodaj {
+  min-height: 40px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 14px;
+  background: var(--kolor);
+  color: #06120d;
+  font-size: 13px;
+  font-weight: 700;
+}
+#widok-majatek .maj-akcje-dodaj:disabled { opacity: 0.6; cursor: default; }
+#widok-majatek .maj-akcje-podpowiedz { margin: 6px 4px 0; font-size: 11.5px; color: var(--maj-cichy); }
+/* Wąski telefon: wybór giełdy nad polami */
+@container (max-width: 330px) {
+  #widok-majatek .maj-akcje-form { grid-template-columns: minmax(0, 1fr) 64px auto; }
+  #widok-majatek .maj-rynek { grid-column: 1 / -1; }
+  #widok-majatek .maj-rynek button { flex: 1; }
+}
+
 @keyframes maj-rozwin { from { opacity: 0; transform: translateY(-8px) scale(0.98); } }
 @keyframes maj-wjazd { from { opacity: 0; transform: scale(0.94) translateY(-8px); } }
 @keyframes maj-okno { from { opacity: 0; transform: translateY(16px) scale(0.97); } }

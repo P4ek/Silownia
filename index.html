@@ -1264,7 +1264,27 @@ try { if (localStorage.getItem("styl-szklo") === "1") document.documentElement.c
       </div>
       <p class="maj-kafel-kwota"><span data-saldo>…</span><span class="maj-zl">zł</span></p>
       <p class="maj-kafel-miesiac" data-miesiac></p>
-      <button type="button" class="maj-btn-kafel" data-dodaj-konto="inwestycje">Dodaj do inwestycji</button>
+      <div id="maj-inw-fakty" class="maj-fakty maj-kafel-fakty" hidden></div>
+
+      <!-- Akcje z cenami na żywo (Edge Function ceny-akcji: Yahoo Finance + kursy NBP) -->
+      <div class="maj-podsekcja">
+        <h4 class="maj-podtytul">Akcje</h4>
+        <button type="button" id="maj-ceny-odswiez" class="maj-ceny-stan" hidden></button>
+      </div>
+      <div id="maj-akcje-lista" class="maj-akcje-lista"></div>
+      <form id="maj-akcje-form" class="maj-akcje-form" novalidate>
+        <div id="maj-rynek" class="maj-rynek" role="group" aria-label="Giełda">
+          <button type="button" data-rynek="us" aria-pressed="true">USA</button>
+          <button type="button" data-rynek="pl" aria-pressed="false">GPW</button>
+        </div>
+        <input type="text" id="maj-akcje-ticker" placeholder="Ticker, np. AAPL" aria-label="Ticker" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        <input type="text" id="maj-akcje-ilosc" inputmode="decimal" placeholder="Sztuk" aria-label="Liczba sztuk" autocomplete="off">
+        <button type="submit" id="maj-akcje-dodaj" class="maj-akcje-dodaj">Dodaj</button>
+      </form>
+      <p class="maj-akcje-podpowiedz">Ten sam ticker dodany ponownie zmienia liczbę sztuk.</p>
+
+      <div class="maj-podsekcja"><h4 class="maj-podtytul">Wpłaty</h4></div>
+      <button type="button" class="maj-btn-kafel" data-dodaj-konto="inwestycje">Dodaj wpłatę</button>
       <div class="maj-lista" data-lista></div>
       <button type="button" class="maj-wiecej" data-wiecej hidden>Pokaż więcej</button>
     </section>
