@@ -479,13 +479,26 @@
   min-width: 52px;
   padding: 6px 8px;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--kolor) 14%, transparent);
-  color: var(--kolor);
+  background: color-mix(in srgb, var(--spolka, var(--kolor)) 26%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--spolka, var(--kolor)) 55%, transparent);
+  color: var(--maj-jasny);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-align: center;
 }
+
+/* Podział portfela: segmenty z 2 px przerwą, zaokrąglone końce, legenda z tickerem i procentem */
+#widok-majatek .maj-alokacja { margin-top: 10px; }
+#widok-majatek .maj-alokacja[hidden] { display: none; }
+#widok-majatek .maj-alokacja-pasek { display: flex; gap: 2px; height: 10px; }
+#widok-majatek .maj-alokacja-pasek > span { min-width: 4px; flex-basis: 0; }
+#widok-majatek .maj-alokacja-pasek > span:first-child { border-radius: 4px 0 0 4px; }
+#widok-majatek .maj-alokacja-pasek > span:last-child { border-radius: 0 4px 4px 0; }
+#widok-majatek .maj-alokacja-legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 0 2px; padding: 0; list-style: none; }
+#widok-majatek .maj-alokacja-legenda li { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--maj-cichy); }
+#widok-majatek .maj-alokacja-legenda li::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--spolka); }
+#widok-majatek .maj-alokacja-legenda strong { color: var(--maj-jasny); font-weight: 600; font-variant-numeric: tabular-nums; }
 #widok-majatek .maj-akcja-teksty { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 #widok-majatek .maj-akcja-nazwa { font-size: 14px; font-weight: 600; color: var(--maj-jasny); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #widok-majatek .maj-akcja-meta { font-size: 12px; color: var(--maj-cichy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }

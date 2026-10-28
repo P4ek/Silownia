@@ -161,3 +161,15 @@ btnStylSzklo.addEventListener("click", function () {
   odswiezPrzelacznikSzkla();
 });
 odswiezPrzelacznikSzkla();
+
+// ----- Wygląd "Grafit" (css/grafit.css): klasa html.styl-grafit, domyślnie włączona, wyłączenie zapamiętane w localStorage "styl-grafit" -----
+const btnStylGrafit = document.getElementById("btn-styl-grafit");
+function odswiezPrzelacznikGrafitu() {
+  btnStylGrafit.setAttribute("aria-pressed", document.documentElement.classList.contains("styl-grafit") ? "true" : "false");
+}
+btnStylGrafit.addEventListener("click", function () {
+  const wlaczony = document.documentElement.classList.toggle("styl-grafit");
+  try { localStorage.setItem("styl-grafit", wlaczony ? "1" : "0"); } catch (e) {}
+  odswiezPrzelacznikGrafitu();
+});
+odswiezPrzelacznikGrafitu();

@@ -26,6 +26,9 @@ let majNowyId = null;           // świeżo dodany wiersz dostaje animację wjaz
 
 // Akcje (Inwestycje): pozycje z inwestycje_pozycje, ceny z Edge Function ceny-akcji
 const MAJ_ODSWIEZANIE_MS = 5 * 60 * 1000; // tyle samo trzyma cache funkcji
+// Kolory spółek w podziale portfela (OKLCH L 0,58–0,66, sprawdzone walidatorem palety na tle #101217); od 7. spółki szare "Inne"
+const MAJ_KOLORY_SPOLEK = ["#24ab7e", "#6674de", "#c48225", "#d1528b", "#1f99c7", "#9957c4"];
+const MAJ_KOLOR_INNE = "#5d636e";
 let majPozycje = [];            // [{ id, symbol, ilosc }]
 let majCeny = {};               // symbol -> { nazwa, waluta, cena, zmiana_proc, pobrano }
 let majKursy = { PLN: 1 };      // waluta -> kurs PLN (NBP)
@@ -160,6 +163,13 @@ function majPortfel() {
     if (typeof zm === "number" && zm > -100) dzis += w * zm / (100 + zm);
   });
   return { wartosc: wartosc, dzis: dzis, wyceniona: wyceniona };
+}
+
+// Kolor spółki: wg kolejności dodania (id), więc nie zmienia się, gdy dochodzi nowa; od 7. spółki szary
+function majKolorSpolki(symbol) {
+  const wgId = majPozycje.slice().sort(function (a, b) { return a.id - b.id; });
+  const i = wgId.findIndex(function (p) { return p.symbol === symbol; });
+  return i >= 0 && i < MAJ_KOLORY_SPOLEK.length ? MAJ_KOLORY_SPOLEK[i] : MAJ_KOLOR_INNE;
 }
 
 // "CDR.WA" → "CDR"; giełda z sufiksu
@@ -313,6 +323,7 @@ function renderMajAkcje() {
     const ilosc = p.ilosc.toLocaleString("pl-PL", { maximumFractionDigits: 6 }) + " szt.";
     wiersz.querySelector(".maj-akcja-nazwa").textContent = c && c.nazwa ? c.nazwa : (symbol.endsWith(".WA") ? "GPW" : "USA");
     wiersz.querySelector(".maj-akcja-meta").textContent = c ? ilosc + " × " + majFormatCeny(c.cena, c.waluta) : ilosc;
+    wiersz.style.setProperty("--spolka", majKolorSpolki(symbol));
     wiersz.querySelector(".maj-akcja-wartosc").textContent = w === null ? "–" : finZl(Math.round(w * 100) / 100);
     const zmianaEl = wiersz.querySelector(".maj-akcja-zmiana");
     const zm = c && typeof c.zmiana_proc === "number" ? Number(c.zmiana_proc) : null;
@@ -323,7 +334,50 @@ function renderMajAkcje() {
       majNowaPozycja = null;
     }
   });
+  renderMajAlokacje();
   renderMajCenyStan();
+}
+
+// Podział portfela: jeden pasek z segmentami (udział w wartości), legenda z tickerem i procentem.
+// Spółki bez koloru (od 7. wg kolejności dodania) łączone w "Inne".
+function renderMajAlokacje() {
+  const box = document.getElementById("maj-alokacja");
+  const czesci = [];
+  let inne = 0;
+  majPozycje.forEach(function (p) {
+    const w = majWartoscPozycji(p);
+    if (!w) return;
+    const kolor = majKolorSpolki(p.symbol);
+    if (kolor === MAJ_KOLOR_INNE) inne += w;
+    else czesci.push({ nazwa: majTicker(p.symbol), wartosc: w, kolor: kolor });
+  });
+  czesci.sort(function (a, b) { return b.wartosc - a.wartosc; });
+  if (inne) czesci.push({ nazwa: "Inne", wartosc: inne, kolor: MAJ_KOLOR_INNE });
+  const suma = czesci.reduce(function (s, c) { return s + c.wartosc; }, 0);
+  box.hidden = czesci.length < 2;
+  if (box.hidden) return;
+
+  const pasek = document.getElementById("maj-alokacja-pasek");
+  const legenda = document.getElementById("maj-alokacja-legenda");
+  const proc = function (c) { return Math.round(c.wartosc / suma * 100); };
+  pasek.setAttribute("aria-label", "Podział portfela: " + czesci.map(function (c) { return c.nazwa + " " + proc(c) + "%"; }).join(", "));
+  pasek.replaceChildren.apply(pasek, czesci.map(function (c) {
+    const seg = document.createElement("span");
+    seg.style.flexGrow = c.wartosc;
+    seg.style.background = c.kolor;
+    seg.title = c.nazwa + ": " + finZl(Math.round(c.wartosc)) + " (" + proc(c) + "%)";
+    return seg;
+  }));
+  legenda.replaceChildren.apply(legenda, czesci.map(function (c) {
+    const li = document.createElement("li");
+    li.style.setProperty("--spolka", c.kolor);
+    const nazwa = document.createElement("span");
+    nazwa.textContent = c.nazwa;
+    const ile = document.createElement("strong");
+    ile.textContent = proc(c) + "%";
+    li.append(nazwa, ile);
+    return li;
+  }));
 }
 
 // Stan cen pod nagłówkiem "Akcje": godzina ostatniego pobrania, ładowanie albo błąd; stuknięcie odświeża
