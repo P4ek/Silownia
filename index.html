@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="css/motyw.css">
 <link rel="stylesheet" href="css/menu.css">
 <link rel="stylesheet" href="css/dzis.css">
+<link rel="stylesheet" href="css/dzis-klasyczny.css">
 <link rel="stylesheet" href="css/finanse.css">
 <link rel="stylesheet" href="css/majatek.css">
 <link rel="stylesheet" href="css/rejestr-superseria.css">
@@ -38,8 +39,15 @@
 <link rel="stylesheet" href="css/kosmetyki.css">
 <link rel="stylesheet" href="css/premium.css">
 <script>
-// Tryb "liquid glass" (css/szklo.css) – domyślnie włączony, klasa ustawiana przed narysowaniem strony; przełącznik w stopce menu (nawigacja.js), "0" wyłącza
-try { if (localStorage.getItem("styl-szklo") !== "0") document.documentElement.classList.add("styl-szklo"); } catch (e) { document.documentElement.classList.add("styl-szklo"); }
+// Wygląd ustawiany przed narysowaniem strony (przełączniki w stopce menu, nawigacja.js):
+// "Nowy wygląd" (css/premium.css, html.styl-premium) – domyślnie włączony, "0" w localStorage "styl-premium" wraca do starego;
+// "Liquid glass" (css/szklo.css, html.styl-szklo) – bez własnego wyboru idzie razem z nowym wyglądem.
+try {
+  var stylPremium = localStorage.getItem("styl-premium") !== "0";
+  var stylSzklo = localStorage.getItem("styl-szklo");
+  if (stylPremium) document.documentElement.classList.add("styl-premium");
+  if (stylSzklo === "1" || (stylSzklo === null && stylPremium)) document.documentElement.classList.add("styl-szklo");
+} catch (e) { document.documentElement.classList.add("styl-premium", "styl-szklo"); }
 </script>
 <style>
 /* Ekran startowy: widoczny, dopóki getSession() nie zwróci wyniku (start.js), potem znika w ~300 ms */
@@ -352,6 +360,10 @@ try { if (localStorage.getItem("styl-szklo") !== "0") document.documentElement.c
     </div>
 
     <footer class="menu-stopka">
+      <button type="button" class="menu-styl" id="btn-styl-premium" aria-pressed="true">
+        <span class="menu-styl-tekst">Nowy wygląd</span>
+        <span class="menu-styl-tor" aria-hidden="true"><span class="menu-styl-galka"></span></span>
+      </button>
       <button type="button" class="menu-styl" id="btn-styl-szklo" aria-pressed="false">
         <span class="menu-styl-tekst">Liquid glass</span>
         <span class="menu-styl-tor" aria-hidden="true"><span class="menu-styl-galka"></span></span>
@@ -384,6 +396,20 @@ try { if (localStorage.getItem("styl-szklo") !== "0") document.documentElement.c
     <div class="dzis-naglowek">
       <span id="dzis-data" class="dzis-data"></span>
       <h2 id="dzis-powitanie" class="dzis-powitanie"></h2>
+    </div>
+
+    <!-- Stary wygląd (bez klasy styl-premium): niebo dnia, każda zrobiona rzecz zapala gwiazdę – js/dzis-klasyczny.js -->
+    <div class="dzis-niebo">
+      <div class="dzis-niebo-poswiata" aria-hidden="true"></div>
+      <div class="dzis-wynik">
+        <span class="dzis-wynik-liczba"><span id="dzisk-procent">–</span><span class="dzis-wynik-proc">%</span></span>
+        <span class="dzis-wynik-opis">dnia za Tobą<br><span id="dzisk-gwiazdy-licznik" class="dzis-wynik-gwiazdy"></span></span>
+      </div>
+      <div class="dzis-gwiazdozbior">
+        <svg id="dzis-niebo-svg" class="dzis-niebo-svg" viewBox="0 0 342 300" aria-hidden="true"></svg>
+        <div id="dzis-gwiazdy-przyciski" class="dzis-gwiazdy-przyciski"></div>
+      </div>
+      <p id="dzisk-podpowiedz" class="dzis-podpowiedz" aria-live="polite">Wczytuję Twój dzień…</p>
     </div>
 
     <!-- Wynik dnia: szklana kula z płynem (js/kula.js); każda zaliczona rzecz dolewa warstwę w swoim kolorze -->
@@ -1468,6 +1494,7 @@ try { if (localStorage.getItem("styl-szklo") !== "0") document.documentElement.c
 <script src="js/ai-analiza.js" defer></script>
 <script src="js/powiadomienia.js" defer></script>
 <script src="js/kula.js" defer></script>
+<script src="js/dzis-klasyczny.js" defer></script>
 <script src="js/dzis.js" defer></script>
 <script src="js/finanse.js" defer></script>
 <script src="js/majatek.js" defer></script>

@@ -1,8 +1,8 @@
 /* Ekran "Dziś" (#widok-dzis): szklana kula z płynem (wynik dnia, js/kula.js), widżety treningu / misji / posiłków,
    nawyki do odhaczenia, tydzień jako mini-pierścienie, cele tygodnia, rada. Karty w stylu liquid glass (.dzis-szklo).
-   Ładowany po menu.css. Kolory kategorii: --k ustawiane klasami .dzis-k-* (te same co warstwy kuli w DZIS_KOLORY). */
+   Tylko nowy wygląd: reguły z przedrostkiem html.styl-premium (stary wygląd: dzis-klasyczny.css). Ładowany po menu.css. Kolory kategorii: --k ustawiane klasami .dzis-k-* (te same co warstwy kuli w DZIS_KOLORY). */
 
-#widok-dzis {
+html.styl-premium #widok-dzis {
   --dzis-pomocniczy: #8E949E;
   --dzis-wyciszony: #5C626C;
   --dzis-linia: rgba(255, 255, 255, 0.08);
@@ -12,13 +12,13 @@
   --dzis-sprezyna: cubic-bezier(0.34, 1.56, 0.64, 1);
   color: #E8EAEE;
 }
-.dzis-k-nawyk   { --k: #EADFC8; }
-.dzis-k-trening { --k: #7AA2FF; }
-.dzis-k-posilek { --k: #5ED1B0; }
-.dzis-k-misja   { --k: #E8C27A; }
+html.styl-premium .dzis-k-nawyk { --k: #EADFC8; }
+html.styl-premium .dzis-k-trening { --k: #7AA2FF; }
+html.styl-premium .dzis-k-posilek { --k: #5ED1B0; }
+html.styl-premium .dzis-k-misja { --k: #E8C27A; }
 
 /* Szkło kart ekranu */
-#widok-dzis :is(.dzis-bohater, .dzis-czesc, .dzis-lista, .dzis-tydzien-gwiazdy, .dzis-cele, .dzis-rada) {
+html.styl-premium #widok-dzis :is(.dzis-bohater, .dzis-czesc, .dzis-lista, .dzis-tydzien-gwiazdy, .dzis-cele, .dzis-rada) {
   position: relative;
   isolation: isolate;
   background: var(--dzis-szklo);
@@ -26,7 +26,7 @@
   backdrop-filter: blur(24px) saturate(180%);
   box-shadow: var(--dzis-krawedz), var(--dzis-cien);
 }
-#widok-dzis :is(.dzis-bohater, .dzis-czesc)::after {
+html.styl-premium #widok-dzis :is(.dzis-bohater, .dzis-czesc)::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -37,14 +37,14 @@
 }
 
 /* ----- Nagłówek ----- */
-.dzis-naglowek { margin: 6px 4px 0; }
-.dzis-data { display: block; font-size: 13px; font-weight: 500; color: var(--dzis-pomocniczy); }
-.dzis-powitanie { margin: 4px 0 0; }
+html.styl-premium .dzis-naglowek { margin: 6px 4px 0; }
+html.styl-premium .dzis-data { display: block; font-size: 13px; font-weight: 500; color: var(--dzis-pomocniczy); }
+html.styl-premium .dzis-powitanie { margin: 4px 0 0; }
 
 /* ----- Bohater: kula, wynik, legenda ----- */
-.dzis-bohater { margin-top: 18px; padding: 16px 18px 18px; border-radius: 32px; }
-.dzis-kula-box { position: relative; width: 248px; max-width: 100%; aspect-ratio: 1; margin: 0 auto; }
-.dzis-kula-box::before {
+html.styl-premium .dzis-bohater { margin-top: 18px; padding: 16px 18px 18px; border-radius: 32px; }
+html.styl-premium .dzis-kula-box { position: relative; width: 248px; max-width: 100%; aspect-ratio: 1; margin: 0 auto; }
+html.styl-premium .dzis-kula-box::before {
   content: "";
   position: absolute;
   left: 15%;
@@ -58,8 +58,8 @@
   transition: background 0.8s ease;
   pointer-events: none;
 }
-.dzis-kula { position: relative; display: block; width: 100%; height: 100%; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-.dzis-kula-podpis {
+html.styl-premium .dzis-kula { position: relative; display: block; width: 100%; height: 100%; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+html.styl-premium .dzis-kula-podpis {
   position: absolute;
   left: 0;
   right: 0;
@@ -71,10 +71,10 @@
   transition: opacity 0.6s ease;
   pointer-events: none;
 }
-.dzis-kula-podpis.widoczny { opacity: 1; }
-.dzis-wynik { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 8px; }
-.dzis-wynik-liczba { display: flex; align-items: flex-start; }
-#dzis-procent {
+html.styl-premium .dzis-kula-podpis.widoczny { opacity: 1; }
+html.styl-premium .dzis-wynik { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 8px; }
+html.styl-premium .dzis-wynik-liczba { display: flex; align-items: flex-start; }
+html.styl-premium #dzis-procent {
   font-size: 64px;
   font-weight: 600;
   letter-spacing: -0.06em;
@@ -85,19 +85,19 @@
   background-clip: text;
   color: transparent;
 }
-.dzis-wynik-proc { margin: 4px 0 0 2px; font-size: 22px; font-weight: 600; color: var(--dzis-pomocniczy); }
-.dzis-wynik-opis { font-size: 13px; line-height: 1.35; color: var(--dzis-pomocniczy); }
-.dzis-wynik-gwiazdy { font-weight: 700; color: #F2F3F5; }
-.dzis-legenda { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 26px; margin-top: 16px; }
-.dzis-legenda-poz { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 12px; color: var(--dzis-pomocniczy); }
-.dzis-legenda-poz strong { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; color: #F2F3F5; font-variant-numeric: tabular-nums; }
-.dzis-legenda-poz strong::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--k); box-shadow: 0 0 8px var(--k); }
-.dzis-podpowiedz { margin: 14px 0 0; text-align: center; font-size: 13px; color: var(--dzis-wyciszony); }
+html.styl-premium .dzis-wynik-proc { margin: 4px 0 0 2px; font-size: 22px; font-weight: 600; color: var(--dzis-pomocniczy); }
+html.styl-premium .dzis-wynik-opis { font-size: 13px; line-height: 1.35; color: var(--dzis-pomocniczy); }
+html.styl-premium .dzis-wynik-gwiazdy { font-weight: 700; color: #F2F3F5; }
+html.styl-premium .dzis-legenda { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 26px; margin-top: 16px; }
+html.styl-premium .dzis-legenda-poz { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 12px; color: var(--dzis-pomocniczy); }
+html.styl-premium .dzis-legenda-poz strong { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; color: #F2F3F5; font-variant-numeric: tabular-nums; }
+html.styl-premium .dzis-legenda-poz strong::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--k); box-shadow: 0 0 8px var(--k); }
+html.styl-premium .dzis-podpowiedz { margin: 14px 0 0; text-align: center; font-size: 13px; color: var(--dzis-wyciszony); }
 
 /* ----- Widżety ----- */
-.dzis-czesci { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
-.dzis-czesc { padding: 16px 16px 14px; border-radius: 26px; overflow: hidden; }
-.dzis-czesc::before {
+html.styl-premium .dzis-czesci { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+html.styl-premium .dzis-czesc { padding: 16px 16px 14px; border-radius: 26px; overflow: hidden; }
+html.styl-premium .dzis-czesc::before {
   content: "";
   position: absolute;
   inset: auto -20% -55% -20%;
@@ -106,13 +106,13 @@
   background: radial-gradient(closest-side, color-mix(in srgb, var(--k) 26%, transparent), transparent);
   pointer-events: none;
 }
-.dzis-widzet-gora { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.dzis-widzet-nazwa { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: var(--dzis-pomocniczy); }
-.dzis-widzet-nazwa::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--k); box-shadow: 0 0 8px var(--k); }
-.dzis-widzet-stan { font-size: 12.5px; font-weight: 600; color: var(--dzis-pomocniczy); }
-.dzis-widzet-stan.on { color: var(--k); }
-.dzis-trening-liczba { display: flex; align-items: baseline; gap: 6px; margin-top: 14px; }
-.dzis-duza {
+html.styl-premium .dzis-widzet-gora { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+html.styl-premium .dzis-widzet-nazwa { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: var(--dzis-pomocniczy); }
+html.styl-premium .dzis-widzet-nazwa::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--k); box-shadow: 0 0 8px var(--k); }
+html.styl-premium .dzis-widzet-stan { font-size: 12.5px; font-weight: 600; color: var(--dzis-pomocniczy); }
+html.styl-premium .dzis-widzet-stan.on { color: var(--k); }
+html.styl-premium .dzis-trening-liczba { display: flex; align-items: baseline; gap: 6px; margin-top: 14px; }
+html.styl-premium .dzis-duza {
   font-size: 40px;
   font-weight: 600;
   letter-spacing: -0.05em;
@@ -123,12 +123,12 @@
   background-clip: text;
   color: transparent;
 }
-.dzis-srednia { font-size: 26px; font-weight: 700; letter-spacing: -0.03em; color: #F2F3F5; }
-.dzis-jednostka { font-size: 15px; font-weight: 500; color: var(--dzis-pomocniczy); }
-.dzis-opis { display: block; margin-top: 4px; font-size: 13px; color: var(--dzis-pomocniczy); overflow-wrap: anywhere; }
-.dzis-opis-inline { font-size: 12.5px; color: var(--dzis-pomocniczy); }
-.dzis-trening-porownanie { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.dzis-trening-zmiana {
+html.styl-premium .dzis-srednia { font-size: 26px; font-weight: 700; letter-spacing: -0.03em; color: #F2F3F5; }
+html.styl-premium .dzis-jednostka { font-size: 15px; font-weight: 500; color: var(--dzis-pomocniczy); }
+html.styl-premium .dzis-opis { display: block; margin-top: 4px; font-size: 13px; color: var(--dzis-pomocniczy); overflow-wrap: anywhere; }
+html.styl-premium .dzis-opis-inline { font-size: 12.5px; color: var(--dzis-pomocniczy); }
+html.styl-premium .dzis-trening-porownanie { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+html.styl-premium .dzis-trening-zmiana {
   padding: 3px 9px;
   border-radius: 999px;
   font-size: 12.5px;
@@ -137,33 +137,33 @@
   color: #E8EAEE;
   background: rgba(255, 255, 255, 0.08);
 }
-.dzis-trening-zmiana.plus { color: #5ED1B0; background: rgba(94, 209, 176, 0.14); }
-.dzis-trening-zmiana.minus { color: #F08A7E; background: rgba(240, 138, 126, 0.14); }
-.dzis-trening-lista { display: flex; flex-direction: column; margin-top: 12px; border-top: 1px solid var(--dzis-linia); }
-.dzis-trening-cw { display: flex; align-items: center; gap: 10px; min-height: 40px; border-bottom: 1px solid var(--dzis-linia); font-size: 14px; }
-.dzis-trening-cw .dot { flex: none; }
-.dzis-trening-cw-nazwa { flex: 1; min-width: 0; font-weight: 600; color: #E8EAEE; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.dzis-trening-cw-seria { flex: none; font-size: 13px; color: var(--dzis-pomocniczy); font-variant-numeric: tabular-nums; }
-.dzis-trening-rekord { flex: none; display: inline-flex; color: #E8C27A; }
-.dzis-trening-rekord svg { width: 14px; height: 14px; filter: drop-shadow(0 0 4px rgba(232, 194, 122, 0.6)); }
-.dzis-cwiczenia-reszta { padding-top: 6px; font-size: 12px; color: var(--dzis-wyciszony); }
+html.styl-premium .dzis-trening-zmiana.plus { color: #5ED1B0; background: rgba(94, 209, 176, 0.14); }
+html.styl-premium .dzis-trening-zmiana.minus { color: #F08A7E; background: rgba(240, 138, 126, 0.14); }
+html.styl-premium .dzis-trening-lista { display: flex; flex-direction: column; margin-top: 12px; border-top: 1px solid var(--dzis-linia); }
+html.styl-premium .dzis-trening-cw { display: flex; align-items: center; gap: 10px; min-height: 40px; border-bottom: 1px solid var(--dzis-linia); font-size: 14px; }
+html.styl-premium .dzis-trening-cw .dot { flex: none; }
+html.styl-premium .dzis-trening-cw-nazwa { flex: 1; min-width: 0; font-weight: 600; color: #E8EAEE; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.styl-premium .dzis-trening-cw-seria { flex: none; font-size: 13px; color: var(--dzis-pomocniczy); font-variant-numeric: tabular-nums; }
+html.styl-premium .dzis-trening-rekord { flex: none; display: inline-flex; color: #E8C27A; }
+html.styl-premium .dzis-trening-rekord svg { width: 14px; height: 14px; filter: drop-shadow(0 0 4px rgba(232, 194, 122, 0.6)); }
+html.styl-premium .dzis-cwiczenia-reszta { padding-top: 6px; font-size: 12px; color: var(--dzis-wyciszony); }
 
 /* Misja */
-.dzis-misja-srodek { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
-.dzis-misja-tekst { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: #F2F3F5; overflow-wrap: anywhere; }
-.dzis-pieczatki { flex: none; display: flex; gap: 6px; }
-.dzis-pieczatki i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.22); }
-.dzis-pieczatki i.on { background: var(--k); border-color: var(--k); box-shadow: 0 0 10px var(--k); }
+html.styl-premium .dzis-misja-srodek { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+html.styl-premium .dzis-misja-tekst { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: #F2F3F5; overflow-wrap: anywhere; }
+html.styl-premium .dzis-pieczatki { flex: none; display: flex; gap: 6px; }
+html.styl-premium .dzis-pieczatki i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.22); }
+html.styl-premium .dzis-pieczatki i.on { background: var(--k); border-color: var(--k); box-shadow: 0 0 10px var(--k); }
 
 /* Posiłki (gdy włączone) */
-.dzis-pasek { display: block; height: 6px; margin-top: 12px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
-.dzis-pasek-wypelnienie { display: block; height: 100%; border-radius: 3px; background: var(--k); }
-.dzis-makra { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; }
-.dzis-makro { font-size: 12.5px; color: var(--dzis-pomocniczy); }
-.dzis-makro strong { font-weight: 600; color: #E8EAEE; }
+html.styl-premium .dzis-pasek { display: block; height: 6px; margin-top: 12px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+html.styl-premium .dzis-pasek-wypelnienie { display: block; height: 100%; border-radius: 3px; background: var(--k); }
+html.styl-premium .dzis-makra { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; }
+html.styl-premium .dzis-makro { font-size: 12.5px; color: var(--dzis-pomocniczy); }
+html.styl-premium .dzis-makro strong { font-weight: 600; color: #E8EAEE; }
 
 /* Przycisk w widżecie: szklana pigułka, sprężynuje */
-.dzis-btn {
+html.styl-premium .dzis-btn {
   width: 100%;
   min-height: 46px;
   margin-top: 14px;
@@ -178,21 +178,21 @@
   -webkit-tap-highlight-color: transparent;
   transition: transform 0.35s var(--dzis-sprezyna);
 }
-.dzis-btn:not(:disabled):active { transform: scale(0.97); }
-.dzis-btn-zrobione,
-.dzis-btn:disabled { color: var(--dzis-pomocniczy); cursor: default; }
+html.styl-premium .dzis-btn:not(:disabled):active { transform: scale(0.97); }
+html.styl-premium .dzis-btn-zrobione,
+html.styl-premium .dzis-btn:disabled { color: var(--dzis-pomocniczy); cursor: default; }
 
 /* ----- Nagłówki sekcji ----- */
-.dzis-sekcja-naglowek,
-.dzis-cele-naglowek { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 30px 6px 12px; }
-.dzis-tytul { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.025em; color: #F2F3F5; }
-.dzis-kicker { font-size: 13px; font-weight: 500; color: var(--dzis-pomocniczy); font-variant-numeric: tabular-nums; }
+html.styl-premium .dzis-sekcja-naglowek,
+html.styl-premium .dzis-cele-naglowek { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 30px 6px 12px; }
+html.styl-premium .dzis-tytul { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.025em; color: #F2F3F5; }
+html.styl-premium .dzis-kicker { font-size: 13px; font-weight: 500; color: var(--dzis-pomocniczy); font-variant-numeric: tabular-nums; }
 
 /* ----- Nawyki: lista do odhaczenia ----- */
-.dzis-lista { padding: 6px; border-radius: 26px; }
-.dzis-lista-opis { padding: 10px 12px; margin: 0; }
-.dzis-lista .dzis-btn { width: calc(100% - 12px); margin: 4px 6px 6px; }
-.dzis-nawyk {
+html.styl-premium .dzis-lista { padding: 6px; border-radius: 26px; }
+html.styl-premium .dzis-lista-opis { padding: 10px 12px; margin: 0; }
+html.styl-premium .dzis-lista .dzis-btn { width: calc(100% - 12px); margin: 4px 6px 6px; }
+html.styl-premium .dzis-nawyk {
   width: 100%;
   min-height: 54px;
   padding: 0 12px;
@@ -209,10 +209,10 @@
   -webkit-tap-highlight-color: transparent;
   transition: background 0.25s ease, transform 0.3s var(--dzis-sprezyna);
 }
-.dzis-nawyk + .dzis-nawyk { margin-top: 2px; }
-.dzis-nawyk:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.04); }
-.dzis-nawyk:focus-visible { outline: 2px solid #F2F3F5; outline-offset: -2px; }
-.dzis-nawyk-znak {
+html.styl-premium .dzis-nawyk + .dzis-nawyk { margin-top: 2px; }
+html.styl-premium .dzis-nawyk:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.04); }
+html.styl-premium .dzis-nawyk:focus-visible { outline: 2px solid #F2F3F5; outline-offset: -2px; }
+html.styl-premium .dzis-nawyk-znak {
   flex: none;
   width: 26px;
   height: 26px;
@@ -222,27 +222,27 @@
   border: 1.5px solid rgba(255, 255, 255, 0.2);
   transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }
-.dzis-nawyk-znak svg { width: 14px; height: 14px; color: #0A0B0E; opacity: 0; transform: scale(0.4); transition: opacity 0.2s ease, transform 0.4s var(--dzis-sprezyna); }
-.dzis-nawyk.on .dzis-nawyk-znak { background: #EADFC8; border-color: #EADFC8; box-shadow: 0 0 14px rgba(234, 223, 200, 0.45); }
-.dzis-nawyk.on .dzis-nawyk-znak svg { opacity: 1; transform: scale(1); }
-.dzis-nawyk-nazwa { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; color: #E8EAEE; overflow-wrap: anywhere; }
-.dzis-nawyk.on .dzis-nawyk-nazwa { color: var(--dzis-pomocniczy); }
+html.styl-premium .dzis-nawyk-znak svg { width: 14px; height: 14px; color: #0A0B0E; opacity: 0; transform: scale(0.4); transition: opacity 0.2s ease, transform 0.4s var(--dzis-sprezyna); }
+html.styl-premium .dzis-nawyk.on .dzis-nawyk-znak { background: #EADFC8; border-color: #EADFC8; box-shadow: 0 0 14px rgba(234, 223, 200, 0.45); }
+html.styl-premium .dzis-nawyk.on .dzis-nawyk-znak svg { opacity: 1; transform: scale(1); }
+html.styl-premium .dzis-nawyk-nazwa { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; color: #E8EAEE; overflow-wrap: anywhere; }
+html.styl-premium .dzis-nawyk.on .dzis-nawyk-nazwa { color: var(--dzis-pomocniczy); }
 
 /* ----- Tydzień: mini-pierścienie ----- */
-.dzis-tydzien { margin-top: 30px; }
-.dzis-tydzien > .dzis-tytul { margin: 0 6px 12px; }
-.dzis-tydzien-gwiazdy { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; padding: 16px 10px 14px; border-radius: 26px; }
-.dzis-tydzien-dzien { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.dzis-tydzien-dzien svg { width: 34px; height: 34px; transform: rotate(-90deg); }
-.dzis-tydzien-tor { fill: none; stroke: rgba(255, 255, 255, 0.08); stroke-width: 4; }
-.dzis-tydzien-luk { fill: none; stroke: #EADFC8; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-.dzis-tydzien-dzien.brak .dzis-tydzien-luk { opacity: 0; }
-.dzis-tydzien-dzien.dzis svg { filter: drop-shadow(0 0 6px rgba(234, 223, 200, 0.5)); }
-.dzis-tydzien-nazwa { font-size: 11.5px; color: var(--dzis-pomocniczy); }
-.dzis-tydzien-dzien.dzis .dzis-tydzien-nazwa { font-weight: 700; color: #F2F3F5; }
+html.styl-premium .dzis-tydzien { margin-top: 30px; }
+html.styl-premium .dzis-tydzien > .dzis-tytul { margin: 0 6px 12px; }
+html.styl-premium .dzis-tydzien-gwiazdy { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; padding: 16px 10px 14px; border-radius: 26px; }
+html.styl-premium .dzis-tydzien-dzien { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+html.styl-premium .dzis-tydzien-dzien svg { width: 34px; height: 34px; transform: rotate(-90deg); }
+html.styl-premium .dzis-tydzien-tor { fill: none; stroke: rgba(255, 255, 255, 0.08); stroke-width: 4; }
+html.styl-premium .dzis-tydzien-luk { fill: none; stroke: #EADFC8; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+html.styl-premium .dzis-tydzien-dzien.brak .dzis-tydzien-luk { opacity: 0; }
+html.styl-premium .dzis-tydzien-dzien.dzis svg { filter: drop-shadow(0 0 6px rgba(234, 223, 200, 0.5)); }
+html.styl-premium .dzis-tydzien-nazwa { font-size: 11.5px; color: var(--dzis-pomocniczy); }
+html.styl-premium .dzis-tydzien-dzien.dzis .dzis-tydzien-nazwa { font-weight: 700; color: #F2F3F5; }
 
 /* ----- Cele tygodnia ----- */
-.dzis-link {
+html.styl-premium .dzis-link {
   min-height: 44px;
   padding: 0;
   border: none;
@@ -256,10 +256,10 @@
   color: var(--dzis-pomocniczy);
   white-space: nowrap;
 }
-.dzis-link:active { color: #fff; }
-.dzis-cele { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 26px; }
-.dzis-cele:empty { display: none; }
-.dzis-cel {
+html.styl-premium .dzis-link:active { color: #fff; }
+html.styl-premium .dzis-cele { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 26px; }
+html.styl-premium .dzis-cele:empty { display: none; }
+html.styl-premium .dzis-cel {
   position: relative;
   min-height: 60px;
   padding: 8px 0;
@@ -272,11 +272,11 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.dzis-cel:last-child { border-bottom: none; }
-.dzis-cel:active .dzis-cel-tytul { color: #fff; }
+html.styl-premium .dzis-cel:last-child { border-bottom: none; }
+html.styl-premium .dzis-cel:active .dzis-cel-tytul { color: #fff; }
 /* Prawdziwy checkbox (przelaczCel) – niewidoczny, ale dostępny z klawiatury i czytnika */
-.dzis-cel-checkbox { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-.dzis-cel-pole {
+html.styl-premium .dzis-cel-checkbox { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+html.styl-premium .dzis-cel-pole {
   width: 24px;
   height: 24px;
   flex: none;
@@ -286,21 +286,21 @@
   place-items: center;
   color: #0A0B0E;
 }
-.dzis-cel-pole svg { width: 12px; height: 12px; visibility: hidden; }
-.dzis-cel-checkbox:checked + .dzis-cel-pole { background: var(--k); }
-.dzis-cel-checkbox:checked + .dzis-cel-pole svg { visibility: visible; }
-.dzis-cel-checkbox:focus-visible + .dzis-cel-pole { outline: 2px solid #F2F3F5; outline-offset: 3px; }
-.dzis-cel-checkbox:disabled + .dzis-cel-pole { opacity: 0.5; }
-.dzis-cel-tekst { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.dzis-cel-tytul { font-size: 15px; font-weight: 600; line-height: 1.3; color: #F2F3F5; overflow-wrap: anywhere; }
-.dzis-cel-checkbox:checked ~ .dzis-cel-tekst .dzis-cel-tytul { color: var(--dzis-pomocniczy); text-decoration: line-through; }
-.dzis-cel-meta { font-size: 12px; color: var(--dzis-pomocniczy); overflow-wrap: anywhere; }
-.dzis-cel-kropka { width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--k); box-shadow: 0 0 8px var(--k); }
+html.styl-premium .dzis-cel-pole svg { width: 12px; height: 12px; visibility: hidden; }
+html.styl-premium .dzis-cel-checkbox:checked + .dzis-cel-pole { background: var(--k); }
+html.styl-premium .dzis-cel-checkbox:checked + .dzis-cel-pole svg { visibility: visible; }
+html.styl-premium .dzis-cel-checkbox:focus-visible + .dzis-cel-pole { outline: 2px solid #F2F3F5; outline-offset: 3px; }
+html.styl-premium .dzis-cel-checkbox:disabled + .dzis-cel-pole { opacity: 0.5; }
+html.styl-premium .dzis-cel-tekst { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+html.styl-premium .dzis-cel-tytul { font-size: 15px; font-weight: 600; line-height: 1.3; color: #F2F3F5; overflow-wrap: anywhere; }
+html.styl-premium .dzis-cel-checkbox:checked ~ .dzis-cel-tekst .dzis-cel-tytul { color: var(--dzis-pomocniczy); text-decoration: line-through; }
+html.styl-premium .dzis-cel-meta { font-size: 12px; color: var(--dzis-pomocniczy); overflow-wrap: anywhere; }
+html.styl-premium .dzis-cel-kropka { width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--k); box-shadow: 0 0 8px var(--k); }
 
 /* ----- Rada na dziś ----- */
-.dzis-rada { margin-top: 12px; padding: 16px 18px 18px; border-radius: 26px; }
-.dzis-rada-gora { display: flex; align-items: center; justify-content: space-between; }
-.dzis-rada-nastepna {
+html.styl-premium .dzis-rada { margin-top: 12px; padding: 16px 18px 18px; border-radius: 26px; }
+html.styl-premium .dzis-rada-gora { display: flex; align-items: center; justify-content: space-between; }
+html.styl-premium .dzis-rada-nastepna {
   width: 40px;
   height: 40px;
   flex: none;
@@ -313,16 +313,41 @@
   display: grid;
   place-items: center;
 }
-.dzis-rada-nastepna:active { transform: scale(0.94); }
-.dzis-rada-nastepna svg { width: 16px; height: 16px; }
-.dzis-rada-tekst { margin: 8px 0 0; font-size: 18px; font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; color: #E8EAEE; overflow-wrap: anywhere; }
-.dzis-rada-zrodlo { display: block; margin-top: 8px; font-size: 12px; font-weight: 500; color: var(--dzis-pomocniczy); }
+html.styl-premium .dzis-rada-nastepna:active { transform: scale(0.94); }
+html.styl-premium .dzis-rada-nastepna svg { width: 16px; height: 16px; }
+html.styl-premium .dzis-rada-tekst { margin: 8px 0 0; font-size: 18px; font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; color: #E8EAEE; overflow-wrap: anywhere; }
+html.styl-premium .dzis-rada-zrodlo { display: block; margin-top: 8px; font-size: 12px; font-weight: 500; color: var(--dzis-pomocniczy); }
 
 /* Pył gwiezdny używany w tle Oszczędności i Majątku (DZIS_PYL) */
-.dzis-pyl { fill: oklch(0.85 0.005 240); animation: dzis-migotanie 3.6s ease-in-out infinite; }
+html.styl-premium .dzis-pyl { fill: oklch(0.85 0.005 240); animation: dzis-migotanie 3.6s ease-in-out infinite; }
 @keyframes dzis-migotanie { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.9; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .dzis-pyl { animation: none; }
-  .dzis-btn, .dzis-nawyk, .dzis-nawyk-znak, .dzis-nawyk-znak svg, .dzis-tydzien-luk { transition: none; }
+  html.styl-premium .dzis-pyl { animation: none; }
+  html.styl-premium .dzis-btn,
+html.styl-premium .dzis-nawyk,
+html.styl-premium .dzis-nawyk-znak,
+html.styl-premium .dzis-nawyk-znak svg,
+html.styl-premium .dzis-tydzien-luk { transition: none; }
+}
+
+/* Stare niebo tylko w starym wyglądzie */
+html.styl-premium #widok-dzis .dzis-niebo { display: none; }
+
+/* Superseria w widżecie treningu: jedna pozycja z nakładającymi się kropkami partii, złotą etykietą i liczbą rund */
+html.styl-premium .dzis-trening-ss { align-items: center; min-height: 52px; padding: 6px 0; }
+html.styl-premium .dzis-trening-ss-znak { flex: none; display: inline-flex; }
+html.styl-premium .dzis-trening-ss-znak .dot + .dot { margin-left: -4px; box-shadow: 0 0 0 2px #14161b; }
+html.styl-premium .dzis-trening-ss .dzis-trening-cw-nazwa { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.3; }
+html.styl-premium .dzis-trening-ss-etykieta {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  vertical-align: 1px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #E8C27A;
+  background: rgba(232, 194, 122, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(232, 194, 122, 0.35);
 }

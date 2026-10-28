@@ -161,3 +161,22 @@ btnStylSzklo.addEventListener("click", function () {
   odswiezPrzelacznikSzkla();
 });
 odswiezPrzelacznikSzkla();
+
+// ----- Nowy wygląd (css/premium.css, ekran Dziś z kulą): klasa html.styl-premium, wyłączenie wraca do starego wyglądu
+// (niebo z gwiazdami, szeryfowa kursywa, bez szkła). Zmiana wyglądu ustawia też szkło i kasuje osobny wybór "styl-szklo". -----
+const btnStylPremium = document.getElementById("btn-styl-premium");
+function odswiezPrzelacznikPremium() {
+  btnStylPremium.setAttribute("aria-pressed", document.documentElement.classList.contains("styl-premium") ? "true" : "false");
+}
+btnStylPremium.addEventListener("click", function () {
+  const wlaczony = document.documentElement.classList.toggle("styl-premium");
+  document.documentElement.classList.toggle("styl-szklo", wlaczony);
+  try {
+    localStorage.setItem("styl-premium", wlaczony ? "1" : "0");
+    localStorage.removeItem("styl-szklo");
+  } catch (e) {}
+  odswiezPrzelacznikPremium();
+  odswiezPrzelacznikSzkla();
+  renderDzis();
+});
+odswiezPrzelacznikPremium();

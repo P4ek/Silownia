@@ -111,7 +111,7 @@ body.motyw-habits::after {
 
 /* ===== Wielkie liczby z poświatą ===== */
 :is(
-  #dzis-procent, .rejestr-objetosc-liczba, .katalog-suma-liczba, .habits-dzis-liczba, .jedz-dzien-liczba,
+  #dzis-procent, #dzisk-procent, .rejestr-objetosc-liczba, .katalog-suma-liczba, .habits-dzis-liczba, .jedz-dzien-liczba,
   #widok-dodaj .zapis-licznik-wartosc, .habits-procent-liczba, .kompas-wynik, .jedz-kolo-liczba,
   #widok-finanse .fin-kwota-duza > span:first-child, #widok-medytacja .med-czas-duzy > span:first-child, #widok-medytacja .med-zegar-liczba
 ) {

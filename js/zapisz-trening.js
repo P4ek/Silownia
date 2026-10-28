@@ -86,6 +86,48 @@ function budujWpisDzis(row) {
   return li;
 }
 
+// Wiersz "Dziś zapisane" dla całej superserii: złota etykieta, ćwiczenia (A + B …), rundy jako "R1 60×10 / 14×12",
+// jeden kosz – usunWpis z wierszem superserii kasuje wszystkie jej wiersze (usunSuperserie)
+function budujSuperserieDzis(wiersze) {
+  const posortowane = wiersze.slice().sort(function (a, b) { return (a.superseria_poz || 0) - (b.superseria_poz || 0); });
+  const li = document.createElement("li");
+  li.className = "zapis-dzis-wiersz zapis-dzis-superseria";
+  const opis = document.createElement("div");
+  opis.className = "zapis-dzis-opis";
+  const nazwa = document.createElement("span");
+  nazwa.className = "zapis-dzis-nazwa";
+  const etykieta = document.createElement("span");
+  etykieta.className = "zapis-dzis-ss-etykieta";
+  etykieta.textContent = "Superseria";
+  nazwa.appendChild(etykieta);
+  posortowane.forEach(function (w, i) {
+    if (i) nazwa.appendChild(document.createTextNode(" + "));
+    nazwa.appendChild(kropkaPartii(w.partia));
+    nazwa.appendChild(document.createTextNode(w.cwiczenie));
+  });
+  const rundy = document.createElement("span");
+  rundy.className = "zapis-dzis-serie zapis-dzis-ss-rundy";
+  const ileRund = Math.max.apply(null, posortowane.map(function (w) { return (w.podejscia || []).length; }));
+  for (let r = 0; r < ileRund; r++) {
+    const runda = document.createElement("span");
+    runda.textContent = "R" + (r + 1) + " " + posortowane.map(function (w) {
+      const p = (w.podejscia || [])[r];
+      return p ? formatKg(Number(p["cieżar"]) || 0) + "×" + (Number(p.powtorzenia) || 0) : "–";
+    }).join(" / ");
+    rundy.appendChild(runda);
+  }
+  opis.append(nazwa, rundy);
+
+  const btnUsun = document.createElement("button");
+  btnUsun.type = "button";
+  btnUsun.className = "rejestr-btn-usun";
+  btnUsun.setAttribute("aria-label", "Usuń superserię: " + posortowane.map(function (w) { return w.cwiczenie; }).join(" + "));
+  btnUsun.innerHTML = IKONA_KOSZ_KATALOG;
+  btnUsun.addEventListener("click", function () { usunWpis(posortowane[0], btnUsun); });
+  li.append(opis, btnUsun);
+  return li;
+}
+
 // Baner z rekordem (obliczRekordy) o najwyższym wyniku ciężar × powtórzenia; przy remisie nowszy
 function renderRekord() {
   let best = null;
@@ -116,8 +158,18 @@ function renderOstatnio() {
     lista.innerHTML = pustyStanHTML("🏋️", "Dziś jeszcze nic - zalicz serie i zapisz pierwsze ćwiczenie powyżej.");
     return;
   }
-  dzisiejsze.slice().reverse().forEach(function (row, i) {
-    lista.appendChild(wjazdKarty(budujWpisDzis(row), i));
+  // Najnowsze u góry; wiersze jednej superserii (wspólne superseria_id) jako jedna pozycja
+  const pokazane = {};
+  let i = 0;
+  dzisiejsze.slice().reverse().forEach(function (row) {
+    if (row.superseria_id) {
+      if (pokazane[row.superseria_id]) return;
+      pokazane[row.superseria_id] = true;
+      const wiersze = dzisiejsze.filter(function (w) { return w.superseria_id === row.superseria_id; });
+      lista.appendChild(wjazdKarty(budujSuperserieDzis(wiersze), i++));
+      return;
+    }
+    lista.appendChild(wjazdKarty(budujWpisDzis(row), i++));
   });
 }
 

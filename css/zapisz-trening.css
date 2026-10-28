@@ -431,3 +431,18 @@
 #widok-dodaj .superseria-pole { min-height: 44px; padding: 8px 6px; text-align: center; font-size: 18px; font-weight: 600; }
 .superseria-razy { color: var(--habits-tekst-pomocniczy); }
 #superseria-dodaj-runde { margin-top: 12px; }
+
+/* "Dziś zapisane": superseria jako jeden wiersz – złota etykieta, ćwiczenia A + B, rundy pod spodem */
+.zapis-dzis-superseria .zapis-dzis-nazwa { flex-wrap: wrap; row-gap: 4px; }
+.zapis-dzis-ss-etykieta {
+  flex: none;
+  margin-right: 4px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--habits-zloto);
+  background: oklch(0.72 0.08 75 / 0.14);
+  box-shadow: inset 0 0 0 1px oklch(0.72 0.08 75 / 0.4);
+}
+.zapis-dzis-ss-rundy { display: flex; flex-direction: column; gap: 2px; font-variant-numeric: tabular-nums; }

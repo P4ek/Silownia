@@ -211,13 +211,26 @@ function renderDzis() {
   const fokus = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.dzisFokus : null;
   const stan = dzisStan();
 
-  renderDzisNaglowek();
-  renderDzisKula(stan);
-  renderDzisTrening(stan);
-  renderDzisNawyki(stan);
-  renderDzisPosilki(stan);
-  renderDzisMisja(stan);
-  renderDzisTydzien(stan);
+  if (dzisPremium()) {
+    dzisUlozCzesci(false);
+    renderDzisNaglowek();
+    renderDzisKula(stan);
+    renderDzisTrening(stan);
+    renderDzisNawyki(stan);
+    renderDzisPosilki(stan);
+    renderDzisMisja(stan);
+    renderDzisTydzien(stan);
+  } else {
+    // Stary wygląd (js/dzis-klasyczny.js): niebo z gwiazdozbiorem, nawyki między częściami dnia
+    dzisUlozCzesci(true);
+    renderDzisNaglowekKlasyczny();
+    renderDzisNieboKlasyczny(stan);
+    renderDzisTreningKlasyczny(stan);
+    renderDzisNawykiKlasyczny(stan);
+    renderDzisPosilkiKlasyczny(stan);
+    renderDzisMisjaKlasyczny(stan);
+    renderDzisTydzienKlasyczny(stan);
+  }
   renderDzisCele();
   renderDzisRada();
 
@@ -225,6 +238,19 @@ function renderDzis() {
     const el = document.querySelector('#widok-dzis [data-dzis-fokus="' + fokus + '"]');
     if (el) el.focus();
   }
+}
+
+// Kolejność kontenerów: stary wygląd – trening, nawyki, posiłki, misja (wszystko w .dzis-czesci);
+// nowy – widżety trening, misja, posiłki, a nawyki osobną sekcją pod nimi
+function dzisUlozCzesci(klasyczny) {
+  const czesci = dzisTreningEl.parentNode;
+  if (klasyczny) czesci.append(dzisNawykiEl, dzisPosilkiEl, dzisMisjaEl);
+  else {
+    czesci.append(dzisMisjaEl, dzisPosilkiEl);
+    czesci.after(dzisNawykiEl);
+  }
+  czesci.prepend(dzisTreningEl);
+  dzisNawykiEl.className = klasyczny ? "dzis-czesc" : "dzis-nawyki-sekcja";
 }
 
 function renderDzisNaglowek() {
@@ -336,23 +362,47 @@ function renderDzisTrening(stan) {
     } else {
       porownanie = '<span class="dzis-opis-inline">Pierwszy zapisany trening: ' + dzisEsc(partia.toLowerCase()) + "</span>";
     }
+    // Pozycje listy: zwykłe ćwiczenia osobno, ćwiczenia jednej superserii (wspólne superseria_id) jako jedna pozycja
     const rekordy = obliczRekordy();
+    const pozycje = [];
+    const superserie = {};
+    stan.wpisyDzis.forEach(function (w) {
+      if (!w.superseria_id) { pozycje.push({ wpisy: [w] }); return; }
+      if (!superserie[w.superseria_id]) {
+        superserie[w.superseria_id] = { wpisy: [], superseria: true };
+        pozycje.push(superserie[w.superseria_id]);
+      }
+      superserie[w.superseria_id].wpisy.push(w);
+    });
+    const ileSuperserii = Object.keys(superserie).length;
     let lista = '<div class="dzis-trening-lista">';
-    stan.wpisyDzis.slice(0, DZIS_MAKS_CWICZEN).forEach(function (w) {
+    pozycje.slice(0, DZIS_MAKS_CWICZEN).forEach(function (poz) {
+      const rekord = poz.wpisy.some(function (w) { return czyWpisMaRekord(w, rekordy); });
+      const gwiazdka = rekord ? '<span class="dzis-trening-rekord" title="Rekord">' + IKONA_GWIAZDKA_REKORD + "</span>" : "";
+      if (poz.superseria) {
+        const wpisySs = poz.wpisy.slice().sort(function (a, b) { return (a.superseria_poz || 0) - (b.superseria_poz || 0); });
+        const rundy = Math.max.apply(null, wpisySs.map(function (w) { return (w.podejscia || []).length; }));
+        lista += '<span class="dzis-trening-cw dzis-trening-ss">' +
+          '<span class="dzis-trening-ss-znak" aria-hidden="true">' + wpisySs.map(function (w) { return kropkaPartii(w.partia).outerHTML; }).join("") + "</span>" +
+          '<span class="dzis-trening-cw-nazwa"><span class="dzis-trening-ss-etykieta">Superseria</span>' +
+          dzisEsc(wpisySs.map(function (w) { return w.cwiczenie; }).join(" + ")) + "</span>" + gwiazdka +
+          '<span class="dzis-trening-cw-seria">' + rundy + " " + odmianaLiczby(rundy, "runda", "rundy", "rund") + "</span></span>";
+        return;
+      }
+      const w = poz.wpisy[0];
       const najlepsza = (w.podejscia || []).reduce(function (n, p) { return !n || wynikSerii(p) > wynikSerii(n) ? p : n; }, null);
-      const rekord = czyWpisMaRekord(w, rekordy);
       lista += '<span class="dzis-trening-cw">' + kropkaPartii(w.partia).outerHTML +
-        '<span class="dzis-trening-cw-nazwa">' + dzisEsc(w.cwiczenie) + "</span>" +
-        (rekord ? '<span class="dzis-trening-rekord" title="Rekord">' + IKONA_GWIAZDKA_REKORD + "</span>" : "") +
+        '<span class="dzis-trening-cw-nazwa">' + dzisEsc(w.cwiczenie) + "</span>" + gwiazdka +
         '<span class="dzis-trening-cw-seria">' + (najlepsza ? formatKg(Number(najlepsza["cieżar"]) || 0) + " kg × " + najlepsza.powtorzenia : "") + "</span></span>";
     });
-    const reszta = stan.wpisyDzis.length - DZIS_MAKS_CWICZEN;
-    if (reszta > 0) lista += '<span class="dzis-cwiczenia-reszta">+' + reszta + " " + odmianaLiczby(reszta, "ćwiczenie", "ćwiczenia", "ćwiczeń") + "</span>";
+    const reszta = pozycje.length - DZIS_MAKS_CWICZEN;
+    if (reszta > 0) lista += '<span class="dzis-cwiczenia-reszta">+' + reszta + " " + odmianaLiczby(reszta, "pozycja", "pozycje", "pozycji") + "</span>";
     lista += "</div>";
     tresc =
       '<div class="dzis-trening-liczba"><span class="dzis-duza">' + dzisKg(dzisObjetosc(stan.wpisyDzis)) + '</span><span class="dzis-jednostka">kg</span></div>' +
       '<span class="dzis-opis">' + stan.wpisyDzis.length + " " + odmianaLiczby(stan.wpisyDzis.length, "ćwiczenie", "ćwiczenia", "ćwiczeń") + " · " +
-      serie + " " + odmianaLiczby(serie, "seria", "serie", "serii") + "</span>" +
+      serie + " " + odmianaLiczby(serie, "seria", "serie", "serii") +
+      (ileSuperserii ? " · " + ileSuperserii + " " + odmianaLiczby(ileSuperserii, "superseria", "superserie", "superserii") : "") + "</span>" +
       '<div class="dzis-trening-porownanie">' + porownanie + "</div>" + lista;
   } else if (plan) {
     let lista = '<div class="dzis-trening-lista">';
@@ -579,6 +629,7 @@ async function dzisPrzelaczNawyk(nawyk, przycisk) {
   const dzis = dzisiaj();
   const zapal = !czyNawykZrobiony(nawyk.id, dzis);
   dzisOczekujace[klucz] = zapal;
+  if (zapal) dzisNowaGwiazda = { klucz: klucz, czas: Date.now() };
   renderDzis();
   try {
     await przelaczNawykDzien(nawyk, dzis, przycisk);
@@ -597,6 +648,7 @@ async function dzisZaliczMisje(przycisk) {
     return;
   }
   dzisOczekujace.mi = true;
+  dzisNowaGwiazda = { klucz: "mi", czas: Date.now() };
   renderDzis();
   try {
     await przybijPieczatke(postep, [przycisk]);

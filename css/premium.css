@@ -4,9 +4,10 @@
    - etykiety zwykłą pisownią zamiast rozstrzelonych wersalików,
    - tło: trzy rozmyte plamy światła w kolorach kategorii (trening błękit, nawyki krem, misja złoto), wolny dryf, ziarno,
    - akcent jaśniejszy (krem → perłowa biel), przyciski główne jak białe pigułki.
-   Ekran Dziś ma własny układ w dzis.css. Stan sprzed zmiany: tag git przed-premium. */
+   Ekran Dziś ma własny układ w dzis.css. Wszystkie reguły pod html.styl-premium (przełącznik „Nowy wygląd” w menu, localStorage
+   "styl-premium"; bez klasy wraca stary wygląd). Stan sprzed zmiany: tag git przed-premium. */
 
-:root {
+html.styl-premium {
   --habits-akcent: #EEEAE2;
   --habits-akcent-rgb: 238, 234, 226;
   --habits-tlo: #050608;
@@ -18,14 +19,14 @@
 }
 
 /* ===== Jedna czcionka ===== */
-html body,
-html body * { font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif !important; }
-html body *:not(em):not(i) { font-style: normal !important; }
-html body { -webkit-font-smoothing: antialiased; }
+html.styl-premium body,
+html.styl-premium body * { font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif !important; }
+html.styl-premium body *:not(em):not(i) { font-style: normal !important; }
+html.styl-premium body { -webkit-font-smoothing: antialiased; }
 
 /* ===== Tło: płynące światło pod szkłem ===== */
-body.motyw-habits { background: #050608; }
-body.motyw-habits::before {
+html.styl-premium body.motyw-habits { background: #050608; }
+html.styl-premium body.motyw-habits::before {
   inset: -20%;
   background:
     radial-gradient(28% 20% at 18% 22%, rgba(122, 162, 255, 0.34), transparent 70%),
@@ -34,22 +35,22 @@ body.motyw-habits::before {
   filter: blur(20px);
   animation: blask-dryf 40s ease-in-out infinite alternate;
 }
-body.motyw-habits::after {
+html.styl-premium body.motyw-habits::after {
   inset: 0;
   background: var(--tekstura-szumu) repeat;
   animation: none;
   opacity: 1;
 }
-#sidebar {
+html.styl-premium #sidebar {
   background:
     radial-gradient(60% 34% at 20% 0%, rgba(122, 162, 255, 0.2), transparent 70%),
     radial-gradient(50% 30% at 100% 60%, rgba(232, 194, 122, 0.1), transparent 70%),
     #050608;
 }
-html.styl-szklo #sidebar { background: rgba(5, 6, 8, 0.6); }
+html.styl-premium.styl-szklo #sidebar { background: rgba(5, 6, 8, 0.6); }
 
 /* ===== Tytuły ekranów ===== */
-:is(
+html.styl-premium :is(
   .dzis-powitanie, #widok-wykres .wykres-tytul, #widok-plan .kompas-tytul, #widok-rady .rady-tytul,
   #widok-finanse .fin-tytul, #widok-medytacja .med-tytul, #widok-majatek .maj-tytul, #widok-dodaj .zapis-tytul, .menu-tytul
 ) {
@@ -64,12 +65,12 @@ html.styl-szklo #sidebar { background: rgba(5, 6, 8, 0.6); }
   animation: none !important;
   padding-right: 0 !important;
 }
-.menu-tytul { font-size: 48px !important; }
+html.styl-premium .menu-tytul { font-size: 48px !important; }
 /* Cytat / nazwa apki nad ekranami: cichy podpis */
-.kontener > h1#app-tytul { font-size: 14px; font-weight: 500; line-height: 1.45; letter-spacing: 0; color: #8E949E; }
+html.styl-premium .kontener > h1#app-tytul { font-size: 14px; font-weight: 500; line-height: 1.45; letter-spacing: 0; color: #8E949E; }
 
 /* ===== Nagłówki sekcji: półgrube, bez złotej iskry ===== */
-:is(
+html.styl-premium :is(
   .dzis-czesc-tytul,
   #widok-dodaj .zapis-serie-tytul, .zapis-dzis-naglowek h3,
   #widok-wykres .wykres-karta-tytul, .wykres-gablota-naglowek h3,
@@ -87,7 +88,7 @@ html.styl-szklo #sidebar { background: rgba(5, 6, 8, 0.6); }
   color: #F2F3F5 !important;
   padding-left: 0 !important;
 }
-:is(
+html.styl-premium :is(
   .dzis-tytul, #widok-dodaj .zapis-serie-tytul, .zapis-dzis-naglowek h3, #widok-wykres .wykres-karta-tytul,
   .wykres-gablota-naglowek h3, #widok-zaplanuj .plany-tytul, #widok-jedzenie .jedz-lista-tytul,
   #widok-plan .kompas-tydzien-rola, #widok-rady .rady-mapa-tytul, #widok-finanse .fin-sekcja-naglowek h3,
@@ -95,7 +96,7 @@ html.styl-szklo #sidebar { background: rgba(5, 6, 8, 0.6); }
 )::before { display: none !important; }
 
 /* ===== Etykiety: zwykła pisownia ===== */
-:is(
+html.styl-premium :is(
   #widok-dodaj .zapis-sesja, .zapis-serie-licznik, #widok-dodaj .zapis-licznik-etykieta,
   #widok-rejestr .rejestr-kicker, .rejestr-etykieta,
   .wykres-kicker, .wykres-gablota-tydzien,
@@ -114,17 +115,17 @@ html.styl-szklo #sidebar { background: rgba(5, 6, 8, 0.6); }
   text-transform: none !important;
   color: #8E949E !important;
 }
-:is(.menu-rozdzial-nazwa, .menu-powitanie) {
+html.styl-premium :is(.menu-rozdzial-nazwa, .menu-powitanie) {
   font-size: 13px !important;
   font-weight: 600 !important;
   letter-spacing: 0 !important;
   text-transform: lowercase !important;
   color: #8E949E !important;
 }
-:is(.menu-rozdzial-nazwa, .menu-powitanie)::first-letter { text-transform: uppercase; }
+html.styl-premium :is(.menu-rozdzial-nazwa, .menu-powitanie)::first-letter { text-transform: uppercase; }
 
 /* ===== Wielkie liczby: gradient biel → stal ===== */
-:is(
+html.styl-premium :is(
   .rejestr-objetosc-liczba, .katalog-suma-liczba, .habits-dzis-liczba, .jedz-dzien-liczba,
   .habits-procent-liczba, .kompas-wynik, .jedz-kolo-liczba,
   #widok-finanse .fin-kwota-duza > span:first-child, #widok-medytacja .med-czas-duzy > span:first-child,
@@ -141,37 +142,76 @@ html.styl-szklo #sidebar { background: rgba(5, 6, 8, 0.6); }
   text-shadow: none !important;
 }
 /* Liczniki w treningu to pola: pełna biel (gradient przycięty do tekstu w polu nie działa) */
-#aplikacja #widok-dodaj .zapis-licznik-wartosc { font-weight: 600 !important; letter-spacing: -0.04em; color: #F2F3F5 !important; text-shadow: none !important; }
+html.styl-premium #aplikacja #widok-dodaj .zapis-licznik-wartosc { font-weight: 600 !important; letter-spacing: -0.04em; color: #F2F3F5 !important; text-shadow: none !important; }
 /* Jednostki przy liczbach */
-:is(.fin-zl, .maj-zl, .rejestr-objetosc-jednostka, .med-czas-min) { color: #8E949E !important; font-weight: 500; }
+html.styl-premium :is(.fin-zl, .maj-zl, .rejestr-objetosc-jednostka, .med-czas-min) { color: #8E949E !important; font-weight: 500; }
 
 /* ===== Menu ===== */
-.menu-etykieta { font-size: 24px !important; font-weight: 600; letter-spacing: -0.025em; color: #E8EAEE !important; }
-.menu-pozycja[aria-current="page"] .menu-etykieta { color: #FFFFFF !important; text-shadow: 0 0 24px rgba(255, 255, 255, 0.35); }
-.menu-kropki { border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important; transform: translateY(-7px) !important; }
-.menu-styl-tekst { font-size: 15px !important; font-weight: 600; }
+html.styl-premium .menu-etykieta { font-size: 24px !important; font-weight: 600; letter-spacing: -0.025em; color: #E8EAEE !important; }
+html.styl-premium .menu-pozycja[aria-current="page"] .menu-etykieta { color: #FFFFFF !important; text-shadow: 0 0 24px rgba(255, 255, 255, 0.35); }
+html.styl-premium .menu-kropki { border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important; transform: translateY(-7px) !important; }
+html.styl-premium .menu-styl-tekst { font-size: 15px !important; font-weight: 600; }
 
 /* ===== Przyciski główne: biała pigułka, bez przelatującego błysku ===== */
-:is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .btn-zakoncz-tydzien)::after { display: none; }
-#aplikacja :is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .btn-zakoncz-tydzien, .maj-btn-glowny):not(:disabled) {
+html.styl-premium :is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .btn-zakoncz-tydzien)::after { display: none; }
+html.styl-premium #aplikacja :is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .btn-zakoncz-tydzien, .maj-btn-glowny):not(:disabled) {
   background: #F2F3F5 !important;
   color: #0A0B0E !important;
   box-shadow: inset 0 1px 0 #fff, 0 12px 30px -12px rgba(255, 255, 255, 0.35) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body.motyw-habits::before { animation: none; }
+  html.styl-premium body.motyw-habits::before { animation: none; }
 }
 
 /* Ekran Dziś: data, liczniki i podpisy celów zwykłą pisownią; bez dodatkowego odstępu nad celami ze spojnosc.css */
-#widok-dzis :is(.dzis-data, .dzis-kicker, .dzis-cel-meta) {
+html.styl-premium #widok-dzis :is(.dzis-data, .dzis-kicker, .dzis-cel-meta) {
   font-size: 13px !important;
   font-weight: 500 !important;
   letter-spacing: 0 !important;
   text-transform: none !important;
   color: #8E949E !important;
 }
-#widok-dzis .dzis-cel-meta { font-size: 12px !important; }
-#widok-dzis .dzis-cele-naglowek { padding-top: 0; }
+html.styl-premium #widok-dzis .dzis-cel-meta { font-size: 12px !important; }
+html.styl-premium #widok-dzis .dzis-cele-naglowek { padding-top: 0; }
 /* Oszczędności: szersza czcionka niż szeryfowa – mniejsza kwota w jednej linii */
-#widok-finanse .fin-kwota-duza > span:first-child { font-size: 52px !important; white-space: nowrap; }
+html.styl-premium #widok-finanse .fin-kwota-duza > span:first-child { font-size: 52px !important; white-space: nowrap; }
+
+/* Superseria w Rejestrze: szkło robiło wnętrze ramki przezroczystym i złoty gradient obwódki zalewał całą kartę –
+   wnętrze ciemne jak w makiecie, złoto zostaje na obwódce, w poświacie od dołu i w iskrach */
+html.styl-premium #aplikacja #widok-rejestr .ssw-wnetrze {
+  background:
+    radial-gradient(260px 160px at 100% 0%, rgba(232, 194, 122, 0.12), transparent 70%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0)),
+    #0B0B0D !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+/* Pigułka rekordów w Rejestrze: złota, nie przygaszona przez styl chipów szkła */
+html.styl-premium #aplikacja .rejestr-pigulka.zlota {
+  background: #E8C27A !important;
+  color: #0A0B0E !important;
+  box-shadow: 0 0 18px -4px rgba(232, 194, 122, 0.6) !important;
+}
+
+/* Superseria w Zapisz trening: szklane karty wyboru ćwiczeń i rund, tytuł złotym gradientem */
+html.styl-premium #aplikacja #widok-dodaj :is(.superseria-slot, .superseria-runda, .superseria-karta) {
+  background: rgba(255, 255, 255, 0.055) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border-color: transparent;
+  box-shadow: inset 1px 1px 0 -0.5px rgba(255, 255, 255, 0.45), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.14), 0 20px 40px -24px rgba(0, 0, 0, 0.85) !important;
+}
+html.styl-premium #aplikacja #widok-dodaj .superseria-slot { border-left: 3px solid var(--kolor-partii); }
+html.styl-premium #aplikacja #widok-dodaj .superseria-runda.pelna { box-shadow: inset 0 0 0 1px rgba(232, 194, 122, 0.45), 0 0 22px -6px rgba(232, 194, 122, 0.45) !important; }
+html.styl-premium #aplikacja #widok-dodaj .superseria-runda.pelna .superseria-runda-tytul { color: #E8C27A; }
+html.styl-premium #widok-dodaj .superseria-etykieta {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  background: linear-gradient(180deg, #F7E2B4 30%, #C9974A 110%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+html.styl-premium #widok-dodaj .superseria-runda-tytul { letter-spacing: 0; text-transform: none; font-size: 13px; font-weight: 600; }
+html.styl-premium .zapis-dzis-ss-etykieta { color: #E8C27A; background: rgba(232, 194, 122, 0.14); box-shadow: inset 0 0 0 1px rgba(232, 194, 122, 0.4); }
