@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050608">
+<title>Dziś – próbka premium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Makieta ekranu Dziś w kierunku „premium”: liquid glass + styl Majątku (gradientowe liczby, kafle ze światłem).
+     Pierścień 9 segmentów zamiast konstelacji, widżety 2×2, tydzień jako mini-pierścienie. Dane przykładowe; nawyki i cele można stuknąć. -->
+<style>
+:root {
+  --tlo: #050608;
+  --tusz: #F2F3F5;
+  --cichy: #8E949E;
+  --wyciszony: #5C626C;
+  --linia: rgba(255, 255, 255, 0.08);
+  --trening: #7AA2FF;
+  --posilki: #5ED1B0;
+  --nawyki: #E9E4D8;
+  --misja: #E8C27A;
+  --szklo: rgba(255, 255, 255, 0.055);
+  --krawedz: inset 1px 1px 0 -0.5px rgba(255, 255, 255, 0.5), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.16), inset 0 0 24px rgba(255, 255, 255, 0.035);
+  --cien: 0 24px 48px -24px rgba(0, 0, 0, 0.85);
+  --sprezyna: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --wyhamowanie: cubic-bezier(0.16, 1, 0.3, 1);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--tlo);
+  color: var(--tusz);
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--tusz); outline-offset: 3px; }
+
+/* ----- Światło pod szkłem: trzy rozmyte plamy w kolorach kategorii, bardzo wolny dryf ----- */
+.swiatlo { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.swiatlo span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.38;
+  animation: dryf 34s ease-in-out infinite alternate;
+}
+.swiatlo span:nth-child(1) { width: 340px; height: 340px; left: -120px; top: 60px; background: var(--trening); }
+.swiatlo span:nth-child(2) { width: 300px; height: 300px; right: -110px; top: 300px; background: var(--posilki); opacity: 0.28; animation-duration: 41s; animation-delay: -12s; }
+.swiatlo span:nth-child(3) { width: 260px; height: 260px; left: 30%; top: 760px; background: var(--misja); opacity: 0.22; animation-duration: 47s; animation-delay: -20s; }
+@keyframes dryf {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(40px, -30px, 0) scale(1.12); }
+  100% { transform: translate3d(-30px, 40px, 0) scale(0.95); }
+}
+.ziarno {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.5;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+.strona {
+  position: relative;
+  z-index: 2;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(40px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ----- Szkło ----- */
+.szklo {
+  position: relative;
+  isolation: isolate;
+  background: var(--szklo);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: var(--krawedz), var(--cien);
+}
+.szklo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0) 70%, rgba(255, 255, 255, 0.05) 100%);
+}
+
+/* ----- Górny pasek: kropla menu i pigułka kosmetyków (jak w apce) ----- */
+.gora { display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.kropla {
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.kropla svg { width: 22px; height: 22px; }
+.pigulka {
+  height: 40px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.pigulka b { color: var(--cichy); font-weight: 600; }
+.pigulka i { width: 6px; height: 6px; border-radius: 50%; background: var(--nawyki); box-shadow: 0 0 8px var(--nawyki); }
+
+/* ----- Powitanie ----- */
+.powitanie { margin: 26px 4px 0; }
+.data { font-size: 13px; font-weight: 500; color: var(--cichy); }
+h1 {
+  margin: 4px 0 0;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  background: linear-gradient(180deg, #FFFFFF 35%, #9AA0AB 120%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ----- Bohater: pierścień 9 segmentów ----- */
+.bohater { margin-top: 20px; padding: 22px 20px 20px; border-radius: 32px; }
+.pierscien-box { position: relative; width: 236px; height: 236px; margin: 4px auto 0; }
+.pierscien { width: 100%; height: 100%; overflow: visible; transform: rotate(-90deg); }
+.pierscien .tor { fill: none; stroke: rgba(255, 255, 255, 0.07); stroke-width: 14; stroke-linecap: round; }
+.pierscien .seg {
+  fill: none;
+  stroke-width: 14;
+  stroke-linecap: round;
+  stroke-dashoffset: var(--dl);
+  transition: stroke-dashoffset 0.9s var(--wyhamowanie), opacity 0.4s ease;
+}
+.pierscien .seg.on { stroke-dashoffset: 0; filter: drop-shadow(0 0 6px var(--k)); }
+.srodek {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.wynik {
+  font-size: 74px;
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #FFFFFF 30%, #8D94A3 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.wynik sup { font-size: 0.36em; letter-spacing: 0; margin-left: 2px; vertical-align: 1.35em; }
+.wynik-opis { margin-top: 8px; font-size: 13px; color: var(--cichy); }
+.wynik-opis b { color: var(--tusz); font-weight: 600; }
+.legenda { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 18px; }
+.legenda div { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 12px; color: var(--cichy); }
+.legenda strong { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; color: var(--tusz); font-variant-numeric: tabular-nums; }
+.legenda strong::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--k); box-shadow: 0 0 8px var(--k); }
+
+/* ----- Widżety 2×2 ----- */
+.widzety { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.widzet {
+  --k: var(--tusz);
+  display: flex;
+  flex-direction: column;
+  min-height: 176px;
+  padding: 16px;
+  border: none;
+  border-radius: 26px;
+  text-align: left;
+  overflow: hidden;
+  transition: transform 0.35s var(--sprezyna);
+}
+.widzet:active { transform: scale(0.97); }
+.widzet::before {
+  content: "";
+  position: absolute;
+  inset: auto -20% -45% -20%;
+  height: 80%;
+  z-index: -2;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--k) 30%, transparent), transparent);
+  pointer-events: none;
+}
+.widzet-gora { display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--cichy); }
+.widzet-gora span { display: inline-flex; align-items: center; gap: 7px; }
+.widzet-gora span::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--k); box-shadow: 0 0 8px var(--k); }
+.widzet-gora svg { width: 14px; height: 14px; color: var(--wyciszony); }
+.widzet-liczba {
+  margin-top: auto;
+  padding-top: 14px;
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.widzet-liczba small { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; color: var(--cichy); margin-left: 3px; }
+.widzet-opis { margin-top: 4px; font-size: 12.5px; color: var(--cichy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.widzet-viz { margin-top: 12px; height: 26px; display: flex; align-items: flex-end; gap: 4px; }
+.slupek { flex: 1; border-radius: 4px 4px 2px 2px; background: color-mix(in srgb, var(--k) 70%, transparent); transform-origin: bottom; animation: rosnij 0.9s var(--wyhamowanie) backwards; }
+@keyframes rosnij { from { transform: scaleY(0); } }
+.pasek { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden; align-self: center; width: 100%; }
+.pasek i { display: block; height: 100%; border-radius: 3px; background: var(--k); box-shadow: 0 0 10px var(--k); transform-origin: left; animation: wypelnij 1.1s var(--wyhamowanie) 0.3s backwards; }
+@keyframes wypelnij { from { transform: scaleX(0); } }
+.kropki { display: flex; gap: 6px; align-self: center; }
+.kropki i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.22); transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; }
+.kropki i.on { background: var(--k); border-color: var(--k); box-shadow: 0 0 10px var(--k); }
+.makro { display: flex; gap: 10px; margin-top: 8px; font-size: 11.5px; color: var(--cichy); font-variant-numeric: tabular-nums; }
+.makro b { color: var(--tusz); font-weight: 600; }
+
+/* ----- Sekcje ----- */
+.sekcja-gora { display: flex; align-items: baseline; justify-content: space-between; margin: 30px 6px 12px; }
+h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.025em; }
+.sekcja-gora span { font-size: 13px; color: var(--cichy); font-variant-numeric: tabular-nums; }
+
+/* Nawyki: lista do odhaczenia */
+.lista { border-radius: 26px; padding: 6px; }
+.nawyk {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  text-align: left;
+  transition: background 0.25s ease, transform 0.3s var(--sprezyna);
+}
+.nawyk + .nawyk { margin-top: 2px; }
+.nawyk:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.04); }
+.nawyk-znak {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  transition: background 0.35s var(--wyhamowanie), border-color 0.35s ease, box-shadow 0.35s ease;
+}
+.nawyk-znak svg { width: 14px; height: 14px; color: #0A0B0E; opacity: 0; transform: scale(0.4); transition: opacity 0.2s ease, transform 0.4s var(--sprezyna); }
+.nawyk.on .nawyk-znak { background: var(--nawyki); border-color: var(--nawyki); box-shadow: 0 0 14px rgba(233, 228, 216, 0.45); }
+.nawyk.on .nawyk-znak svg { opacity: 1; transform: scale(1); }
+.nawyk-nazwa { flex: 1; font-size: 15px; font-weight: 600; }
+.nawyk.on .nawyk-nazwa { color: var(--cichy); }
+.nawyk-seria { font-size: 12.5px; color: var(--cichy); font-variant-numeric: tabular-nums; }
+
+/* Tydzień: 7 mini-pierścieni */
+.tydzien { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 16px 10px 14px; border-radius: 26px; }
+.dzien { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11.5px; color: var(--cichy); }
+.dzien svg { width: 34px; height: 34px; transform: rotate(-90deg); }
+.dzien .t { fill: none; stroke: rgba(255, 255, 255, 0.08); stroke-width: 4; }
+.dzien .p { fill: none; stroke: var(--nawyki); stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 1s var(--wyhamowanie); }
+.dzien.dzis { color: var(--tusz); font-weight: 700; }
+.dzien.dzis svg { filter: drop-shadow(0 0 6px rgba(233, 228, 216, 0.5)); }
+.dzien.przyszly .p { opacity: 0; }
+
+/* Przycisk główny */
+.btn-glowny {
+  width: 100%;
+  min-height: 56px;
+  margin-top: 14px;
+  border: none;
+  border-radius: 999px;
+  background: var(--tusz);
+  color: #0A0B0E;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 #fff, 0 12px 30px -12px rgba(255, 255, 255, 0.35);
+  transition: transform 0.35s var(--sprezyna);
+}
+.btn-glowny:active { transform: scale(0.97); }
+
+/* ----- Wejście ekranu: jedna kaskada ----- */
+.wejscie > * { animation: wjazd 0.8s var(--wyhamowanie) backwards; }
+.wejscie > :nth-child(2) { animation-delay: 0.06s; }
+.wejscie > :nth-child(3) { animation-delay: 0.12s; }
+.wejscie > :nth-child(4) { animation-delay: 0.2s; }
+.wejscie > :nth-child(5) { animation-delay: 0.28s; }
+.wejscie > :nth-child(6) { animation-delay: 0.34s; }
+.wejscie > :nth-child(n + 7) { animation-delay: 0.4s; }
+@keyframes wjazd { from { opacity: 0; transform: translateY(18px) scale(0.985); filter: blur(8px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .swiatlo span, .wejscie > *, .slupek, .pasek i { animation: none; }
+  .pierscien .seg, .dzien .p, .nawyk, .nawyk-znak, .nawyk-znak svg, .widzet, .btn-glowny { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="swiatlo" aria-hidden="true"><span></span><span></span><span></span></div>
+<div class="ziarno" aria-hidden="true"></div>
+
+<main class="strona wejscie">
+  <div class="gora">
+    <button class="kropla szklo" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 9h14M5 15h9"/></svg>
+    </button>
+    <button class="pigulka szklo"><i></i>Wieczór <b>3 kroki</b></button>
+  </div>
+
+  <div class="powitanie">
+    <div class="data" id="data"></div>
+    <h1>Dobry wieczór</h1>
+  </div>
+
+  <section class="bohater szklo" aria-label="Wynik dnia">
+    <div class="pierscien-box">
+      <svg class="pierscien" viewBox="0 0 236 236" id="pierscien" aria-hidden="true"></svg>
+      <div class="srodek">
+        <div class="wynik"><span id="wynik">0</span><sup>%</sup></div>
+        <div class="wynik-opis"><b id="ile">0 z 9</b> gwiazd dziś</div>
+      </div>
+    </div>
+    <div class="legenda" id="legenda"></div>
+  </section>
+
+  <div class="widzety">
+    <button class="widzet szklo" style="--k: var(--trening)">
+      <div class="widzet-gora"><span>Trening</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+      <div class="widzet-viz" id="serie"></div>
+      <div class="widzet-liczba">5<small>serii</small></div>
+      <div class="widzet-opis">Klata · 2 ćwiczenia · 1947 kg</div>
+    </button>
+    <button class="widzet szklo" style="--k: var(--posilki)">
+      <div class="widzet-gora"><span>Posiłki</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+      <div class="widzet-viz"><div class="pasek"><i style="width: 48%"></i></div></div>
+      <div class="widzet-liczba"><span data-licz="1260">0</span><small>/ 2600 kcal</small></div>
+      <div class="makro"><span>B <b>77</b></span><span>W <b>170</b></span><span>T <b>27</b></span></div>
+    </button>
+    <button class="widzet szklo" style="--k: var(--nawyki)">
+      <div class="widzet-gora"><span>Nawyki</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+      <div class="widzet-viz"><div class="kropki" id="nawyki-kropki"></div></div>
+      <div class="widzet-liczba"><span id="nawyki-ile">2</span><small>/ 4</small></div>
+      <div class="widzet-opis" id="nawyki-opis">Zostały 2 na dziś</div>
+    </button>
+    <button class="widzet szklo" style="--k: var(--misja)">
+      <div class="widzet-gora"><span>Misja</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+      <div class="widzet-viz"><div class="kropki"><i class="on"></i><i class="on"></i><i></i></div></div>
+      <div class="widzet-liczba">2<small>/ 3 dni</small></div>
+      <div class="widzet-opis">Ułatw start</div>
+    </button>
+  </div>
+
+  <div class="sekcja-gora"><h2>Nawyki</h2><span id="nawyki-licznik">2 z 4</span></div>
+  <div class="lista szklo" id="nawyki"></div>
+
+  <div class="sekcja-gora"><h2>Tydzień</h2><span>śr. 61%</span></div>
+  <div class="tydzien szklo" id="tydzien"></div>
+
+  <button class="btn-glowny">Zapisz trening</button>
+</main>
+
+<script>
+// Stan dnia: 9 gwiazd = trening (1), posiłki (3), nawyki (4), misja (1)
+const NAWYKI = [
+  { nazwa: "Medytacja", seria: "12 dni", on: true },
+  { nazwa: "Czytanie 20 stron", seria: "5 dni", on: true },
+  { nazwa: "10 000 kroków", seria: "1 dzień", on: false },
+  { nazwa: "Bez cukru", seria: "–", on: false }
+];
+const KATEGORIE = [
+  { klucz: "trening", nazwa: "Trening", kolor: "var(--trening)", wszystkie: 1, zrobione: () => 1 },
+  { klucz: "posilki", nazwa: "Posiłki", kolor: "var(--posilki)", wszystkie: 3, zrobione: () => 2 },
+  { klucz: "nawyki", nazwa: "Nawyki", kolor: "var(--nawyki)", wszystkie: 4, zrobione: () => NAWYKI.filter(n => n.on).length },
+  { klucz: "misja", nazwa: "Misja", kolor: "var(--misja)", wszystkie: 1, zrobione: () => 0 }
+];
+const OGOLEM = 9;
+const CICHO = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const MIESIACE = ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"];
+const DNI = ["niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"];
+const teraz = new Date();
+document.getElementById("data").textContent = DNI[teraz.getDay()][0].toUpperCase() + DNI[teraz.getDay()].slice(1) + ", " + teraz.getDate() + " " + MIESIACE[teraz.getMonth()];
+
+// Odliczanie liczby z wyhamowaniem
+function licz(el, cel, czas) {
+  const start = el._v || 0;
+  el._v = cel;
+  if (CICHO) { el.textContent = cel.toLocaleString("pl-PL"); return; }
+  const t0 = performance.now();
+  (function klatka(t) {
+    const p = Math.min(1, (t - t0) / (czas || 900));
+    const e = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(start + (cel - start) * e).toLocaleString("pl-PL");
+    if (p < 1) requestAnimationFrame(klatka);
+  })(t0);
+}
+
+// Pierścień: 9 łuków z przerwą, w kolejności kategorii
+const R = 104, C = 2 * Math.PI * R, PRZERWA = 9;
+const dlugosc = C / OGOLEM - PRZERWA;
+const svg = document.getElementById("pierscien");
+const ns = "http://www.w3.org/2000/svg";
+const segmenty = [];
+let poz = 0;
+KATEGORIE.forEach(k => {
+  for (let i = 0; i < k.wszystkie; i++) {
+    const tor = document.createElementNS(ns, "circle");
+    const seg = document.createElementNS(ns, "circle");
+    [tor, seg].forEach(c => {
+      c.setAttribute("cx", 118); c.setAttribute("cy", 118); c.setAttribute("r", R);
+      c.setAttribute("stroke-dasharray", dlugosc + " " + (C - dlugosc));
+      c.style.transform = "rotate(" + (poz * 360 / OGOLEM) + "deg)";
+      c.style.transformOrigin = "118px 118px";
+    });
+    tor.setAttribute("class", "tor");
+    seg.setAttribute("class", "seg");
+    seg.style.stroke = k.kolor;
+    seg.style.setProperty("--k", k.kolor);
+    seg.style.setProperty("--dl", dlugosc + "px");
+    seg.style.strokeDasharray = dlugosc + " " + (C - dlugosc + dlugosc);
+    svg.append(tor, seg);
+    segmenty.push({ el: seg, kat: k, nr: i });
+    poz++;
+  }
+});
+
+function rysuj(pierwszy) {
+  let zrobione = 0;
+  KATEGORIE.forEach(k => {
+    const ile = k.zrobione();
+    zrobione += ile;
+    segmenty.filter(s => s.kat === k).forEach((s, i) => {
+      const on = i < ile;
+      if (pierwszy && on && !CICHO) setTimeout(() => s.el.classList.add("on"), 350 + segmenty.indexOf(s) * 110);
+      else s.el.classList.toggle("on", on);
+    });
+  });
+  licz(document.getElementById("wynik"), Math.round(zrobione / OGOLEM * 100), pierwszy ? 1400 : 600);
+  document.getElementById("ile").textContent = zrobione + " z " + OGOLEM;
+  document.getElementById("legenda").innerHTML = KATEGORIE.map(k =>
+    '<div style="--k:' + k.kolor + '"><strong>' + k.zrobione() + "/" + k.wszystkie + "</strong>" + k.nazwa + "</div>").join("");
+  const n = NAWYKI.filter(x => x.on).length;
+  document.getElementById("nawyki-ile").textContent = n;
+  document.getElementById("nawyki-licznik").textContent = n + " z " + NAWYKI.length;
+  document.getElementById("nawyki-opis").textContent = n === NAWYKI.length ? "Wszystkie zrobione" : "Zostały " + (NAWYKI.length - n) + " na dziś";
+  document.getElementById("nawyki-kropki").innerHTML = NAWYKI.map(x => "<i" + (x.on ? ' class="on"' : "") + "></i>").join("");
+}
+
+// Nawyki do odhaczenia: stuknięcie zapala gwiazdę i przelicza pierścień
+const lista = document.getElementById("nawyki");
+NAWYKI.forEach((n, i) => {
+  const b = document.createElement("button");
+  b.className = "nawyk" + (n.on ? " on" : "");
+  b.innerHTML = '<span class="nawyk-znak"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>' +
+    '<span class="nawyk-nazwa"></span><span class="nawyk-seria"></span>';
+  b.querySelector(".nawyk-nazwa").textContent = n.nazwa;
+  b.querySelector(".nawyk-seria").textContent = n.seria;
+  b.setAttribute("aria-pressed", n.on);
+  b.addEventListener("click", () => {
+    n.on = !n.on;
+    b.classList.toggle("on", n.on);
+    b.setAttribute("aria-pressed", n.on);
+    rysuj(false);
+  });
+  lista.append(b);
+});
+
+// Serie treningu: słupki wg objętości serii
+document.getElementById("serie").innerHTML = [640, 510, 425, 192, 180].map((v, i) =>
+  '<span class="slupek" style="height:' + Math.round(v / 640 * 100) + '%;animation-delay:' + (0.35 + i * 0.07) + 's"></span>').join("");
+
+// Tydzień: mini-pierścienie (odsetek gwiazd dnia), dziś wyróżnione, przyszłe puste
+const tydzien = [0.78, 0.44, 0.56, 0.33, 0.89, 0.67, 0];
+const r = 14, c = 2 * Math.PI * r;
+const dzisIdx = (teraz.getDay() + 6) % 7;
+tydzien[dzisIdx] = 5 / 9;
+document.getElementById("tydzien").innerHTML = ["pn", "wt", "śr", "cz", "pt", "so", "nd"].map((d, i) =>
+  '<div class="dzien' + (i === dzisIdx ? " dzis" : "") + (i > dzisIdx ? " przyszly" : "") + '"><svg viewBox="0 0 34 34"><circle class="t" cx="17" cy="17" r="' + r + '"/>' +
+  '<circle class="p" cx="17" cy="17" r="' + r + '" stroke-dasharray="' + c + '" stroke-dashoffset="' + c + '" data-cel="' + (c * (1 - tydzien[i])) + '"/></svg>' + (i === dzisIdx ? "dziś" : d) + "</div>").join("");
+setTimeout(() => document.querySelectorAll(".dzien .p").forEach((p, i) => { p.style.transitionDelay = (i * 0.06) + "s"; p.style.strokeDashoffset = p.dataset.cel; }), CICHO ? 0 : 500);
+
+document.querySelectorAll("[data-licz]").forEach(el => setTimeout(() => licz(el, +el.dataset.licz, 1200), CICHO ? 0 : 300));
+rysuj(true);
+</script>
+</body>
+</html>
