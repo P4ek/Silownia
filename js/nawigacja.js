@@ -161,15 +161,3 @@ btnStylSzklo.addEventListener("click", function () {
   odswiezPrzelacznikSzkla();
 });
 odswiezPrzelacznikSzkla();
-
-// ----- Wygląd "Plakat" (css/plakat.css): klasa html.styl-plakat, domyślnie włączona, wyłączenie zapamiętane w localStorage "styl-plakat" -----
-const btnStylPlakat = document.getElementById("btn-styl-plakat");
-function odswiezPrzelacznikPlakatu() {
-  btnStylPlakat.setAttribute("aria-pressed", document.documentElement.classList.contains("styl-plakat") ? "true" : "false");
-}
-btnStylPlakat.addEventListener("click", function () {
-  const wlaczony = document.documentElement.classList.toggle("styl-plakat");
-  try { localStorage.setItem("styl-plakat", wlaczony ? "1" : "0"); } catch (e) {}
-  odswiezPrzelacznikPlakatu();
-});
-odswiezPrzelacznikPlakatu();
