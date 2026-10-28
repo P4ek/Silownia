@@ -191,6 +191,59 @@ function majParsujIlosc(tekst) {
   return isFinite(n) && n > 0 ? Math.round(n * 1e6) / 1e6 : null;
 }
 
+// ----- Wejście na ekran (jak flip-hub): kaskada od dołu, kwoty liczone od zera, paski rosną -----
+const MAJ_WEJSCIE_MS = 2400;          // po tym czasie klasa wejścia znika (rozwijanie kafli wraca do własnej animacji)
+const MAJ_LICZENIE_MS = 1200;
+const MAJ_BEZ_RUCHU = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let majLiczOdZera = false;            // najbliższe narysowanie kwot z danymi liczy je od zera
+let majWejscieTimer = null;
+
+function majAnimujWejscie() {
+  if (MAJ_BEZ_RUCHU) return;
+  const widok = document.getElementById("widok-majatek");
+  // Kolejność kaskady: tytuł, części bohatera, przełączniki, widoczne kafle kont, nagłówek i lista historii
+  const kolejka = [widok.querySelector(".maj-tytul")]
+    .concat(Array.from(widok.querySelectorAll(".maj-bohater > *, .maj-przelacz")))
+    .concat(Array.from(widok.querySelectorAll(".maj-kafel:not([hidden])")))
+    .concat([widok.querySelector(".maj-sekcja-naglowek"), widok.querySelector(".maj-lista-glowna")]);
+  kolejka.forEach(function (el, i) { if (el) el.style.setProperty("--i", i); });
+  majNumerujWiersze();
+  widok.classList.remove("maj-wejscie");
+  void widok.offsetWidth; // ponowne odpalenie animacji przy każdym wejściu
+  widok.classList.add("maj-wejscie");
+  clearTimeout(majWejscieTimer);
+  majWejscieTimer = setTimeout(function () { widok.classList.remove("maj-wejscie"); }, MAJ_WEJSCIE_MS);
+  majLiczOdZera = true;
+  if (majWczytane && !majLadowanie) renderMajatek();
+}
+
+// Wiersze list wjeżdżają po kaflach, co 50 ms (pierwsze 12 każdej listy)
+function majNumerujWiersze() {
+  document.querySelectorAll("#widok-majatek [data-lista], #maj-akcje-lista").forEach(function (lista) {
+    Array.from(lista.children).forEach(function (w, j) { w.style.setProperty("--j", Math.min(j, 12)); });
+  });
+}
+
+// Kwota od zera w górę (1,2 s, mocne wyhamowanie jak we flip-hubie); potem zwykłe animujLiczbe działa od tej wartości
+function majLicz(el, cel) {
+  if (el._animacjaLiczby) cancelAnimationFrame(el._animacjaLiczby);
+  let t0 = null;
+  function klatka(teraz) {
+    if (t0 === null) t0 = teraz;
+    const p = Math.min(1, Math.max(0, (teraz - t0) / MAJ_LICZENIE_MS));
+    const v = p < 1 ? Math.round(cel * (1 - Math.pow(1 - p, 4))) : cel;
+    el._liczbaBiezaca = v;
+    el.textContent = finKwota(v, true);
+    el._animacjaLiczby = p < 1 ? requestAnimationFrame(klatka) : null;
+  }
+  el._animacjaLiczby = requestAnimationFrame(klatka);
+}
+
+function majPokazKwote(el, cel) {
+  if (majLiczOdZera && !MAJ_BEZ_RUCHU) majLicz(el, cel);
+  else animujLiczbe(el, cel, function (n) { return finKwota(n, true); });
+}
+
 // ----- Rysowanie -----
 function renderMajatek() {
   renderMajGotowka();
@@ -198,6 +251,10 @@ function renderMajatek() {
   renderMajKafel("inwestycje");
   renderMajKafel("side_hustle");
   renderMajAkcje();
+  if (!majLadowanie && majWczytane) {
+    majNumerujWiersze();
+    majLiczOdZera = false;
+  }
 }
 
 function renderMajGotowka() {
@@ -208,7 +265,7 @@ function renderMajGotowka() {
   }
   const saldo = majSaldo("gotowka");
   majEl.gotowka.style.setProperty("--maj-znaki", finKwota(saldo, true).length);
-  animujLiczbe(majEl.gotowka, saldo, function (n) { return finKwota(n, true); });
+  majPokazKwote(majEl.gotowka, saldo);
   majEl.gotowka.classList.toggle("maj-minus", saldo < 0);
 
   const ruchy = majRuchyKonta("gotowka");
@@ -258,7 +315,7 @@ function renderMajKafel(konto) {
   const rynkowa = !!(portfel && portfel.wyceniona);
   const saldo = rynkowa ? Math.round(portfel.wartosc * 100) / 100 : wplacone;
   saldoEl.style.setProperty("--maj-znaki", finKwota(saldo, true).length);
-  animujLiczbe(saldoEl, saldo, function (n) { return finKwota(n, true); });
+  majPokazKwote(saldoEl, saldo);
   saldoEl.classList.toggle("maj-minus", saldo < 0);
 
   const ile = majRuchyKonta(konto).length;
@@ -634,7 +691,10 @@ function majUstawOtwarte(konto, otwarte) {
 })();
 
 // ----- Zdarzenia -----
-navMajatek.addEventListener("click", majWejscie);
+navMajatek.addEventListener("click", function () {
+  majWejscie();
+  majAnimujWejscie();
+});
 
 document.querySelectorAll("#widok-majatek [data-dodaj-konto]").forEach(function (btn) {
   btn.addEventListener("click", function () { majOtworzOkno(btn.dataset.dodajKonto); });
@@ -706,3 +766,27 @@ function majOdswiezJesliStare() {
 }
 document.addEventListener("visibilitychange", majOdswiezJesliStare);
 navMajatek.addEventListener("click", function () { setTimeout(majOdswiezJesliStare, 200); });
+
+// Przechył 3D kafli kont za kursorem z odblaskiem (tylko mysz, jak flip-hub; bez trybu ograniczonego ruchu)
+if (!MAJ_BEZ_RUCHU && window.matchMedia("(hover: hover)").matches) {
+  const widokMaj = document.getElementById("widok-majatek");
+  widokMaj.addEventListener("pointermove", function (e) {
+    const kafel = e.target.closest(".maj-kafel");
+    if (!kafel || e.pointerType !== "mouse") return;
+    const r = kafel.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    const y = (e.clientY - r.top) / r.height;
+    kafel.style.transition = "transform 120ms ease-out";
+    kafel.style.transform = "perspective(900px) translateY(-4px) rotateX(" + ((0.5 - y) * 5).toFixed(2) + "deg) rotateY(" + ((x - 0.5) * 6).toFixed(2) + "deg)";
+    kafel.style.setProperty("--gx", (x * 100).toFixed(1) + "%");
+    kafel.style.setProperty("--gy", (y * 100).toFixed(1) + "%");
+  });
+  widokMaj.addEventListener("pointerout", function (e) {
+    const kafel = e.target.closest(".maj-kafel");
+    if (!kafel || kafel.contains(e.relatedTarget)) return;
+    kafel.style.transition = "";
+    kafel.style.transform = "";
+    kafel.style.removeProperty("--gx");
+    kafel.style.removeProperty("--gy");
+  });
+}

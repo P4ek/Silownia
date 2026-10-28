@@ -168,6 +168,7 @@
   padding: 20px 18px 14px;
   border-radius: 24px;
   background:
+    radial-gradient(80% 55% at var(--gx, 20%) var(--gy, 0%), rgba(255, 255, 255, var(--odblask, 0.05)), transparent 60%),
     radial-gradient(120% 50% at 50% 115%, var(--swiatlo), transparent 65%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
     #111318;
@@ -566,6 +567,28 @@
   #widok-majatek .maj-rynek { grid-column: 1 / -1; }
   #widok-majatek .maj-rynek button { flex: 1; }
 }
+
+/* ----- Wejście na ekran (jak flip-hub): kaskada od dołu, wiersze po kaflach, pasek portfela rośnie; klasę .maj-wejscie
+   dokłada i po chwili zdejmuje majatek.js przy każdym wejściu. Odblask kafla idzie za kursorem (--gx/--gy z majatek.js). ----- */
+#widok-majatek .maj-kafel:hover { --odblask: 0.09; }
+@media (prefers-reduced-motion: no-preference) {
+  /* Wspólne wejście ekranu z blask.css wyłączone na czas kaskady (bez podwójnej animacji bohatera i przełączników) */
+  #widok-majatek.maj-wejscie > * { animation: none; }
+  #widok-majatek.maj-wejscie :is(.maj-tytul, .maj-bohater > *, .maj-przelacz, .maj-kafel:not([hidden]), .maj-sekcja-naglowek, .maj-lista-glowna) {
+    animation: maj-wjedz 800ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: calc(150ms + var(--i, 0) * 90ms);
+  }
+  #widok-majatek.maj-wejscie :is(.maj-ruch, .maj-akcja) {
+    animation: maj-wjedz 700ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: calc(700ms + var(--j, 0) * 50ms);
+  }
+  #widok-majatek.maj-wejscie .maj-alokacja-pasek > span {
+    transform-origin: left;
+    animation: maj-rosnij 700ms cubic-bezier(0.2, 0.7, 0.2, 1) 900ms both;
+  }
+}
+@keyframes maj-wjedz { from { opacity: 0; transform: translateY(40px); } }
+@keyframes maj-rosnij { from { transform: scaleX(0); } }
 
 @keyframes maj-rozwin { from { opacity: 0; transform: translateY(-8px) scale(0.98); } }
 @keyframes maj-wjazd { from { opacity: 0; transform: scale(0.94) translateY(-8px); } }
