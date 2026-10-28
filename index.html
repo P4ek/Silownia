@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Silownia">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/baza.css">
 <link rel="stylesheet" href="css/zapisz-trening.css">
 <link rel="stylesheet" href="css/rejestr.css">
@@ -36,12 +36,12 @@
 <link rel="stylesheet" href="css/blask.css">
 <link rel="stylesheet" href="css/szklo.css">
 <link rel="stylesheet" href="css/kosmetyki.css">
-<link rel="stylesheet" href="css/grafit.css">
+<link rel="stylesheet" href="css/plakat.css">
 <script>
 // Tryb "liquid glass" (css/szklo.css) – klasa ustawiana przed narysowaniem strony; przełącznik w stopce menu (nawigacja.js)
 try { if (localStorage.getItem("styl-szklo") === "1") document.documentElement.classList.add("styl-szklo"); } catch (e) {}
-// Wygląd "Grafit" (css/grafit.css) – domyślnie włączony; "0" w localStorage "styl-grafit" wraca do poprzedniego wyglądu
-try { if (localStorage.getItem("styl-grafit") !== "0") document.documentElement.classList.add("styl-grafit"); } catch (e) { document.documentElement.classList.add("styl-grafit"); }
+// Wygląd "Plakat" (css/plakat.css) – domyślnie włączony; "0" w localStorage "styl-plakat" wraca do poprzedniego wyglądu
+try { if (localStorage.getItem("styl-plakat") !== "0") document.documentElement.classList.add("styl-plakat"); } catch (e) { document.documentElement.classList.add("styl-plakat"); }
 </script>
 <style>
 /* Ekran startowy: widoczny, dopóki getSession() nie zwróci wyniku (start.js), potem znika w ~300 ms */
@@ -354,7 +354,7 @@ try { if (localStorage.getItem("styl-grafit") !== "0") document.documentElement.
     </div>
 
     <footer class="menu-stopka">
-      <button type="button" class="menu-styl" id="btn-styl-grafit" aria-pressed="true">
+      <button type="button" class="menu-styl" id="btn-styl-plakat" aria-pressed="true">
         <span class="menu-styl-tekst">Nowy wygląd</span>
         <span class="menu-styl-tor" aria-hidden="true"><span class="menu-styl-galka"></span></span>
       </button>

@@ -1,0 +1,463 @@
+/* Wygląd „Plakat” dla całej apki: sportowy plakat z drukarni risograficznej.
+   - jedna rodzina Archivo w skrajnych szerokościach: tytuły ultrawąskie, najgrubsze, wersalikami, z przesuniętym kolorowym
+     cieniem jak przy krzywym spasowaniu druku; wielkie liczby jako kontur z kolorową plamą pod spodem,
+   - tusze riso wg działu menu (--tusz): Start żółty, Trening czerwień, Codziennie niebieski, Rozwój róż fluo, Finanse zieleń,
+     na ciepłej czerni z grubym ziarnem i dwoma nachodzącymi kołami w tle,
+   - karty z grubą ramką papieru, twardym cieniem w kolorze tuszu i rastrem kropek; przyciski jak wciskane naklejki,
+   - przesuwana, przechylona taśma z nazwą ekranu na górze każdego widoku.
+   Wszystko pod html.styl-plakat (klasę ustawia skrypt w <head>, przełącznik „Nowy wygląd” w stopce menu, localStorage "styl-plakat").
+   Cofnięcie: przełącznik w menu, a w kodzie usunąć ten plik z index.html i sw.js (stan sprzed zmian: tag git przed-nowym-wygladem). */
+
+html.styl-plakat {
+  --p-font: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --p-papier: #F3EBDD;
+  --p-papier-rgb: 243, 235, 221;
+  --p-czern: #0E0D0C;
+  --p-karta: #181614;
+  --p-cichy: #A39C90;
+  --p-linia: rgba(243, 235, 221, 0.16);
+  --p-ramka: rgba(243, 235, 221, 0.82);
+  --p-szum: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
+  --p-raster: radial-gradient(rgba(var(--tusz-rgb), 0.22) 1.1px, transparent 1.6px) 0 0 / 8px 8px;
+  --tusz: #FFD23F;
+  --tusz-rgb: 255, 210, 63;
+  --tusz-2: #3D63FF;
+
+  /* Zmienne apki: krem → papier, złoto → tusz działu */
+  --habits-akcent: var(--p-papier);
+  --habits-akcent-rgb: var(--p-papier-rgb);
+  --habits-tlo: var(--p-czern);
+  --habits-tlo-karta: var(--p-karta);
+  --habits-obramowanie: var(--p-linia);
+  --habits-obramowanie-puste: rgba(243, 235, 221, 0.24);
+  --habits-naglowek: var(--p-papier);
+  --habits-tekst: #E6DECF;
+  --habits-tekst-pomocniczy: var(--p-cichy);
+  --habits-zloto: #FF8A1C;
+  --blask-zloto: #FF8A1C;
+  --tryb-ciemny-tlo-karta: var(--p-karta);
+  --muted: var(--p-cichy);
+  --sp-serif: var(--p-font);
+}
+
+/* Tusz wg działu menu (aktywna sekcja); --tusz-2 to drugi tusz do przesunięć */
+html.styl-plakat:has(:is(#widok-dodaj, #widok-rejestr, #widok-zaplanuj, #widok-nowe, #widok-wykres).aktywny) { --tusz: #FF4A1C; --tusz-rgb: 255, 74, 28; --tusz-2: #3D63FF; }
+html.styl-plakat:has(:is(#widok-habits, #widok-jedzenie).aktywny) { --tusz: #3D63FF; --tusz-rgb: 61, 99, 255; --tusz-2: #FF48B0; }
+html.styl-plakat:has(:is(#widok-plan, #widok-rady, #widok-medytacja, #widok-wnioski, #widok-ai-analiza).aktywny) { --tusz: #FF48B0; --tusz-rgb: 255, 72, 176; --tusz-2: #FFD23F; }
+html.styl-plakat:has(:is(#widok-finanse, #widok-majatek).aktywny) { --tusz: #00C46A; --tusz-rgb: 0, 196, 106; --tusz-2: #FF48B0; }
+
+/* ===== Jeden krój ===== */
+html.styl-plakat body,
+html.styl-plakat body * { font-family: var(--p-font) !important; }
+html.styl-plakat body *:not(em):not(i) { font-style: normal !important; }
+
+/* ===== Papier: ciepła czerń, grube ziarno, dwa nachodzące koła tuszu ===== */
+html.styl-plakat body.motyw-habits { background: var(--p-czern); }
+html.styl-plakat body.motyw-habits::before {
+  inset: 0;
+  background:
+    radial-gradient(circle at 92% 6%, rgba(var(--tusz-rgb), 0.26) 0 150px, transparent 151px),
+    radial-gradient(circle at 70% 17%, rgba(61, 99, 255, 0.2) 0 110px, transparent 111px);
+  background-blend-mode: screen;
+  animation: none;
+}
+html.styl-plakat body.motyw-habits::after {
+  inset: 0;
+  z-index: 2;
+  background: var(--p-szum) repeat;
+  mix-blend-mode: overlay;
+  animation: none;
+  opacity: 1;
+}
+html.styl-plakat .kontener.motyw-habits .habits-poswiata { display: none; }
+html.styl-plakat #sidebar {
+  background:
+    var(--p-szum) repeat,
+    radial-gradient(circle at 100% 0%, rgba(255, 74, 28, 0.32) 0 170px, transparent 171px),
+    radial-gradient(circle at 78% 10%, rgba(61, 99, 255, 0.22) 0 120px, transparent 121px),
+    var(--p-czern);
+}
+
+/* ===== Taśma z nazwą ekranu: przechylona, przesuwa się w poziomie ===== */
+html.styl-plakat .widok { overflow-x: hidden; overflow-x: clip; }
+html.styl-plakat .widok.aktywny::before {
+  display: block;
+  width: max-content;
+  margin: 4px 0 34px -16px;
+  padding: 7px 0 5px;
+  background: var(--tusz);
+  color: var(--p-czern);
+  font-family: var(--p-font);
+  font-stretch: 62%;
+  font-weight: 900;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  box-shadow: 0 4px 0 var(--p-czern), 0 4px 0 2px var(--p-papier);
+  transform: rotate(-2deg);
+  animation: plakat-tasma 26s linear infinite;
+}
+@keyframes plakat-tasma {
+  from { transform: rotate(-2deg) translateX(0); }
+  to { transform: rotate(-2deg) translateX(-50%); }
+}
+html.styl-plakat #widok-dzis.aktywny::before { content: "DZIŚ ✶ NIE ODPUSZCZAJ ✶ DZIŚ ✶ NIE ODPUSZCZAJ ✶ DZIŚ ✶ NIE ODPUSZCZAJ ✶ DZIŚ ✶ NIE ODPUSZCZAJ ✶ DZIŚ ✶ NIE ODPUSZCZAJ ✶ DZIŚ ✶ NIE ODPUSZCZAJ ✶ "; }
+html.styl-plakat #widok-dodaj.aktywny::before { content: "TRENING ✶ CIĘŻAR × POWTÓRZENIA ✶ TRENING ✶ CIĘŻAR × POWTÓRZENIA ✶ TRENING ✶ CIĘŻAR × POWTÓRZENIA ✶ TRENING ✶ CIĘŻAR × POWTÓRZENIA ✶ "; }
+html.styl-plakat #widok-rejestr.aktywny::before { content: "REJESTR ✶ KAŻDA SERIA ✶ REJESTR ✶ KAŻDA SERIA ✶ REJESTR ✶ KAŻDA SERIA ✶ REJESTR ✶ KAŻDA SERIA ✶ REJESTR ✶ KAŻDA SERIA ✶ REJESTR ✶ KAŻDA SERIA ✶ "; }
+html.styl-plakat #widok-wykres.aktywny::before { content: "POSTĘP ✶ REKORDY ✶ POSTĘP ✶ REKORDY ✶ POSTĘP ✶ REKORDY ✶ POSTĘP ✶ REKORDY ✶ POSTĘP ✶ REKORDY ✶ POSTĘP ✶ REKORDY ✶ POSTĘP ✶ REKORDY ✶ POSTĘP ✶ REKORDY ✶ "; }
+html.styl-plakat #widok-nowe.aktywny::before { content: "KATALOG ✶ ĆWICZENIA ✶ KATALOG ✶ ĆWICZENIA ✶ KATALOG ✶ ĆWICZENIA ✶ KATALOG ✶ ĆWICZENIA ✶ KATALOG ✶ ĆWICZENIA ✶ KATALOG ✶ ĆWICZENIA ✶ "; }
+html.styl-plakat #widok-zaplanuj.aktywny::before { content: "PLAN TRENINGU ✶ PLAN TRENINGU ✶ PLAN TRENINGU ✶ PLAN TRENINGU ✶ PLAN TRENINGU ✶ PLAN TRENINGU ✶ PLAN TRENINGU ✶ PLAN TRENINGU ✶ "; }
+html.styl-plakat #widok-jedzenie.aktywny::before { content: "POSIŁKI ✶ PALIWO ✶ POSIŁKI ✶ PALIWO ✶ POSIŁKI ✶ PALIWO ✶ POSIŁKI ✶ PALIWO ✶ POSIŁKI ✶ PALIWO ✶ POSIŁKI ✶ PALIWO ✶ POSIŁKI ✶ PALIWO ✶ POSIŁKI ✶ PALIWO ✶ "; }
+html.styl-plakat #widok-plan.aktywny::before { content: "KOMPAS ✶ NAJPIERW TO, CO NAJWAŻNIEJSZE ✶ KOMPAS ✶ NAJPIERW TO, CO NAJWAŻNIEJSZE ✶ KOMPAS ✶ NAJPIERW TO, CO NAJWAŻNIEJSZE ✶ "; }
+html.styl-plakat #widok-habits.aktywny::before { content: "NAWYKI ✶ CODZIENNIE ✶ NAWYKI ✶ CODZIENNIE ✶ NAWYKI ✶ CODZIENNIE ✶ NAWYKI ✶ CODZIENNIE ✶ NAWYKI ✶ CODZIENNIE ✶ NAWYKI ✶ CODZIENNIE ✶ "; }
+html.styl-plakat #widok-rady.aktywny::before { content: "RADY Z KSIĄŻEK ✶ RADY Z KSIĄŻEK ✶ RADY Z KSIĄŻEK ✶ RADY Z KSIĄŻEK ✶ RADY Z KSIĄŻEK ✶ RADY Z KSIĄŻEK ✶ RADY Z KSIĄŻEK ✶ RADY Z KSIĄŻEK ✶ "; }
+html.styl-plakat #widok-medytacja.aktywny::before { content: "ODDECH ✶ CISZA ✶ ODDECH ✶ CISZA ✶ ODDECH ✶ CISZA ✶ ODDECH ✶ CISZA ✶ ODDECH ✶ CISZA ✶ ODDECH ✶ CISZA ✶ ODDECH ✶ CISZA ✶ ODDECH ✶ CISZA ✶ ODDECH ✶ CISZA ✶ "; }
+html.styl-plakat #widok-finanse.aktywny::before { content: "OSZCZĘDNOŚCI ✶ BUDŻET ✶ OSZCZĘDNOŚCI ✶ BUDŻET ✶ OSZCZĘDNOŚCI ✶ BUDŻET ✶ OSZCZĘDNOŚCI ✶ BUDŻET ✶ OSZCZĘDNOŚCI ✶ BUDŻET ✶ "; }
+html.styl-plakat #widok-majatek.aktywny::before { content: "MAJĄTEK ✶ GOTÓWKA ✶ AKCJE ✶ MAJĄTEK ✶ GOTÓWKA ✶ AKCJE ✶ MAJĄTEK ✶ GOTÓWKA ✶ AKCJE ✶ MAJĄTEK ✶ GOTÓWKA ✶ AKCJE ✶ "; }
+html.styl-plakat :is(#widok-wnioski, #widok-ai-analiza).aktywny::before { content: "WNIOSKI ✶ WNIOSKI ✶ WNIOSKI ✶ WNIOSKI ✶ WNIOSKI ✶ WNIOSKI ✶ WNIOSKI ✶ WNIOSKI ✶ WNIOSKI ✶ WNIOSKI ✶ WNIOSKI ✶ WNIOSKI ✶ "; }
+
+/* ===== Tytuły ekranów: ultrawąskie wersaliki z przesuniętym drugim tuszem ===== */
+html.styl-plakat :is(
+  .dzis-powitanie, #widok-wykres .wykres-tytul, #widok-plan .kompas-tytul, #widok-rady .rady-tytul,
+  #widok-finanse .fin-tytul, #widok-medytacja .med-tytul, #widok-majatek .maj-tytul, #widok-dodaj .zapis-tytul,
+  .menu-tytul
+) {
+  font-stretch: 62% !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: -0.005em !important;
+  line-height: 0.86 !important;
+  background: none !important;
+  color: var(--p-papier) !important;
+  -webkit-text-fill-color: var(--p-papier);
+  text-shadow: 3px 3px 0 var(--tusz), -2px -1px 0 rgba(61, 99, 255, 0.75) !important;
+  animation: none !important;
+  padding-right: 0 !important;
+}
+html.styl-plakat :is(.dzis-powitanie, #widok-wykres .wykres-tytul, #widok-plan .kompas-tytul, #widok-rady .rady-tytul,
+  #widok-finanse .fin-tytul, #widok-medytacja .med-tytul, #widok-majatek .maj-tytul) { font-size: min(64px, 14.5vw) !important; }
+html.styl-plakat #widok-dodaj .zapis-tytul { font-size: 58px !important; }
+html.styl-plakat .menu-tytul { font-size: 92px !important; }
+html.styl-plakat .kontener > h1#app-tytul {
+  font-size: 13px;
+  font-weight: 700;
+  font-stretch: 85%;
+  line-height: 1.35;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--p-cichy);
+}
+
+/* ===== Nagłówki sekcji: wąskie wersaliki, romb tuszu zamiast iskry ===== */
+html.styl-plakat :is(
+  .dzis-tytul, .dzis-czesc-tytul,
+  #widok-dodaj .zapis-serie-tytul, .zapis-dzis-naglowek h3,
+  #widok-wykres .wykres-karta-tytul, .wykres-gablota-naglowek h3,
+  #widok-nowe .katalog-partia-tytul, #widok-zaplanuj .plany-tytul,
+  #widok-jedzenie .jedz-lista-tytul, #widok-jedzenie .jedz-cele-tytul,
+  #widok-plan .kompas-tydzien-rola, #widok-rady .rady-mapa-tytul,
+  #widok-finanse .fin-sekcja-naglowek h3, #widok-finanse .fin-karta-tytul, #widok-finanse .fin-nowy-tytul,
+  #widok-majatek .maj-sekcja-naglowek h3, #widok-majatek .maj-kafel-tytul, #widok-majatek .maj-okno-tytul,
+  #widok-medytacja .med-historia-tytul
+) {
+  font-size: 30px !important;
+  font-stretch: 70% !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0 !important;
+  line-height: 0.95 !important;
+  color: var(--p-papier) !important;
+}
+html.styl-plakat :is(
+  .dzis-tytul, #widok-dodaj .zapis-serie-tytul, .zapis-dzis-naglowek h3, #widok-wykres .wykres-karta-tytul,
+  .wykres-gablota-naglowek h3, #widok-zaplanuj .plany-tytul, #widok-jedzenie .jedz-lista-tytul,
+  #widok-plan .kompas-tydzien-rola, #widok-rady .rady-mapa-tytul, #widok-finanse .fin-sekcja-naglowek h3,
+  #widok-medytacja .med-historia-tytul, #widok-majatek .maj-sekcja-naglowek h3
+) { padding-left: 24px !important; }
+html.styl-plakat :is(
+  .dzis-tytul, #widok-dodaj .zapis-serie-tytul, .zapis-dzis-naglowek h3, #widok-wykres .wykres-karta-tytul,
+  .wykres-gablota-naglowek h3, #widok-zaplanuj .plany-tytul, #widok-jedzenie .jedz-lista-tytul,
+  #widok-plan .kompas-tydzien-rola, #widok-rady .rady-mapa-tytul, #widok-finanse .fin-sekcja-naglowek h3,
+  #widok-medytacja .med-historia-tytul, #widok-majatek .maj-sekcja-naglowek h3
+)::before {
+  -webkit-mask: none !important;
+  mask: none !important;
+  top: 0.22em !important;
+  left: 2px !important;
+  width: 13px !important;
+  height: 13px !important;
+  border-radius: 0 !important;
+  background: var(--tusz) !important;
+  filter: none !important;
+  transform: rotate(45deg);
+  box-shadow: 2px 2px 0 var(--p-czern), 2px 2px 0 1px var(--p-papier);
+}
+
+/* ===== Etykiety: małe stemple w kolorze tuszu ===== */
+html.styl-plakat :is(
+  .dzis-kicker, .dzis-data,
+  #widok-dodaj .zapis-sesja, .zapis-serie-licznik, #widok-dodaj .zapis-licznik-etykieta,
+  #widok-rejestr .rejestr-kicker, .rejestr-etykieta,
+  .wykres-kicker, .wykres-gablota-tydzien,
+  #widok-nowe .katalog-kicker, .katalog-partia-licznik,
+  #widok-zaplanuj .zaplanuj-kicker, .zaplanuj-etykieta, .plany-licznik, .plan-okladka-licznik,
+  #widok-jedzenie .jedz-kicker, .jedz-dzien-dzis,
+  .kompas-kicker, .kompas-etykieta, .kompas-blok-tytul,
+  #widok-habits .habits-kicker, .habits-etykieta,
+  .rady-kicker,
+  #widok-finanse .fin-sekcja-naglowek > span, #widok-majatek .maj-sekcja-naglowek > span,
+  #widok-medytacja .med-historia-suma, .menu-rozdzial-nazwa, .menu-powitanie,
+  #widok-majatek .maj-bohater-opis, #widok-finanse .fin-etykieta
+) {
+  font-size: 12px !important;
+  font-stretch: 85% !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: var(--tusz) !important;
+}
+
+/* ===== Wielkie liczby: kontur papieru i plama tuszu przesunięta pod spodem ===== */
+html.styl-plakat :is(
+  #dzis-procent, .rejestr-objetosc-liczba, .katalog-suma-liczba, .habits-dzis-liczba, .jedz-dzien-liczba,
+  .habits-procent-liczba, .kompas-wynik, .jedz-kolo-liczba,
+  #widok-finanse .fin-kwota-duza > span:first-child, #widok-medytacja .med-czas-duzy > span:first-child,
+  #widok-medytacja .med-zegar-liczba, #widok-majatek .maj-kwota > span:first-child, #widok-majatek .maj-kafel-kwota > span:first-child
+) {
+  font-stretch: 62% !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.01em !important;
+  font-variant-numeric: tabular-nums;
+  background: none !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  -webkit-text-stroke: 2px var(--p-papier);
+  text-shadow: 6px 6px 0 var(--tusz) !important;
+  filter: none !important;
+}
+html.styl-plakat #widok-majatek .maj-kwota > span:first-child { font-size: min(140px, calc((100cqi - 52px) / (var(--maj-znaki, 5) * 0.44))) !important; }
+html.styl-plakat #widok-majatek .maj-kafel-kwota > span:first-child { font-size: min(72px, calc((100cqi - 40px) / (var(--maj-znaki, 5) * 0.44))) !important; -webkit-text-stroke-width: 1.5px; text-shadow: 4px 4px 0 var(--kolor) !important; }
+/* Liczniki w treningu to pola – pełny papier z cieniem tuszu (kontur w polu bywa niewidoczny) */
+html.styl-plakat #aplikacja #widok-dodaj .zapis-licznik-wartosc {
+  font-stretch: 62% !important;
+  font-weight: 900 !important;
+  background: transparent !important;
+  color: var(--p-papier) !important;
+  -webkit-text-fill-color: var(--p-papier);
+  text-shadow: 4px 4px 0 var(--tusz);
+}
+html.styl-plakat :is(.fin-zl, .maj-zl, .rejestr-objetosc-jednostka, .med-czas-min) {
+  color: var(--tusz) !important;
+  font-stretch: 62%;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+/* ===== Karty: gruba ramka papieru, twardy cień tuszu, raster kropek i ziarno ===== */
+html.styl-plakat #aplikacja :is(
+  .karta, .rejestr-karta, .wykres-karta, .gablota-karta, .plany-karta, .plan-okladka, .zapis-licznik, .zapis-sztanga,
+  .habits-tydzien, .katalog-kafel, .jedz-posilek, .jedz-cele, .jedz-wynik, .kompas-blok, .kompas-form,
+  .rady-bilet, .superseria-karta, .zapis-szkic-stary, .habits-nowy-panel, .dzis-rada, .plan-trakcie-baner,
+  .ssw-wnetrze, .habits-kafel:not(.zrobiony) .habits-kafel-btn, .med-szklo:not(.med-szklo-tint),
+  #widok-finanse .fin-szklo, #widok-finanse .fin-nowy, #widok-finanse .fin-ogolem, #widok-majatek .maj-lista-glowna
+) {
+  background: var(--p-raster), var(--p-karta) !important;
+  border: 2px solid var(--p-ramka) !important;
+  border-radius: 8px !important;
+  box-shadow: 6px 6px 0 var(--tusz) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html.styl-plakat #widok-finanse .fin-szklo::after { display: none; }
+/* Kafle kont w Majątku: cień w kolorze konta */
+html.styl-plakat #aplikacja #widok-majatek .maj-kafel {
+  background: radial-gradient(rgba(255, 255, 255, 0.1) 1.1px, transparent 1.6px) 0 0 / 8px 8px, var(--p-karta) !important;
+  border: 2px solid var(--p-ramka);
+  border-radius: 8px;
+  box-shadow: 6px 6px 0 var(--kolor) !important;
+}
+html.styl-plakat #widok-majatek .maj-kafel::before { opacity: 0.35; }
+/* Rekordy i gablota: cień pomarańczowy, przechylony stempel */
+html.styl-plakat #aplikacja :is(.rejestr-karta.rekord, .zapis-seria.rekord, .gablota-karta) {
+  box-shadow: 6px 6px 0 #FF8A1C !important;
+  border-color: #FF8A1C !important;
+}
+/* Zrobiony nawyk i wybrane ćwiczenie: pełny tusz, czarny tekst */
+html.styl-plakat #aplikacja :is(.habits-kafel.zrobiony .habits-kafel-btn, .zapis-cw-karta.aktywna) {
+  background: var(--tusz) !important;
+  color: var(--p-czern) !important;
+  border: 2px solid var(--p-papier) !important;
+  border-radius: 8px !important;
+  box-shadow: 5px 5px 0 var(--p-papier) !important;
+}
+html.styl-plakat #aplikacja .habits-kafel.zrobiony .habits-kafel-btn * { color: var(--p-czern) !important; }
+
+/* ===== Wiersze list: przerywana linia druku ===== */
+html.styl-plakat #aplikacja :is(
+  .zapis-seria, .zapis-cw-karta:not(.aktywna), .plan-katalog-wiersz, .plan-notion, .kompas-rola-edycja, .jedz-ostatni,
+  #widok-finanse .fin-wydatek
+) {
+  background: var(--p-karta) !important;
+  border: 2px solid var(--p-linia) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+html.styl-plakat #aplikacja :is(.rejestr-wynik, .zapis-dzis-wiersz, .katalog-wiersz, .plan-lista-wiersz, .dzis-cel, #widok-majatek .maj-ruch, #widok-majatek .maj-akcja) {
+  border-top-style: dashed !important;
+  border-color: var(--p-linia) !important;
+}
+
+/* ===== Pola ===== */
+html.styl-plakat #aplikacja .kontener.motyw-habits :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea) {
+  background: var(--p-czern) !important;
+  border: 2px solid var(--p-linia) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  color: var(--p-papier);
+}
+html.styl-plakat #aplikacja .kontener.motyw-habits :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea):focus {
+  border-color: var(--tusz) !important;
+  box-shadow: 4px 4px 0 var(--tusz) !important;
+  outline: none;
+}
+html.styl-plakat #aplikacja :is(#widok-dodaj .zapis-licznik-wartosc, #widok-majatek .maj-pole-kwota input) { border: none !important; box-shadow: none !important; background: transparent !important; }
+
+/* ===== Chipy: obrys papieru, wybrany = pełny tusz z twardym cieniem ===== */
+html.styl-plakat #aplikacja :is(
+  .plan-chip, .kompas-chip, .kompas-btn-maly, .kompas-btn-dodaj, .habits-btn-edytuj, .dzis-btn, .zapis-btn-superseria,
+  .zapis-btn-zapisz, .zapis-btn-maly, .plany-btn-notion, .plany-btn-kosz, .rejestr-pigulka, #widok-jedzenie .jedz-typ,
+  #widok-jedzenie .jedz-btn-cele, #widok-jedzenie .jedz-strzalka, .habits-btn-tydzien, .habits-nowy-btn, .katalog-kafel-nowe,
+  .btn-pill, .rady-btn-dyskretny, .dzis-rada-nastepna, .zapis-chipy button, .fin-btn-panel, .fin-szybki,
+  #widok-majatek .maj-przelacz, #widok-majatek .maj-btn-kafel, #widok-majatek .maj-fakt
+):not(.aktywny):not([aria-pressed="true"]):not([aria-expanded="true"]) {
+  background: transparent !important;
+  border: 2px solid rgba(243, 235, 221, 0.55) !important;
+  box-shadow: none !important;
+  color: var(--p-papier) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html.styl-plakat #aplikacja :is(
+  .plan-chip, .kompas-chip, .dzis-btn, .zapis-btn-superseria, .zapis-btn-zapisz, .rejestr-pigulka, #widok-jedzenie .jedz-typ,
+  .zapis-chipy button, .fin-btn-panel, .fin-szybki, #widok-majatek .maj-przelacz, #widok-majatek .maj-btn-kafel,
+  .habits-nowy-btn, .btn-pill
+) {
+  font-stretch: 80% !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+html.styl-plakat #aplikacja :is(
+  .plan-chip.aktywny, .kompas-chip.aktywny, #widok-jedzenie .jedz-typ[aria-pressed="true"], .mapa-przelacznik button[aria-pressed="true"],
+  .superseria-liczba-btn[aria-pressed="true"], .zapis-chipy [aria-pressed="true"], .rejestr-pigulka.aktywny,
+  #widok-finanse .fin-okres-wybor button[aria-pressed="true"], #widok-majatek .maj-przelacz[aria-expanded="true"],
+  #widok-majatek .maj-rynek button[aria-pressed="true"], #widok-majatek .maj-kierunek button[aria-pressed="true"]
+) {
+  background: var(--tusz) !important;
+  color: var(--p-czern) !important;
+  border: 2px solid var(--p-papier) !important;
+  box-shadow: 3px 3px 0 var(--p-papier) !important;
+}
+html.styl-plakat #aplikacja #widok-majatek .maj-przelacz[aria-expanded="true"] * { color: var(--p-czern) !important; }
+
+/* ===== Przyciski główne: naklejka z twardym cieniem, wciśnięcie zjada cień ===== */
+html.styl-plakat :is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .btn-zakoncz-tydzien,
+  .fin-zapisz.fin-gotowy, .maj-btn-glowny, .med-szklo-tint, .maj-akcje-dodaj):not(:disabled) {
+  background: var(--tusz) !important;
+  color: var(--p-czern) !important;
+  border: 2px solid var(--p-papier) !important;
+  border-radius: 8px !important;
+  font-stretch: 75% !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  box-shadow: 5px 5px 0 var(--p-papier) !important;
+  transition: transform 0.08s ease, box-shadow 0.08s ease !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html.styl-plakat :is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .btn-zakoncz-tydzien,
+  .fin-zapisz.fin-gotowy, .maj-btn-glowny, .med-szklo-tint, .maj-akcje-dodaj):not(:disabled):active {
+  transform: translate(5px, 5px) !important;
+  box-shadow: 0 0 0 var(--p-papier) !important;
+}
+html.styl-plakat :is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .btn-zakoncz-tydzien)::after { display: none; }
+html.styl-plakat :is(.maj-btn-glowny, .med-szklo-tint) svg { color: var(--p-czern); }
+
+/* ===== Banery: pasek tuszu z czarnym tekstem ===== */
+html.styl-plakat #aplikacja .kontener.motyw-habits :is(.rekord-baner, .rekord-baner-rozowy) {
+  background: var(--tusz) !important;
+  color: var(--p-czern) !important;
+  border: 2px solid var(--p-papier) !important;
+  border-radius: 6px !important;
+  box-shadow: 5px 5px 0 var(--p-papier) !important;
+  font-stretch: 80%;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  transform: rotate(-1deg);
+}
+html.styl-plakat #aplikacja .kontener.motyw-habits :is(.rekord-baner, .rekord-baner-rozowy) * { color: var(--p-czern) !important; }
+
+/* ===== Paski postępu: pełny tusz ===== */
+html.styl-plakat :is(.dzis-pasek-wypelnienie, #widok-finanse .fin-pasek > span) {
+  background: var(--tusz) !important;
+  box-shadow: none !important;
+}
+html.styl-plakat #widok-finanse { --fin-akcent: var(--tusz); }
+html.styl-plakat #widok-finanse .fin-dzien.on path { fill: var(--tusz); stroke: var(--tusz); }
+html.styl-plakat :is(#widok-finanse .fin-tlo, #widok-medytacja .med-tlo, #widok-majatek .maj-tlo) { background: none; }
+
+/* ===== Menu: wąskie wersaliki, aktywna pozycja zakreślona tuszem ===== */
+html.styl-plakat .menu-rozdzial { --tusz: #FFD23F; border-top: 2px dashed var(--p-linia) !important; }
+html.styl-plakat .menu-rozdzial[aria-labelledby="menu-r-trening"] { --tusz: #FF4A1C; }
+html.styl-plakat .menu-rozdzial[aria-labelledby="menu-r-codziennie"] { --tusz: #3D63FF; }
+html.styl-plakat .menu-rozdzial[aria-labelledby="menu-r-rozwoj"] { --tusz: #FF48B0; }
+html.styl-plakat .menu-rozdzial[aria-labelledby="menu-r-finanse"] { --tusz: #00C46A; }
+html.styl-plakat .menu-etykieta {
+  font-size: 34px !important;
+  font-stretch: 62%;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  line-height: 1 !important;
+  color: var(--p-papier) !important;
+  padding: 0 4px;
+}
+html.styl-plakat .menu-pozycja[aria-current="page"] .menu-etykieta {
+  background: linear-gradient(transparent 52%, var(--tusz) 52%, var(--tusz) 92%, transparent 92%);
+  text-shadow: none !important;
+}
+html.styl-plakat .menu-kropki { border-bottom: 2px dashed var(--p-linia) !important; }
+html.styl-plakat .menu-wartosc { color: var(--tusz) !important; font-weight: 800; font-stretch: 80%; }
+html.styl-plakat .menu-styl-tekst { font-size: 15px !important; font-weight: 800; font-stretch: 80%; text-transform: uppercase; letter-spacing: 0.05em; }
+html.styl-plakat :is(.nav-wyloguj, .menu-styl) { border: 2px solid var(--p-linia) !important; border-radius: 8px !important; background: transparent !important; box-shadow: none !important; }
+html.styl-plakat .menu-styl[aria-pressed="true"] .menu-styl-tor { background: #FF4A1C; }
+
+/* ===== Toasty, okno wylogowania, pigułka kosmetyków, kropla menu ===== */
+html.styl-plakat :is(#wyloguj-modal, .toast) {
+  background: var(--p-karta) !important;
+  border: 2px solid var(--p-papier) !important;
+  border-radius: 8px !important;
+  box-shadow: 6px 6px 0 #FF4A1C !important;
+}
+html.styl-plakat .kosm {
+  background: var(--p-czern) !important;
+  border: 2px solid var(--p-papier);
+  box-shadow: 4px 4px 0 #FFD23F !important;
+}
+html.styl-plakat .kropla { border: 2px solid var(--p-czern); box-shadow: 4px 4px 0 var(--tusz) !important; }
+html.styl-plakat #widok-majatek .maj-okno {
+  background: var(--p-karta) !important;
+  border: 2px solid var(--p-papier) !important;
+  border-radius: 10px !important;
+  box-shadow: 8px 8px 0 var(--tusz) !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.styl-plakat .widok.aktywny::before { animation: none; }
+  html.styl-plakat :is(.btn-submit, .zapis-btn-zalicz, .plan-btn-zapisz, .kompas-btn-glowny, .rady-btn-glowny, .maj-btn-glowny) { transition: none !important; }
+}

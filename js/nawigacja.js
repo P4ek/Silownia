@@ -162,14 +162,14 @@ btnStylSzklo.addEventListener("click", function () {
 });
 odswiezPrzelacznikSzkla();
 
-// ----- Wygląd "Grafit" (css/grafit.css): klasa html.styl-grafit, domyślnie włączona, wyłączenie zapamiętane w localStorage "styl-grafit" -----
-const btnStylGrafit = document.getElementById("btn-styl-grafit");
-function odswiezPrzelacznikGrafitu() {
-  btnStylGrafit.setAttribute("aria-pressed", document.documentElement.classList.contains("styl-grafit") ? "true" : "false");
+// ----- Wygląd "Plakat" (css/plakat.css): klasa html.styl-plakat, domyślnie włączona, wyłączenie zapamiętane w localStorage "styl-plakat" -----
+const btnStylPlakat = document.getElementById("btn-styl-plakat");
+function odswiezPrzelacznikPlakatu() {
+  btnStylPlakat.setAttribute("aria-pressed", document.documentElement.classList.contains("styl-plakat") ? "true" : "false");
 }
-btnStylGrafit.addEventListener("click", function () {
-  const wlaczony = document.documentElement.classList.toggle("styl-grafit");
-  try { localStorage.setItem("styl-grafit", wlaczony ? "1" : "0"); } catch (e) {}
-  odswiezPrzelacznikGrafitu();
+btnStylPlakat.addEventListener("click", function () {
+  const wlaczony = document.documentElement.classList.toggle("styl-plakat");
+  try { localStorage.setItem("styl-plakat", wlaczony ? "1" : "0"); } catch (e) {}
+  odswiezPrzelacznikPlakatu();
 });
-odswiezPrzelacznikGrafitu();
+odswiezPrzelacznikPlakatu();
