@@ -1,10 +1,8 @@
 // Pigułka kosmetyków (#kosmetyki): przypomnienie o planie na bieżącą porę dnia, na każdej sekcji apki.
 // Bez odznaczania i bez bazy – plan w stałych KOSMETYKI_* z konfiguracja.js, dzień tygodnia z lokalnej daty.
 // Dostęp: start.js woła ustawDostepKosmetykow(); dla innych kont pigułka w ogóle się nie pokazuje.
-// Jak Dynamic Island: po zniknięciu ekranu startowego rozwija się w kartę z krokami bieżącej pory i po kilku sekundach zwija;
-// stuknięcie rozwija / zwija. Rozmiar (szerokość, wysokość) animowany jednorazowo przy każdej zmianie, poza tym transform/opacity.
+// Jak Dynamic Island: zwinięta pigułka, stuknięcie rozwija ją w kartę z krokami bieżącej pory i zwija (bez rozwijania przy starcie). Rozmiar (szerokość, wysokość) animowany jednorazowo przy każdej zmianie, poza tym transform/opacity.
 
-const KOSMETYKI_ZWIN_PO_MS = 4500; // jak długo karta zostaje rozwinięta po starcie
 const KOSMETYKI_DNI = ["niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"];
 
 const kosmEl = document.getElementById("kosmetyki");
@@ -12,9 +10,7 @@ const kosmPrzelacz = document.getElementById("kosm-przelacz");
 const kosmKarta = document.getElementById("kosm-karta");
 let kosmDostep = false;
 let kosmRozwinieta = false;
-let kosmTimerZwin = null;
 let kosmTimerPory = null;
-let kosmPoStarcie = false;
 
 function kosmWieczor(teraz) {
   return teraz.getHours() >= KOSMETYKI_PROG_WIECZOR;
@@ -77,7 +73,6 @@ function kosmRozwin() {
   renderKosmetyki();
 }
 function kosmZwin() {
-  clearTimeout(kosmTimerZwin);
   if (!kosmRozwinieta) return;
   kosmRozwinieta = false;
   kosmEl.classList.remove("rozwinieta");
@@ -87,7 +82,6 @@ function kosmZwin() {
 }
 
 kosmEl.addEventListener("click", function () {
-  clearTimeout(kosmTimerZwin);
   if (kosmRozwinieta) kosmZwin();
   else kosmRozwin();
 });
@@ -102,31 +96,6 @@ window.addEventListener("resize", function () {
   if (kosmRozwinieta) kosmUstawWysokosc();
 });
 
-// Po zniknięciu ekranu startowego: rozwinięcie i zwinięcie po chwili (tylko raz na uruchomienie)
-function kosmPokazPoStarcie() {
-  if (kosmPoStarcie || !kosmDostep) return;
-  const ekran = document.getElementById("ekran-startowy");
-  const start = function () {
-    if (kosmPoStarcie) return;
-    kosmPoStarcie = true;
-    setTimeout(function () {
-      kosmRozwin();
-      kosmTimerZwin = setTimeout(kosmZwin, KOSMETYKI_ZWIN_PO_MS);
-    }, 350);
-  };
-  if (!ekran || ekran.hidden) {
-    start();
-    return;
-  }
-  const obserwator = new MutationObserver(function () {
-    if (ekran.hidden) {
-      obserwator.disconnect();
-      start();
-    }
-  });
-  obserwator.observe(ekran, { attributes: true, attributeFilter: ["hidden"] });
-}
-
 // Wywoływane z inicjalizujDaneAplikacji (start.js)
 function ustawDostepKosmetykow(dostep) {
   kosmDostep = dostep;
@@ -137,5 +106,4 @@ function ustawDostepKosmetykow(dostep) {
     return;
   }
   renderKosmetyki();
-  kosmPokazPoStarcie();
 }
