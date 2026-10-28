@@ -351,3 +351,37 @@ html.styl-premium .dzis-trening-ss-etykieta {
   background: rgba(232, 194, 122, 0.14);
   box-shadow: inset 0 0 0 1px rgba(232, 194, 122, 0.35);
 }
+
+/* Dzień na 100%: złota kula (klasa .zlota i --kula-swiecenie 0–1 z serii ustawia js/kula.js) – złota poświata
+   i pulsująca aureola, mocniejsza przy dłuższej serii; napis z serią pod wynikiem */
+html.styl-premium .dzis-kula-box.zlota::before { opacity: calc(0.5 + 0.35 * var(--kula-swiecenie, 0)); filter: blur(30px); }
+html.styl-premium .dzis-kula-box.zlota::after {
+  content: "";
+  position: absolute;
+  /* obrys kuli: promień 104 z 248 px, środek 4 px nad środkiem pola (js/kula.js) */
+  top: 6.45%;
+  bottom: 9.68%;
+  left: 8.06%;
+  right: 8.06%;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 calc(24px + 30px * var(--kula-swiecenie, 0)) calc(2px + 6px * var(--kula-swiecenie, 0)) rgba(242, 198, 109, 0.35);
+  animation: dzis-aureola 3.2s ease-in-out infinite;
+}
+@keyframes dzis-aureola { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+html.styl-premium .dzis-seria {
+  display: table;
+  margin: 12px auto 0;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #F7E2B4;
+  background: rgba(242, 198, 109, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(242, 198, 109, 0.45), 0 0 22px -6px rgba(242, 198, 109, 0.6);
+}
+html.styl-premium .dzis-seria[hidden] { display: none; }
+html.styl-premium .dzis-bohater:has(.dzis-kula-box.zlota) #dzis-procent { background: linear-gradient(180deg, #FFF3D1 30%, #E2B25A 100%); -webkit-background-clip: text; background-clip: text; }
+@media (prefers-reduced-motion: reduce) {
+  html.styl-premium .dzis-kula-box.zlota::after { animation: none; }
+}

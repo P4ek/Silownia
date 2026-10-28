@@ -288,6 +288,13 @@ function renderDzisKula(stan) {
     k.zrobione.forEach(function (klucz) { warstwy.push({ klucz: klucz, kolor: k.kolor, h: 1 / kat.length / k.wszystkie }); });
   });
   if (dzisKula) dzisKula.ustaw(warstwy);
+  // Dzień na 100%: złota kula, seria kolejnych dni na 100% wzmacnia jej światło
+  const pelny = stan.wynik === 100;
+  const seria = pelny ? dzisSeriaPelnych(stan) : 0;
+  if (dzisKula) dzisKula.ustawZloto(pelny, seria);
+  const seriaEl = document.getElementById("dzis-seria");
+  seriaEl.hidden = !pelny;
+  if (pelny) seriaEl.textContent = seria > 1 ? "Seria 100%: " + seria + " " + odmianaLiczby(seria, "dzień", "dni", "dni") + " z rzędu" : "Cały dzień zaliczony";
   dzisKulaCanvas.setAttribute("aria-label", stan.wynik == null ? "Wynik dnia: wczytywanie" : "Wynik dnia: " + stan.wynik + "%, " + stan.gwiazdZapalonych + " z " + stan.gwiazdWszystkich);
 
   dzisLegendaEl.innerHTML = kat.map(function (k) {
@@ -307,6 +314,17 @@ function renderDzisKula(stan) {
   const nawykowZostalo = stan.nawykiGotowe ? nawyki.length - stan.nawykiZrobione : 0;
   if (nawykowZostalo > 0) zostalo.push(nawykowZostalo + " " + odmianaLiczby(nawykowZostalo, "nawyk", "nawyki", "nawyków"));
   dzisPodpowiedzEl.textContent = zostalo.length ? "Zostało: " + zostalo.join(", ") + "." : "Wszystko na dziś zrobione. Dobra robota.";
+}
+
+// Ile dni z rzędu (licząc od dziś wstecz) wynik dnia wyniósł 100%
+function dzisSeriaPelnych(stan) {
+  let seria = 0;
+  for (let i = 0; i < 366; i++) {
+    const wynik = i === 0 ? (stan.wynik == null ? null : stan.wynik / 100) : dzisSkladnikiDnia(dataSprzedDni(i), stan);
+    if (wynik == null || wynik < 0.999) break;
+    seria++;
+  }
+  return seria;
 }
 
 // Nagłówek widżetu: kropka i nazwa kategorii, stan po prawej

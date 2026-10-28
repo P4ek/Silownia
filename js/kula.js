@@ -3,6 +3,8 @@
 // stuknięcie chlupie. Rysowanie na <canvas>; animacja tylko, gdy kula jest na ekranie i apka na wierzchu,
 // po uspokojeniu płynu zostaje wolne falowanie. prefers-reduced-motion: obraz statyczny.
 // Użycie: const k = utworzKule(canvas); k.ustaw([{ kolor: "#7AA2FF", h: 0.25 }, ...]) – h jako ułamek średnicy.
+// k.ustawZloto(true, seria): dzień na 100% – płyn płynnie przechodzi w złoto, w powietrzu kuli migoczą złote iskry,
+// po obręczy wędruje błysk; dłuższa seria dni na 100% = więcej iskier i mocniejsze światło (klasa .zlota i --kula-swiecenie na rodzicu).
 
 const KULA_CICHO = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -19,14 +21,25 @@ function utworzKule(canvas, podpisEl) {
   let przechyl = 0, przechylCel = 0;
   let babelki = [];
   let animuje = false, widoczna = true, pierwszeUstawienie = true;
+  let zloto = false, zlotoT = 0, swiecenie = 0, iskry = [];
+  const ZLOTE = [[245, 210, 122], [233, 184, 90], [255, 227, 161], [214, 160, 72]];
 
-  function mieszaj(hex, cel, t) {
+  function rgb(hex) {
     const n = parseInt(hex.slice(1), 16);
-    return "rgb(" + [n >> 16, (n >> 8) & 255, n & 255].map(function (v) { return Math.round(v + (cel - v) * t); }).join(",") + ")";
+    return [n >> 16, (n >> 8) & 255, n & 255];
   }
+  function ku(k, t, cel) { return k.map(function (v, i) { return v + ((Array.isArray(cel) ? cel[i] : cel) - v) * t; }); }
+  function css(k, a) { return "rgba(" + k.map(Math.round).join(",") + "," + (a == null ? 1 : a) + ")"; }
+  // Kolor warstwy z uwzględnieniem przejścia w złoto (każda warstwa w swoim odcieniu złota)
+  function kolorWarstwy(w, i) { return ku(rgb(w.kolor), zlotoT, ZLOTE[i % ZLOTE.length]); }
   function poziom() { return warstwy.reduce(function (s, w) { return s + w.h; }, 0); }
   function nowyBabelek() {
     return { x: SX + (Math.random() - 0.5) * R * 1.4, y: SY + R - Math.random() * 20, r: 1 + Math.random() * 2.6, v: 0.4 + Math.random() * 1.1, dryf: Math.random() * 6.28 };
+  }
+  // Iskra: złoty błysk w płynie (przy 100% kula jest pełna), unosi się powoli i gaśnie
+  function nowaIskra() {
+    return { x: SX + (Math.random() - 0.5) * R * 1.4, y: SY + R * 0.85 - Math.random() * R * 1.5, r: 1.2 + Math.random() * 2.2,
+      v: 0.15 + Math.random() * 0.45, faza: Math.random() * 6.28, zycie: 0, tempo: 0.006 + Math.random() * 0.008 };
   }
   function chlup(sila, ile) {
     if (KULA_CICHO) return;
@@ -54,7 +67,7 @@ function utworzKule(canvas, podpisEl) {
     const calosc = poziom();
     const widoczne = warstwy.filter(function (w) { return w.h > 0.002; });
     const wierzch = widoczne[widoczne.length - 1];
-    const kolorPoswiaty = wierzch ? wierzch.kolor : "transparent";
+    const kolorPoswiaty = wierzch ? (zlotoT > 0.5 ? "#F2C66D" : wierzch.kolor) : "transparent";
     if (canvas._poswiata !== kolorPoswiaty) {
       canvas._poswiata = kolorPoswiaty;
       canvas.parentNode.style.setProperty("--kula-poswiata", kolorPoswiaty);
@@ -78,16 +91,17 @@ function utworzKule(canvas, podpisEl) {
         const y0 = SY + R - wysokosc * 2 * R;
         const gorna = w === wierzch;
         const amp = gorna ? amplituda : amplituda * 0.35;
+        const k = kolorWarstwy(w, i);
         if (gorna) {
           sciezkaFali(y0 - 2, amp * 0.8, 2.1);
-          ctx.fillStyle = w.kolor + "55";
+          ctx.fillStyle = css(k, 0.33);
           ctx.fill();
         }
         sciezkaFali(y0, amp, i * 0.9);
         const g = ctx.createLinearGradient(0, y0 - amp, 0, Math.min(SY + R, y0 + w.h * 2 * R + 6));
-        g.addColorStop(0, mieszaj(w.kolor, 255, 0.45));
-        g.addColorStop(0.35, w.kolor);
-        g.addColorStop(1, mieszaj(w.kolor, 10, 0.35));
+        g.addColorStop(0, css(ku(k, 0.45, 255)));
+        g.addColorStop(0.35, css(k));
+        g.addColorStop(1, css(ku(k, 0.35, 10)));
         ctx.fillStyle = g;
         ctx.fill();
         ctx.strokeStyle = gorna ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.18)";
@@ -135,14 +149,45 @@ function utworzKule(canvas, podpisEl) {
       ctx.fillStyle = "rgba(255,255,255,0.35)";
       ctx.fill();
     });
+    // Złote iskry: czteroramienne błyski unoszące się w płynie
+    iskry.forEach(function (s) {
+      const a = s.zycie < 0.2 ? s.zycie / 0.2 : s.zycie > 0.8 ? (1 - s.zycie) / 0.2 : 1;
+      const r = s.r * (0.6 + 0.4 * Math.sin(s.faza));
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.globalAlpha = a * zlotoT;
+      ctx.fillStyle = "#FFE7A8";
+      ctx.shadowColor = "#F2C66D";
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(0, -r * 2);
+      ctx.quadraticCurveTo(r * 0.25, -r * 0.25, r * 2, 0);
+      ctx.quadraticCurveTo(r * 0.25, r * 0.25, 0, r * 2);
+      ctx.quadraticCurveTo(-r * 0.25, r * 0.25, -r * 2, 0);
+      ctx.quadraticCurveTo(-r * 0.25, -r * 0.25, 0, -r * 2);
+      ctx.fill();
+      ctx.restore();
+    });
     ctx.restore();
 
-    // Szkło: obręcz, odblask w lewym górnym rogu, refleks u dołu
+    // Szkło: obręcz (przy złocie z wędrującym błyskiem), odblask w lewym górnym rogu, refleks u dołu
     ctx.beginPath();
     ctx.arc(SX, SY, R, 0, Math.PI * 2);
     ctx.strokeStyle = "rgba(255,255,255,0.22)";
     ctx.lineWidth = 1.5;
     ctx.stroke();
+    if (zlotoT > 0.01) {
+      const kat = faza * 0.35;
+      ctx.beginPath();
+      ctx.arc(SX, SY, R, kat, kat + 0.9);
+      ctx.strokeStyle = "rgba(255, 226, 150," + (0.75 * zlotoT) + ")";
+      ctx.lineWidth = 2.2;
+      ctx.lineCap = "round";
+      ctx.shadowColor = "#F2C66D";
+      ctx.shadowBlur = 10;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
     ctx.save();
     ctx.translate(SX - R * 0.42, SY - R * 0.5);
     ctx.rotate(-0.6);
@@ -171,6 +216,18 @@ function utworzKule(canvas, podpisEl) {
     });
     warstwy = warstwy.filter(function (w) { return !(w.znika && w.h <= 0.0005); });
     amplituda += (amplitudaCel - amplituda) * 0.08;
+    zlotoT += ((zloto ? 1 : 0) - zlotoT) * 0.035;
+    if (Math.abs((zloto ? 1 : 0) - zlotoT) < 0.002) zlotoT = zloto ? 1 : 0;
+    // Nowe iskry, gdy kula jest złota: ich liczba rośnie z serią dni na 100%
+    if (zloto && iskry.length < 6 + swiecenie * 14 && Math.random() < 0.18) iskry.push(nowaIskra());
+    iskry = iskry.filter(function (s) {
+      s.zycie += s.tempo;
+      s.y -= s.v;
+      s.x += Math.sin(s.faza) * 0.25;
+      s.faza += 0.12;
+      return s.zycie < 1 && s.y > SY - R + 4;
+    });
+
     przechyl += (przechylCel - przechyl) * 0.08;
     faza += 0.045;
     const powierzchnia = SY + R - poziom() * 2 * R;
@@ -191,6 +248,7 @@ function utworzKule(canvas, podpisEl) {
     if (KULA_CICHO) {
       warstwy = warstwy.filter(function (w) { return !w.znika; });
       warstwy.forEach(function (w) { w.h = w.cel; w.v = 0; });
+      zlotoT = zloto ? 1 : 0;
       rysuj();
       return;
     }
@@ -241,6 +299,20 @@ function utworzKule(canvas, podpisEl) {
   rysuj();
 
   return {
+    // Dzień na 100%: złoto i iskry; seria dni na 100% wzmacnia światło (0–1 przy 7+ dniach)
+    ustawZloto: function (wl, seria) {
+      const bylo = zloto;
+      zloto = !!wl;
+      swiecenie = zloto ? Math.min(1, Math.max(0, (seria || 1) - 1) / 6) : 0;
+      const box = canvas.parentNode;
+      box.classList.toggle("zlota", zloto);
+      box.style.setProperty("--kula-swiecenie", swiecenie.toFixed(2));
+      if (zloto && !bylo && !KULA_CICHO) {
+        chlup(16, 20);
+        for (let i = 0; i < 10; i++) iskry.push(nowaIskra());
+      }
+      start();
+    },
     // Warstwy dopasowane po kluczu: nowe dolewane od zera (z falą i bąbelkami), zabrane spływają i znikają
     ustaw: function (lista) {
       const stare = warstwy;
