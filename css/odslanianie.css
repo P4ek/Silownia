@@ -1,0 +1,16 @@
+/* Odsłanianie przy przewijaniu (js/odslanianie.js): .odslon = czeka poza ekranem, .odslon-widoczne = wjeżdża.
+   Tylko opacity / transform / filter; po animacji klasy znikają. prefers-reduced-motion: skrypt nic nie dodaje. */
+.odslon {
+  opacity: 0;
+  transform: translateY(32px) scale(0.985);
+  filter: blur(6px);
+}
+.odslon.odslon-widoczne {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition:
+    opacity 0.6s ease var(--odslon-opoznienie, 0ms),
+    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) var(--odslon-opoznienie, 0ms),
+    filter 0.6s ease var(--odslon-opoznienie, 0ms) !important;
+}
