@@ -463,6 +463,20 @@
 #widok-majatek .maj-ceny-stan[hidden] { display: none; }
 #widok-majatek .maj-ceny-stan.maj-ceny-blad { color: var(--maj-minus); }
 #widok-majatek .maj-ceny-stan:disabled { cursor: default; opacity: 0.7; }
+/* ----- Gotówka w czasie (wykres Chart.js) ----- */
+#widok-majatek .maj-wykres {
+  margin-top: 16px;
+  padding: 18px 16px 12px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--maj-linia);
+}
+#widok-majatek .maj-wykres[hidden] { display: none; }
+#widok-majatek .maj-wykres-gora { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+#widok-majatek .maj-zakres button { min-height: 32px; padding: 0 10px; font-size: 12px; }
+#widok-majatek .maj-wykres-zmiana { margin: 8px 0 0; font-size: 13px; font-weight: 600; color: var(--maj-cichy); font-variant-numeric: tabular-nums; }
+#widok-majatek .maj-wykres-pole { position: relative; height: 180px; margin-top: 10px; }
+
 /* Side hustle: stan pobrania z Flip Huba pod pigułkami, nad przyciskiem dodawania */
 #widok-majatek .maj-flip-stan { display: block; margin-top: 6px; }
 

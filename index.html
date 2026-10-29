@@ -445,6 +445,8 @@ try {
       <div id="dzis-trening" class="dzis-czesc dzis-k-trening"></div>
       <div id="dzis-misja" class="dzis-czesc dzis-k-misja" hidden></div>
       <div id="dzis-posilki" class="dzis-czesc dzis-k-posilek" hidden></div>
+      <!-- Budżet tygodnia z Majątku (reguła z kategorią wydatków), np. 200 zł na jedzenie -->
+      <div id="dzis-budzet" class="dzis-czesc dzis-k-budzet" hidden></div>
     </div>
 
     <!-- Nawyki do odhaczenia -->
@@ -1352,6 +1354,20 @@ try {
       <button type="button" class="maj-btn-kafel" data-dodaj-konto="side_hustle">Dodaj do side hustle</button>
       <div class="maj-lista" data-lista></div>
       <button type="button" class="maj-wiecej" data-wiecej hidden>Pokaż więcej</button>
+    </section>
+
+    <!-- Gotówka w czasie: saldo na koniec każdego dnia (Chart.js), zakres 1 / 3 mies. albo wszystko -->
+    <section id="maj-wykres" class="maj-wykres" aria-label="Gotówka w czasie" hidden>
+      <div class="maj-wykres-gora">
+        <h3 class="maj-podtytul">Gotówka w czasie</h3>
+        <div id="maj-zakres" class="maj-rynek maj-zakres" role="group" aria-label="Zakres wykresu">
+          <button type="button" data-zakres="30" aria-pressed="false">1 mies.</button>
+          <button type="button" data-zakres="90" aria-pressed="false">3 mies.</button>
+          <button type="button" data-zakres="0" aria-pressed="true">Wszystko</button>
+        </div>
+      </div>
+      <p id="maj-wykres-zmiana" class="maj-wykres-zmiana"></p>
+      <div class="maj-wykres-pole"><canvas id="maj-wykres-canvas" role="img"></canvas></div>
     </section>
 
     <!-- Historia gotówki -->

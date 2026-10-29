@@ -16,6 +16,7 @@ const dzisTreningEl = document.getElementById("dzis-trening");
 const dzisNawykiEl = document.getElementById("dzis-nawyki");
 const dzisPosilkiEl = document.getElementById("dzis-posilki");
 const dzisMisjaEl = document.getElementById("dzis-misja");
+const dzisBudzetEl = document.getElementById("dzis-budzet");
 const dzisTydzienEl = document.getElementById("dzis-tydzien-gwiazdy");
 const dzisCeleEl = document.getElementById("dzis-cele");
 const dzisCeleLicznikEl = document.getElementById("dzis-cele-licznik");
@@ -55,7 +56,7 @@ const DZIS_PYL = Array.from({ length: 22 }, function (_, i) {
 });
 
 // Które dane startowe już dotarły (ustawia start.js); do tego czasu sekcja pokazuje szkielet
-const dzisGotowe = { treningi: false, plany: false, nawyki: false, nawykiWpisy: false, cele: false, jedzenie: false, rady: false };
+const dzisGotowe = { treningi: false, plany: false, nawyki: false, nawykiWpisy: false, cele: false, jedzenie: false, rady: false, budzet: false };
 let dzisOczekujace = {};       // klucz gwiazdy -> stan docelowy zapisu w toku (zmiana widoczna od razu, cofana przy błędzie)
 let dzisKula = null;           // szklana kula z płynem (js/kula.js), tworzona na końcu pliku
 let dzisCeleTygodnia = [];     // cele BIEŻĄCEGO tygodnia (Plan tygodnia może przeglądać inny tydzień)
@@ -219,6 +220,7 @@ function renderDzis() {
     renderDzisNawyki(stan);
     renderDzisPosilki(stan);
     renderDzisMisja(stan);
+    renderDzisBudzet();
     renderDzisTydzien(stan);
   } else {
     // Stary wygląd (js/dzis-klasyczny.js): niebo z gwiazdozbiorem, nawyki między częściami dnia
@@ -229,6 +231,7 @@ function renderDzis() {
     renderDzisNawykiKlasyczny(stan);
     renderDzisPosilkiKlasyczny(stan);
     renderDzisMisjaKlasyczny(stan);
+    renderDzisBudzetKlasyczny();
     renderDzisTydzienKlasyczny(stan);
   }
   renderDzisCele();
@@ -245,9 +248,9 @@ function renderDzis() {
 // nowy – widżety trening, misja, posiłki, a nawyki osobną sekcją pod nimi
 function dzisUlozCzesci(klasyczny) {
   const czesci = dzisTreningEl.parentNode;
-  if (klasyczny) czesci.append(dzisNawykiEl, dzisPosilkiEl, dzisMisjaEl);
+  if (klasyczny) czesci.append(dzisNawykiEl, dzisPosilkiEl, dzisMisjaEl, dzisBudzetEl);
   else {
-    czesci.append(dzisMisjaEl, dzisPosilkiEl);
+    czesci.append(dzisMisjaEl, dzisPosilkiEl, dzisBudzetEl);
     czesci.after(dzisNawykiEl);
   }
   czesci.prepend(dzisTreningEl);
@@ -530,6 +533,40 @@ function renderDzisMisja(stan) {
   dzisMisjaEl.innerHTML =
     dzisGoraWidzetu("Misja", wartosc, m.dzisPrzybita) +
     '<div class="dzis-misja-srodek"><span class="dzis-misja-tekst">' + dzisEsc(m.zasada.nazwa) + "</span>" + pieczatki + "</div>" + przycisk;
+}
+
+// Budżet tygodnia (reguła Majątku z kategorią wydatków, np. 200 zł na jedzenie): ile zostało do niedzieli.
+// Dane z majBudzetTygodnia (majatek.js); nie wlicza się do wyniku dnia.
+function dzisBudzetDane() {
+  const b = dzisGotowe.budzet ? majBudzetTygodnia : null;
+  if (!b) return null;
+  const zostalo = Math.round((b.budzet - b.wydano) * 100) / 100;
+  const dni = 7 - (new Date().getDay() + 6) % 7; // z dzisiaj
+  return {
+    nazwa: b.opis,
+    zostalo: zostalo,
+    ponad: zostalo < 0,
+    udzial: b.budzet > 0 ? Math.min(1, b.wydano / b.budzet) : 1,
+    wydano: b.wydano,
+    budzet: b.budzet,
+    dni: dni === 1 ? "do końca dnia" : dni + " " + odmianaLiczby(dni, "dzień", "dni", "dni") + " do niedzieli",
+    naDzien: zostalo > 0 ? Math.floor(zostalo / dni) : 0
+  };
+}
+
+function renderDzisBudzet() {
+  const d = dzisBudzetDane();
+  dzisBudzetEl.hidden = !d;
+  if (!d) return;
+  dzisBudzetEl.classList.toggle("dzis-budzet-ponad", d.ponad);
+  dzisBudzetEl.innerHTML =
+    dzisGoraWidzetu(dzisEsc(d.nazwa), d.dni, false) +
+    '<div class="dzis-trening-liczba"><span class="dzis-duza">' + (d.ponad ? "−" : "") + finKwota(Math.abs(d.zostalo)) + "</span>" +
+    '<span class="dzis-jednostka">zł ' + (d.ponad ? "ponad budżet" : "zostało") + "</span></div>" +
+    '<span class="dzis-opis">Wydane ' + finZl(d.wydano) + " z " + finZl(d.budzet) +
+    (d.naDzien ? " · ok. " + finZl(d.naDzien) + " na dzień" : "") + "</span>" +
+    '<span class="dzis-pasek"><span class="dzis-pasek-wypelnienie" style="width:' + Math.round(d.udzial * 100) + '%"></span></span>' +
+    '<button type="button" class="dzis-btn" data-przejdz="widok-finanse">Dodaj wydatek</button>';
 }
 
 // Tydzień: siedem mini-pierścieni z wynikiem dnia, dziś wyróżnione

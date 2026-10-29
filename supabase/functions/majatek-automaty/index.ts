@@ -3,6 +3,8 @@
 // Wykonuje stałe ruchy z tabeli majatek_automaty (np. co poniedziałek o 7:00 −200 zł z gotówki na jedzenie):
 // dopisuje wiersz do majatek_ruchy i wysyła push. Każda reguła wykonuje się raz na tydzień (kolumna ostatnio),
 // a opuszczone wywołanie nadrabia przy następnym, więc usunięcie wpisu w apce nie dodaje go ponownie.
+// Reguła z kategoria_wydatkow to budżet: przy wykonaniu rozlicza poprzedni tydzień – niewydana reszta wraca na konto
+// („Zostało z: …”), a wydatki ponad budżet są z niego odejmowane („Ponad: …”).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
@@ -53,9 +55,34 @@ Deno.serve(async () => {
         .select("id");
       if (!zajete || !zajete.length) continue;
 
-      const { error: blad } = await supabase.from("majatek_ruchy").insert({
-        user_id: a.user_id, konto: a.konto, data: termin, kwota: a.kwota, opis: a.opis, automat_id: a.id
-      });
+      // Budżet z kategorią wydatków: rozliczenie poprzedniego tygodnia, o ile wtedy też był pobrany
+      const ruchy = [];
+      let rozliczenie = "";
+      const poprzedni = iso(new Date(Date.parse(termin) - 7 * 86400000));
+      if (a.kategoria_wydatkow && a.kwota < 0 && a.ostatnio === poprzedni) {
+        const koniec = iso(new Date(Date.parse(termin) - 86400000));
+        const { data: wydatki, error: bladW } = await supabase.from("wydatki").select("kwota")
+          .eq("user_id", a.user_id).eq("kategoria", a.kategoria_wydatkow).gte("data", poprzedni).lte("data", koniec);
+        if (bladW) {
+          await supabase.from("majatek_automaty").update({ ostatnio: a.ostatnio }).eq("id", a.id);
+          throw bladW;
+        }
+        const wydano = (wydatki || []).reduce((s: number, w: { kwota: number }) => s + Number(w.kwota), 0);
+        const reszta = Math.round((-a.kwota - wydano) * 100) / 100;
+        if (reszta !== 0) {
+          const nazwa = a.opis.charAt(0).toLowerCase() + a.opis.slice(1);
+          ruchy.push({
+            user_id: a.user_id, konto: a.konto, data: koniec, kwota: reszta, automat_id: a.id,
+            opis: (reszta > 0 ? "Zostało z: " : "Ponad: ") + nazwa
+          });
+          rozliczenie = reszta > 0
+            ? " Z zeszłego tygodnia zostało " + zl(reszta) + " – wróciło do " + KONTA[a.konto] + "."
+            : " W zeszłym tygodniu wydatki przekroczyły budżet o " + zl(reszta) + " – odjęte z " + KONTA[a.konto] + ".";
+        }
+      }
+      ruchy.push({ user_id: a.user_id, konto: a.konto, data: termin, kwota: a.kwota, opis: a.opis, automat_id: a.id });
+
+      const { error: blad } = await supabase.from("majatek_ruchy").insert(ruchy);
       if (blad) {
         await supabase.from("majatek_automaty").update({ ostatnio: a.ostatnio }).eq("id", a.id);
         throw blad;
@@ -65,7 +92,7 @@ Deno.serve(async () => {
         title: a.opis,
         tag: "majatek-automat-" + a.id,
         body: (a.kwota < 0 ? "Odjęto " : "Dodano ") + zl(a.kwota) + (a.kwota < 0 ? " z " : " do ") + KONTA[a.konto] +
-          " na ten tydzień."
+          " na ten tydzień." + rozliczenie
       });
     }
     return json({ wykonane });

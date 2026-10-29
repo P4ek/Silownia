@@ -555,6 +555,7 @@ async function finDodajWydatek(data, kwota, kategoria, opis) {
   if (opis) finDopiszCzesto(opis, wynik.kategoria);
   pokazToast("Zapisano wydatek.", "sukces");
   wczytajSumeOszczednosci();
+  majWczytajBudzetTygodnia(); // widżet budżetu na ekranie Dziś (majatek.js)
   return true;
 }
 
@@ -569,6 +570,7 @@ async function finUsunWydatek(w) {
   renderFinanse();
   pokazToast("Usunięto wydatek.", "sukces");
   wczytajSumeOszczednosci();
+  majWczytajBudzetTygodnia();
 }
 
 // Nowy opis trafia na początek podpowiedzi lokalnie, bez ponownego zapytania

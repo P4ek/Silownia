@@ -1,4 +1,4 @@
-const CACHE_NAME = "silownia-v68";
+const CACHE_NAME = "silownia-v69";
 const ASSETS = [
   "./",
   "./index.html",

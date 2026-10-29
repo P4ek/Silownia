@@ -16,6 +16,9 @@ html.styl-premium .dzis-k-nawyk { --k: #EADFC8; }
 html.styl-premium .dzis-k-trening { --k: #7AA2FF; }
 html.styl-premium .dzis-k-posilek { --k: #5ED1B0; }
 html.styl-premium .dzis-k-misja { --k: #E8C27A; }
+html.styl-premium .dzis-k-budzet { --k: #B9A2FF; }
+html.styl-premium .dzis-budzet-ponad { --k: #FF8A8A; }
+html.styl-premium .dzis-k-budzet .dzis-pasek-wypelnienie { color: var(--k); } /* poświata końcówki z blask.css */
 
 /* Szkło kart ekranu */
 html.styl-premium #widok-dzis :is(.dzis-bohater, .dzis-czesc, .dzis-lista, .dzis-tydzien-gwiazdy, .dzis-cele, .dzis-rada) {

@@ -237,6 +237,20 @@ function renderDzisMisjaKlasyczny(stan) {
     '<div class="dzis-czesc-tresc"><span class="dzis-misja-tekst">' + dzisEsc(m.zasada.nazwa) + "</span>" + pieczatki + przycisk + "</div>";
 }
 
+// Budżet tygodnia w starym wyglądzie: wiersz części z resztą po prawej
+function renderDzisBudzetKlasyczny() {
+  const d = dzisBudzetDane();
+  dzisBudzetEl.hidden = !d;
+  if (!d) return;
+  dzisBudzetEl.classList.toggle("dzis-budzet-ponad", d.ponad);
+  dzisBudzetEl.innerHTML =
+    dzisWierszCzesciKlasyczny(dzisEsc(d.nazwa), "dzis-k-budzet", 0, (d.ponad ? "−" : "") + finZl(Math.abs(d.zostalo)) + (d.ponad ? " ponad" : " zostało")) +
+    '<div class="dzis-czesc-tresc">' +
+    '<span class="dzis-opis">Wydane ' + finZl(d.wydano) + " z " + finZl(d.budzet) + " · " + d.dni + "</span>" +
+    '<span class="dzis-pasek"><span class="dzis-pasek-wypelnienie" style="width:' + Math.round(d.udzial * 100) + '%"></span></span>' +
+    '<button type="button" class="dzis-btn dzis-k-budzet" data-przejdz="widok-finanse">Dodaj wydatek</button></div>';
+}
+
 function renderDzisTydzienKlasyczny(stan) {
   let html = "";
   for (let i = 6; i >= 0; i--) {

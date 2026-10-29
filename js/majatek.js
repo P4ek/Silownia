@@ -47,6 +47,14 @@ let majFlipStan = "brak";       // "brak" | "laduje" | "ok" | "blad"
 let majAutomaty = [];           // [{ id, konto, kwota, opis, dzien_tygodnia, godzina, od_daty }]
 const MAJ_KLUCZ_AUTOMAT = "majatek-automat-widziany"; // localStorage: id ostatniego pokazanego ruchu z automatu
 const MAJ_DNI_SKROT = ["", "pn", "wt", "śr", "czw", "pt", "sob", "nd"];
+// Budżet tygodnia dla ekranu Dziś: reguła z kategoria_wydatkow + suma wydatków tej kategorii od poniedziałku;
+// null = brak reguły-budżetu albo brak dostępu (majWczytajBudzetTygodnia ze start.js i po zmianie wydatków)
+let majBudzetTygodnia = null;   // { opis, kategoria, budzet, wydano }
+
+// Wykres gotówki w czasie (Chart.js): jedna seria, saldo na koniec dnia; kolor sprawdzony walidatorem dla tła #101217
+const MAJ_KOLOR_WYKRESU = "#ba882e";
+let majWykres = null;
+let majZakres = 0;              // dni wstecz od dziś; 0 = od pierwszego wpisu
 
 const majEl = {
   gotowka: document.getElementById("maj-gotowka"),
@@ -75,6 +83,7 @@ function ustawDostepMajatku(dostep) {
     majFlip = null;
     majFlipStan = "brak";
     majAutomaty = [];
+    majBudzetTygodnia = null;
     majWczytane = false;
     if (navMajatek.classList.contains("aktywny")) {
       document.querySelector('.nav-btn[data-widok="widok-dodaj"]').click();
@@ -179,32 +188,70 @@ function renderMajFlipStan() {
     : "Pobierz z Flip Huba";
 }
 
-// ----- Stałe ruchy: komunikat o świeżym wpisie z automatu (np. poniedziałkowe −200 zł na jedzenie) -----
-// Wołane z start.js po ustaleniu dostępu i przy powrocie do apki; nowy wiersz trafia też do wczytanej listy.
+// ----- Stałe ruchy: komunikat o świeżych wpisach z automatu (np. poniedziałkowe −200 zł na jedzenie i zwrot reszty) -----
+// Wołane z start.js po ustaleniu dostępu i przy powrocie do apki; nowe wiersze trafiają też do wczytanej listy.
 async function majSprawdzAutomaty() {
   if (!majDostep) return;
-  const tydzienTemu = isoZDaty(new Date(Date.now() - 6 * 86400000));
+  let widziany = 0;
+  try { widziany = Number(localStorage.getItem(MAJ_KLUCZ_AUTOMAT)) || 0; } catch (e) {}
   const { data, error } = await db.from("majatek_ruchy")
     .select("id, konto, data, kwota, opis, automat_id")
     .eq("user_id", finUid())
     .not("automat_id", "is", null)
-    .gte("data", tydzienTemu)
-    .order("id", { ascending: false })
-    .limit(1);
+    .gt("id", widziany)
+    .gte("data", isoZDaty(new Date(Date.now() - 8 * 86400000)))
+    .order("id");
   if (error || !data || !data.length) return;
-  const r = Object.assign({}, data[0], { kwota: Number(data[0].kwota) });
-  let widziany = 0;
-  try { widziany = Number(localStorage.getItem(MAJ_KLUCZ_AUTOMAT)) || 0; } catch (e) {}
-  if (r.id <= widziany) return;
-  try { localStorage.setItem(MAJ_KLUCZ_AUTOMAT, String(r.id)); } catch (e) {}
-  if (majWczytane && !majLadowanie && !majRuchy.some(function (x) { return x.id === r.id; })) {
-    majRuchy.push(r);
-    majSortuj();
-    majNowyId = r.id;
-    renderMajatek();
+  const nowe = data.map(function (r) { return Object.assign({}, r, { kwota: Number(r.kwota) }); });
+  try { localStorage.setItem(MAJ_KLUCZ_AUTOMAT, String(nowe[nowe.length - 1].id)); } catch (e) {}
+  if (majWczytane && !majLadowanie) {
+    const brakujace = nowe.filter(function (r) { return !majRuchy.some(function (x) { return x.id === r.id; }); });
+    if (brakujace.length) {
+      majRuchy = majRuchy.concat(brakujace);
+      majSortuj();
+      majNowyId = brakujace[brakujace.length - 1].id;
+      renderMajatek();
+    }
   }
-  pokazToast(r.opis + ": " + (r.kwota < 0 ? "odjęto " : "dodano ") + finZl(Math.abs(r.kwota)) +
-    (r.kwota < 0 ? " z " : " do ") + (r.konto === "gotowka" ? "gotówki" : MAJ_KONTA[r.konto].nazwa) + " na ten tydzień.", "sukces");
+  const konto = function (r) { return r.konto === "gotowka" ? "gotówki" : MAJ_KONTA[r.konto].nazwa; };
+  const pobranie = nowe[nowe.length - 1];
+  let tekst = pobranie.opis + ": " + (pobranie.kwota < 0 ? "odjęto " : "dodano ") + finZl(Math.abs(pobranie.kwota)) +
+    (pobranie.kwota < 0 ? " z " : " do ") + konto(pobranie) + " na ten tydzień.";
+  // Rozliczenie poprzedniego tygodnia ("Zostało z: …" / "Ponad: …") dodane razem z pobraniem
+  nowe.slice(0, -1).forEach(function (r) {
+    tekst += r.kwota > 0
+      ? " Z zeszłego tygodnia zostało " + finZl(r.kwota) + " – wróciło do " + konto(r) + "."
+      : " Zeszły tydzień ponad budżet o " + finZl(-r.kwota) + ".";
+  });
+  pokazToast(tekst, "sukces");
+  majWczytajBudzetTygodnia();
+}
+
+// Budżet tygodnia (ekran Dziś): pierwsza aktywna reguła z kategorią wydatków i wydatki tej kategorii od poniedziałku
+async function majWczytajBudzetTygodnia() {
+  if (!majDostep) return;
+  const { data: reguly, error } = await db.from("majatek_automaty").select("opis, kwota, kategoria_wydatkow")
+    .eq("user_id", finUid()).eq("aktywny", true).not("kategoria_wydatkow", "is", null).lt("kwota", 0).order("id").limit(1);
+  if (error || !reguly || !reguly.length) {
+    majBudzetTygodnia = null;
+    dzisDaneGotowe("budzet");
+    return;
+  }
+  const regula = reguly[0];
+  const od = isoZDaty(poniedzialekTygodnia(new Date()));
+  const { data: wydatki, error: blad } = await db.from("wydatki").select("kwota")
+    .eq("user_id", finUid()).eq("kategoria", regula.kategoria_wydatkow).gte("data", od).lte("data", finPrzesunDni(od, 6));
+  if (blad) {
+    console.error(blad);
+    return;
+  }
+  majBudzetTygodnia = {
+    opis: regula.opis,
+    kategoria: regula.kategoria_wydatkow,
+    budzet: -Number(regula.kwota),
+    wydano: finSuma(wydatki || [])
+  };
+  dzisDaneGotowe("budzet");
 }
 
 // ----- Ceny akcji -----
@@ -292,7 +339,7 @@ function majAnimujWejscie() {
   // Kolejność kaskady: tytuł, części bohatera, przełączniki, widoczne kafle kont, nagłówek i lista historii
   const kolejka = [widok.querySelector(".maj-tytul")]
     .concat(Array.from(widok.querySelectorAll(".maj-bohater > *, .maj-przelacz")))
-    .concat(Array.from(widok.querySelectorAll(".maj-kafel:not([hidden])")))
+    .concat(Array.from(widok.querySelectorAll(".maj-kafel:not([hidden]), .maj-wykres:not([hidden])")))
     .concat([widok.querySelector(".maj-sekcja-naglowek"), widok.querySelector(".maj-lista-glowna")]);
   kolejka.forEach(function (el, i) { if (el) el.style.setProperty("--i", i); });
   majNumerujWiersze();
@@ -339,6 +386,7 @@ function renderMajatek() {
   renderMajKafel("inwestycje");
   renderMajKafel("side_hustle");
   renderMajAkcje();
+  renderMajWykres();
   if (!majLadowanie && majWczytane) {
     majNumerujWiersze();
     majLiczOdZera = false;
@@ -459,6 +507,156 @@ function renderMajKafel(konto) {
     przelacz.append(wartosc);
   }
   wartosc.textContent = ile || rynkowa || flip ? finZl(saldo) : "";
+}
+
+// Saldo gotówki na koniec każdego dnia, od pierwszego wpisu (albo od początku zakresu) do dziś
+function majSeriaGotowki() {
+  const ruchy = majRuchyKonta("gotowka");
+  if (!ruchy.length) return [];
+  const naDzien = {};
+  ruchy.forEach(function (r) { naDzien[r.data] = (naDzien[r.data] || 0) + r.kwota; });
+  const dni = Object.keys(naDzien).sort();
+  const dzis = dzisiaj();
+  const poczatek = majZakres ? finPrzesunDni(dzis, -majZakres) : dni[0];
+  let saldo = 0;
+  dni.forEach(function (d) { if (d < poczatek) saldo += naDzien[d]; });
+  const seria = [];
+  for (let d = dni[0] > poczatek ? dni[0] : poczatek; d <= dzis; d = finPrzesunDni(d, 1)) {
+    saldo += naDzien[d] || 0;
+    seria.push({ data: d, saldo: Math.round(saldo * 100) / 100 });
+  }
+  return seria;
+}
+
+// Kwota na osi: "83 tys.", "1,2 mln", mniejsze w całości
+function majKrotkaKwota(n) {
+  const a = Math.abs(n);
+  if (a >= 1e6) return (n / 1e6).toLocaleString("pl-PL", { maximumFractionDigits: 1 }) + " mln";
+  if (a >= 1e4) return Math.round(n / 1e3).toLocaleString("pl-PL") + " tys.";
+  return Math.round(n).toLocaleString("pl-PL");
+}
+
+// Pionowa linia pod kursorem / palcem (crosshair) przy aktywnym punkcie
+const majCelownik = {
+  id: "majCelownik",
+  afterDatasetsDraw: function (chart) {
+    const aktywne = chart.tooltip && chart.tooltip.getActiveElements();
+    if (!aktywne || !aktywne.length) return;
+    const x = aktywne[0].element.x;
+    const ctx = chart.ctx;
+    ctx.save();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.18)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, chart.chartArea.top);
+    ctx.lineTo(x, chart.chartArea.bottom);
+    ctx.stroke();
+    ctx.restore();
+  }
+};
+
+function renderMajWykres() {
+  const sekcja = document.getElementById("maj-wykres");
+  const seria = majLadowanie || typeof Chart === "undefined" ? [] : majSeriaGotowki();
+  sekcja.hidden = seria.length < 2;
+  document.querySelectorAll("#maj-zakres button").forEach(function (b) {
+    b.setAttribute("aria-pressed", String(Number(b.dataset.zakres) === majZakres));
+  });
+  if (sekcja.hidden) return;
+
+  const zmiana = seria[seria.length - 1].saldo - seria[0].saldo;
+  const zmianaEl = document.getElementById("maj-wykres-zmiana");
+  zmianaEl.textContent = majZeZnakiem(Math.round(zmiana)) + " od " + finDzienMies(finDataZIso(seria[0].data));
+  zmianaEl.className = "maj-wykres-zmiana" + (zmiana < 0 ? " maj-minus-tekst" : zmiana > 0 ? " maj-plus" : "");
+
+  const canvas = document.getElementById("maj-wykres-canvas");
+  const ostatni = seria[seria.length - 1];
+  canvas.setAttribute("aria-label", "Gotówka od " + finDzienMies(finDataZIso(seria[0].data)) + ": " + finZl(seria[0].saldo) +
+    ", dziś: " + finZl(ostatni.saldo));
+  const etykiety = seria.map(function (p) { return p.data; });
+  const wartosci = seria.map(function (p) { return p.saldo; });
+
+  if (majWykres) {
+    majWykres.data.labels = etykiety;
+    majWykres.data.datasets[0].data = wartosci;
+    majWykres.update(MAJ_BEZ_RUCHU ? "none" : undefined);
+    return;
+  }
+  majWykres = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels: etykiety,
+      datasets: [{
+        data: wartosci,
+        borderColor: MAJ_KOLOR_WYKRESU,
+        borderWidth: 2,
+        tension: 0,
+        pointRadius: 0,
+        pointHitRadius: 12,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: MAJ_KOLOR_WYKRESU,
+        pointHoverBorderColor: "#101217",
+        pointHoverBorderWidth: 2,
+        fill: "start",
+        backgroundColor: function (c) {
+          const obszar = c.chart.chartArea;
+          if (!obszar) return "transparent";
+          const g = c.chart.ctx.createLinearGradient(0, obszar.top, 0, obszar.bottom);
+          g.addColorStop(0, "rgba(186, 136, 46, 0.22)");
+          g.addColorStop(1, "rgba(186, 136, 46, 0)");
+          return g;
+        }
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: MAJ_BEZ_RUCHU ? false : { duration: 700, easing: "easeOutQuart" },
+      interaction: { mode: "index", intersect: false },
+      layout: { padding: { top: 6, right: 4 } },
+      scales: {
+        x: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: {
+            color: "#8E949E",
+            font: { size: 11 },
+            maxRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: 4,
+            callback: function (i) { return finDzienMies(finDataZIso(this.getLabelForValue(i))); }
+          }
+        },
+        y: {
+          grace: "8%",
+          grid: { color: "rgba(255, 255, 255, 0.06)", drawTicks: false },
+          border: { display: false },
+          ticks: { color: "#8E949E", font: { size: 11 }, padding: 8, maxTicksLimit: 4, callback: majKrotkaKwota }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          displayColors: false,
+          backgroundColor: "rgba(20, 22, 28, 0.94)",
+          borderColor: "rgba(255, 255, 255, 0.1)",
+          borderWidth: 1,
+          padding: 10,
+          titleColor: "#8E949E",
+          bodyColor: "#F2F3F5",
+          bodyFont: { size: 14, weight: "600" },
+          callbacks: {
+            title: function (el) {
+              const d = finDataZIso(el[0].label);
+              return finSkrotDnia(el[0].label) + " " + finDzienMies(d);
+            },
+            label: function (el) { return finZl(el.parsed.y); }
+          }
+        }
+      }
+    },
+    plugins: [majCelownik]
+  });
 }
 
 // Lista akcji: kluczowana po symbolu, największa wartość u góry
@@ -849,6 +1047,13 @@ document.getElementById("maj-anuluj").addEventListener("click", function () { ma
 // Stuknięcie w tło poza oknem zamyka je
 majEl.okno.addEventListener("click", function (e) {
   if (e.target === majEl.okno) majEl.okno.close();
+});
+
+document.getElementById("maj-zakres").addEventListener("click", function (e) {
+  const btn = e.target.closest("button[data-zakres]");
+  if (!btn) return;
+  majZakres = Number(btn.dataset.zakres);
+  renderMajWykres();
 });
 
 // ----- Akcje -----
