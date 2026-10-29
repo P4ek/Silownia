@@ -28,6 +28,7 @@ function inicjalizujDaneAplikacji() {
   const dostepFinanse = !!(sesjaUzytkownika && sesjaUzytkownika.user && FINANSE_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));
   ustawDostepFinansow(dostepFinanse);
   ustawDostepMajatku(dostepFinanse);
+  majSprawdzAutomaty(); // komunikat o świeżym stałym ruchu Majątku (np. poniedziałkowe −200 zł na jedzenie)
 
   // Medytacja: widoczność menu; trwająca/skończona sesja z tego urządzenia wraca po wczytaniu nawyków (automatyczne odznaczenie)
   const dostepMedytacja = !!(sesjaUzytkownika && sesjaUzytkownika.user && MEDYTACJA_DOSTEP_IDS.includes(sesjaUzytkownika.user.id));

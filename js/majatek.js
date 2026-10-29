@@ -2,6 +2,9 @@
 // do gotówki. Tabela majatek_ruchy: jeden wiersz = wpłata (+) albo wypłata (−) na koncie; saldo konta = suma jego kwot.
 // Tylko konta z FINANSE_DOSTEP_IDS (dostęp ustawia start.js). Dane wczytywane raz, przy pierwszym wejściu na ekran.
 // Korzysta z pomocniczych funkcji finanse.js (kwoty, daty, usuwanie w dwóch stuknięciach, listy kluczowane).
+// Side hustle = ręczne ruchy + pieniądze w telefonach na stanie z Flip Huba (funkcja stan_flipow w projekcie flipy).
+// Stałe ruchy (majatek_automaty, np. co poniedziałek −200 zł na jedzenie) dopisuje Edge Function majatek-automaty;
+// takie wiersze mają automat_id, a apka pokazuje o nich komunikat po wejściu (majSprawdzAutomaty z start.js).
 
 const navMajatek = document.getElementById("nav-majatek");
 
@@ -37,6 +40,14 @@ let majRynek = "us";            // giełda w formularzu: "us" | "pl" (GPW = sufi
 let majAkcjeZapisTrwa = false;
 let majNowaPozycja = null;
 
+// Flip Hub i stałe ruchy
+let majFlipKlucz = null;        // z flip_hub_polaczenie; null = konto niepołączone
+let majFlip = null;             // { w_telefonach, na_stanie, sprzedane, zysk, pobrano }
+let majFlipStan = "brak";       // "brak" | "laduje" | "ok" | "blad"
+let majAutomaty = [];           // [{ id, konto, kwota, opis, dzien_tygodnia, godzina, od_daty }]
+const MAJ_KLUCZ_AUTOMAT = "majatek-automat-widziany"; // localStorage: id ostatniego pokazanego ruchu z automatu
+const MAJ_DNI_SKROT = ["", "pn", "wt", "śr", "czw", "pt", "sob", "nd"];
+
 const majEl = {
   gotowka: document.getElementById("maj-gotowka"),
   fakty: document.getElementById("maj-fakty"),
@@ -60,6 +71,10 @@ function ustawDostepMajatku(dostep) {
     majCeny = {};
     majKursy = { PLN: 1 };
     majCenyStan = "brak";
+    majFlipKlucz = null;
+    majFlip = null;
+    majFlipStan = "brak";
+    majAutomaty = [];
     majWczytane = false;
     if (navMajatek.classList.contains("aktywny")) {
       document.querySelector('.nav-btn[data-widok="widok-dodaj"]').click();
@@ -96,13 +111,16 @@ async function majWejscie() {
   majWczytane = true;
   majLadowanie = true;
   renderMajatek();
-  const [ruchy, pozycje] = await Promise.all([
+  const [ruchy, pozycje, flip, automaty] = await Promise.all([
     db.from("majatek_ruchy")
-      .select("id, konto, data, kwota, opis")
+      .select("id, konto, data, kwota, opis, automat_id")
       .eq("user_id", finUid())
       .order("data", { ascending: false })
       .order("id", { ascending: false }),
-    db.from("inwestycje_pozycje").select("id, symbol, ilosc").eq("user_id", finUid()).order("symbol")
+    db.from("inwestycje_pozycje").select("id, symbol, ilosc").eq("user_id", finUid()).order("symbol"),
+    db.from("flip_hub_polaczenie").select("klucz").eq("user_id", finUid()).maybeSingle(),
+    db.from("majatek_automaty").select("id, konto, kwota, opis, dzien_tygodnia, godzina, od_daty")
+      .eq("user_id", finUid()).eq("aktywny", true).order("id")
   ]);
   majLadowanie = false;
   const error = ruchy.error || pozycje.error;
@@ -115,8 +133,78 @@ async function majWejscie() {
   }
   majRuchy = (ruchy.data || []).map(function (r) { return Object.assign({}, r, { kwota: Number(r.kwota) }); });
   majPozycje = (pozycje.data || []).map(function (p) { return Object.assign({}, p, { ilosc: Number(p.ilosc) }); });
+  majFlipKlucz = flip.data ? flip.data.klucz : null;
+  majAutomaty = (automaty.data || []).map(function (a) { return Object.assign({}, a, { kwota: Number(a.kwota) }); });
   renderMajatek();
   majOdswiezCeny();
+  majOdswiezFlipy();
+}
+
+// ----- Flip Hub: pieniądze w telefonach na stanie (zakup + koszty) do salda Side hustle -----
+async function majOdswiezFlipy() {
+  if (!majFlipKlucz || majFlipStan === "laduje") return;
+  majFlipStan = "laduje";
+  renderMajFlipStan();
+  try {
+    const odp = await fetch(FLIP_HUB_URL + "/rest/v1/rpc/stan_flipow", {
+      method: "POST",
+      headers: { apikey: FLIP_HUB_KEY, Authorization: "Bearer " + FLIP_HUB_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ klucz: majFlipKlucz })
+    });
+    const dane = odp.ok ? await odp.json() : null;
+    if (!dane) throw new Error("Flip Hub: " + odp.status);
+    majFlip = {
+      w_telefonach: Number(dane.w_telefonach) || 0,
+      na_stanie: Number(dane.na_stanie) || 0,
+      sprzedane: Number(dane.sprzedane) || 0,
+      zysk: Number(dane.zysk) || 0,
+      pobrano: Date.now()
+    };
+    majFlipStan = "ok";
+  } catch (e) {
+    console.error(e);
+    majFlipStan = "blad";
+  }
+  renderMajKafel("side_hustle");
+}
+
+function renderMajFlipStan() {
+  const btn = document.getElementById("maj-flip-odswiez");
+  btn.hidden = !majFlipKlucz;
+  btn.disabled = majFlipStan === "laduje";
+  btn.classList.toggle("maj-ceny-blad", majFlipStan === "blad");
+  btn.textContent = majFlipStan === "laduje" ? "Pobieram z Flip Huba…"
+    : majFlipStan === "blad" ? "Nie udało się pobrać z Flip Huba · Ponów"
+    : majFlip ? "Z Flip Huba o " + new Date(majFlip.pobrano).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" }) + " · Odśwież"
+    : "Pobierz z Flip Huba";
+}
+
+// ----- Stałe ruchy: komunikat o świeżym wpisie z automatu (np. poniedziałkowe −200 zł na jedzenie) -----
+// Wołane z start.js po ustaleniu dostępu i przy powrocie do apki; nowy wiersz trafia też do wczytanej listy.
+async function majSprawdzAutomaty() {
+  if (!majDostep) return;
+  const tydzienTemu = isoZDaty(new Date(Date.now() - 6 * 86400000));
+  const { data, error } = await db.from("majatek_ruchy")
+    .select("id, konto, data, kwota, opis, automat_id")
+    .eq("user_id", finUid())
+    .not("automat_id", "is", null)
+    .gte("data", tydzienTemu)
+    .order("id", { ascending: false })
+    .limit(1);
+  if (error || !data || !data.length) return;
+  const r = Object.assign({}, data[0], { kwota: Number(data[0].kwota) });
+  let widziany = 0;
+  try { widziany = Number(localStorage.getItem(MAJ_KLUCZ_AUTOMAT)) || 0; } catch (e) {}
+  if (r.id <= widziany) return;
+  try { localStorage.setItem(MAJ_KLUCZ_AUTOMAT, String(r.id)); } catch (e) {}
+  if (majWczytane && !majLadowanie && !majRuchy.some(function (x) { return x.id === r.id; })) {
+    majRuchy.push(r);
+    majSortuj();
+    majNowyId = r.id;
+    renderMajatek();
+  }
+  pokazToast(r.opis + ": " + (r.kwota < 0 ? "odjęto " : "dodano ") + finZl(Math.abs(r.kwota)) +
+    (r.kwota < 0 ? " z " : " do ") + (r.konto === "gotowka" ? "gotówki" : MAJ_KONTA[r.konto].nazwa) + " na ten tydzień.", "sukces");
 }
 
 // ----- Ceny akcji -----
@@ -278,6 +366,14 @@ function renderMajGotowka() {
   } else {
     fakty.push({ tekst: "Dodaj pierwszą kwotę, żeby zacząć liczyć.", wartosc: "" });
   }
+  majAutomaty.filter(function (a) { return a.konto === "gotowka"; }).forEach(function (a) {
+    const od = a.od_daty > dzisiaj() ? " od " + finDzienMies(finDataZIso(a.od_daty)) : "";
+    fakty.push({
+      tekst: a.opis.toLowerCase() + ", co " + MAJ_DNI_SKROT[a.dzien_tygodnia] + " " + a.godzina + ":00" + od,
+      wartosc: majZeZnakiem(a.kwota),
+      klasa: majKlasaZnaku(a.kwota)
+    });
+  });
   majRysujFakty(majEl.fakty, fakty);
 }
 
@@ -313,14 +409,15 @@ function renderMajKafel(konto) {
   const wplacone = majSaldo(konto);
   const portfel = konto === "inwestycje" ? majPortfel() : null;
   const rynkowa = !!(portfel && portfel.wyceniona);
-  const saldo = rynkowa ? Math.round(portfel.wartosc * 100) / 100 : wplacone;
+  const flip = konto === "side_hustle" ? majFlip : null;
+  const saldo = rynkowa ? Math.round(portfel.wartosc * 100) / 100 : Math.round((wplacone + (flip ? flip.w_telefonach : 0)) * 100) / 100;
   saldoEl.style.setProperty("--maj-znaki", finKwota(saldo, true).length);
   majPokazKwote(saldoEl, saldo);
   saldoEl.classList.toggle("maj-minus", saldo < 0);
 
   const ile = majRuchyKonta(konto).length;
   const miesiac = majWMiesiacu(konto);
-  miesiacEl.hidden = rynkowa;
+  miesiacEl.hidden = rynkowa || (!!flip && !ile);
   miesiacEl.textContent = ile
     ? (miesiac ? majZeZnakiem(miesiac) + " w tym miesiącu" : "Bez zmian w tym miesiącu")
     : (konto === "inwestycje" ? "Dodaj akcje albo wpłatę." : "Jeszcze nic tu nie ma.");
@@ -339,6 +436,20 @@ function renderMajKafel(konto) {
     }
   }
 
+  if (konto === "side_hustle") {
+    const faktyEl = document.getElementById("maj-sh-fakty");
+    faktyEl.hidden = !flip;
+    if (flip) {
+      const fakty = [
+        { tekst: "w telefonach", wartosc: finZl(flip.w_telefonach) },
+        { tekst: "na stanie", wartosc: flip.na_stanie + " " + odmianaLiczby(flip.na_stanie, "telefon", "telefony", "telefonów") }
+      ];
+      if (flip.sprzedane) fakty.push({ tekst: "zysk z flipów", wartosc: majZeZnakiem(flip.zysk), klasa: majKlasaZnaku(flip.zysk) });
+      majRysujFakty(faktyEl, fakty);
+    }
+    renderMajFlipStan();
+  }
+
   // Kwota na przycisku przełączającym, żeby było widać saldo bez rozwijania
   const przelacz = document.querySelector('.maj-przelacz[data-konto="' + konto + '"]');
   let wartosc = przelacz.querySelector(".maj-przelacz-wartosc");
@@ -347,7 +458,7 @@ function renderMajKafel(konto) {
     wartosc.className = "maj-przelacz-wartosc";
     przelacz.append(wartosc);
   }
-  wartosc.textContent = ile || rynkowa ? finZl(saldo) : "";
+  wartosc.textContent = ile || rynkowa || flip ? finZl(saldo) : "";
 }
 
 // Lista akcji: kluczowana po symbolu, największa wartość u góry
@@ -497,7 +608,8 @@ function renderMajListe(konto) {
     opis.textContent = r.opis || (r.kwota < 0 ? "Odjęte" : "Dodane");
     const meta = document.createElement("span");
     meta.className = "maj-ruch-meta";
-    meta.textContent = r.data === dzisiaj() ? "dziś" : finSkrotDnia(r.data) + " " + finDzienMies(finDataZIso(r.data));
+    meta.textContent = (r.data === dzisiaj() ? "dziś" : finSkrotDnia(r.data) + " " + finDzienMies(finDataZIso(r.data))) +
+      (r.automat_id ? " · automatycznie" : "");
     teksty.append(opis, meta);
     const kwota = document.createElement("span");
     kwota.className = "maj-ruch-kwota";
@@ -756,15 +868,18 @@ document.getElementById("maj-akcje-ticker").addEventListener("input", function (
   if (t !== pole.value) pole.value = t;
 });
 document.getElementById("maj-ceny-odswiez").addEventListener("click", majOdswiezCeny);
-setInterval(function () { if (majCzyWidoczny()) majOdswiezCeny(); }, MAJ_ODSWIEZANIE_MS);
+document.getElementById("maj-flip-odswiez").addEventListener("click", majOdswiezFlipy);
+setInterval(function () { if (majCzyWidoczny()) { majOdswiezCeny(); majOdswiezFlipy(); } }, MAJ_ODSWIEZANIE_MS);
 // Powrót do apki albo wejście na ekran po dłuższej przerwie: od razu świeże ceny
 function majOdswiezJesliStare() {
   if (!majWczytane || !majCzyWidoczny()) return;
   const czasy = majPozycje.map(function (p) { return majCeny[p.symbol] && majCeny[p.symbol].pobrano; });
   const stare = czasy.some(function (c) { return !c || Date.now() - new Date(c).getTime() > MAJ_ODSWIEZANIE_MS; });
   if (stare) majOdswiezCeny();
+  if (!majFlip || Date.now() - majFlip.pobrano > MAJ_ODSWIEZANIE_MS) majOdswiezFlipy();
 }
 document.addEventListener("visibilitychange", majOdswiezJesliStare);
+document.addEventListener("visibilitychange", function () { if (!document.hidden) majSprawdzAutomaty(); });
 navMajatek.addEventListener("click", function () { setTimeout(majOdswiezJesliStare, 200); });
 
 // Przechył 3D kafli kont za kursorem z odblaskiem (tylko mysz, jak flip-hub; bez trybu ograniczonego ruchu)

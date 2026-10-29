@@ -1,4 +1,4 @@
-const CACHE_NAME = "silownia-v67";
+const CACHE_NAME = "silownia-v68";
 const ASSETS = [
   "./",
   "./index.html",
@@ -111,7 +111,7 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
-// ----- Obsługa powiadomień push (przypomnienie o zapisaniu treningu/nawyku) -----
+// ----- Obsługa powiadomień push (przypomnienie o zapisaniu treningu/nawyku, stałe ruchy Majątku) -----
 
 self.addEventListener("push", (event) => {
   let dane = {};
@@ -126,7 +126,7 @@ self.addEventListener("push", (event) => {
     body: dane.body || "",
     icon: "./logo/icon-192.png",
     badge: "./logo/icon-192.png",
-    tag: "silownia-przypomnienie"
+    tag: dane.tag || "silownia-przypomnienie"
   };
 
   event.waitUntil(self.registration.showNotification(tytul, opcje));

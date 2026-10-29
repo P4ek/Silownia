@@ -463,6 +463,8 @@
 #widok-majatek .maj-ceny-stan[hidden] { display: none; }
 #widok-majatek .maj-ceny-stan.maj-ceny-blad { color: var(--maj-minus); }
 #widok-majatek .maj-ceny-stan:disabled { cursor: default; opacity: 0.7; }
+/* Side hustle: stan pobrania z Flip Huba pod pigułkami, nad przyciskiem dodawania */
+#widok-majatek .maj-flip-stan { display: block; margin-top: 6px; }
 
 #widok-majatek .maj-akcje-lista { margin-top: 6px; }
 #widok-majatek .maj-akcja {

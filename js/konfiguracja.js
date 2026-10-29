@@ -12,6 +12,10 @@ const AI_UZYTKOWNIK_ID = "1f1fc4a4-1b87-4ea7-9ddd-785873e98cbc"; // jedyne konto
 const JEDZENIE_WLACZONE = false; // Posiłki chwilowo schowane (menu, skrót "Zdjęcie", gwiazdy i sekcja na ekranie Dziś); kod, tabele i dane zostają – true przywraca
 const JEDZENIE_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z dostępem do sekcji "Jedzenie" (tabele posilki, jedzenie_cele)
 const FINANSE_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z dostępem do sekcji "Finanse" (tabele wydatki, budzety, widok oszczednosci) (te same konta co Jedzenie)
+// Flip Hub (osobny projekt Supabase "flipy"): Side hustle w Majątku czyta stan telefonów funkcją stan_flipow(klucz);
+// klucz konta leży w tabeli flip_hub_polaczenie (tylko do odczytu właściciela), klucz publiczny projektu jak we flip-hubie
+const FLIP_HUB_URL = "https://gdmynwywomsfjbgzvfjt.supabase.co";
+const FLIP_HUB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdkbXlud3l3b21zZmpiZ3p2Zmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NzM0NDQsImV4cCI6MjEwODQ0OTQ0NH0.bvvctdix-DsWTOWCGYzGHzqr0zf3--mTaJa4KTxc4fg";
 const MEDYTACJA_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z dostępem do sekcji "Medytacja" (tabele medytacje, medytacja_ustawienia) - te same co Jedzenie
 const RADY_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z dostępem do sekcji "Rady z książek"
 const KOSMETYKI_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z pigułką kosmetyków (te same co Jedzenie); dane tylko tu, bez bazy
