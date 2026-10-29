@@ -4,6 +4,9 @@
 // medytacja i pieniądze (zapytania przy otwarciu, tylko konta z dostępem), finał – kula tygodnia (js/kula.js) ze średnim
 // wynikiem dnia. Otwierane z banera na ekranie Dziś (niedziela od 18:00 i poniedziałek, chowany na dany tydzień w localStorage)
 // albo z linku „Podsumowanie” w sekcji Tydzień. Korzysta z danych i funkcji ekranu Dziś (dzisStan, dzisSkladnikiDnia, DZIS_KOLORY).
+// Przed finałem (konta z PRZEGLAD_DOSTEP_IDS) dwa slajdy przeglądu od Claude: wnioski i eksperymenty. Przegląd przychodzi
+// z Edge Function przeglad-tygodnia (zapisany albo tworzony od niedzieli 18:00); do tego czasu slajd czeka z animacją,
+// a eksperymenty da się przyjąć przyciskiem „Biorę” (kolumna przyjete – następny przegląd ocenia przyjęte).
 
 const PODSUM_SLAJD_MS = 6500;
 const PODSUM_PRZYTRZYMANIE_MS = 220;
@@ -26,6 +29,12 @@ let podsumPozostalo = PODSUM_SLAJD_MS;
 let podsumPauza = false;
 let podsumKula = null;
 let podsumPoprzedniFokus = null;
+let podsumPrzeglad = { stan: "brak" }; // stan: "laduje" | "ok" | "niedostepny" | "pusty" | "blad"; ok → wiersz z tabeli przeglady
+let podsumOtwarcie = 0;                  // numer otwarcia: odpowiedź z poprzedniego otwarcia nie nadpisze nowego
+
+const PODSUM_PRZEGLAD_MS = 16000;        // slajdy z tekstem czyta się dłużej
+const PODSUM_DZIEDZINY = { trening: "#7AA2FF", nawyki: "#EADFC8", medytacja: "#A68BFF", pieniadze: "#5ED1B0", ogolne: "#B9A2FF" };
+const PODSUM_WERDYKTY = { zadzialalo: ["plus", "zadziałało"], nie_zadzialalo: ["minus", "nie zadziałało"], bez_danych: ["", "bez danych"] };
 
 // ----- Daty -----
 function podsumData(iso) { return new Date(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)); }
@@ -203,7 +212,16 @@ async function podsumZbuduj(t) {
     if (html) slajdy.push(podsumSlajd("pieniadze", "#5ED1B0", "Pieniądze", html));
   }
 
-  // 7. Finał: kula tygodnia ze średnim wynikiem dnia (warstwy: średnia każdej kategorii)
+  // 7. Przegląd od Claude: wnioski i eksperymenty (wczytywane w tle; slajd czeka, aż przyjdą)
+  if (podsumDostep(PRZEGLAD_DOSTEP_IDS)) {
+    podsumPrzeglad = { stan: "laduje" }; // zapytanie startuje w podsumOtworz, gdy lista slajdów już jest
+    slajdy.push(
+      { klucz: "wnioski", kolor: "#B9A2FF", czas: PODSUM_PRZEGLAD_MS, render: podsumHtmlWnioski, czeka: function () { return podsumPrzeglad.stan === "laduje"; } },
+      { klucz: "eksperymenty", kolor: "#B9A2FF", czas: PODSUM_PRZEGLAD_MS, render: podsumHtmlEksperymenty, czeka: function () { return podsumPrzeglad.stan === "laduje"; } }
+    );
+  }
+
+  // 8. Finał: kula tygodnia ze średnim wynikiem dnia (warstwy: średnia każdej kategorii)
   const wynikiDni = dni.map(function (d) { return d === dzisiaj() ? (stan.wynik == null ? null : stan.wynik / 100) : dzisSkladnikiDnia(d, stan); });
   const policzone = wynikiDni.filter(function (w) { return w != null; });
   if (policzone.length) {
@@ -233,6 +251,113 @@ async function podsumZbuduj(t) {
   return slajdy;
 }
 
+// ----- Przegląd od Claude -----
+async function podsumWczytajPrzeglad(t) {
+  const nr = podsumOtwarcie;
+  podsumPrzeglad = { stan: "laduje" };
+  const { data, error } = await db.functions.invoke("przeglad-tygodnia", { body: { tydzien_od: t.od } });
+  if (nr !== podsumOtwarcie) return;
+  if (error || !data || data.error) {
+    console.error(error || data);
+    podsumPrzeglad = { stan: "blad" };
+  } else if (data.niedostepny) podsumPrzeglad = { stan: "niedostepny" };
+  else if (!data.przeglad) podsumPrzeglad = { stan: "pusty" };
+  else podsumPrzeglad = { stan: "ok", wiersz: data.przeglad };
+  // Bez gotowego przeglądu slajd eksperymentów znika, a wnioski mówią, co się stało (pusty tydzień – oba znikają)
+  if (podsumPrzeglad.stan !== "ok") podsumUsunSlajd("eksperymenty");
+  if (podsumPrzeglad.stan === "pusty") podsumUsunSlajd("wnioski");
+  const biezacy = podsumSlajdy[podsumNr];
+  if (!podsumEl.hidden && biezacy && (biezacy.klucz === "wnioski" || biezacy.klucz === "eksperymenty")) podsumPokaz(podsumNr);
+}
+
+function podsumHtmlWnioski() {
+  const kicker = '<span class="podsum-kicker">Przegląd tygodnia</span>';
+  const p = podsumPrzeglad;
+  if (p.stan === "laduje") {
+    return kicker + '<h2 class="podsum-tytul podsum-tytul-sredni">Czytam Twój tydzień…</h2>' +
+      '<p class="podsum-opis">Claude przegląda treningi, nawyki, medytację i pieniądze z ostatnich 8 tygodni.</p>' +
+      '<div class="podsum-szkielet" aria-hidden="true"><i></i><i></i><i></i></div>';
+  }
+  if (p.stan === "niedostepny") {
+    return kicker + '<h2 class="podsum-tytul podsum-tytul-sredni">Wnioski w niedzielę</h2>' +
+      '<p class="podsum-opis">Pełny przegląd tygodnia z wnioskami i eksperymentami pojawi się w niedzielę o 19:00, gdy tydzień będzie kompletny.</p>';
+  }
+  if (p.stan !== "ok") {
+    return kicker + '<h2 class="podsum-tytul podsum-tytul-sredni">Przegląd się nie udał</h2>' +
+      '<p class="podsum-opis">Spróbuj otworzyć podsumowanie jeszcze raz za chwilę.</p>';
+  }
+  const tresc = p.wiersz.tresc;
+  return kicker + '<h2 class="podsum-tytul podsum-tytul-sredni">' + podsumEsc(tresc.naglowek) + "</h2>" +
+    '<p class="podsum-opis">' + podsumEsc(tresc.podsumowanie) + "</p>" +
+    '<ul class="podsum-wnioski">' + (tresc.wnioski || []).map(function (w, i) {
+      return '<li style="--d:' + i + ";--kw:" + (PODSUM_DZIEDZINY[w.dziedzina] || PODSUM_DZIEDZINY.ogolne) + '"><strong>' + podsumEsc(w.tytul) +
+        "</strong><span>" + podsumEsc(w.tekst) + "</span></li>";
+    }).join("") + "</ul>";
+}
+
+function podsumHtmlEksperymenty() {
+  const kicker = '<span class="podsum-kicker">Eksperymenty</span>';
+  if (podsumPrzeglad.stan !== "ok") return kicker + '<div class="podsum-szkielet" aria-hidden="true"><i></i><i></i><i></i></div>';
+  const tresc = podsumPrzeglad.wiersz.tresc;
+  const przyjete = podsumPrzeglad.wiersz.przyjete || [];
+  let html = kicker;
+  if ((tresc.poprzednie || []).length) {
+    html += '<h3 class="podsum-podtytul">Jak poszły zeszłe</h3><ul class="podsum-poprzednie">' + tresc.poprzednie.map(function (e) {
+      const w = PODSUM_WERDYKTY[e.werdykt] || PODSUM_WERDYKTY.bez_danych;
+      return '<li><span class="podsum-werdykt ' + w[0] + '">' + w[1] + "</span><strong>" + podsumEsc(e.tytul) + "</strong><span>" + podsumEsc(e.komentarz) + "</span></li>";
+    }).join("") + "</ul>";
+  }
+  html += '<h3 class="podsum-podtytul">Na następny tydzień</h3><ul class="podsum-eksperymenty">' + (tresc.eksperymenty || []).map(function (e, i) {
+    const wziety = przyjete.indexOf(i) >= 0;
+    return '<li style="--d:' + i + '"><div><strong>' + podsumEsc(e.tytul) + "</strong><span>" + podsumEsc(e.opis) + "</span><em>" + podsumEsc(e.miara) + "</em></div>" +
+      '<button type="button" class="podsum-biore' + (wziety ? " wziety" : "") + '" data-eksperyment="' + i + '" aria-pressed="' + wziety + '">' +
+      (wziety ? "Biorę ✓" : "Biorę") + "</button></li>";
+  }).join("") + "</ul>" +
+    '<p class="podsum-opis podsum-opis-maly">Przyjęte eksperymenty Claude sprawdzi w kolejnym przeglądzie.</p>';
+  return html;
+}
+
+// „Biorę”: przełącza eksperyment w kolumnie przyjete (od razu na ekranie, cofane przy błędzie)
+async function podsumPrzelaczEksperyment(i) {
+  if (podsumPrzeglad.stan !== "ok") return;
+  const wiersz = podsumPrzeglad.wiersz;
+  const poprzednie = (wiersz.przyjete || []).slice();
+  wiersz.przyjete = poprzednie.indexOf(i) >= 0 ? poprzednie.filter(function (x) { return x !== i; }) : poprzednie.concat([i]).sort();
+  podsumOdswiezBiore();
+  const { error } = await db.from("przeglady").update({ przyjete: wiersz.przyjete }).eq("id", wiersz.id).eq("user_id", sesjaUzytkownika.user.id);
+  if (error) {
+    console.error(error);
+    wiersz.przyjete = poprzednie;
+    podsumOdswiezBiore();
+    pokazToast("Nie udało się zapisać eksperymentu.", "blad");
+  }
+}
+
+function podsumOdswiezBiore() {
+  const przyjete = podsumPrzeglad.wiersz ? podsumPrzeglad.wiersz.przyjete || [] : [];
+  podsumSlajdyEl.querySelectorAll(".podsum-biore").forEach(function (b) {
+    const wziety = przyjete.indexOf(Number(b.dataset.eksperyment)) >= 0;
+    b.classList.toggle("wziety", wziety);
+    b.setAttribute("aria-pressed", String(wziety));
+    b.textContent = wziety ? "Biorę ✓" : "Biorę";
+  });
+}
+
+// Usuwa slajd z pokazu (np. eksperymenty, gdy przeglądu jeszcze nie ma) i przerysowuje paski
+function podsumUsunSlajd(klucz) {
+  const i = podsumSlajdy.findIndex(function (s) { return s.klucz === klucz; });
+  if (i < 0) return;
+  podsumSlajdy.splice(i, 1);
+  if (podsumNr > i || podsumNr >= podsumSlajdy.length) podsumNr = Math.max(0, podsumNr - 1);
+  if (!podsumPaskiEl.children.length) return; // pokaz jeszcze się nie zaczął
+  podsumPaskiEl.innerHTML = podsumSlajdy.map(function () { return "<span><i></i></span>"; }).join("");
+  Array.from(podsumPaskiEl.children).forEach(function (p, j) {
+    p.classList.toggle("pelny", j < podsumNr);
+    p.classList.toggle("biezacy", j === podsumNr);
+  });
+  if (i <= podsumNr) podsumPokaz(podsumNr);
+}
+
 // ----- Pokaz -----
 function podsumLicz(el) {
   const cel = Number(el.dataset.licz) || 0;
@@ -249,25 +374,32 @@ function podsumLicz(el) {
 function podsumPokaz(nr) {
   podsumNr = Math.max(0, Math.min(podsumSlajdy.length - 1, nr));
   const s = podsumSlajdy[podsumNr];
-  podsumSlajdyEl.innerHTML = s.html;
+  podsumSlajdyEl.innerHTML = s.render
+    ? '<section class="podsum-slajd" data-klucz="' + s.klucz + '" style="--k:' + s.kolor + '">' + s.render() + "</section>"
+    : s.html;
   podsumEl.style.setProperty("--k", s.kolor);
   podsumSlajdyEl.querySelectorAll("[data-licz]").forEach(podsumLicz);
   if (s.poPokazaniu) s.poPokazaniu();
   Array.from(podsumPaskiEl.children).forEach(function (p, i) {
     p.classList.toggle("pelny", i < podsumNr);
     p.classList.toggle("biezacy", i === podsumNr);
+    p.style.setProperty("--czas", (i === podsumNr && s.czas ? s.czas : PODSUM_SLAJD_MS) + "ms");
     p.querySelector("i").style.animation = "none";
     void p.offsetWidth;
     p.querySelector("i").style.animation = "";
   });
-  podsumPozostalo = PODSUM_SLAJD_MS;
+  podsumPozostalo = s.czas || PODSUM_SLAJD_MS;
   podsumUstawPauze(false);
   podsumUruchomTimer();
 }
 
 function podsumUruchomTimer() {
   clearTimeout(podsumTimer);
-  if (podsumPauza) return;
+  // Slajd czekający na dane (przegląd od Claude) nie przechodzi dalej sam; pasek stoi
+  const s = podsumSlajdy[podsumNr];
+  const czeka = !!(s && s.czeka && s.czeka());
+  podsumEl.classList.toggle("czeka", czeka);
+  if (podsumPauza || czeka) return;
   podsumStartSlajdu = Date.now();
   podsumTimer = setTimeout(function () {
     if (podsumNr < podsumSlajdy.length - 1) podsumPokaz(podsumNr + 1);
@@ -289,6 +421,8 @@ function podsumUstawPauze(pauza) {
 
 async function podsumOtworz(wymusBiezacy) {
   const t = podsumTydzien(wymusBiezacy);
+  podsumOtwarcie++;
+  podsumNr = 0;
   podsumPoprzedniFokus = document.activeElement;
   podsumEl.hidden = false;
   document.documentElement.classList.add("podsum-otwarte");
@@ -300,10 +434,12 @@ async function podsumOtworz(wymusBiezacy) {
   podsumPaskiEl.innerHTML = podsumSlajdy.map(function () { return "<span><i></i></span>"; }).join("");
   podsumPaskiEl.style.setProperty("--czas", PODSUM_SLAJD_MS + "ms");
   podsumPokaz(0);
+  if (podsumSlajdy.some(function (x) { return x.klucz === "wnioski"; })) podsumWczytajPrzeglad(t);
 }
 
 function podsumZamknij() {
   clearTimeout(podsumTimer);
+  podsumOtwarcie++;
   podsumEl.hidden = true;
   podsumSlajdyEl.innerHTML = "";
   podsumKula = null;
@@ -333,6 +469,10 @@ document.getElementById("dzis-podsum-baner-zamknij").addEventListener("click", f
   podsumBanerEl.hidden = true;
 });
 document.getElementById("podsum-zamknij").addEventListener("click", podsumZamknij);
+podsumSlajdyEl.addEventListener("click", function (e) {
+  const btn = e.target.closest(".podsum-biore");
+  if (btn) podsumPrzelaczEksperyment(Number(btn.dataset.eksperyment));
+});
 
 // Strefy stuknięcia: krótkie stuknięcie przełącza, przytrzymanie pauzuje (bez przełączania po puszczeniu)
 ["podsum-wstecz", "podsum-dalej"].forEach(function (id) {

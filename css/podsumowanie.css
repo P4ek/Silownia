@@ -50,7 +50,7 @@ html.podsum-otwarte body { overflow: hidden; }
 .podsum-paski i { display: block; width: 100%; height: 100%; background: #fff; transform: scaleX(0); transform-origin: left; }
 .podsum-paski span.pelny i { transform: none; }
 .podsum-paski span.biezacy i { animation: podsum-pasek var(--czas, 6500ms) linear forwards; }
-.podsum.pauza .podsum-paski span.biezacy i { animation-play-state: paused; }
+.podsum:is(.pauza, .czeka) .podsum-paski span.biezacy i { animation-play-state: paused; }
 @keyframes podsum-pasek { to { transform: none; } }
 .podsum-gora-wiersz { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
 .podsum-etykieta { font-size: 13px; font-weight: 600; color: rgba(242, 243, 245, 0.7); }
@@ -86,9 +86,10 @@ html.podsum-otwarte body { overflow: hidden; }
 .podsum-strefa-dalej { right: 0; width: 68%; }
 
 /* Slajd */
+/* Nad strefami stuknięcia, ale bez zdarzeń: stuknięcia przechodzą do stref, a przyciski w slajdzie (Biorę) je łapią */
 .podsum-slajdy {
   position: relative;
-  z-index: 1;
+  z-index: 3;
   flex: 1;
   display: flex;
   align-items: center;
@@ -305,4 +306,82 @@ html:not(.styl-premium) .dzis-tydzien-naglowek .dzis-link { min-height: 28px; fo
 @media (prefers-reduced-motion: reduce) {
   .podsum, .podsum-swiatlo span, .podsum-slajd > *, .podsum-slupek i, .podsum-lista li, .podsum-siatka-wiersz i { animation: none; }
   .podsum-paski span.biezacy i { animation: none; transform: none; }
+}
+
+/* ----- Przegląd od Claude: wnioski i eksperymenty ----- */
+.podsum-slajd button { pointer-events: auto; }
+.podsum-tytul-sredni { font-size: clamp(30px, 8.5vw, 40px); }
+.podsum-opis-maly { font-size: 13px; color: rgba(242, 243, 245, 0.55); }
+.podsum-wnioski, .podsum-eksperymenty, .podsum-poprzednie { width: 100%; margin: 18px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.podsum-wnioski li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px 12px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 3px 0 0 var(--kw);
+  animation: podsum-wjazd 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(0.35s + var(--d, 0) * 0.12s);
+}
+.podsum-wnioski strong, .podsum-eksperymenty strong, .podsum-poprzednie strong { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+.podsum-wnioski span, .podsum-eksperymenty span, .podsum-poprzednie li > span:last-child { font-size: 13.5px; line-height: 1.45; color: rgba(242, 243, 245, 0.75); }
+.podsum-podtytul { margin: 18px 0 0; font-size: 13px; font-weight: 600; color: rgba(242, 243, 245, 0.6); }
+.podsum-poprzednie { gap: 8px; margin-top: 10px; }
+.podsum-poprzednie li { display: flex; flex-direction: column; gap: 3px; }
+.podsum-werdykt {
+  align-self: flex-start;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: rgba(242, 243, 245, 0.75);
+  background: rgba(255, 255, 255, 0.1);
+}
+.podsum-werdykt.plus { color: #5ED1B0; background: rgba(94, 209, 176, 0.15); }
+.podsum-werdykt.minus { color: #F08A7E; background: rgba(240, 138, 126, 0.15); }
+.podsum-eksperymenty { margin-top: 10px; }
+.podsum-eksperymenty li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 1px 1px 0 -0.5px rgba(255, 255, 255, 0.4), inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.12);
+  animation: podsum-wjazd 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(0.35s + var(--d, 0) * 0.12s);
+}
+.podsum-eksperymenty li > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.podsum-eksperymenty em { font-style: normal; font-size: 12px; color: color-mix(in srgb, var(--k) 80%, #fff); }
+.podsum-biore {
+  flex: none;
+  min-width: 76px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  background: transparent;
+  color: #F2F3F5;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.podsum-biore.wziety { background: var(--k); border-color: var(--k); color: #0b0c10; }
+/* Szkielet tekstu, gdy Claude jeszcze pisze */
+.podsum-szkielet { width: 100%; display: flex; flex-direction: column; gap: 10px; margin-top: 22px; }
+.podsum-szkielet i {
+  display: block;
+  height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0.05) 30%, rgba(255, 255, 255, 0.14) 50%, rgba(255, 255, 255, 0.05) 70%) 0 0 / 300% 100%;
+  animation: podsum-szkielet 1.6s ease-in-out infinite;
+}
+.podsum-szkielet i:nth-child(2) { animation-delay: 0.15s; }
+.podsum-szkielet i:nth-child(3) { animation-delay: 0.3s; width: 70%; }
+@keyframes podsum-szkielet { from { background-position: 100% 0; } to { background-position: 0 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .podsum-szkielet i, .podsum-wnioski li, .podsum-eksperymenty li { animation: none; }
 }
