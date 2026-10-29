@@ -24,7 +24,7 @@
   --accent-pink: var(--habits-akcent);
   --accent-pink-soft: var(--habits-tlo-karta);
   --shadow-warm: 0 14px 34px -16px rgba(0, 0, 0, 0.7);
-  /* Kolory partii — jedna mapa dla całej apki (kropki partii, Mapa ciała) */
+  /* Kolory partii — jedna mapa dla całej apki (kropki partii) */
   --partia-klata: #D6D0C0;
   --partia-plecy: oklch(0.66 0.13 250);
   --partia-barki: oklch(0.72 0.14 50);
@@ -247,15 +247,15 @@ button { font: inherit; cursor: pointer; }
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
   background: var(--kolor-partii, var(--muted));
 }
-/* Kolor partii z mapy --partia-* w :root — wspólny dla kropek partii i Mapy ciała */
-.dot-Klata,   .mapa-partia[data-partia="Klata"]   { --kolor-partii: var(--partia-klata); }
-.dot-Plecy,   .mapa-partia[data-partia="Plecy"]   { --kolor-partii: var(--partia-plecy); }
-.dot-Barki,   .mapa-partia[data-partia="Barki"]   { --kolor-partii: var(--partia-barki); }
-.dot-Biceps,  .mapa-partia[data-partia="Biceps"]  { --kolor-partii: var(--partia-biceps); }
-.dot-Triceps, .mapa-partia[data-partia="Triceps"] { --kolor-partii: var(--partia-triceps); }
-.dot-Brzuch,  .mapa-partia[data-partia="Brzuch"]  { --kolor-partii: var(--partia-brzuch); }
-.dot-Nogi,    .mapa-partia[data-partia="Nogi"]    { --kolor-partii: var(--partia-nogi); }
-.dot-Dupa,    .mapa-partia[data-partia="Dupa"]    { --kolor-partii: var(--partia-dupa); }
+/* Kolor partii z mapy --partia-* w :root — wspólny dla kropek partii */
+.dot-Klata { --kolor-partii: var(--partia-klata); }
+.dot-Plecy { --kolor-partii: var(--partia-plecy); }
+.dot-Barki { --kolor-partii: var(--partia-barki); }
+.dot-Biceps { --kolor-partii: var(--partia-biceps); }
+.dot-Triceps { --kolor-partii: var(--partia-triceps); }
+.dot-Brzuch { --kolor-partii: var(--partia-brzuch); }
+.dot-Nogi { --kolor-partii: var(--partia-nogi); }
+.dot-Dupa { --kolor-partii: var(--partia-dupa); }
 
 /* ----- Responsywność ----- */
 @media (max-width: 560px) {

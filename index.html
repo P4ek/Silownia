@@ -674,69 +674,15 @@ try {
     <section class="wykres-karta karta-mapa">
       <div class="wykres-karta-naglowek">
         <h3 class="wykres-karta-tytul">Mapa ciała</h3>
-        <div id="mapa-przelacznik" class="mapa-przelacznik" role="group" aria-label="Strona sylwetki">
-          <button type="button" data-strona="przod" aria-pressed="true">Przód</button>
-          <button type="button" data-strona="tyl" aria-pressed="false">Tył</button>
+        <div id="mapa-przelacznik" class="mapa-przelacznik" role="group" aria-label="Co pokazuje mapa">
+          <button type="button" data-tryb-mapy="regeneracja" aria-pressed="true">Regeneracja</button>
+          <button type="button" data-tryb-mapy="obciazenie" aria-pressed="false">Obciążenie</button>
         </div>
       </div>
-      <div class="mapa-sylwetki" id="mapa-ciala">
-        <figure class="mapa-sylwetka" data-strona="przod">
-          <div class="mapa-etykiety lewe"></div>
-          <svg class="mapa-svg" viewBox="0 0 120 252" aria-label="Sylwetka z przodu">
-          <circle class="mapa-cialo" cx="60" cy="22" r="14"/>
-          <path class="mapa-cialo" d="M54 35 L66 35 L67 45 L53 45 Z"/>
-          <path class="mapa-cialo" d="M21 101 Q29 105 37 101 L34 140 Q28 143 23 140 Z"/>
-          <path class="mapa-cialo" d="M99 101 Q91 105 83 101 L86 140 Q92 143 97 140 Z"/>
-          <circle class="mapa-cialo" cx="28.5" cy="149" r="6"/>
-          <circle class="mapa-cialo" cx="91.5" cy="149" r="6"/>
-          <ellipse class="mapa-cialo" cx="50" cy="244" rx="8" ry="4.5"/>
-          <ellipse class="mapa-cialo" cx="70" cy="244" rx="8" ry="4.5"/>
-          <path class="mapa-partia" data-partia="Biceps" tabindex="0" role="button" aria-label="Biceps" d="M24 69 L39 62 L38 98 Q30 102 21 98 Z"/>
-          <path class="mapa-partia" data-partia="Biceps" tabindex="0" role="button" aria-label="Biceps" d="M96 69 L81 62 L82 98 Q90 102 99 98 Z"/>
-          <path class="mapa-partia" data-partia="Klata" tabindex="0" role="button" aria-label="Klata" d="M46 47 L74 47 Q78 49 78 60 L77 78 Q68 84 60 82 Q52 84 43 78 L42 60 Q42 49 46 47 Z"/>
-          <path class="mapa-partia" data-partia="Brzuch" tabindex="0" role="button" aria-label="Brzuch" d="M45 82 Q52 86 60 85 Q68 86 75 82 L74 117 Q67 124 60 124 Q53 124 46 117 Z"/>
-          <path class="mapa-cialo" d="M46 120 Q53 128 60 128 Q67 128 74 120 L77 139 L43 139 Z"/>
-          <path class="mapa-linia" d="M60 50 L60 80 M50 96 L70 96 M50 108 L70 108 M60 87 L60 120"/>
-          <path class="mapa-partia" data-partia="Barki" tabindex="0" role="button" aria-label="Barki" d="M45 45 C34 44 25 48 23 60 L24 68 C30 64 36 61 42 59 Z"/>
-          <path class="mapa-partia" data-partia="Barki" tabindex="0" role="button" aria-label="Barki" d="M75 45 C86 44 95 48 97 60 L96 68 C90 64 84 61 78 59 Z"/>
-          <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M43 141 L59 141 L57 238 L45 238 Q40 190 43 141 Z"/>
-          <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M61 141 L77 141 Q80 190 75 238 L63 238 Z"/>
-          </svg>
-          <div class="mapa-etykiety prawe"></div>
-        </figure>
-        <figure class="mapa-sylwetka" data-strona="tyl" hidden>
-          <div class="mapa-etykiety lewe"></div>
-          <svg class="mapa-svg" viewBox="0 0 120 252" aria-label="Sylwetka z tyłu">
-          <circle class="mapa-cialo" cx="60" cy="22" r="14"/>
-          <path class="mapa-cialo" d="M54 35 L66 35 L67 45 L53 45 Z"/>
-          <path class="mapa-cialo" d="M21 101 Q29 105 37 101 L34 140 Q28 143 23 140 Z"/>
-          <path class="mapa-cialo" d="M99 101 Q91 105 83 101 L86 140 Q92 143 97 140 Z"/>
-          <circle class="mapa-cialo" cx="28.5" cy="149" r="6"/>
-          <circle class="mapa-cialo" cx="91.5" cy="149" r="6"/>
-          <ellipse class="mapa-cialo" cx="50" cy="244" rx="8" ry="4.5"/>
-          <ellipse class="mapa-cialo" cx="70" cy="244" rx="8" ry="4.5"/>
-          <path class="mapa-partia" data-partia="Triceps" tabindex="0" role="button" aria-label="Triceps" d="M24 69 L39 62 L38 98 Q30 102 21 98 Z"/>
-          <path class="mapa-partia" data-partia="Triceps" tabindex="0" role="button" aria-label="Triceps" d="M96 69 L81 62 L82 98 Q90 102 99 98 Z"/>
-          <path class="mapa-partia" data-partia="Plecy" tabindex="0" role="button" aria-label="Plecy" d="M45 46 L75 46 Q80 50 79 64 L76 96 Q68 111 60 113 Q52 111 44 96 L41 64 Q40 50 45 46 Z"/>
-          <path class="mapa-cialo" d="M44 99 Q52 114 60 116 Q68 114 76 99 L76 122 L44 122 Z"/>
-          <path class="mapa-partia" data-partia="Dupa" tabindex="0" role="button" aria-label="Dupa" d="M44 123 L59.5 123 L59.5 140 Q50 143 43 138 Z"/>
-          <path class="mapa-partia" data-partia="Dupa" tabindex="0" role="button" aria-label="Dupa" d="M76 123 L60.5 123 L60.5 140 Q70 143 77 138 Z"/>
-          <path class="mapa-linia" d="M60 52 L60 108"/>
-          <path class="mapa-partia" data-partia="Barki" tabindex="0" role="button" aria-label="Barki" d="M45 45 C34 44 25 48 23 60 L24 68 C30 64 36 61 42 59 Z"/>
-          <path class="mapa-partia" data-partia="Barki" tabindex="0" role="button" aria-label="Barki" d="M75 45 C86 44 95 48 97 60 L96 68 C90 64 84 61 78 59 Z"/>
-          <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M43 141 L59 141 L57 238 L45 238 Q40 190 43 141 Z"/>
-          <path class="mapa-partia" data-partia="Nogi" tabindex="0" role="button" aria-label="Nogi" d="M61 141 L77 141 Q80 190 75 238 L63 238 Z"/>
-          </svg>
-          <div class="mapa-etykiety prawe"></div>
-        </figure>
-      </div>
-      <ul class="mapa-legenda karta-podpis">
-        <li><span class="mapa-probka poziom-0"></span>0–1 dzień</li>
-        <li><span class="mapa-probka poziom-1"></span>2–3 dni</li>
-        <li><span class="mapa-probka poziom-2"></span>4–6 dni</li>
-        <li><span class="mapa-probka poziom-3"></span>7+ dni lub nigdy</li>
-      </ul>
-      <p id="mapa-info" class="mapa-info karta-podpis" aria-live="polite">Dotknij partii, aby zobaczyć szczegóły.</p>
+      <!-- Przód i tył obok siebie; sylwetki rysuje js/wykres.js (MAPA_MIESNIE) -->
+      <div class="mapa-sylwetki" id="mapa-ciala"></div>
+      <ul id="mapa-legenda" class="mapa-legenda"></ul>
+      <p id="mapa-info" class="mapa-info karta-podpis" aria-live="polite">Dotknij mięśnia, aby zobaczyć szczegóły.</p>
     </section>
 
     <section class="wykres-karta">

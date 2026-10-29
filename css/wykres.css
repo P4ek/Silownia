@@ -144,73 +144,34 @@
 .karta-podpis { color: var(--muted); font-size: 0.85rem; margin: 0 0 14px; }
 
 
-/* ----- Mapa ciała: kolor partii wg dni od ostatniego treningu ----- */
-.karta-mapa {
-  --mapa-poziom-0: var(--accent);
-  --mapa-poziom-1: color-mix(in srgb, var(--accent) 55%, var(--card));
-  --mapa-poziom-2: color-mix(in srgb, var(--accent) 24%, var(--card));
-  --mapa-nieaktywna: #DCD4C7;
-  --mapa-cialo: var(--card);
-  --mapa-obrys: #B9AC9B;
-  --mapa-zaznaczenie: var(--ink);
-}
-/* Jedna sylwetka (przód albo tył) w środku, po bokach etykiety partii z liczbą dni (pozycja w % wysokości sylwetki) */
-.mapa-sylwetka {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 170px) minmax(0, 1fr);
-  align-items: stretch;
-  gap: 8px;
-  margin: 0;
-}
-.mapa-sylwetka svg { display: block; width: 100%; height: auto; overflow: visible; }
-.mapa-etykiety { position: relative; min-width: 0; }
-.mapa-etykieta {
+/* ----- Mapa ciała: przód i tył obok siebie; kolor mięśnia ustawia js/wykres.js (style.fill) wg trybu ----- */
+.mapa-sylwetki { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 6px 0 0; }
+.mapa-sylwetka { position: relative; margin: 0; text-align: center; }
+/* Miękka poświata za sylwetką */
+.mapa-sylwetka::before {
+  content: "";
   position: absolute;
-  top: var(--y);
-  transform: translateY(-50%);
-  max-width: 100%;
-  padding: 4px 8px;
-  border-radius: 999px;
-  border: 1px solid var(--habits-obramowanie);
-  background: oklch(0.08 0.005 250);
-  color: oklch(0.7 0.006 240);
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.2;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+  inset: 12% 8% 18%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.06), transparent);
+  pointer-events: none;
 }
-.mapa-etykiety.lewe .mapa-etykieta { right: 0; }
-.mapa-etykiety.prawe .mapa-etykieta { left: 0; }
-.mapa-etykieta b { color: oklch(0.93 0.004 240); }
-.mapa-etykieta.zlota { border-color: oklch(0.72 0.08 75 / 0.5); color: var(--habits-zloto); }
-.mapa-etykieta.zlota b { color: var(--habits-zloto); }
-.mapa-etykieta.zaznaczona { border-color: var(--habits-akcent); }
-.mapa-sylwetka path, .mapa-sylwetka circle, .mapa-sylwetka ellipse {
-  stroke: var(--mapa-obrys);
-  stroke-width: 1.2;
-  stroke-linejoin: round;
-}
-.mapa-cialo { fill: var(--mapa-cialo); }
-.mapa-linia { fill: none; pointer-events: none; opacity: 0.7; }
+.mapa-sylwetka svg { position: relative; display: block; width: 100%; max-width: 160px; height: auto; margin: 0 auto; overflow: visible; }
+.mapa-sylwetka figcaption { margin-top: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: oklch(0.55 0.008 240); }
+/* Obrys w kolorze tła karty = szczelina między sąsiednimi mięśniami i połówkami */
+.mapa-cialo, .mapa-partia { stroke: #16181d; stroke-width: 1.1; stroke-linejoin: round; }
+.mapa-cialo { fill: oklch(0.21 0.006 250); }
 .mapa-partia {
-  fill: var(--mapa-nieaktywna);
+  fill: oklch(0.29 0.008 250);
   cursor: pointer;
-  transition: fill 0.3s ease, opacity 0.15s ease;
+  transition: fill 0.35s ease, opacity 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
-.mapa-partia:hover { opacity: 0.82; }
 .mapa-partia:focus { outline: none; }
-.mapa-partia:focus-visible, .mapa-sylwetka .mapa-partia.zaznaczona {
-  stroke: var(--mapa-zaznaczenie);
-  stroke-width: 2;
-}
-/* Każda partia we własnym kolorze (--kolor-partii); im dawniej trenowana, tym bardziej zlana z tłem karty */
-.mapa-partia.poziom-0 { fill: var(--kolor-partii); }
-.mapa-partia.poziom-1 { fill: color-mix(in srgb, var(--kolor-partii) 62%, var(--habits-tlo-karta)); }
-.mapa-partia.poziom-2 { fill: color-mix(in srgb, var(--kolor-partii) 36%, var(--habits-tlo-karta)); }
+.mapa-partia:focus-visible, .mapa-partia.zaznaczona { stroke: oklch(0.97 0.004 240); stroke-width: 1.4; }
+/* Po wybraniu mięśnia reszta przygasa */
+.mapa-sylwetki.wybrano .mapa-partia:not(.zaznaczona) { opacity: 0.38; }
+@media (hover: hover) { .mapa-partia:hover { opacity: 0.8; } }
+.mapa-linia { fill: none; stroke: rgba(0, 0, 0, 0.45); stroke-width: 0.7; stroke-linecap: round; pointer-events: none; }
 .mapa-legenda {
   display: flex;
   flex-wrap: wrap;
@@ -219,19 +180,12 @@
   list-style: none;
   margin: 14px 0 0;
   padding: 0;
+  font-size: 12px;
+  color: oklch(0.7 0.006 240);
 }
-.mapa-legenda li { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 0.78rem; }
-.mapa-probka {
-  width: 12px;
-  height: 12px;
-  border-radius: 4px;
-  border: 1px solid var(--mapa-obrys);
-  flex: none;
-}
-.mapa-probka.poziom-0 { background: var(--mapa-poziom-0); }
-.mapa-probka.poziom-1 { background: var(--mapa-poziom-1); }
-.mapa-probka.poziom-2 { background: var(--mapa-poziom-2); }
-.mapa-probka.poziom-3 { background: var(--mapa-nieaktywna); }
+.mapa-legenda li { display: flex; align-items: center; gap: 6px; margin: 0; }
+.mapa-legenda-opis { color: oklch(0.55 0.008 240); }
+.mapa-probka { flex: none; width: 10px; height: 10px; border-radius: 3px; }
 .mapa-info {
   margin: 14px 0 0;
   padding: 10px 14px;

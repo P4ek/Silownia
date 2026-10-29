@@ -138,14 +138,6 @@
 .kontener.motyw-habits .btn-zakoncz-tydzien:hover { filter: brightness(1.08); }
 
 
-/* Mapa ciała w ciemnym motywie: progi mieszane z ciemnym tłem karty, szary "nieaktywny" i obrys jaśniejsze od tła */
-.kontener.motyw-habits .karta-mapa {
-  --mapa-poziom-1: color-mix(in srgb, var(--accent) 62%, var(--habits-tlo-karta));
-  --mapa-poziom-2: color-mix(in srgb, var(--accent) 36%, var(--habits-tlo-karta));
-  --mapa-nieaktywna: oklch(0.25 0.008 245);
-  --mapa-cialo: oklch(0.15 0.006 250);
-  --mapa-obrys: oklch(0.52 0.01 245);
-  --mapa-zaznaczenie: var(--habits-naglowek);
-}
+/* Mapa ciała w ciemnym motywie */
 .kontener.motyw-habits .mapa-info { border-color: var(--habits-obramowanie); }
 .kontener.motyw-habits .mapa-info strong { color: var(--habits-naglowek); }
