@@ -2,7 +2,7 @@
 // do gotówki. Tabela majatek_ruchy: jeden wiersz = wpłata (+) albo wypłata (−) na koncie; saldo konta = suma jego kwot.
 // Tylko konta z FINANSE_DOSTEP_IDS (dostęp ustawia start.js). Dane wczytywane raz, przy pierwszym wejściu na ekran.
 // Korzysta z pomocniczych funkcji finanse.js (kwoty, daty, usuwanie w dwóch stuknięciach, listy kluczowane).
-// Side hustle = ręczne ruchy + pieniądze w telefonach na stanie z Flip Huba (funkcja stan_flipow w projekcie flipy).
+// Side hustle = ręczne ruchy + pieniądze w telefonach na stanie + wolne środki z Flip Huba (funkcja stan_flipow w projekcie flipy).
 // Stałe ruchy (majatek_automaty, np. co poniedziałek −200 zł na jedzenie) dopisuje Edge Function majatek-automaty;
 // takie wiersze mają automat_id, a apka pokazuje o nich komunikat po wejściu (majSprawdzAutomaty z start.js).
 
@@ -42,7 +42,7 @@ let majNowaPozycja = null;
 
 // Flip Hub i stałe ruchy
 let majFlipKlucz = null;        // z flip_hub_polaczenie; null = konto niepołączone
-let majFlip = null;             // { w_telefonach, na_stanie, sprzedane, zysk, pobrano }
+let majFlip = null;             // { w_telefonach, wolne, na_stanie, sprzedane, zysk, pobrano }
 let majFlipStan = "brak";       // "brak" | "laduje" | "ok" | "blad"
 let majAutomaty = [];           // [{ id, konto, kwota, opis, dzien_tygodnia, godzina, od_daty }]
 const MAJ_KLUCZ_AUTOMAT = "majatek-automat-widziany"; // localStorage: id ostatniego pokazanego ruchu z automatu
@@ -149,7 +149,7 @@ async function majWejscie() {
   majOdswiezFlipy();
 }
 
-// ----- Flip Hub: pieniądze w telefonach na stanie (zakup + koszty) do salda Side hustle -----
+// ----- Flip Hub: pieniądze w telefonach na stanie (zakup + koszty) i wolne środki do salda Side hustle -----
 async function majOdswiezFlipy() {
   if (!majFlipKlucz || majFlipStan === "laduje") return;
   majFlipStan = "laduje";
@@ -164,6 +164,7 @@ async function majOdswiezFlipy() {
     if (!dane) throw new Error("Flip Hub: " + odp.status);
     majFlip = {
       w_telefonach: Number(dane.w_telefonach) || 0,
+      wolne: dane.wolne_srodki == null ? null : Number(dane.wolne_srodki) || 0,  // null = funkcja jeszcze bez wolnych środków
       na_stanie: Number(dane.na_stanie) || 0,
       sprzedane: Number(dane.sprzedane) || 0,
       zysk: Number(dane.zysk) || 0,
@@ -458,7 +459,7 @@ function renderMajKafel(konto) {
   const portfel = konto === "inwestycje" ? majPortfel() : null;
   const rynkowa = !!(portfel && portfel.wyceniona);
   const flip = konto === "side_hustle" ? majFlip : null;
-  const saldo = rynkowa ? Math.round(portfel.wartosc * 100) / 100 : Math.round((wplacone + (flip ? flip.w_telefonach : 0)) * 100) / 100;
+  const saldo = rynkowa ? Math.round(portfel.wartosc * 100) / 100 : Math.round((wplacone + (flip ? flip.w_telefonach + (flip.wolne || 0) : 0)) * 100) / 100;
   saldoEl.style.setProperty("--maj-znaki", finKwota(saldo, true).length);
   majPokazKwote(saldoEl, saldo);
   saldoEl.classList.toggle("maj-minus", saldo < 0);
@@ -492,6 +493,7 @@ function renderMajKafel(konto) {
         { tekst: "w telefonach", wartosc: finZl(flip.w_telefonach) },
         { tekst: "na stanie", wartosc: flip.na_stanie + " " + odmianaLiczby(flip.na_stanie, "telefon", "telefony", "telefonów") }
       ];
+      if (flip.wolne !== null) fakty.unshift({ tekst: "wolne środki", wartosc: finZl(flip.wolne), klasa: flip.wolne < 0 ? "minus" : "" });
       if (flip.sprzedane) fakty.push({ tekst: "zysk z flipów", wartosc: majZeZnakiem(flip.zysk), klasa: majKlasaZnaku(flip.zysk) });
       majRysujFakty(faktyEl, fakty);
     }
