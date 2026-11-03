@@ -518,17 +518,79 @@
   text-align: center;
 }
 
-/* Podział portfela: segmenty z 2 px przerwą, zaokrąglone końce, legenda z tickerem i procentem */
-#widok-majatek .maj-alokacja { margin-top: 10px; }
+/* Podział portfela: pierścień z 2 px przerwami między kawałkami, na środku procent i nazwa, obok legenda
+   (kropka w kolorze pozycji, ticker, kwota, procent). Tekst zawsze w kolorach tekstu, kolor niesie tylko kropka i łuk. */
+#widok-majatek .maj-alokacja {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.2);
+}
 #widok-majatek .maj-alokacja[hidden] { display: none; }
-#widok-majatek .maj-alokacja-pasek { display: flex; gap: 2px; height: 10px; }
-#widok-majatek .maj-alokacja-pasek > span { min-width: 4px; flex-basis: 0; }
-#widok-majatek .maj-alokacja-pasek > span:first-child { border-radius: 4px 0 0 4px; }
-#widok-majatek .maj-alokacja-pasek > span:last-child { border-radius: 0 4px 4px 0; }
-#widok-majatek .maj-alokacja-legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 0 2px; padding: 0; list-style: none; }
-#widok-majatek .maj-alokacja-legenda li { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--maj-cichy); }
-#widok-majatek .maj-alokacja-legenda li::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--spolka); }
-#widok-majatek .maj-alokacja-legenda strong { color: var(--maj-jasny); font-weight: 600; font-variant-numeric: tabular-nums; }
+#widok-majatek .maj-alok-kolo { position: relative; flex: none; width: 128px; height: 128px; }
+#widok-majatek .maj-alok-svg { display: block; width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
+#widok-majatek .maj-alok-tor { fill: none; stroke: rgba(255, 255, 255, 0.05); stroke-width: 14; }
+#widok-majatek .maj-alok-luk {
+  fill: none;
+  stroke-width: 14;
+  transition: opacity 0.25s ease, stroke-width 0.25s ease;
+}
+#widok-majatek .maj-alok-luk.maj-alok-przygaszony { opacity: 0.25; }
+#widok-majatek .maj-alok-luk.maj-alok-wybrany { stroke-width: 18; }
+#widok-majatek .maj-alok-traf { fill: none; stroke: transparent; stroke-width: 30; cursor: pointer; pointer-events: stroke; }
+#widok-majatek .maj-alok-srodek {
+  position: absolute;
+  inset: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+  pointer-events: none;
+}
+#widok-majatek .maj-alok-proc { font-size: 24px; font-weight: 700; line-height: 1; color: var(--maj-jasny); font-variant-numeric: tabular-nums; }
+#widok-majatek .maj-alok-nazwa {
+  max-width: 100%;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--maj-cichy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+#widok-majatek .maj-alokacja-legenda { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; }
+#widok-majatek .maj-alok-wiersz {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 30px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--maj-jasny);
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  transition: opacity 0.25s ease, background 0.25s ease;
+}
+#widok-majatek .maj-alok-wiersz[aria-pressed="true"] { background: rgba(255, 255, 255, 0.06); }
+#widok-majatek .maj-alok-wiersz.maj-alok-przygaszony { opacity: 0.45; }
+#widok-majatek .maj-alok-kropka { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--spolka); }
+#widok-majatek .maj-alok-ticker { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#widok-majatek .maj-alok-kwota { flex: none; font-size: 12px; color: var(--maj-cichy); }
+#widok-majatek .maj-alok-ile { flex: none; min-width: 36px; font-size: 13px; font-weight: 700; text-align: right; }
+/* Wąski kafel: pierścień nad legendą */
+@container (max-width: 320px) {
+  #widok-majatek .maj-alokacja { flex-direction: column; align-items: stretch; }
+  #widok-majatek .maj-alok-kolo { align-self: center; }
+}
 #widok-majatek .maj-akcja-teksty { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 #widok-majatek .maj-akcja-nazwa { font-size: 14px; font-weight: 600; color: var(--maj-jasny); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #widok-majatek .maj-akcja-meta { font-size: 12px; color: var(--maj-cichy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
@@ -624,7 +686,7 @@
   #widok-majatek .maj-rynek button { flex: 1; }
 }
 
-/* ----- Wejście na ekran (jak flip-hub): kaskada od dołu, wiersze po kaflach, pasek portfela rośnie; klasę .maj-wejscie
+/* ----- Wejście na ekran (jak flip-hub): kaskada od dołu, wiersze po kaflach, pierścień portfela się zakręca; klasę .maj-wejscie
    dokłada i po chwili zdejmuje majatek.js przy każdym wejściu. Odblask kafla idzie za kursorem (--gx/--gy z majatek.js). ----- */
 #widok-majatek .maj-kafel:hover { --odblask: 0.09; }
 @media (prefers-reduced-motion: no-preference) {
@@ -638,13 +700,10 @@
     animation: maj-wjedz 700ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
     animation-delay: calc(700ms + var(--j, 0) * 50ms);
   }
-  #widok-majatek.maj-wejscie .maj-alokacja-pasek > span {
-    transform-origin: left;
-    animation: maj-rosnij 700ms cubic-bezier(0.2, 0.7, 0.2, 1) 900ms both;
-  }
+  #widok-majatek.maj-wejscie .maj-alok-svg { animation: maj-zakrec 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 900ms both; }
 }
 @keyframes maj-wjedz { from { opacity: 0; transform: translateY(40px); } }
-@keyframes maj-rosnij { from { transform: scaleX(0); } }
+@keyframes maj-zakrec { from { opacity: 0; transform: rotate(-200deg) scale(0.7); } }
 
 @keyframes maj-rozwin { from { opacity: 0; transform: translateY(-8px) scale(0.98); } }
 @keyframes maj-wjazd { from { opacity: 0; transform: scale(0.94) translateY(-8px); } }

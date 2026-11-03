@@ -741,8 +741,12 @@ function renderMajListePozycji(lista, pozycjeGrupy) {
   });
 }
 
-// Podział portfela: jeden pasek z segmentami (udział w wartości), legenda z tickerem i procentem.
-// Spółki bez koloru (od 7. wg kolejności dodania) łączone w "Inne".
+// Podział portfela: pierścień z kawałkami (udział w wartości, 2 px przerwy), na środku największa albo wybrana pozycja,
+// legenda z tickerem, kwotą i procentem. Pozycje bez koloru (od 7. wg kolejności dodania) łączone w "Inne".
+const MAJ_ALOK_R = 50;
+const MAJ_ALOK_OBWOD = 2 * Math.PI * MAJ_ALOK_R;
+let majAlokWybor = null;          // nazwa wyróżnionej pozycji albo null
+
 function renderMajAlokacje() {
   const box = document.getElementById("maj-alokacja");
   const czesci = [];
@@ -760,28 +764,77 @@ function renderMajAlokacje() {
   box.hidden = czesci.length < 2;
   if (box.hidden) return;
 
-  const pasek = document.getElementById("maj-alokacja-pasek");
+  if (!czesci.some(function (c) { return c.nazwa === majAlokWybor; })) majAlokWybor = null;
+  const svg = document.getElementById("maj-alokacja-pierscien");
   const legenda = document.getElementById("maj-alokacja-legenda");
-  const proc = function (c) { return Math.round(c.wartosc / suma * 100); };
-  pasek.setAttribute("aria-label", "Podział portfela: " + czesci.map(function (c) { return c.nazwa + " " + proc(c) + "%"; }).join(", "));
-  pasek.replaceChildren.apply(pasek, czesci.map(function (c) {
-    const seg = document.createElement("span");
-    seg.style.flexGrow = c.wartosc;
-    seg.style.background = c.kolor;
-    seg.title = c.nazwa + ": " + finZl(Math.round(c.wartosc)) + " (" + proc(c) + "%)";
-    return seg;
-  }));
+  const proc = function (c) { return c.wartosc / suma * 100; };
+  const procTekst = function (c) {
+    const p = proc(c);
+    return (p < 1 ? "<1" : Math.round(p)) + "%";
+  };
+  svg.setAttribute("aria-label", "Podział portfela: " + czesci.map(function (c) { return c.nazwa + " " + procTekst(c); }).join(", "));
+
+  // Kawałki jako łuki jednego okręgu (dasharray), start na górze; przerwa 2 px, ale kawałek ma co najmniej 1 px
+  const NS = "http://www.w3.org/2000/svg";
+  const tor = document.createElementNS(NS, "circle");
+  tor.setAttribute("class", "maj-alok-tor");
+  tor.setAttribute("cx", 60); tor.setAttribute("cy", 60); tor.setAttribute("r", MAJ_ALOK_R);
+  const elementy = [tor];
+  let start = 0;
+  czesci.forEach(function (c) {
+    const dl = c.wartosc / suma * MAJ_ALOK_OBWOD;
+    const luk = Math.max(1, dl - 2);
+    [["maj-alok-luk", luk], ["maj-alok-traf", dl]].forEach(function (rodzaj) {
+      const k = document.createElementNS(NS, "circle");
+      k.setAttribute("class", rodzaj[0]);
+      k.setAttribute("cx", 60); k.setAttribute("cy", 60); k.setAttribute("r", MAJ_ALOK_R);
+      k.setAttribute("stroke-dasharray", rodzaj[1] + " " + MAJ_ALOK_OBWOD);
+      k.setAttribute("stroke-dashoffset", -start);
+      k.dataset.nazwa = c.nazwa;
+      if (rodzaj[0] === "maj-alok-luk") {
+        k.style.stroke = c.kolor;
+        k.classList.toggle("maj-alok-przygaszony", !!majAlokWybor && majAlokWybor !== c.nazwa);
+        k.classList.toggle("maj-alok-wybrany", majAlokWybor === c.nazwa);
+      } else {
+        const tytul = document.createElementNS(NS, "title");
+        tytul.textContent = c.nazwa + ": " + finZl(Math.round(c.wartosc)) + " zł (" + procTekst(c) + ")";
+        k.append(tytul);
+      }
+      elementy.push(k);
+    });
+    start += dl;
+  });
+  svg.replaceChildren.apply(svg, elementy);
+
+  const naSrodku = czesci.find(function (c) { return c.nazwa === majAlokWybor; }) || czesci[0];
+  document.getElementById("maj-alok-proc").textContent = procTekst(naSrodku);
+  document.getElementById("maj-alok-nazwa").textContent = majAlokWybor ? naSrodku.nazwa + " · " + finZl(Math.round(naSrodku.wartosc)) + " zł" : naSrodku.nazwa;
+
   legenda.replaceChildren.apply(legenda, czesci.map(function (c) {
     const li = document.createElement("li");
-    li.style.setProperty("--spolka", c.kolor);
-    const nazwa = document.createElement("span");
-    nazwa.textContent = c.nazwa;
-    const ile = document.createElement("strong");
-    ile.textContent = proc(c) + "%";
-    li.append(nazwa, ile);
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "maj-alok-wiersz" + (majAlokWybor && majAlokWybor !== c.nazwa ? " maj-alok-przygaszony" : "");
+    btn.dataset.nazwa = c.nazwa;
+    btn.setAttribute("aria-pressed", String(majAlokWybor === c.nazwa));
+    btn.style.setProperty("--spolka", c.kolor);
+    btn.innerHTML = '<span class="maj-alok-kropka"></span><span class="maj-alok-ticker"></span>' +
+      '<span class="maj-alok-kwota"></span><strong class="maj-alok-ile"></strong>';
+    btn.querySelector(".maj-alok-ticker").textContent = c.nazwa;
+    btn.querySelector(".maj-alok-kwota").textContent = finZl(Math.round(c.wartosc)) + " zł";
+    btn.querySelector(".maj-alok-ile").textContent = procTekst(c);
+    li.append(btn);
     return li;
   }));
 }
+
+// Stuknięcie w kawałek pierścienia albo wiersz legendy: wyróżnia pozycję, drugie stuknięcie wraca do całości
+document.getElementById("maj-alokacja").addEventListener("click", function (e) {
+  const el = e.target.closest("[data-nazwa]");
+  if (!el) return;
+  majAlokWybor = majAlokWybor === el.dataset.nazwa ? null : el.dataset.nazwa;
+  renderMajAlokacje();
+});
 
 // Stan cen pod nagłówkiem "Akcje": godzina ostatniego pobrania, ładowanie albo błąd; stuknięcie odświeża
 function renderMajCenyStan() {

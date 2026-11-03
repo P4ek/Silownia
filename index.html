@@ -1265,9 +1265,16 @@ try {
         <h4 class="maj-podtytul">Akcje i krypto</h4>
         <button type="button" id="maj-ceny-odswiez" class="maj-ceny-stan" hidden></button>
       </div>
-      <!-- Podział portfela: segmenty wg wartości, kolor przypisany do spółki (kolejność dodania), od 7. pozycji "Inne" -->
+      <!-- Podział portfela: pierścień wg wartości, kolor przypisany do pozycji (kolejność dodania), od 7. pozycji "Inne";
+           stuknięcie w kawałek albo wiersz legendy wyróżnia pozycję i pokazuje ją na środku -->
       <div id="maj-alokacja" class="maj-alokacja" hidden>
-        <div id="maj-alokacja-pasek" class="maj-alokacja-pasek" role="img"></div>
+        <div class="maj-alok-kolo">
+          <svg id="maj-alokacja-pierscien" class="maj-alok-svg" viewBox="0 0 120 120" role="img"></svg>
+          <div class="maj-alok-srodek" aria-hidden="true">
+            <span id="maj-alok-proc" class="maj-alok-proc"></span>
+            <span id="maj-alok-nazwa" class="maj-alok-nazwa"></span>
+          </div>
+        </div>
         <ul id="maj-alokacja-legenda" class="maj-alokacja-legenda"></ul>
       </div>
       <!-- Pozycje w dwóch grupach: suma grupy i jej udział w portfelu w nagłówku -->
