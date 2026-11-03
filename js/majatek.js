@@ -367,7 +367,7 @@ function majAnimujWejscie() {
 
 // Wiersze list wjeżdżają po kaflach, co 50 ms (pierwsze 12 każdej listy)
 function majNumerujWiersze() {
-  document.querySelectorAll("#widok-majatek [data-lista], #maj-akcje-lista").forEach(function (lista) {
+  document.querySelectorAll("#widok-majatek [data-lista], #widok-majatek .maj-akcje-lista").forEach(function (lista) {
     Array.from(lista.children).forEach(function (w, j) { w.style.setProperty("--j", Math.min(j, 12)); });
   });
 }
@@ -673,10 +673,32 @@ function renderMajWykres() {
   });
 }
 
-// Lista akcji: kluczowana po symbolu, największa wartość u góry
+// Pozycje w dwóch grupach (akcje i krypto), każda z sumą i udziałem w portfelu; grupa bez pozycji ukryta
 function renderMajAkcje() {
-  const lista = document.getElementById("maj-akcje-lista");
-  const pozycje = majPozycje.slice().sort(function (a, b) {
+  const grupy = {
+    akcje: majPozycje.filter(function (p) { return !majCzyKrypto(p.symbol); }),
+    krypto: majPozycje.filter(function (p) { return majCzyKrypto(p.symbol); })
+  };
+  const wartosc = function (lista) {
+    return lista.reduce(function (s, p) { return s + (majWartoscPozycji(p) || 0); }, 0);
+  };
+  const razem = wartosc(majPozycje);
+  Object.keys(grupy).forEach(function (klucz) {
+    const pozycje = grupy[klucz];
+    const box = document.getElementById("maj-grupa-" + klucz);
+    box.hidden = !pozycje.length;
+    const w = wartosc(pozycje);
+    box.querySelector("[data-grupa-suma]").textContent = w > 0 ? finZl(Math.round(w)) + " zł" : "";
+    box.querySelector("[data-grupa-udzial]").textContent = w > 0 && razem > 0 && w < razem ? Math.round(w / razem * 100) + "%" : "";
+    renderMajListePozycji(box.querySelector(".maj-akcje-lista"), pozycje);
+  });
+  renderMajAlokacje();
+  renderMajCenyStan();
+}
+
+// Lista pozycji jednej grupy: kluczowana po symbolu, największa wartość u góry
+function renderMajListePozycji(lista, pozycjeGrupy) {
+  const pozycje = pozycjeGrupy.slice().sort(function (a, b) {
     return (majWartoscPozycji(b) || 0) - (majWartoscPozycji(a) || 0) || a.symbol.localeCompare(b.symbol);
   });
   finSynchronizuj(lista, pozycje.map(function (p) { return p.symbol; }), function (symbol) {
@@ -717,8 +739,6 @@ function renderMajAkcje() {
       majNowaPozycja = null;
     }
   });
-  renderMajAlokacje();
-  renderMajCenyStan();
 }
 
 // Podział portfela: jeden pasek z segmentami (udział w wartości), legenda z tickerem i procentem.

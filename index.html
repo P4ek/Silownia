@@ -1270,7 +1270,15 @@ try {
         <div id="maj-alokacja-pasek" class="maj-alokacja-pasek" role="img"></div>
         <ul id="maj-alokacja-legenda" class="maj-alokacja-legenda"></ul>
       </div>
-      <div id="maj-akcje-lista" class="maj-akcje-lista"></div>
+      <!-- Pozycje w dwóch grupach: suma grupy i jej udział w portfelu w nagłówku -->
+      <div id="maj-grupa-akcje" class="maj-grupa" hidden>
+        <div class="maj-grupa-gora"><span class="maj-grupa-tytul">Akcje</span><span class="maj-grupa-udzial" data-grupa-udzial></span><span class="maj-grupa-suma" data-grupa-suma></span></div>
+        <div id="maj-akcje-lista" class="maj-akcje-lista"></div>
+      </div>
+      <div id="maj-grupa-krypto" class="maj-grupa" hidden>
+        <div class="maj-grupa-gora"><span class="maj-grupa-tytul">Krypto</span><span class="maj-grupa-udzial" data-grupa-udzial></span><span class="maj-grupa-suma" data-grupa-suma></span></div>
+        <div id="maj-krypto-lista" class="maj-akcje-lista"></div>
+      </div>
       <form id="maj-akcje-form" class="maj-akcje-form" novalidate>
         <div id="maj-rynek" class="maj-rynek" role="group" aria-label="Rynek">
           <button type="button" data-rynek="us" aria-pressed="true">USA</button>
