@@ -36,7 +36,11 @@ let majPozycje = [];            // [{ id, symbol, ilosc }]
 let majCeny = {};               // symbol -> { nazwa, waluta, cena, zmiana_proc, pobrano }
 let majKursy = { PLN: 1 };      // waluta -> kurs PLN (NBP)
 let majCenyStan = "brak";       // "brak" | "laduje" | "ok" | "blad"
-let majRynek = "us";            // rynek w formularzu: "us" | "pl" (GPW = sufiks .WA) | "krypto" (sufiks -USD, jak w Yahoo)
+let majRynek = "us";            // rynek w formularzu: "us" | "pl" (GPW = sufiks .WA) | "krypto" (CoinGecko: symbol CG:<id>:<TICKER>)
+let majKryptoWybor = null;      // moneta wybrana z podpowiedzi: { id, symbol, nazwa, ranga }
+let majKryptoPodpowiedzi = [];
+let majKryptoSzukanie = 0;      // numer zapytania; spóźnione odpowiedzi są pomijane
+let majKryptoTimer = null;
 let majAkcjeZapisTrwa = false;
 let majNowaPozycja = null;
 
@@ -308,13 +312,14 @@ function majKolorSpolki(symbol) {
   return i >= 0 && i < MAJ_KOLORY_SPOLEK.length ? MAJ_KOLORY_SPOLEK[i] : MAJ_KOLOR_INNE;
 }
 
-// "CDR.WA" → "CDR", "BTC-USD" → "BTC"; rynek z sufiksu
+// "CDR.WA" → "CDR", "CG:bitcoin:BTC" → "BTC" (starsze krypto z Yahoo: "BTC-USD" → "BTC"); rynek z sufiksu
 function majTicker(symbol) {
+  if (/^CG:/.test(symbol)) return symbol.split(":")[2];
   return symbol.replace(/\.WA$/, "").replace(/-USD$/, "");
 }
 
 function majCzyKrypto(symbol) {
-  return /-USD$/.test(symbol);
+  return /^CG:/.test(symbol) || /-USD$/.test(symbol);
 }
 
 // Tanie kryptowaluty (poniżej 1) z większą liczbą miejsc, żeby cena nie była zerem
@@ -913,28 +918,85 @@ async function majUsun(r) {
 const MAJ_RYNKI = {
   us: { sufiks: "", przyklad: "AAPL", nieznany: " w USA. Spółka z GPW? Wybierz GPW." },
   pl: { sufiks: ".WA", przyklad: "CDR", nieznany: " na GPW." },
-  krypto: { sufiks: "-USD", przyklad: "BTC", nieznany: " wśród kryptowalut." }
+  krypto: { przyklad: "BTC", nieznany: " w CoinGecko." }
 };
+
+// Krypto: monety z CoinGecko wg kapitalizacji; null przy błędzie
+async function majSzukajKrypto(fraza) {
+  const { data, error } = await db.functions.invoke("ceny-akcji", { body: { szukaj_krypto: fraza } });
+  if (error || !data || data.error) {
+    console.error(error || data);
+    return null;
+  }
+  return data.monety || [];
+}
+
+function majPokazPodpowiedzi(monety) {
+  majKryptoPodpowiedzi = monety;
+  const lista = document.getElementById("maj-krypto-podpowiedzi");
+  lista.innerHTML = "";
+  monety.forEach(function (m, i) {
+    const li = document.createElement("li");
+    li.innerHTML = '<button type="button" class="maj-krypto-podp" role="option"><span class="maj-krypto-podp-ticker"></span>' +
+      '<span class="maj-krypto-podp-nazwa"></span><span class="maj-krypto-podp-ranga"></span></button>';
+    li.querySelector(".maj-krypto-podp").dataset.i = i;
+    li.querySelector(".maj-krypto-podp-ticker").textContent = m.symbol;
+    li.querySelector(".maj-krypto-podp-nazwa").textContent = m.nazwa;
+    li.querySelector(".maj-krypto-podp-ranga").textContent = m.ranga ? "#" + m.ranga : "";
+    lista.append(li);
+  });
+  lista.hidden = !monety.length;
+}
+
+function majWybierzKrypto(m) {
+  majKryptoWybor = m;
+  majKryptoSzukanie++;
+  document.getElementById("maj-akcje-ticker").value = m.nazwa + " (" + m.symbol + ")";
+  majPokazPodpowiedzi([]);
+  document.getElementById("maj-akcje-ilosc").focus();
+}
+
+// Bez wyboru z listy: moneta o dokładnie tym tickerze, inaczej pierwsza (największa kapitalizacja)
+async function majMonetaZPola(tekst) {
+  if (majKryptoWybor) return majKryptoWybor;
+  const monety = await majSzukajKrypto(tekst);
+  if (!monety) return null;
+  const t = tekst.toUpperCase();
+  return monety.find(function (m) { return m.symbol === t; }) || monety[0] || false;
+}
 
 async function majDodajPozycje() {
   const poleTicker = document.getElementById("maj-akcje-ticker");
   const poleIlosc = document.getElementById("maj-akcje-ilosc");
-  const ticker = poleTicker.value.trim().toUpperCase().replace(/\.WA$/, "").replace(/-USD$/, "");
+  const krypto = majRynek === "krypto";
+  const tekst = poleTicker.value.trim();
+  let ticker = tekst.toUpperCase().replace(/\.WA$/, "");
   const ilosc = majParsujIlosc(poleIlosc.value);
   if (majAkcjeZapisTrwa) return;
-  if (!/^[A-Z0-9.\-]{1,12}$/.test(ticker)) {
-    pokazToast("Wpisz ticker, np. " + MAJ_RYNKI[majRynek].przyklad + ".", "blad");
+  if (krypto ? tekst.length < 2 : !/^[A-Z0-9.\-]{1,12}$/.test(ticker)) {
+    pokazToast((krypto ? "Wpisz nazwę albo ticker monety, np. " : "Wpisz ticker, np. ") + MAJ_RYNKI[majRynek].przyklad + ".", "blad");
     poleTicker.focus();
     return;
   }
   if (ilosc === null) {
-    pokazToast(majRynek === "krypto" ? "Podaj ilość większą od zera." : "Podaj liczbę sztuk większą od zera.", "blad");
+    pokazToast(krypto ? "Podaj ilość większą od zera." : "Podaj liczbę sztuk większą od zera.", "blad");
     poleIlosc.focus();
     return;
   }
-  const symbol = ticker + MAJ_RYNKI[majRynek].sufiks;
   majAkcjeZapisTrwa = true;
   majRenderAkcjeForm();
+  let symbol = ticker + (krypto ? "" : MAJ_RYNKI[majRynek].sufiks);
+  if (krypto) {
+    const m = await majMonetaZPola(tekst);
+    if (!m) {
+      majAkcjeZapisTrwa = false;
+      majRenderAkcjeForm();
+      pokazToast(m === false ? "Nie znaleziono " + tekst + MAJ_RYNKI.krypto.nieznany : "Nie udało się wyszukać monety. Spróbuj za chwilę.", "blad");
+      return;
+    }
+    symbol = "CG:" + m.id + ":" + m.symbol;
+    ticker = m.symbol;
+  }
   const ceny = await majPobierzCeny([symbol]);
   if (!ceny || !ceny.ceny || !ceny.ceny[symbol]) {
     majAkcjeZapisTrwa = false;
@@ -961,6 +1023,8 @@ async function majDodajPozycje() {
   if (majCenyStan !== "laduje") majCenyStan = "ok";
   poleTicker.value = "";
   poleIlosc.value = "";
+  majKryptoWybor = null;
+  majPokazPodpowiedzi([]);
   renderMajKafel("inwestycje");
   renderMajAkcje();
   pokazToast((byla ? "Zmieniono liczbę sztuk " : "Dodano ") + ticker + ".", "sukces");
@@ -986,7 +1050,7 @@ function majRenderAkcjeForm() {
   document.querySelectorAll("#maj-rynek button").forEach(function (b) {
     b.setAttribute("aria-pressed", String(b.dataset.rynek === majRynek));
   });
-  document.getElementById("maj-akcje-ticker").placeholder = "Ticker, np. " + MAJ_RYNKI[majRynek].przyklad;
+  document.getElementById("maj-akcje-ticker").placeholder = (majRynek === "krypto" ? "Moneta, np. " : "Ticker, np. ") + MAJ_RYNKI[majRynek].przyklad;
   document.getElementById("maj-akcje-ilosc").placeholder = majRynek === "krypto" ? "Ilość" : "Sztuk";
 }
 
@@ -1079,7 +1143,12 @@ document.getElementById("maj-zakres").addEventListener("click", function (e) {
 document.getElementById("maj-rynek").addEventListener("click", function (e) {
   const btn = e.target.closest("button[data-rynek]");
   if (!btn) return;
+  if (majRynek === btn.dataset.rynek) return;
   majRynek = btn.dataset.rynek;
+  majKryptoWybor = null;
+  majKryptoSzukanie++;
+  majPokazPodpowiedzi([]);
+  document.getElementById("maj-akcje-ticker").value = "";
   majRenderAkcjeForm();
 });
 document.getElementById("maj-akcje-form").addEventListener("submit", function (e) {
@@ -1088,8 +1157,26 @@ document.getElementById("maj-akcje-form").addEventListener("submit", function (e
 });
 document.getElementById("maj-akcje-ticker").addEventListener("input", function () {
   const pole = this;
-  const t = pole.value.toUpperCase().replace(/[^A-Z0-9.\-]/g, "");
-  if (t !== pole.value) pole.value = t;
+  if (majRynek !== "krypto") {
+    const t = pole.value.toUpperCase().replace(/[^A-Z0-9.\-]/g, "");
+    if (t !== pole.value) pole.value = t;
+    return;
+  }
+  // Krypto: podpowiedzi z CoinGecko po chwili bez pisania
+  majKryptoWybor = null;
+  clearTimeout(majKryptoTimer);
+  const fraza = pole.value.trim();
+  const nr = ++majKryptoSzukanie;
+  if (fraza.length < 2) { majPokazPodpowiedzi([]); return; }
+  majKryptoTimer = setTimeout(function () {
+    majSzukajKrypto(fraza).then(function (monety) {
+      if (nr === majKryptoSzukanie && monety) majPokazPodpowiedzi(monety);
+    });
+  }, 350);
+});
+document.getElementById("maj-krypto-podpowiedzi").addEventListener("click", function (e) {
+  const btn = e.target.closest(".maj-krypto-podp");
+  if (btn) majWybierzKrypto(majKryptoPodpowiedzi[Number(btn.dataset.i)]);
 });
 document.getElementById("maj-ceny-odswiez").addEventListener("click", majOdswiezCeny);
 document.getElementById("maj-flip-odswiez").addEventListener("click", majOdswiezFlipy);
