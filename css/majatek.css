@@ -577,8 +577,8 @@
 }
 #widok-majatek .maj-akcje-dodaj:disabled { opacity: 0.6; cursor: default; }
 #widok-majatek .maj-akcje-podpowiedz { margin: 6px 4px 0; font-size: 11.5px; color: var(--maj-cichy); }
-/* Wąski telefon: wybór giełdy nad polami */
-@container (max-width: 330px) {
+/* Telefon: wybór rynku (3 przyciski) nad polami */
+@container (max-width: 420px) {
   #widok-majatek .maj-akcje-form { grid-template-columns: minmax(0, 1fr) 64px auto; }
   #widok-majatek .maj-rynek { grid-column: 1 / -1; }
   #widok-majatek .maj-rynek button { flex: 1; }

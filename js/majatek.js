@@ -36,7 +36,7 @@ let majPozycje = [];            // [{ id, symbol, ilosc }]
 let majCeny = {};               // symbol -> { nazwa, waluta, cena, zmiana_proc, pobrano }
 let majKursy = { PLN: 1 };      // waluta -> kurs PLN (NBP)
 let majCenyStan = "brak";       // "brak" | "laduje" | "ok" | "blad"
-let majRynek = "us";            // giełda w formularzu: "us" | "pl" (GPW = sufiks .WA)
+let majRynek = "us";            // rynek w formularzu: "us" | "pl" (GPW = sufiks .WA) | "krypto" (sufiks -USD, jak w Yahoo)
 let majAkcjeZapisTrwa = false;
 let majNowaPozycja = null;
 
@@ -308,13 +308,20 @@ function majKolorSpolki(symbol) {
   return i >= 0 && i < MAJ_KOLORY_SPOLEK.length ? MAJ_KOLORY_SPOLEK[i] : MAJ_KOLOR_INNE;
 }
 
-// "CDR.WA" → "CDR"; giełda z sufiksu
+// "CDR.WA" → "CDR", "BTC-USD" → "BTC"; rynek z sufiksu
 function majTicker(symbol) {
-  return symbol.replace(/\.WA$/, "");
+  return symbol.replace(/\.WA$/, "").replace(/-USD$/, "");
 }
 
+function majCzyKrypto(symbol) {
+  return /-USD$/.test(symbol);
+}
+
+// Tanie kryptowaluty (poniżej 1) z większą liczbą miejsc, żeby cena nie była zerem
 function majFormatCeny(cena, waluta) {
-  return Number(cena).toLocaleString("pl-PL", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + waluta;
+  const n = Number(cena);
+  const miejsca = n > 0 && n < 1 ? Math.min(8, 2 - Math.floor(Math.log10(n)) + 1) : 2;
+  return n.toLocaleString("pl-PL", { minimumFractionDigits: 2, maximumFractionDigits: miejsca }) + " " + waluta;
 }
 
 function majFormatProc(p) {
@@ -688,8 +695,11 @@ function renderMajAkcje() {
     const p = pozycje[i];
     const c = majCeny[symbol];
     const w = majWartoscPozycji(p);
-    const ilosc = p.ilosc.toLocaleString("pl-PL", { maximumFractionDigits: 6 }) + " szt.";
-    wiersz.querySelector(".maj-akcja-nazwa").textContent = c && c.nazwa ? c.nazwa : (symbol.endsWith(".WA") ? "GPW" : "USA");
+    const krypto = majCzyKrypto(symbol);
+    const ilosc = p.ilosc.toLocaleString("pl-PL", { maximumFractionDigits: 6 }) + (krypto ? " " + majTicker(symbol) : " szt.");
+    // Yahoo nazywa krypto "Bitcoin USD"
+    const nazwa = c && c.nazwa ? (krypto ? c.nazwa.replace(/ USD$/, "") : c.nazwa) : null;
+    wiersz.querySelector(".maj-akcja-nazwa").textContent = nazwa || (krypto ? "Krypto" : symbol.endsWith(".WA") ? "GPW" : "USA");
     wiersz.querySelector(".maj-akcja-meta").textContent = c ? ilosc + " × " + majFormatCeny(c.cena, c.waluta) : ilosc;
     wiersz.style.setProperty("--spolka", majKolorSpolki(symbol));
     wiersz.querySelector(".maj-akcja-wartosc").textContent = w === null ? "–" : finZl(Math.round(w * 100) / 100);
@@ -900,23 +910,29 @@ async function majUsun(r) {
 
 // ----- Akcje: dodanie (albo zmiana liczby sztuk) i usunięcie -----
 // Symbol sprawdzany w ceny-akcji przed zapisem: nieznany ticker nie trafia do bazy
+const MAJ_RYNKI = {
+  us: { sufiks: "", przyklad: "AAPL", nieznany: " w USA. Spółka z GPW? Wybierz GPW." },
+  pl: { sufiks: ".WA", przyklad: "CDR", nieznany: " na GPW." },
+  krypto: { sufiks: "-USD", przyklad: "BTC", nieznany: " wśród kryptowalut." }
+};
+
 async function majDodajPozycje() {
   const poleTicker = document.getElementById("maj-akcje-ticker");
   const poleIlosc = document.getElementById("maj-akcje-ilosc");
-  const ticker = poleTicker.value.trim().toUpperCase().replace(/\.WA$/, "");
+  const ticker = poleTicker.value.trim().toUpperCase().replace(/\.WA$/, "").replace(/-USD$/, "");
   const ilosc = majParsujIlosc(poleIlosc.value);
   if (majAkcjeZapisTrwa) return;
   if (!/^[A-Z0-9.\-]{1,12}$/.test(ticker)) {
-    pokazToast("Wpisz ticker, np. " + (majRynek === "pl" ? "CDR" : "AAPL") + ".", "blad");
+    pokazToast("Wpisz ticker, np. " + MAJ_RYNKI[majRynek].przyklad + ".", "blad");
     poleTicker.focus();
     return;
   }
   if (ilosc === null) {
-    pokazToast("Podaj liczbę sztuk większą od zera.", "blad");
+    pokazToast(majRynek === "krypto" ? "Podaj ilość większą od zera." : "Podaj liczbę sztuk większą od zera.", "blad");
     poleIlosc.focus();
     return;
   }
-  const symbol = majRynek === "pl" ? ticker + ".WA" : ticker;
+  const symbol = ticker + MAJ_RYNKI[majRynek].sufiks;
   majAkcjeZapisTrwa = true;
   majRenderAkcjeForm();
   const ceny = await majPobierzCeny([symbol]);
@@ -924,7 +940,7 @@ async function majDodajPozycje() {
     majAkcjeZapisTrwa = false;
     majRenderAkcjeForm();
     pokazToast(ceny
-      ? "Nie znaleziono " + ticker + (majRynek === "pl" ? " na GPW." : " w USA. Spółka z GPW? Wybierz GPW.")
+      ? "Nie znaleziono " + ticker + MAJ_RYNKI[majRynek].nieznany
       : "Nie udało się sprawdzić tickera. Spróbuj za chwilę.", "blad");
     return;
   }
@@ -970,7 +986,8 @@ function majRenderAkcjeForm() {
   document.querySelectorAll("#maj-rynek button").forEach(function (b) {
     b.setAttribute("aria-pressed", String(b.dataset.rynek === majRynek));
   });
-  document.getElementById("maj-akcje-ticker").placeholder = "Ticker, np. " + (majRynek === "pl" ? "CDR" : "AAPL");
+  document.getElementById("maj-akcje-ticker").placeholder = "Ticker, np. " + MAJ_RYNKI[majRynek].przyklad;
+  document.getElementById("maj-akcje-ilosc").placeholder = majRynek === "krypto" ? "Ilość" : "Sztuk";
 }
 
 // Ceny odświeżane co 5 min, tylko gdy ekran Majątek jest otwarty i apka widoczna
