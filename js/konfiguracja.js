@@ -10,16 +10,16 @@ let sesjaUzytkownika = null; // aktualna sesja Supabase, ustawiana przez onAuthS
 let aplikacjaZainicjowana = false;
 const AI_UZYTKOWNIK_ID = "1f1fc4a4-1b87-4ea7-9ddd-785873e98cbc"; // jedyne konto z dostępem do sekcji "AI Analiza" (i customowego nagłówka)
 const JEDZENIE_WLACZONE = false; // Posiłki chwilowo schowane (menu, skrót "Zdjęcie", gwiazdy i sekcja na ekranie Dziś); kod, tabele i dane zostają – true przywraca
-const JEDZENIE_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z dostępem do sekcji "Jedzenie" (tabele posilki, jedzenie_cele)
-const FINANSE_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z dostępem do sekcji "Finanse" (tabele wydatki, budzety, widok oszczednosci) (te same konta co Jedzenie)
+const JEDZENIE_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798", "f8ea849f-2275-4c33-94e7-7d8bf57d1374"]; // konta z dostępem do sekcji "Jedzenie" (tabele posilki, jedzenie_cele)
+const FINANSE_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798", "f8ea849f-2275-4c33-94e7-7d8bf57d1374"]; // konta z dostępem do sekcji "Finanse" (tabele wydatki, budzety, widok oszczednosci) (te same konta co Jedzenie)
 // Flip Hub (osobny projekt Supabase "flipy"): Side hustle w Majątku czyta stan telefonów funkcją stan_flipow(klucz);
 // klucz konta leży w tabeli flip_hub_polaczenie (tylko do odczytu właściciela), klucz publiczny projektu jak we flip-hubie
 const FLIP_HUB_URL = "https://gdmynwywomsfjbgzvfjt.supabase.co";
 const FLIP_HUB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdkbXlud3l3b21zZmpiZ3p2Zmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NzM0NDQsImV4cCI6MjEwODQ0OTQ0NH0.bvvctdix-DsWTOWCGYzGHzqr0zf3--mTaJa4KTxc4fg";
-const PRZEGLAD_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z przeglądem tygodnia od Claude (slajdy w js/podsumowanie.js, tabela przeglady, Edge Function przeglad-tygodnia z tą samą listą)
-const MEDYTACJA_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z dostępem do sekcji "Medytacja" (tabele medytacje, medytacja_ustawienia) - te same co Jedzenie
+const PRZEGLAD_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798", "f8ea849f-2275-4c33-94e7-7d8bf57d1374"]; // konta z przeglądem tygodnia od Claude (slajdy w js/podsumowanie.js, tabela przeglady, Edge Function przeglad-tygodnia z tą samą listą)
+const MEDYTACJA_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798", "f8ea849f-2275-4c33-94e7-7d8bf57d1374"]; // konta z dostępem do sekcji "Medytacja" (tabele medytacje, medytacja_ustawienia) - te same co Jedzenie
 const RADY_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z dostępem do sekcji "Rady z książek"
-const KOSMETYKI_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798"]; // konta z pigułką kosmetyków (te same co Jedzenie); dane tylko tu, bez bazy
+const KOSMETYKI_DOSTEP_IDS = [AI_UZYTKOWNIK_ID, "7b44bfd8-d20d-45bc-872a-8633deff4798", "f8ea849f-2275-4c33-94e7-7d8bf57d1374"]; // konta z pigułką kosmetyków (te same co Jedzenie); dane tylko tu, bez bazy
 
 // Plan kosmetyków (pigułka js/kosmetyki.js): rano codziennie, wieczór wg dnia tygodnia (getDay: 0 = niedziela)
 const KOSMETYKI_PROG_WIECZOR = 15; // od tej godziny pigułka pokazuje wieczór, wcześniej rano

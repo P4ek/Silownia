@@ -13,7 +13,7 @@ import Anthropic from "npm:@anthropic-ai/sdk";
 import webpush from "npm:web-push@3.6.7";
 
 // Konta z przeglądem – te same co PRZEGLAD_DOSTEP_IDS w js/konfiguracja.js
-const UZYTKOWNICY = ["1f1fc4a4-1b87-4ea7-9ddd-785873e98cbc", "7b44bfd8-d20d-45bc-872a-8633deff4798"];
+const UZYTKOWNICY = ["1f1fc4a4-1b87-4ea7-9ddd-785873e98cbc", "7b44bfd8-d20d-45bc-872a-8633deff4798", "f8ea849f-2275-4c33-94e7-7d8bf57d1374"];
 const MODEL = "claude-opus-5-5";
 const TYGODNIE = 8;
 
