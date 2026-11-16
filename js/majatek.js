@@ -77,6 +77,9 @@ const majEl = {
 function ustawDostepMajatku(dostep) {
   majDostep = dostep;
   navMajatek.hidden = !dostep;
+  // Side hustle tylko dla kont z SIDE_HUSTLE_DOSTEP_IDS – reszta nie widzi przycisku ani kafla (css/majatek.css, .maj-bez-sh)
+  const uid = sesjaUzytkownika && sesjaUzytkownika.user ? sesjaUzytkownika.user.id : null;
+  document.getElementById("widok-majatek").classList.toggle("maj-bez-sh", !SIDE_HUSTLE_DOSTEP_IDS.includes(uid));
   if (!dostep) {
     majRuchy = [];
     majPozycje = [];

@@ -180,6 +180,8 @@
   container-type: inline-size;
 }
 #widok-majatek .maj-kafel[hidden] { display: none; }
+/* Konta bez Side hustle (SIDE_HUSTLE_DOSTEP_IDS): bez przycisku i kafla */
+#widok-majatek.maj-bez-sh [data-konto="side_hustle"] { display: none !important; }
 #widok-majatek .maj-kafel[data-konto="side_hustle"] { --swiatlo: var(--maj-side-swiatlo); --kolor: var(--maj-side); }
 #widok-majatek .maj-kafel::before {
   content: "";
