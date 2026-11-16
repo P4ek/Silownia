@@ -85,8 +85,22 @@ db.auth.getSession().then(function (wynik) {
 });
 
 
+// Nowa wersja apki: sw.js sprawdzany przy starcie i po każdym powrocie do apki; gdy nowy service worker przejmie
+// stronę (skipWaiting + clients.claim), strona przeładowuje się raz, żeby od razu działał nowy kod, a nie dopiero
+// przy następnym otwarciu. Pierwsza instalacja (bez wcześniejszego kontrolera) nie przeładowuje.
 if ("serviceWorker" in navigator) {
+  const bylKontroler = !!navigator.serviceWorker.controller;
+  let przeladowano = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!bylKontroler || przeladowano) return;
+    przeladowano = true;
+    location.reload();
+  });
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js");
+    navigator.serviceWorker.register("sw.js").then((rejestracja) => {
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") rejestracja.update().catch(() => {});
+      });
+    });
   });
 }

@@ -33,7 +33,7 @@ Pozostałe:
 - `js/logowanie.js` – formularze logowania (kod z maila) i wylogowanie.
 - `js/powiadomienia.js` – subskrypcja push (przycisk z dzwonkiem).
 - `js/nawigacja.js` – hamburger, panel boczny, przełączanie widoków (odświeża Rejestr/Wykres/Wnioski przy wejściu).
-- `js/start.js` – start aplikacji (patrz niżej) + rejestracja service workera.
+- `js/start.js` – start aplikacji (patrz niżej) + rejestracja service workera (`update()` po powrocie do apki; gdy nowy SW przejmie stronę – `controllerchange` – strona przeładowuje się raz, więc nowa wersja działa od razu).
 - `css/baza.css` – zmienne (ciemny motyw, kolory partii `--partia-*`, złoty `--habits-zloto`), typografia, menu, karty, formularze, przyciski, banery, toasty, konfetti, animacje, puste stany, logowanie, responsywność.
 - `css/motyw.css` – reguły ciemnego motywu (`.kontener.motyw-habits`, `#sidebar.motyw-habits`), zawsze włączonego.
 - `css/menu.css` – menu: przycisk-kropla, pełnoekranowe menu, zakładki-skróty (logika w `js/nawigacja.js`). Ładowany po `motyw.css`, potem `dzis.css`, `finanse.css`, `majatek.css`, `rejestr-superseria.css` i `medytacja.css`.
